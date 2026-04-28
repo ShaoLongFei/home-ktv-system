@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-media-contract-tv-runtime-01-01-PLAN.md
-last_updated: "2026-04-28T08:29:22.771Z"
+stopped_at: Completed 01-media-contract-tv-runtime-02-PLAN.md
+last_updated: "2026-04-28T08:49:28.521Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
-  percent: 33
+  completed_plans: 2
+  percent: 67
 ---
 
 # Project State
@@ -26,29 +26,29 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 01 (media-contract-tv-runtime) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-28
 
-Progress: [███░░░░░░░] 33%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 1
-- Average duration: 12 min
-- Total execution time: 0.2 hours
+- Total plans completed: 2
+- Average duration: 14 min
+- Total execution time: 0.5 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-media-contract-tv-runtime | 1 | 12min | 12min |
+| 01-media-contract-tv-runtime | 2 | 27min | 14min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (12min)
+- Last 5 plans: 01-01 (12min), 01-02 (15min)
 - Trend: Stable
 
 ## Accumulated Context
@@ -65,6 +65,10 @@ Recent decisions affecting current work:
 - [Phase 01-media-contract-tv-runtime]: Use pnpm workspaces plus Turborepo as the repo task runner.
 - [Phase 01-media-contract-tv-runtime]: Expose Phase 1 contract vocabulary through four concrete @home-ktv/* packages.
 - [Phase 01-media-contract-tv-runtime]: Keep the session engine as a typed entry point in Plan 01-01, with behavior left to later runtime plans.
+- [Phase 01-media-contract-tv-runtime]: Use SQL migration files and typed repository interfaces for Plan 01-02 instead of introducing an ORM layer before the first runtime access paths are proven.
+- [Phase 01-media-contract-tv-runtime]: Expose only controlled media URLs in PlaybackTarget and SwitchTarget; raw file paths remain server-internal.
+- [Phase 01-media-contract-tv-runtime]: Require exactly one ready and verified same-family counterpart before emitting a SwitchTarget.
+- [Phase 01-media-contract-tv-runtime]: Keep API tests in src/test for typechecking, but exclude them from production build output.
 
 ### Pending Todos
 
@@ -77,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-28T08:28:50.387Z
-Stopped at: Completed 01-media-contract-tv-runtime-01-01-PLAN.md
+Last session: 2026-04-28T08:48:47.114Z
+Stopped at: Completed 01-media-contract-tv-runtime-02-PLAN.md
 Resume file: None

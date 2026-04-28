@@ -47,7 +47,7 @@ Requirements for the initial release. These map to roadmap phases and stay const
 - [ ] **PLAY-04**: 队列顺序、当前播放目标和播放器状态在手机端与电视端之间始终以服务端会话状态为唯一真相
 - [ ] **PLAY-05**: 当当前资源播放失败时，系统可以自动切换到同曲目的备用可用资源，或回退到下一首并向控制端提示原因
 - [ ] **PLAY-06**: 当第二个 TV Player 试图接管同一个房间时，系统不会静默切换，而是明确暴露播放器冲突状态
-- [ ] **PLAY-07**: TV Player 可以在当前歌曲播放过程中在一对已验证的原唱 / 伴唱资源之间近乎无感地切换，并在切换失败时回退到切换前模式并提示用户
+- [x] **PLAY-07**: TV Player 可以在当前歌曲播放过程中在一对已验证的原唱 / 伴唱资源之间近乎无感地切换，并在切换失败时回退到切换前模式并提示用户
 
 ### Online Supplement
 
@@ -131,7 +131,7 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | PLAY-04 | Phase 3 | Pending |
 | PLAY-05 | Phase 5 | Pending |
 | PLAY-06 | Phase 1 | Pending |
-| PLAY-07 | Phase 1 | Pending |
+| PLAY-07 | Phase 1 | Complete |
 | ONLN-01 | Phase 5 | Pending |
 | ONLN-02 | Phase 5 | Pending |
 | ONLN-03 | Phase 5 | Pending |
