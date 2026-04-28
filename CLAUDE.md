@@ -34,18 +34,18 @@
 | Vite | 8.0.10 | Frontend build/dev tool for TV, mobile, and admin apps | Fast local iteration, straightforward multi-app setup, and good fit for browser-first deployment. |
 | Fastify | 5.8.5 | HTTP + WebSocket server for commands, queries, pairing, and realtime fanout | Lightweight, performant, schema-friendly, and easier to keep deterministic than heavier opinionated frameworks for this stateful product. |
 | PostgreSQL | 18.3 | Durable store for catalog metadata, queue history, source records, pairing tokens, and playback events | Strong relational modeling, JSONB where needed, and `pg_trgm` support for incremental Chinese search/read-model work before introducing a separate search engine. |
-| Redis | 8.6.2 | Hot room-state cache, fanout coordination, heartbeats, and job backing store | Natural fit for ephemeral room state and BullMQ job orchestration without making Redis the long-term source of truth. |
+| NAS + FFmpeg/ffprobe | Current stable line | Controlled media storage plus probe/validation tooling | Phase 1 depends on stable local assets and media inspection more directly than it depends on a background job stack. |
 ### Supporting Libraries
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | Zod | 4.3.6 | Runtime validation for API schemas, command payloads, and event envelopes | Use at all external boundaries: HTTP input, WebSocket messages, config, and worker job payloads. |
 | Drizzle ORM | 0.45.2 | Typed SQL access for the catalog/session database | Use if the team wants SQL-first control and shared TS types without hiding schema design behind a heavy abstraction. |
-| BullMQ | 5.76.2 | Queueing for library scans, online-cache jobs, verification, and retries | Use for every asynchronous asset-readiness workflow that should survive process restarts. |
+| BullMQ | 5.76.2 | Queueing for library scans, online-cache jobs, verification, and retries | Introduce only after Phase 1 if async asset-readiness workflows outgrow a single backend process. |
 | TanStack Query | 5.100.5 | Server-state caching in the mobile controller and admin UI | Use where the UI consumes snapshots/lists from the API but still needs background refresh and optimistic affordances. |
 | TanStack Router | 1.168.25 | Route/state composition for mobile and admin frontends | Use if the apps grow beyond a single screen and need typed route params plus cleaner route-level data loading. |
 | Zustand | 5.0.12 | Lightweight local UI state for player controls, room presence, and transient interaction state | Use for local UI state that should not be mixed into the server-authoritative room/session model. |
 | `pg` | 8.x stable line | PostgreSQL driver beneath Drizzle and direct SQL tooling | Use for database connectivity and maintenance scripts. |
-| `ioredis` | 5.x stable line | Redis client for room cache, pub/sub, and BullMQ | Use wherever the worker and API need direct Redis access beyond queue abstractions. |
+| `ioredis` | 5.x stable line | Redis client for room cache, pub/sub, and BullMQ | Add only if later phases prove Redis is needed for hot-state or queue orchestration. |
 | `@fastify/websocket` | 11.x stable line | WebSocket support for session snapshots and player telemetry | Use when Fastify handles both REST and realtime transport in one process. |
 | `hls.js` | 1.x stable line | HLS fallback for future streaming-compatible assets | Use only if a later phase introduces HLS playback; do not pull it into MVP if `mp4`/static assets cover the target devices. |
 ### Development Tools
@@ -82,6 +82,8 @@
 - Because streaming complexity should not leak into mobile, session, or catalog code
 - Keep provider adapters and cache jobs in the worker package, not the TV or API client layer
 - Because provider volatility should stay isolated behind the `Asset` readiness contract
+- Keep a single backend process plus PostgreSQL/NAS/FFmpeg as the baseline when Phase 1 stays within the current MVP floor
+- Because the user explicitly wants minimal infrastructure until real workload proves otherwise
 ## Version Compatibility
 | Package A | Compatible With | Notes |
 |-----------|-----------------|-------|
@@ -89,15 +91,14 @@
 | React 19.2.5 | Vite 8.0.10 | Current browser-app baseline for TV, mobile, and admin |
 | TanStack Query 5.100.5 | React 19.2.5 | Current query layer fits the recommended React baseline |
 | TanStack Router 1.168.25 | React 19.2.5 | Typed routing works cleanly with the recommended frontend stack |
-| BullMQ 5.76.2 | Redis 8.6.2 | Good fit for cache/download/scan workflows and retry handling |
 | Drizzle ORM 0.45.2 | PostgreSQL 18.3 | Typed SQL approach suits the relational catalog/session model |
+| BullMQ 5.76.2 | Redis 8.6.2 | Good fit for later cache/download/scan workflows once those jobs are split out of the main backend |
 ## Sources
 - Internal project context: [PROJECT.md](../PROJECT.md)
 - Internal architecture direction: [KTV-ARCHITECTURE.md](../../docs/KTV-ARCHITECTURE.md)
 - npm registry package metadata — versions verified on 2026-04-28 for `react`, `vite`, `fastify`, `bullmq`, `zod`, `drizzle-orm`, `@tanstack/react-query`, `@tanstack/react-router`, `zustand`, `typescript`, `turbo`, `pnpm`
 - Official Node distribution index — Node.js LTS version verified on 2026-04-28
 - Official PostgreSQL docs: https://www.postgresql.org/docs/current/
-- Official Redis releases: https://github.com/redis/redis/releases
 - Official Caddy releases: https://github.com/caddyserver/caddy/releases
 - Official BullMQ docs: https://docs.bullmq.io/
 - Official Fastify docs: https://fastify.dev/
