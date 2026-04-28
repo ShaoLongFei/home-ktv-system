@@ -8,7 +8,7 @@
 
 本阶段当前边界是：定义单房间 `living-room` 的可播放媒体契约、播放中原唱 / 伴唱切换契约、TV Player 运行时契约、播放器上报/恢复/冲突处理语义，以及服务端向 TV 下发播放目标状态的主链路。
 
-基于本次讨论，planning docs 现已按“**播放中原唱 / 伴唱切换能力是 v1 硬约束**”完成对齐：Phase 1 负责运行时与切换契约，Phase 2 负责正式歌库准入规则，Phase 3 负责控制端触发与状态闭环。
+基于本次讨论，planning docs 与架构主文档现已按“**播放中原唱 / 伴唱切换能力是 v1 硬约束**”完成对齐：Phase 1 负责运行时与切换契约，Phase 2 负责正式歌库准入规则，Phase 3 负责控制端触发与状态闭环。
 
 </domain>
 
@@ -73,7 +73,7 @@
 - `docs/KTV-ARCHITECTURE.md` §歌词 / 字幕策略 — `hard_sub` / `soft_sub` / `external_lrc` / `none` 的分层策略
 - `docs/KTV-ARCHITECTURE.md` §第一版资源准入策略 — 正式歌库主路径与歌词可用性要求
 - `docs/KTV-ARCHITECTURE.md` §原唱 / 伴唱切换策略 — 双资源切换、双音轨与软件消声三种路线对比
-- `docs/KTV-ARCHITECTURE.md` §第一版建议方案 — 当前架构文档对“播放前选择”的默认建议，供冲突校正时对照
+- `docs/KTV-ARCHITECTURE.md` §第一版建议方案 — 当前架构文档已收敛到“双资源 + 播放中切换 + 失败回退”的第一版运行时建议
 
 ### Pairing, TV Presence, and Conflict Handling
 - `docs/KTV-ARCHITECTURE.md` §二维码入场与设备绑定策略 — TV 强绑定、手机轻绑定、`pairingToken`、控制会话恢复

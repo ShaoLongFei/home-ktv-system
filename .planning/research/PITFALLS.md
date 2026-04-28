@@ -71,7 +71,7 @@ Separate raw import from formal library admission. Require a `song.json`-style m
 
 **Phase to address:**
 Phase 2: Local library ingest, review workflow, and metadata normalization
-Phase 6: Admin tooling for import audit and repair
+Phase 5: Recovery/ops surfaces for import audit and repair
 
 ---
 
@@ -93,8 +93,8 @@ Make the backend session engine the only authority for queue state, playback tar
 - Queue bugs are described as “timing issues” or “rare race conditions”.
 
 **Phase to address:**
-Phase 3: Session engine, command protocol, and realtime sync
-Phase 4: Player acknowledgement and recovery loop
+Phase 1: TV runtime acknowledgement, telemetry, and recovery loop
+Phase 3: Controller commands, session protocol, and realtime sync
 
 ---
 
@@ -116,30 +116,30 @@ Choose one constrained playback standard early: browser-friendly H.264 + AAC, ha
 - Audio arrives noticeably ahead of or behind video once connected to the room sound chain.
 
 **Phase to address:**
-Phase 4: TV player runtime, device validation, codec contract, and AV calibration
+Phase 1: TV player runtime, device validation, codec contract, and AV calibration
 
 ---
 
-### Pitfall 6: Smuggling advanced media features into the MVP path
+### Pitfall 6: Smuggling unqualified media flexibility into the MVP path
 
 **What goes wrong:**
-Pitch shift, live vocal switching, external lyrics, soft subtitles, dual-track routing, audio normalization, or browser-side transforms get mixed into the core playback path too early. This increases transcode latency, asset variance, and failure modes before the base product can reliably play one song after another.
+Pitch shift, soft subtitles, external lyrics, dual-track routing, audio normalization, or browser-side transforms get mixed into the core playback path too early. Or worse, playback-time original/instrumental switching is enabled for assets that were never validated as a same-family, same-timeline pair. This increases transcode latency, asset variance, and failure modes before the base product can reliably play one song after another.
 
 **Why it happens:**
-These features feel “KTV-like”, so teams treat them as table stakes instead of multipliers on playback complexity.
+These features feel “KTV-like”, so teams treat them as table stakes instead of multipliers on playback complexity. In this project, the trap is not the existence of in-song switching itself; the trap is allowing unqualified assets and extra media modes to share the same runtime path as the formal catalog.
 
 **How to avoid:**
-Constrain MVP media capabilities aggressively: local video assets, hard subtitles, playback-time choice between already-prepared original/instrumental assets, and no software DSP. Keep schema fields for future expansion, but do not let unsupported capabilities alter the main queue or player logic.
+Constrain MVP media capabilities aggressively: local video assets, hard subtitles as the primary path, switching only between already-verified original/instrumental asset pairs, and no software DSP. Keep schema fields for future expansion, but do not let unsupported capabilities alter the main queue or player logic.
 
 **Warning signs:**
 - The first implementation needs ffmpeg transforms at play time.
-- “Original/instrumental switch” assumes seamless in-song toggling.
+- “Original/instrumental switch” is enabled for assets without strict pairing or timeline validation.
 - The player code branches heavily on subtitle mode or track layout.
 - Bugs are blocked on “future media flexibility” rather than the current contract.
 
 **Phase to address:**
-Phase 1: MVP capability boundaries
-Phase 4: Player scope lock and playback contract verification
+Phase 1: MVP capability boundaries and runtime switching contract
+Phase 2: Pair qualification rules and formal catalog admission
 
 ---
 
@@ -161,7 +161,8 @@ Include minimal admin flows in the roadmap: review import candidates, inspect fa
 - TV/player pairing conflicts cannot be resolved without service restarts.
 
 **Phase to address:**
-Phase 6: Admin tooling, observability, and operator recovery
+Phase 2: Import/admin repair basics
+Phase 5: Broader observability and operator recovery
 
 ---
 
@@ -183,8 +184,8 @@ Use TV strong binding and mobile light binding. QR codes should carry room conte
 - Two player instances can attach silently to the same room.
 
 **Phase to address:**
-Phase 3: Room/session identity model
-Phase 6: Device management and conflict handling
+Phase 1: TV ownership, conflict states, and on-screen QR behavior
+Phase 3: Room/session identity model and controller session handling
 
 ## Technical Debt Patterns
 
@@ -249,7 +250,7 @@ Things that appear complete but are missing critical pieces.
 
 - [ ] **Local library import:** Often missing review states and codec validation — verify uncertain songs do not become queueable by default.
 - [ ] **Online fallback:** Often missing provider kill-switch, stale detection, and rights boundary — verify the room still works with all online features disabled.
-- [ ] **TV player:** Often missing autoplay unlock, real-device codec testing, and AV calibration — verify on the actual living-room display and audio chain.
+- [ ] **TV player:** Often missing autoplay unlock, real-device codec testing, and AV calibration — verify on the actual living-room display and audio chain during Phase 1, not after queue/mobile features land.
 - [ ] **Realtime control:** Often missing versioned commands and reconnect convergence — verify two phones plus one TV can recover cleanly after disconnects.
 - [ ] **Search:** Often missing alias, pinyin, initials, and duplicate control — verify common Chinese search patterns on a non-trivial seed catalog.
 - [ ] **Ops surface:** Often missing repair workflows — verify an operator can fix a bad import, a failed cache job, and a player conflict without shell access.
@@ -275,11 +276,11 @@ How roadmap phases should address these pitfalls.
 | Online songs as primary path | Phase 1 and Phase 5 | Disable online providers and confirm local-only flow still satisfies core singing loop |
 | Missing `Song` / `Asset` split | Phase 1 and Phase 2 | Queue the same song from local and online-candidate paths and confirm they resolve to one canonical song model with distinct assets |
 | Dirty import pipeline | Phase 2 | Seed malformed, duplicate, and incomplete media and confirm only reviewed/valid assets become playable |
-| No single session engine | Phase 3 | Run two phones and one TV through queue, skip, remove, reconnect, and failure scenarios without divergent state |
-| TV runtime treated as generic browser video | Phase 4 | Validate autoplay, codec support, preload gap, failure reporting, and AV sync on the actual TV stack |
-| Advanced media features in MVP path | Phase 1 and Phase 4 | Confirm the MVP playback contract excludes runtime transforms and only accepts supported asset modes |
-| No operator recovery surfaces | Phase 6 | Resolve a failed import, stale online candidate, and player conflict from admin tooling alone |
-| Weak QR/device binding | Phase 3 and Phase 6 | Verify expiring pairing, persistent controller session behavior, and single-active-player enforcement |
+| No single session engine | Phase 1 and Phase 3 | Run TV reconnect, queue command, switch command, and multi-phone scenarios without divergent state |
+| TV runtime treated as generic browser video | Phase 1 | Validate autoplay, codec support, preload gap, failure reporting, switch rollback, and AV sync on the actual TV stack |
+| Advanced media features in MVP path | Phase 1 and Phase 2 | Confirm the MVP playback contract excludes runtime transforms and only accepts supported, verified switch-pair asset modes |
+| No operator recovery surfaces | Phase 2 and Phase 5 | Resolve a failed import, stale online candidate, and player conflict from admin tooling alone |
+| Weak QR/device binding | Phase 1 and Phase 3 | Verify expiring pairing, persistent controller session behavior, and single-active-player enforcement |
 
 ## Sources
 

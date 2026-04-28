@@ -20,17 +20,17 @@
 | - pairing              | - queue rules  | - aliases/pinyin         |
 | - auth for devices     | - failover     | - dedupe/version merge   |
 +------------------------ Media Plane --------------------------------+
-| Media Pipeline Worker  | Asset Gateway / Static Media Serving       |
+| Media Pipeline         | Asset Gateway / Static Media Serving       |
 | - local scan           | - controlled asset URLs                    |
 | - metadata probe       | - NAS + cache exposure to TV               |
 | - online source lookup | - no provider logic on TV                  |
 | - cache/download       | - stable playback contract                 |
 +------------------------- Storage -----------------------------------+
-| PostgreSQL | Redis | NAS Library | Online Cache | Playback Events   |
+| PostgreSQL | NAS Library | Online Cache | Playback Events | Optional Redis/Jobs |
 +--------------------------------------------------------------------+
 ```
 
-The right shape for this project is a modular monolith with one API process, one worker process, two thin clients, and clear internal boundaries. Do not split into many networked microservices. The real complexity is not traffic volume; it is state consistency across queue control, playback, asset readiness, and fallback.
+The right shape for this project is a modular monolith with one API process, two thin clients, and clear internal boundaries. A separate worker process can be introduced later on the same machine if import or online-cache workloads justify it, but it is not the Phase 1 baseline. Do not split into many networked microservices. The real complexity is not traffic volume; it is state consistency across queue control, playback, asset readiness, switching, and fallback.
 
 The architecture should be treated as two loops sharing one domain model:
 
@@ -44,22 +44,24 @@ The architecture should be treated as two loops sharing one domain model:
 | Mobile Controller | Search, queue actions, current state view, pairing join | API + Realtime Gateway only |
 | TV Player Runtime | Render current song, preload next asset, emit playback telemetry, recover after reconnect | Realtime Gateway for state, Asset Gateway for media bytes |
 | API + Realtime Gateway | Command ingress, query APIs, device pairing, websocket fanout, auth/session cookies/tokens | Mobile, TV, Session Engine, Catalog/Search |
-| Session Engine | Single source of truth for room state, queue transitions, playback lifecycle, skip/fallback decisions, optimistic concurrency | API Gateway, Redis, PostgreSQL, Worker events |
+| Session Engine | Single source of truth for room state, queue transitions, playback lifecycle, switch/fallback decisions, optimistic concurrency | API Gateway, PostgreSQL, optional Redis cache, optional worker events |
 | Catalog/Search Read Model | Unified Song/Artist/Alias search, version grouping, local and online result presentation | API Gateway, PostgreSQL, search indexes, Media Pipeline |
-| Media Pipeline Worker | Local library scan, metadata extraction, import review, online candidate resolution, cache/download, asset verification | PostgreSQL, NAS, Online Cache, Session Engine via events |
+| Media Pipeline | Local library scan, metadata extraction, import review, and later online candidate resolution/cache/download/asset verification | PostgreSQL, NAS, Online Cache, Session Engine via events |
 | Asset Gateway | Stable static URLs for playable assets, access control, cache headers, range support | TV Player, NAS, Online Cache |
 | Admin Repair UI | Resolve bad imports, merge duplicate songs, repair failed sources, inspect event history | API Gateway, Catalog/Search, Media Pipeline |
 
 Boundary rule: the TV player never talks to online providers, never mutates queue state, and never decides what is next. The mobile controller never talks to the TV directly. Both are clients of the server-side session model.
+
+Phase 1-specific boundary rule: the browser TV player must be implemented as a replaceable runtime boundary so the same session/media contract can later be hosted inside an Android TV shell without rewriting business semantics.
 
 ## Recommended Project Structure
 
 ```text
 apps/
   api/                  # REST + websocket gateway
-  worker/               # scan, cache, verification, retry jobs
   tv-player/            # fullscreen playback client
   mobile-controller/    # phone-first control client
+  worker/               # optional later runtime for scan/cache/retry workloads
 packages/
   domain/               # Song, Asset, QueueEntry, PlaybackSession models
   protocol/             # API schemas, websocket events, command types
@@ -75,7 +77,7 @@ infra/
 
 ### Structure Rationale
 
-- **`apps/api` + `apps/worker`:** separate runtime concerns without splitting the codebase into independent services too early.
+- **`apps/api` + optional `apps/worker`:** keep runtime concerns separable without forcing multi-process infrastructure on Phase 1.
 - **`packages/domain` and `packages/protocol`:** prevent drift between mobile, TV, API, and worker by sharing the same canonical models and event contracts.
 - **`packages/session-engine`:** isolates the highest-risk logic so it can be tested as a deterministic state machine.
 - **`packages/catalog` and `packages/media-pipeline`:** keep search/read concerns separate from ingest/cache concerns.
@@ -87,7 +89,7 @@ infra/
 
 **What:** All queue and playback mutations go through a deterministic reducer with versioned room state.
 **When to use:** Always. This is the core protection against queue drift and reconnect bugs.
-**Trade-offs:** Slightly more ceremony than mutating Redis objects directly, but much easier to test and reason about.
+**Trade-offs:** Slightly more ceremony than mutating ad-hoc in-memory or cache state directly, but much easier to test and reason about.
 
 **Example:**
 ```typescript
@@ -133,7 +135,7 @@ type SourceRecord = {
 
 ### Pattern 3: Async Asset Readiness
 
-**What:** Search can discover a song before a ready asset exists. The worker resolves, downloads, verifies, and promotes that asset to `ready`.
+**What:** Search can discover a song before a ready asset exists. A background pipeline resolves, downloads, verifies, and promotes that asset to `ready`.
 **When to use:** Online supplementation and large local library imports.
 **Trade-offs:** Eventual consistency. The UI must show `resolving`, `caching`, or `ready` states instead of pretending everything is instantly playable.
 
@@ -200,9 +202,9 @@ Local files / Online provider candidate
 ### State Ownership
 
 ```text
-PostgreSQL: durable catalog, queue history, source records, playback events
-Redis: hot room state cache, fanout, heartbeats, worker coordination
+PostgreSQL: durable catalog, queue history, source records, playback events, controller sessions
 NAS / online cache: media bytes only
+Optional Redis/job layer: hot room cache, pub/sub fanout, queue orchestration when operationally justified
 
 Session Engine owns:
 - room playback state
@@ -231,29 +233,29 @@ Catalog/Search owns:
 
 ## Suggested Build Order
 
-1. **Canonical media model + asset gateway**
-   - Build `Song`, `Asset`, `SourceRecord`, `Room`, `QueueEntry`, `PlaybackSession`.
-   - Expose controlled static URLs from NAS/cache before building mobile UX.
+1. **Canonical media model + backend skeleton**
+   - Build `Song`, `Asset`, `SourceRecord`, `Room`, `QueueEntry`, and `PlaybackSession`.
+   - Expose controlled static URLs from NAS before building higher-level UX.
    - Reason: every later phase depends on stable playback identifiers and media URL semantics.
 
-2. **Local ingestion and import review**
+2. **TV runtime + switching contract**
+   - Implement room target snapshots, player telemetry, current/next/QR display, reconnect recovery, conflict handling, and progress-preserving original/instrumental switching for verified pairs.
+   - Keep the runtime browser-first but shell-ready for future Android TV packaging.
+   - Reason: Phase 1 success is defined by whether the TV can play and switch reliably, not by whether the controller UI is rich.
+
+3. **Local ingestion and import review**
    - Scan the local library, probe files, normalize metadata, handle duplicates and bad names.
-   - Add a minimal admin repair path for imports that fail normalization.
-   - Reason: local playback is the primary path; online supplementation should not define the first data model.
+   - Add a minimal admin repair path for imports that fail normalization or fail switch-pair qualification.
+   - Reason: local playback is the primary path, and switching only works if the catalog is trusted.
 
-3. **Session engine + minimal TV playback loop**
-   - Implement room state reducer, pairing, realtime snapshots, current/next display, and player telemetry.
-   - Validate reconnect recovery and versioned commands now.
-   - Reason: KTV failure modes are mostly state-machine failures, not UI problems.
-
-4. **Mobile controller and queue management**
-   - Add search, add/remove/bump/skip commands, queue list, and current-state view.
+4. **Pairing, controller sessions, and queue management**
+   - Add QR entry, controller sessions, add/remove/bump/skip commands, and multi-phone state sync.
    - Keep all writes server-mediated.
-   - Reason: once playback works deterministically, the mobile app is mostly a client of existing state.
+   - Reason: once playback is deterministic, shared control can safely layer on top.
 
-5. **Search quality and read-model refinement**
-   - Add aliases, pinyin, initials, singer lookup, recent songs, and dedupe rules.
-   - Keep search as a read model; do not let search logic leak into queue state.
+5. **Search quality and version-aware song selection**
+   - Add aliases, pinyin, initials, singer lookup, recent songs, and version selection before queueing.
+   - Keep search as a read model; do not let search logic leak into queue state or playback switching semantics.
    - Reason: search quality matters, but it should refine a proven core loop instead of redefining it.
 
 6. **Online supplementation and cache-first playback**

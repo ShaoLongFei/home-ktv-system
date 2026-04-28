@@ -17,14 +17,15 @@ Research also reinforces the project’s existing scoping instincts. Local libra
 
 ### Recommended Stack
 
-The current best-fit stack stays close to the project’s draft technical direction: Node.js + TypeScript across the backend and workers, React + Vite for TV/mobile/admin frontends, Fastify for API and realtime ingress, PostgreSQL for durable domain state, Redis + BullMQ for room hot-state and jobs, and FFmpeg/ffprobe in the worker for media validation. This is a pragmatic stack for one codebase with several runtimes and strong shared contracts.
+The current best-fit stack stays close to the project’s draft technical direction, but the Phase 1 baseline should stay intentionally lean: Node.js + TypeScript across the backend and shared packages, React + Vite for TV/mobile/admin web fronts, Fastify for API and realtime ingress, PostgreSQL for durable domain state, NAS for controlled media storage, and FFmpeg/ffprobe for media validation. Redis, BullMQ, and a separate worker are optional follow-on infrastructure, not a Phase 1 prerequisite.
 
 **Core technologies:**
 - Node.js 24.15.0 LTS: backend runtime for API and worker
 - React 19.2.5 + Vite 8.0.10: browser-first stack for TV, mobile, and admin
 - Fastify 5.8.5: HTTP/WebSocket entry point for commands, queries, pairing, and player telemetry
 - PostgreSQL 18.3: durable catalog/session/event store
-- Redis 8.6.2 + BullMQ 5.76.2: hot room cache, heartbeats, and async asset-readiness jobs
+- NAS + FFmpeg/ffprobe: controlled asset storage plus probe/normalization tooling
+- Redis 8.6.2 + BullMQ 5.76.2: optional later when async jobs, pub/sub, or hot-state pressure is proven by real workload
 
 ### Expected Features
 
@@ -45,7 +46,7 @@ Current market/product research and the supplied architecture note agree on the 
 
 **Defer (v2+):**
 - 评分、录音、Battle/派对玩法
-- 运行时升降调和播放中原/伴唱无缝切换
+- 运行时升降调、双音轨优先方案、复杂歌词增强
 - 多房间、复杂权限或账号体系
 - 直连在线播放、软件 DSP、AI 人声处理
 
@@ -57,7 +58,7 @@ The architecture should separate the control loop from the media loop while keep
 1. `API + Realtime Gateway` — pairing, command ingress, query endpoints, websocket fanout
 2. `Session Engine` — authoritative room state, versioned transitions, fallback decisions
 3. `Catalog/Search` — canonical `Song` model, aliases/pinyin, local-vs-online result grouping
-4. `Media Pipeline Worker` — scans, probes, import review, online caching, asset verification
+4. `Media Pipeline` — scans, probes, import review, and later online caching/asset verification; can begin inside the main backend and split only when needed
 5. `Asset Gateway` — controlled static playback URLs for local and cached media
 6. `TV Player` / `Mobile Controller` / `Admin UI` — thin clients with distinct responsibilities
 
@@ -73,31 +74,31 @@ The architecture should separate the control loop from the media loop while keep
 
 Based on research, suggested phase structure:
 
-### Phase 1: Foundation and Media Contract
-**Rationale:** Everything depends on a stable `Song` / `Asset` / `Room` / `PlaybackSession` model plus controlled asset URLs.
-**Delivers:** Monorepo skeleton, shared domain/protocol packages, asset gateway, database schema baseline.
-**Addresses:** Canonical modeling, local-first boundaries, no-runtime-DSP rule.
-**Avoids:** Rewrites caused by filename-centric or provider-centric modeling.
+### Phase 1: Media Contract & TV Runtime
+**Rationale:** The first hard problem is not “just scaffold the repo”, but freezing the playback contract: canonical `Song` / `Asset` / `Room` / `PlaybackSession` modeling, TV runtime truth flow, and in-song original/instrumental switching semantics that are future-safe for an Android TV shell.
+**Delivers:** Monorepo skeleton, shared domain/protocol packages, database schema baseline, asset gateway contract, TV player runtime contract, player telemetry, reconnect/conflict handling, and near-seamless switching strategy for verified asset pairs.
+**Addresses:** Canonical modeling, local-first boundaries, playback truth ownership, QR-on-TV runtime behavior, and no-runtime-DSP rule.
+**Avoids:** Rewrites caused by filename-centric modeling, playback/control drift, or treating original/instrumental switching as a later add-on.
 
-### Phase 2: Local Library Ingest and Catalog Operations
-**Rationale:** The local library is the primary content path; it must become trustworthy before UX layering.
-**Delivers:** Scan/import pipeline, metadata normalization, review-required states, song/asset maintenance surfaces.
-**Uses:** FFmpeg/ffprobe, PostgreSQL, worker jobs, admin repair flows.
-**Implements:** Media pipeline, catalog write model, import review basics.
+### Phase 2: Library Ingest & Catalog Admin
+**Rationale:** The local library is the formal content path; it must become trustworthy before users can rely on switching behavior.
+**Delivers:** Scan/import pipeline, metadata normalization, review-required states, song/asset maintenance surfaces, and strict original/instrumental pair admission rules.
+**Uses:** FFmpeg/ffprobe, PostgreSQL, NAS, and optional later background jobs when volume justifies them.
+**Implements:** Media pipeline, catalog write model, import review basics, and formal switch-pair qualification.
 
-### Phase 3: Session Engine, Pairing, and TV Playback Core
-**Rationale:** KTV success depends more on consistent room state than on broad feature count.
-**Delivers:** Room session reducer, QR entry, controller sessions, TV sync, playback telemetry, reconnect recovery.
-**Addresses:** Server-authoritative queue/playback truth and single active TV ownership.
-**Avoids:** Mobile/TV drift and silent player conflicts.
+### Phase 3: Room Sessions & Queue Control
+**Rationale:** Once the TV runtime contract exists, users need safe multi-controller access to the same room state.
+**Delivers:** QR entry, controller sessions, room session reducer, queue commands, multi-phone realtime sync, and mobile-triggered in-song switching control.
+**Addresses:** Server-authoritative queue/playback truth, `pairingToken` lifecycle, and single active TV ownership with multiple mobile controllers.
+**Avoids:** Mobile/TV drift, stale session confusion, and silent player conflicts.
 
-### Phase 4: Mobile Control and Search Experience
-**Rationale:** Once the room loop and TV runtime are deterministic, the mobile controller can safely sit on top of them.
-**Delivers:** Phone join flow, Chinese-first search, queue operations, current/next views, version/variant selection before queueing.
+### Phase 4: Search & Song Selection
+**Rationale:** Search quality should layer onto a trusted catalog and working room loop, not compensate for weak modeling.
+**Delivers:** Chinese-first search, alias/pinyin/initial indexing, version-aware song selection before queueing, and clean separation between “select version before queue” and “switch during playback”.
 **Uses:** Search read model, shared protocol contracts, TanStack Query/Router or equivalent.
-**Implements:** User-facing singing flow from scan to queue control.
+**Implements:** Fast and predictable song-finding flow without polluting the playback contract.
 
-### Phase 5: Online Supplementation and Operator Hardening
+### Phase 5: Online Supplement & Recovery
 **Rationale:** Online support and ops tooling should layer onto a proven local-first core, not define it.
 **Delivers:** Online candidate search, cache-before-play jobs, provider kill-switches, failure handling, richer admin repair/observability.
 **Addresses:** Missing-song recovery without compromising playback stability.
@@ -107,19 +108,19 @@ Based on research, suggested phase structure:
 
 - The domain contract must precede ingest, and ingest must precede dependable search.
 - Local library trust must precede online supplementation, otherwise the system optimizes the least stable content path first.
-- The session engine and TV playback loop must stabilize before expanding mobile UX, because queue/search polish cannot compensate for room-state drift.
+- The TV runtime and switching contract must stabilize before queue-control UX expands, because queue/search polish cannot compensate for room-state drift or bad switching semantics.
 - Admin repair tooling must be present before the project depends on messy real-world media and online providers.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 2:** Media normalization policy, codec contract, `song.json` evolution, duplicate merge rules
-- **Phase 3:** TV runtime/autoplay constraints on the actual deployment target and reconnect semantics
+- **Phase 1:** TV runtime/autoplay constraints on the actual deployment target, progress-preserving switch strategy, and reconnect semantics
+- **Phase 2:** Media normalization policy, switch-pair qualification, `song.json` evolution, duplicate merge rules
 - **Phase 5:** Provider compliance boundaries, cache lifecycle, and alternate-asset ranking
 
 Phases with standard patterns (lower research burden):
-- **Phase 1:** Monorepo/package structure and shared schema setup
-- **Phase 4:** Mobile query/mutation flows on top of an already-defined protocol surface
+- **Phase 3:** Mobile command/query flows on top of an already-defined protocol surface
+- **Phase 4:** Chinese search read-model construction on top of an already-ingested catalog
 
 ## Confidence Assessment
 
@@ -149,7 +150,6 @@ Phases with standard patterns (lower research burden):
 - [PITFALLS.md](./PITFALLS.md)
 - Official Node distribution index
 - Official PostgreSQL docs: https://www.postgresql.org/docs/current/
-- Official Redis releases: https://github.com/redis/redis/releases
 - Official Caddy releases: https://github.com/caddyserver/caddy/releases
 
 ### Secondary (MEDIUM confidence)
