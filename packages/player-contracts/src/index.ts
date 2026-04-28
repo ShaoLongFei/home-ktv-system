@@ -12,6 +12,7 @@ export interface PlaybackTarget {
   sessionVersion: number;
   queueEntryId: QueueEntryId;
   assetId: AssetId;
+  currentQueueEntryPreview: QueueEntryPreview;
   playbackUrl: string;
   resumePositionMs: number;
   vocalMode: VocalMode;
@@ -44,4 +45,68 @@ export interface PlayerTelemetryEvent {
   rollbackAssetId: AssetId | null;
   playbackPositionMs: number;
   emittedAt: string;
+}
+
+export type PlayerTelemetryKind =
+  | "loading"
+  | "playing"
+  | "ended"
+  | "failed"
+  | "switch_failed"
+  | "recovery_fallback_start_over";
+
+export interface PairingInfo {
+  roomSlug: string;
+  controllerUrl: string;
+  qrPayload: string;
+  token: string;
+  tokenExpiresAt: string;
+}
+
+export interface PlayerConflictState {
+  kind: "active-player-conflict";
+  reason: "active-player-exists";
+  roomId: RoomId;
+  activeDeviceId: string;
+  activeDeviceName: string;
+  message: string;
+}
+
+export type PlaybackNoticeKind =
+  | "loading"
+  | "recovering"
+  | "switch_failed_reverted"
+  | "recovery_fallback_start_over";
+
+export interface PlaybackNotice {
+  kind: PlaybackNoticeKind;
+  message: string;
+}
+
+export type RoomSnapshotState = "idle" | "loading" | "playing" | "recovering" | "conflict" | "error";
+
+export interface RoomSnapshot {
+  type: "room.snapshot";
+  roomId: RoomId;
+  roomSlug: string;
+  sessionVersion: number;
+  state: RoomSnapshotState;
+  pairing: PairingInfo;
+  currentTarget: PlaybackTarget | null;
+  switchTarget: SwitchTarget | null;
+  conflict: PlayerConflictState | null;
+  notice: PlaybackNotice | null;
+  generatedAt: string;
+}
+
+export interface SwitchTransitionResult {
+  status: "ready" | "unavailable";
+  switchTarget: SwitchTarget | null;
+  reason: "SWITCH_TARGET_NOT_AVAILABLE" | null;
+}
+
+export interface ReconnectRecoveryResult {
+  status: "idle" | "resume_near_position" | "fallback_start_over";
+  target: PlaybackTarget | null;
+  notice: PlaybackNotice | null;
 }

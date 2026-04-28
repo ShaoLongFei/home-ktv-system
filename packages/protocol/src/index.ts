@@ -9,7 +9,9 @@ export const playerTelemetryEventNames = {
   loading: "player.telemetry.loading",
   playing: "player.telemetry.playing",
   ended: "player.telemetry.ended",
-  failed: "player.telemetry.failed"
+  failed: "player.telemetry.failed",
+  switchFailed: "player.telemetry.switch_failed",
+  recoveryFallbackStartOver: "player.telemetry.recovery_fallback_start_over"
 } as const;
 
 export const roomEventNames = {

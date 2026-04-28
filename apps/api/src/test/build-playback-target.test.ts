@@ -40,6 +40,11 @@ describe("buildPlaybackTarget", () => {
       sessionVersion: 11,
       queueEntryId: "queue-current",
       assetId: "asset-current",
+      currentQueueEntryPreview: {
+        queueEntryId: "queue-current",
+        songTitle: "七里香",
+        artistName: "周杰伦"
+      },
       playbackUrl: "http://ktv.local/media/asset-current",
       resumePositionMs: 45678,
       vocalMode: "instrumental",

@@ -41,11 +41,17 @@ export async function buildPlaybackTarget(input: BuildPlaybackTargetInput): Prom
     return null;
   }
 
+  const currentSong = await input.repositories.songs.findById(queueEntry.songId);
+  if (!currentSong) {
+    return null;
+  }
+
   return {
     roomId: room.id,
     sessionVersion: session.version,
     queueEntryId: queueEntry.id,
     assetId: asset.id,
+    currentQueueEntryPreview: queuePreview(queueEntry, currentSong),
     playbackUrl: input.assetGateway.createPlaybackUrl(asset.id),
     resumePositionMs: session.playerPositionMs,
     vocalMode: asset.vocalMode,
@@ -98,6 +104,13 @@ export function buildPlaybackTargetFromResolvedState(input: {
     sessionVersion: input.sessionVersion,
     queueEntryId: input.queueEntry.id,
     assetId: input.asset.id,
+    currentQueueEntryPreview: input.nextQueueEntryPreview?.queueEntryId === input.queueEntry.id
+      ? input.nextQueueEntryPreview
+      : {
+          queueEntryId: input.queueEntry.id,
+          songTitle: input.asset.displayName,
+          artistName: ""
+        },
     playbackUrl: input.playbackUrl,
     resumePositionMs: input.resumePositionMs,
     vocalMode: input.asset.vocalMode,

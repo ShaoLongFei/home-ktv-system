@@ -1,14 +1,26 @@
 import Fastify from "fastify";
 import { pathToFileURL } from "node:url";
 import { Pool } from "pg";
-import type { PlaybackSession, Room } from "@home-ktv/domain";
+import type { Asset, DeviceSession, PlaybackEvent, PlaybackSession, QueueEntry, Room, Song } from "@home-ktv/domain";
 import { protocolMessageNames } from "@home-ktv/protocol";
 import { loadConfig, type ApiConfig } from "./config.js";
 import { MediaPathResolver } from "./modules/assets/media-path-resolver.js";
 import { AssetGateway } from "./modules/assets/asset-gateway.js";
 import { PgAssetRepository, type AssetRepository } from "./modules/catalog/repositories/asset-repository.js";
+import { PgSongRepository, type SongRepository } from "./modules/catalog/repositories/song-repository.js";
+import { PgPlayerDeviceSessionRepository, type PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
+import { PgPlaybackEventRepository, type PlaybackEventRepository } from "./modules/playback/repositories/playback-event-repository.js";
+import { PgPlaybackSessionRepository } from "./modules/playback/repositories/playback-session-repository.js";
+import type {
+  UpdatePlaybackFactsInput,
+  UpdatePlayerPositionInput
+} from "./modules/playback/repositories/playback-session-repository.js";
+import { PgQueueEntryRepository, type QueueEntryRepository } from "./modules/playback/repositories/queue-entry-repository.js";
+import { PgRoomRepository, type RoomRepository } from "./modules/rooms/repositories/room-repository.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerMediaRoutes } from "./routes/media.js";
+import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
+import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
 
 function createLivingRoom(config: ApiConfig): Room {
   const now = new Date().toISOString();
@@ -44,7 +56,8 @@ export async function createServer(config: ApiConfig = loadConfig()) {
   const room = createLivingRoom(config);
   const session = createInitialPlaybackSession(room);
   const pool = config.databaseUrl ? new Pool({ connectionString: config.databaseUrl }) : null;
-  const assetRepository = pool ? new PgAssetRepository(pool) : new MissingDatabaseAssetRepository();
+  const repositories = pool ? createPgRepositories(pool) : createInMemoryRepositories(room, session);
+  const assetRepository = repositories.assets;
   const assetGateway = new AssetGateway({
     assetRepository,
     mediaPathResolver: new MediaPathResolver({ mediaRoot: config.mediaRoot }),
@@ -64,17 +77,182 @@ export async function createServer(config: ApiConfig = loadConfig()) {
     snapshotEventName: protocolMessageNames.snapshotUpdated
   });
   await registerMediaRoutes(server, { assetGateway });
+  await registerRoomSnapshotRoutes(server, {
+    config,
+    repositories,
+    assetGateway
+  });
+  await registerPlayerRoutes(server, {
+    config,
+    repositories,
+    assetGateway
+  });
 
   return server;
 }
 
-class MissingDatabaseAssetRepository implements AssetRepository {
-  async findById(): Promise<null> {
-    return null;
+function createPgRepositories(pool: Pool): PlayerRouteRepositories {
+  const playbackSessions = new PgPlaybackSessionRepository(pool);
+
+  return {
+    rooms: new PgRoomRepository(pool),
+    playbackSessions,
+    queueEntries: new PgQueueEntryRepository(pool),
+    assets: new PgAssetRepository(pool),
+    songs: new PgSongRepository(pool),
+    deviceSessions: new PgPlayerDeviceSessionRepository(pool),
+    playbackEvents: new PgPlaybackEventRepository(pool)
+  };
+}
+
+function createInMemoryRepositories(room: Room, session: PlaybackSession): PlayerRouteRepositories {
+  return new InMemoryRuntimeRepositories(room, session);
+}
+
+class InMemoryRuntimeRepositories implements PlayerRouteRepositories {
+  readonly rooms: RoomRepository = {
+    findById: async (roomId) => (roomId === this.room.id ? this.room : null),
+    findBySlug: async (slug) => (slug === this.room.slug ? this.room : null)
+  };
+
+  readonly assets: AssetRepository = {
+    findById: async () => null,
+    findVerifiedSwitchCounterparts: async () => []
+  };
+
+  readonly songs: SongRepository = {
+    findById: async () => null
+  };
+
+  readonly queueEntries: QueueEntryRepository = {
+    findById: async () => null
+  };
+
+  readonly deviceSessions: PlayerDeviceSessionRepository = {
+    findActiveTvPlayer: async (roomId, activeAfter) => this.findActiveTvPlayer(roomId, activeAfter),
+    upsertTvPlayer: async (input) => this.upsertTvPlayer(input),
+    updateTvHeartbeat: async (input) => this.updateTvHeartbeat(input)
+  };
+
+  readonly playbackEvents: PlaybackEventRepository = {
+    append: async (input) => this.append(input)
+  };
+
+  readonly playbackSessions = {
+    findByRoomId: async (roomId: string) => this.findByRoomId(roomId),
+    updatePlayerPosition: async (input: UpdatePlayerPositionInput) => this.updatePlayerPosition(input),
+    updatePlaybackFacts: async (input: UpdatePlaybackFactsInput) => this.updatePlaybackFacts(input)
+  };
+
+  private readonly devices = new Map<string, DeviceSession>();
+  private readonly events: PlaybackEvent[] = [];
+
+  constructor(
+    private readonly room: Room,
+    private session: PlaybackSession
+  ) {}
+
+  async findByRoomId(roomId: string): Promise<PlaybackSession | null> {
+    return roomId === this.room.id ? this.session : null;
   }
 
-  async findVerifiedSwitchCounterparts(): Promise<[]> {
-    return [];
+  async findActiveTvPlayer(roomId: string, activeAfter: Date): Promise<DeviceSession | null> {
+    const active = Array.from(this.devices.values())
+      .filter(
+        (device) =>
+          device.roomId === roomId &&
+          device.deviceType === "tv" &&
+          Boolean(device.lastSeenAt) &&
+          new Date(device.lastSeenAt ?? 0).getTime() >= activeAfter.getTime()
+      )
+      .sort((a, b) => new Date(b.lastSeenAt ?? 0).getTime() - new Date(a.lastSeenAt ?? 0).getTime());
+
+    return active[0] ?? null;
+  }
+
+  async upsertTvPlayer(input: Parameters<PlayerDeviceSessionRepository["upsertTvPlayer"]>[0]): Promise<DeviceSession> {
+    const nowIso = input.now.toISOString();
+    const existing = this.devices.get(input.deviceId);
+    const device: DeviceSession = {
+      id: input.deviceId,
+      roomId: input.roomId,
+      deviceType: "tv",
+      deviceName: input.deviceName,
+      lastSeenAt: nowIso,
+      capabilities: input.capabilities,
+      pairingToken: input.pairingToken,
+      createdAt: existing?.createdAt ?? nowIso,
+      updatedAt: nowIso
+    };
+
+    this.devices.set(input.deviceId, device);
+    return device;
+  }
+
+  async updateTvHeartbeat(input: Parameters<PlayerDeviceSessionRepository["updateTvHeartbeat"]>[0]): Promise<DeviceSession | null> {
+    const existing = this.devices.get(input.deviceId);
+    if (!existing || existing.roomId !== input.roomId) {
+      return null;
+    }
+
+    const updated: DeviceSession = {
+      ...existing,
+      lastSeenAt: input.now.toISOString(),
+      updatedAt: input.now.toISOString()
+    };
+    this.devices.set(input.deviceId, updated);
+    return updated;
+  }
+
+  async updatePlayerPosition(input: UpdatePlayerPositionInput): Promise<PlaybackSession | null> {
+    if (input.roomId !== this.room.id) {
+      return null;
+    }
+
+    this.session = {
+      ...this.session,
+      currentQueueEntryId: input.currentQueueEntryId ?? this.session.currentQueueEntryId,
+      playerPositionMs: input.playerPositionMs,
+      playerState: input.playerState ?? this.session.playerState,
+      updatedAt: new Date().toISOString()
+    };
+    return this.session;
+  }
+
+  async updatePlaybackFacts(input: UpdatePlaybackFactsInput): Promise<PlaybackSession | null> {
+    if (input.roomId !== this.room.id) {
+      return null;
+    }
+
+    this.session = {
+      ...this.session,
+      currentQueueEntryId: input.queueEntryId,
+      activeAssetId: input.activeAssetId ?? this.session.activeAssetId,
+      targetVocalMode: input.targetVocalMode ?? this.session.targetVocalMode,
+      playerState: input.playerState,
+      playerPositionMs: input.playerPositionMs,
+      version: this.session.version + 1,
+      updatedAt: new Date().toISOString()
+    };
+    return this.session;
+  }
+
+  async append<TPayload extends Record<string, unknown>>(input: {
+    roomId: string;
+    queueEntryId: string | null;
+    eventType: string;
+    eventPayload: TPayload;
+  }): Promise<PlaybackEvent<TPayload>> {
+    const event: PlaybackEvent<TPayload> = {
+      id: `event-${this.events.length + 1}`,
+      roomId: input.roomId,
+      queueEntryId: input.queueEntryId,
+      eventType: input.eventType,
+      eventPayload: input.eventPayload,
+      createdAt: new Date().toISOString()
+    };
+    this.events.push(event);
+    return event;
   }
 }
 
