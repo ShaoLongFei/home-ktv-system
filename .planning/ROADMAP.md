@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: 建立 monorepo、共享 domain/protocol 包和基础数据存储骨架
+- [x] 01-01: 建立 monorepo、共享 domain/protocol 包和基础数据存储骨架
 - [ ] 01-02: 落地 `Song` / `Asset` / `Room` / `PlaybackSession` / `switchFamily` 模型与受控资源访问层
 - [ ] 01-03: 落地 TV Player 绑定、播放中切换、心跳、恢复与冲突状态循环
 **UI hint**: yes

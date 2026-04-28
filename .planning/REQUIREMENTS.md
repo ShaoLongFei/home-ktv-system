@@ -11,7 +11,7 @@ Requirements for the initial release. These map to roadmap phases and stay const
 
 - [ ] **LIBR-01**: 管理员可以扫描配置好的本地歌库和导入目录，并生成待处理的候选入库结果
 - [ ] **LIBR-02**: 管理员可以审核候选导入项，确认歌手、歌名、语种、原唱/伴唱等元数据，并对每项执行入库、搁置或拒绝
-- [ ] **LIBR-03**: 系统可以将用户看到的 `Song` 与实际播放的 `Asset` 分离建模，使一首歌可以关联多个批准的可播放版本
+- [x] **LIBR-03**: 系统可以将用户看到的 `Song` 与实际播放的 `Asset` 分离建模，使一首歌可以关联多个批准的可播放版本
 - [ ] **LIBR-04**: 只有同时具备已验证原唱版与伴唱版、且正式资源状态为 `ready` 的歌曲才会进入正式歌库主路径
 - [ ] **LIBR-05**: 管理员可以在入库后修改歌曲、歌手、默认资源和资源可用状态
 - [ ] **LIBR-06**: 系统可以校验原唱版与伴唱版是否满足同版本、同时轴的正式入库规则，并将不合格资源标记为 `review-required` 或拒绝入库
@@ -107,7 +107,7 @@ Which phases cover which requirements. This will be updated during roadmap creat
 |-------------|-------|--------|
 | LIBR-01 | Phase 2 | Pending |
 | LIBR-02 | Phase 2 | Pending |
-| LIBR-03 | Phase 1 | Pending |
+| LIBR-03 | Phase 1 | Complete |
 | LIBR-04 | Phase 2 | Pending |
 | LIBR-05 | Phase 2 | Pending |
 | LIBR-06 | Phase 2 | Pending |
