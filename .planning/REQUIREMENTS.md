@@ -103,42 +103,42 @@ Which phases cover which requirements. This will be updated during roadmap creat
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LIBR-01 | TBD | Pending |
-| LIBR-02 | TBD | Pending |
-| LIBR-03 | TBD | Pending |
-| LIBR-04 | TBD | Pending |
-| LIBR-05 | TBD | Pending |
-| SRCH-01 | TBD | Pending |
-| SRCH-02 | TBD | Pending |
-| SRCH-03 | TBD | Pending |
-| SRCH-04 | TBD | Pending |
-| PAIR-01 | TBD | Pending |
-| PAIR-02 | TBD | Pending |
-| PAIR-03 | TBD | Pending |
-| PAIR-04 | TBD | Pending |
-| QUEU-01 | TBD | Pending |
-| QUEU-02 | TBD | Pending |
-| QUEU-03 | TBD | Pending |
-| QUEU-04 | TBD | Pending |
-| QUEU-05 | TBD | Pending |
-| PLAY-01 | TBD | Pending |
-| PLAY-02 | TBD | Pending |
-| PLAY-03 | TBD | Pending |
-| PLAY-04 | TBD | Pending |
-| PLAY-05 | TBD | Pending |
-| PLAY-06 | TBD | Pending |
-| ONLN-01 | TBD | Pending |
-| ONLN-02 | TBD | Pending |
-| ONLN-03 | TBD | Pending |
-| ONLN-04 | TBD | Pending |
-| ADMN-01 | TBD | Pending |
-| ADMN-02 | TBD | Pending |
-| ADMN-03 | TBD | Pending |
+| LIBR-01 | Phase 2 | Pending |
+| LIBR-02 | Phase 2 | Pending |
+| LIBR-03 | Phase 1 | Pending |
+| LIBR-04 | Phase 1 | Pending |
+| LIBR-05 | Phase 2 | Pending |
+| SRCH-01 | Phase 4 | Pending |
+| SRCH-02 | Phase 4 | Pending |
+| SRCH-03 | Phase 4 | Pending |
+| SRCH-04 | Phase 4 | Pending |
+| PAIR-01 | Phase 3 | Pending |
+| PAIR-02 | Phase 3 | Pending |
+| PAIR-03 | Phase 3 | Pending |
+| PAIR-04 | Phase 3 | Pending |
+| QUEU-01 | Phase 3 | Pending |
+| QUEU-02 | Phase 4 | Pending |
+| QUEU-03 | Phase 3 | Pending |
+| QUEU-04 | Phase 3 | Pending |
+| QUEU-05 | Phase 3 | Pending |
+| PLAY-01 | Phase 1 | Pending |
+| PLAY-02 | Phase 1 | Pending |
+| PLAY-03 | Phase 1 | Pending |
+| PLAY-04 | Phase 3 | Pending |
+| PLAY-05 | Phase 5 | Pending |
+| PLAY-06 | Phase 1 | Pending |
+| ONLN-01 | Phase 5 | Pending |
+| ONLN-02 | Phase 5 | Pending |
+| ONLN-03 | Phase 5 | Pending |
+| ONLN-04 | Phase 5 | Pending |
+| ADMN-01 | Phase 2 | Pending |
+| ADMN-02 | Phase 5 | Pending |
+| ADMN-03 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 31 total
-- Mapped to phases: 0
-- Unmapped: 31 ⚠️
+- Mapped to phases: 31
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-28*
