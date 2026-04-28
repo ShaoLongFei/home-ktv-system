@@ -25,6 +25,7 @@ function createInitialPlaybackSession(room: Room): PlaybackSession {
     currentQueueEntryId: null,
     nextQueueEntryId: null,
     activeAssetId: null,
+    targetVocalMode: "instrumental",
     playerState: "idle",
     playerPositionMs: 0,
     mediaStartedAt: null,

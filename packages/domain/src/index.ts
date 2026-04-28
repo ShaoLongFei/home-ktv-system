@@ -20,8 +20,8 @@ export type AssetStatus = "ready" | "caching" | "failed" | "unavailable" | "stal
 export type AssetSourceType = "local" | "online_cached" | "online_ephemeral";
 export type AssetKind = "video" | "audio+lyrics" | "dual-track-video";
 export type PlayerState = "idle" | "preparing" | "loading" | "playing" | "paused" | "recovering" | "error";
-export type DeviceType = "tv-player" | "mobile-controller";
-export type SwitchQualityStatus = "verified" | "review-required" | "rejected" | "unknown";
+export type DeviceType = "tv" | "mobile";
+export type SwitchQualityStatus = "verified" | "review_required" | "rejected" | "unknown";
 export type RoomStatus = "active" | "inactive" | "maintenance";
 export type QueueEntryStatus = "queued" | "preparing" | "loading" | "playing" | "played" | "skipped" | "failed";
 
@@ -51,32 +51,19 @@ export interface Song {
   updatedAt: string;
 }
 
-export interface AssetResolution {
-  width: number;
-  height: number;
-}
-
 export interface Asset {
   id: AssetId;
   songId: SongId;
   sourceType: AssetSourceType;
   assetKind: AssetKind;
   displayName: string;
-  filePath: string | null;
-  streamUrl: string | null;
-  containerFormat: string | null;
-  videoCodec: string | null;
-  audioCodec: string | null;
+  filePath: string;
   durationMs: number;
-  resolution: AssetResolution | null;
-  bitrate: number | null;
   lyricMode: LyricMode;
-  lyricQuality: LyricQuality;
   vocalMode: VocalMode;
+  status: AssetStatus;
   switchFamily: SwitchFamily | null;
   switchQualityStatus: SwitchQualityStatus;
-  status: AssetStatus;
-  checksum: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -117,6 +104,7 @@ export interface PlaybackSession {
   currentQueueEntryId: QueueEntryId | null;
   nextQueueEntryId: QueueEntryId | null;
   activeAssetId: AssetId | null;
+  targetVocalMode: VocalMode;
   playerState: PlayerState;
   playerPositionMs: number;
   mediaStartedAt: string | null;
