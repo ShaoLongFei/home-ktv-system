@@ -1,0 +1,26 @@
+{
+  "name": "@home-ktv/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/server.js",
+  "types": "./dist/server.d.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "echo \"No tests for @home-ktv/api yet\"",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@home-ktv/domain": "workspace:*",
+    "@home-ktv/player-contracts": "workspace:*",
+    "@home-ktv/protocol": "workspace:*",
+    "fastify": "5.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "25.6.0",
+    "tsx": "4.21.0"
+  }
+}
