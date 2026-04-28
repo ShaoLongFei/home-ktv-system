@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-media-contract-tv-runtime-02-PLAN.md
-last_updated: "2026-04-28T08:49:28.521Z"
+status: verifying
+stopped_at: Completed 01-media-contract-tv-runtime-03-PLAN.md; awaiting real-TV UAT
+last_updated: "2026-04-28T09:14:22.153Z"
 last_activity: 2026-04-28
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 2
-  percent: 67
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -25,30 +25,30 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 
 ## Current Position
 
-Phase: 01 (media-contract-tv-runtime) — EXECUTING
-Plan: 3 of 3
-Status: Ready to execute
+Phase: 01 (media-contract-tv-runtime) — VERIFYING
+Plan: 3 of 3 complete
+Status: Awaiting real-TV UAT
 Last activity: 2026-04-28
 
-Progress: [███████░░░] 67%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 2
-- Average duration: 14 min
-- Total execution time: 0.5 hours
+- Total plans completed: 3
+- Average duration: 17 min
+- Total execution time: 0.8 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-media-contract-tv-runtime | 2 | 27min | 14min |
+| 01-media-contract-tv-runtime | 3 | 50min | 17min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (12min), 01-02 (15min)
+- Last 5 plans: 01-01 (12min), 01-02 (15min), 01-03 (23min)
 - Trend: Stable
 
 ## Accumulated Context
@@ -69,6 +69,8 @@ Recent decisions affecting current work:
 - [Phase 01-media-contract-tv-runtime]: Expose only controlled media URLs in PlaybackTarget and SwitchTarget; raw file paths remain server-internal.
 - [Phase 01-media-contract-tv-runtime]: Require exactly one ready and verified same-family counterpart before emitting a SwitchTarget.
 - [Phase 01-media-contract-tv-runtime]: Keep API tests in src/test for typechecking, but exclude them from production build output.
+- [Phase 01-media-contract-tv-runtime]: Keep TV switching backend-authorized; TV requests switch transitions instead of deriving asset pairing locally.
+- [Phase 01-media-contract-tv-runtime]: Treat second TV players as explicit conflicts with playback disabled, not takeover candidates.
 
 ### Pending Todos
 
@@ -77,10 +79,11 @@ None yet.
 ### Blockers/Concerns
 
 - [Phase 1]: 需要尽早在真实 TV 目标环境上验证浏览器、编解码、自动播放与近无感切换预算
+- [Phase 1]: 自动化验证已通过；Phase 1 仍等待 mini PC / desktop Chrome / TV 路径的人类 UAT
 - [Phase 5]: 在线 provider 的具体接入范围和合规边界仍需在实施前锁定
 
 ## Session Continuity
 
-Last session: 2026-04-28T08:48:47.114Z
-Stopped at: Completed 01-media-contract-tv-runtime-02-PLAN.md
+Last session: 2026-04-28T09:14:22.150Z
+Stopped at: Completed 01-media-contract-tv-runtime-03-PLAN.md; awaiting real-TV UAT
 Resume file: None

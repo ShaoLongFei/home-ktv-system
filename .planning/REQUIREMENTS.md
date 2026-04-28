@@ -41,12 +41,12 @@ Requirements for the initial release. These map to roadmap phases and stay const
 
 ### Playback & Session
 
-- [ ] **PLAY-01**: TV Player 可以稳定绑定到 `living-room`，接收服务端的播放目标状态，并在重连后优先恢复到接近原进度的正确播放目标
-- [ ] **PLAY-02**: TV Player 可以全屏播放目标资源，并展示当前歌曲、下一首和用于手机入场的二维码
-- [ ] **PLAY-03**: TV Player 可以向服务端上报心跳、加载中、开始播放、播放结束和播放失败等事实状态
+- [x] **PLAY-01**: TV Player 可以稳定绑定到 `living-room`，接收服务端的播放目标状态，并在重连后优先恢复到接近原进度的正确播放目标
+- [x] **PLAY-02**: TV Player 可以全屏播放目标资源，并展示当前歌曲、下一首和用于手机入场的二维码
+- [x] **PLAY-03**: TV Player 可以向服务端上报心跳、加载中、开始播放、播放结束和播放失败等事实状态
 - [ ] **PLAY-04**: 队列顺序、当前播放目标和播放器状态在手机端与电视端之间始终以服务端会话状态为唯一真相
 - [ ] **PLAY-05**: 当当前资源播放失败时，系统可以自动切换到同曲目的备用可用资源，或回退到下一首并向控制端提示原因
-- [ ] **PLAY-06**: 当第二个 TV Player 试图接管同一个房间时，系统不会静默切换，而是明确暴露播放器冲突状态
+- [x] **PLAY-06**: 当第二个 TV Player 试图接管同一个房间时，系统不会静默切换，而是明确暴露播放器冲突状态
 - [x] **PLAY-07**: TV Player 可以在当前歌曲播放过程中在一对已验证的原唱 / 伴唱资源之间近乎无感地切换，并在切换失败时回退到切换前模式并提示用户
 
 ### Online Supplement
@@ -125,12 +125,12 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | QUEU-04 | Phase 3 | Pending |
 | QUEU-05 | Phase 3 | Pending |
 | QUEU-06 | Phase 3 | Pending |
-| PLAY-01 | Phase 1 | Pending |
-| PLAY-02 | Phase 1 | Pending |
-| PLAY-03 | Phase 1 | Pending |
+| PLAY-01 | Phase 1 | Complete |
+| PLAY-02 | Phase 1 | Complete |
+| PLAY-03 | Phase 1 | Complete |
 | PLAY-04 | Phase 3 | Pending |
 | PLAY-05 | Phase 5 | Pending |
-| PLAY-06 | Phase 1 | Pending |
+| PLAY-06 | Phase 1 | Complete |
 | PLAY-07 | Phase 1 | Complete |
 | ONLN-01 | Phase 5 | Pending |
 | ONLN-02 | Phase 5 | Pending |

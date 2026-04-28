@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01: 建立 monorepo、共享 domain/protocol 包和基础数据存储骨架
 - [x] 01-02: 落地 `Song` / `Asset` / `Room` / `PlaybackSession` / `switchFamily` 模型与受控资源访问层
-- [ ] 01-03: 落地 TV Player 绑定、播放中切换、心跳、恢复与冲突状态循环
+- [x] 01-03: 落地 TV Player 绑定、播放中切换、心跳、恢复与冲突状态循环
 **UI hint**: yes
 
 ### Phase 2: Library Ingest & Catalog Admin
@@ -113,7 +113,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Media Contract & TV Runtime | 0/3 | Not started | - |
+| 1. Media Contract & TV Runtime | 3/3 | Awaiting UAT | - |
 | 2. Library Ingest & Catalog Admin | 0/3 | Not started | - |
 | 3. Room Sessions & Queue Control | 0/3 | Not started | - |
 | 4. Search & Song Selection | 0/2 | Not started | - |
