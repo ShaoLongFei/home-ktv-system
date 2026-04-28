@@ -12,8 +12,9 @@ Requirements for the initial release. These map to roadmap phases and stay const
 - [ ] **LIBR-01**: 管理员可以扫描配置好的本地歌库和导入目录，并生成待处理的候选入库结果
 - [ ] **LIBR-02**: 管理员可以审核候选导入项，确认歌手、歌名、语种、原唱/伴唱等元数据，并对每项执行入库、搁置或拒绝
 - [ ] **LIBR-03**: 系统可以将用户看到的 `Song` 与实际播放的 `Asset` 分离建模，使一首歌可以关联多个批准的可播放版本
-- [ ] **LIBR-04**: 只有至少拥有一个 `ready` 状态资源的歌曲才会进入默认搜索和点歌流程
+- [ ] **LIBR-04**: 只有同时具备已验证原唱版与伴唱版、且正式资源状态为 `ready` 的歌曲才会进入正式歌库主路径
 - [ ] **LIBR-05**: 管理员可以在入库后修改歌曲、歌手、默认资源和资源可用状态
+- [ ] **LIBR-06**: 系统可以校验原唱版与伴唱版是否满足同版本、同时轴的正式入库规则，并将不合格资源标记为 `review-required` 或拒绝入库
 
 ### Search
 
@@ -32,19 +33,21 @@ Requirements for the initial release. These map to roadmap phases and stay const
 ### Queue Control
 
 - [ ] **QUEU-01**: 用户可以从手机端将一首本地可播歌曲加入点歌队列
-- [ ] **QUEU-02**: 当一首歌存在多个可播版本时，用户可以在点歌前选择具体资源版本或预期的原唱/伴唱模式
+- [ ] **QUEU-02**: 当一首歌存在多个可播版本时，用户可以在点歌前选择具体资源版本；原唱/伴唱切换通过播放中控制完成
 - [ ] **QUEU-03**: 用户可以从手机端删除尚未播放的队列项
 - [ ] **QUEU-04**: 用户可以把已点歌曲上移或顶到更靠前的位置
 - [ ] **QUEU-05**: 用户可以从手机端切掉当前正在播放的歌曲
+- [ ] **QUEU-06**: 用户可以从手机端对当前正在播放的歌曲触发原唱 / 伴唱切换
 
 ### Playback & Session
 
-- [ ] **PLAY-01**: TV Player 可以稳定绑定到 `living-room`，接收服务端的播放目标状态，并在重连后恢复到正确的播放目标
+- [ ] **PLAY-01**: TV Player 可以稳定绑定到 `living-room`，接收服务端的播放目标状态，并在重连后优先恢复到接近原进度的正确播放目标
 - [ ] **PLAY-02**: TV Player 可以全屏播放目标资源，并展示当前歌曲、下一首和用于手机入场的二维码
 - [ ] **PLAY-03**: TV Player 可以向服务端上报心跳、加载中、开始播放、播放结束和播放失败等事实状态
 - [ ] **PLAY-04**: 队列顺序、当前播放目标和播放器状态在手机端与电视端之间始终以服务端会话状态为唯一真相
 - [ ] **PLAY-05**: 当当前资源播放失败时，系统可以自动切换到同曲目的备用可用资源，或回退到下一首并向控制端提示原因
 - [ ] **PLAY-06**: 当第二个 TV Player 试图接管同一个房间时，系统不会静默切换，而是明确暴露播放器冲突状态
+- [ ] **PLAY-07**: TV Player 可以在当前歌曲播放过程中在一对已验证的原唱 / 伴唱资源之间近乎无感地切换，并在切换失败时回退到切换前模式并提示用户
 
 ### Online Supplement
 
@@ -70,7 +73,6 @@ Deferred features acknowledged by research or the architecture note, but intenti
 
 ### Advanced Singing Controls
 
-- **CTRL-01**: 用户可以在播放过程中切换原唱 / 伴唱，前提是当前资源族明确支持无缝切换
 - **CTRL-02**: 用户可以在受支持的资源与硬件链路下调整歌曲升降调
 - **LYRC-01**: TV Player 可以提供比硬字幕更丰富的外部歌词展示与高亮体验
 
@@ -106,8 +108,9 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | LIBR-01 | Phase 2 | Pending |
 | LIBR-02 | Phase 2 | Pending |
 | LIBR-03 | Phase 1 | Pending |
-| LIBR-04 | Phase 1 | Pending |
+| LIBR-04 | Phase 2 | Pending |
 | LIBR-05 | Phase 2 | Pending |
+| LIBR-06 | Phase 2 | Pending |
 | SRCH-01 | Phase 4 | Pending |
 | SRCH-02 | Phase 4 | Pending |
 | SRCH-03 | Phase 4 | Pending |
@@ -121,12 +124,14 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | QUEU-03 | Phase 3 | Pending |
 | QUEU-04 | Phase 3 | Pending |
 | QUEU-05 | Phase 3 | Pending |
+| QUEU-06 | Phase 3 | Pending |
 | PLAY-01 | Phase 1 | Pending |
 | PLAY-02 | Phase 1 | Pending |
 | PLAY-03 | Phase 1 | Pending |
 | PLAY-04 | Phase 3 | Pending |
 | PLAY-05 | Phase 5 | Pending |
 | PLAY-06 | Phase 1 | Pending |
+| PLAY-07 | Phase 1 | Pending |
 | ONLN-01 | Phase 5 | Pending |
 | ONLN-02 | Phase 5 | Pending |
 | ONLN-03 | Phase 5 | Pending |
@@ -136,8 +141,8 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | ADMN-03 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 31 total
-- Mapped to phases: 31
+- v1 requirements: 34 total
+- Mapped to phases: 34
 - Unmapped: 0 ✓
 
 ---
