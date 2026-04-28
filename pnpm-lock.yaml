@@ -15,6 +15,35 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
+  packages/domain: {}
+
+  packages/player-contracts:
+    dependencies:
+      '@home-ktv/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@home-ktv/protocol':
+        specifier: workspace:*
+        version: link:../protocol
+
+  packages/protocol:
+    dependencies:
+      '@home-ktv/domain':
+        specifier: workspace:*
+        version: link:../domain
+
+  packages/session-engine:
+    dependencies:
+      '@home-ktv/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@home-ktv/player-contracts':
+        specifier: workspace:*
+        version: link:../player-contracts
+      '@home-ktv/protocol':
+        specifier: workspace:*
+        version: link:../protocol
+
 packages:
 
   '@turbo/darwin-64@2.9.6':
