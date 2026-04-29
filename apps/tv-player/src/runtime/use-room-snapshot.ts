@@ -23,7 +23,11 @@ export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500):
       try {
         const snapshot = await client.fetchSnapshot();
         if (!cancelled) {
-          setState({ errorMessage: null, snapshot, status: "ready" });
+          setState((previous) => ({
+            errorMessage: null,
+            snapshot: stabilizeSnapshotPairing(previous.snapshot, snapshot),
+            status: "ready"
+          }));
         }
       } catch (error) {
         if (!cancelled) {
@@ -40,7 +44,12 @@ export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500):
       try {
         const bootstrap = await client.bootstrap();
         if (!cancelled && bootstrap.snapshot) {
-          setState({ errorMessage: null, snapshot: bootstrap.snapshot, status: "ready" });
+          const snapshot = bootstrap.snapshot;
+          setState((previous) => ({
+            errorMessage: null,
+            snapshot: stabilizeSnapshotPairing(previous.snapshot, snapshot),
+            status: "ready"
+          }));
         }
         await updateSnapshot();
         intervalId = setInterval(updateSnapshot, pollingIntervalMs);
@@ -70,4 +79,15 @@ export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500):
 
 export function playbackEnabledFromSnapshot(snapshot: RoomSnapshot | null): boolean {
   return Boolean(snapshot?.currentTarget) && snapshot?.state !== "conflict" && !snapshot?.conflict;
+}
+
+export function stabilizeSnapshotPairing(previous: RoomSnapshot | null, incoming: RoomSnapshot): RoomSnapshot {
+  if (!previous || previous.roomSlug !== incoming.roomSlug) {
+    return incoming;
+  }
+
+  return {
+    ...incoming,
+    pairing: previous.pairing
+  };
 }
