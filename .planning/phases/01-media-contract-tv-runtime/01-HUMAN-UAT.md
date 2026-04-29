@@ -3,12 +3,16 @@ status: partial
 phase: 01-media-contract-tv-runtime
 source: [01-VERIFICATION.md]
 started: 2026-04-28T09:16:00Z
-updated: 2026-04-29T14:12:00Z
+updated: 2026-04-29T14:35:21Z
 ---
 
 ## Current Test
 
-Awaiting human testing on desktop Chrome/Chromium running on the mini PC connected to the TV.
+number: 3
+name: Near-seamless verified vocal switch
+expected: |
+  Switching between a verified original/instrumental pair preserves near-prior progress and commits only after standby playback is ready.
+awaiting: user response
 
 ## Tests
 
@@ -18,7 +22,7 @@ result: pass
 
 ### 2. Playing HUD
 expected: The TV player in `playing` shows a small corner QR plus current song, next song placeholder, and current vocal mode.
-result: pending
+result: pass
 
 ### 3. Near-seamless verified vocal switch
 expected: Switching between a verified original/instrumental pair preserves near-prior progress and commits only after standby playback is ready.
@@ -39,9 +43,9 @@ result: pending
 ## Summary
 
 total: 6
-passed: 1
+passed: 2
 issues: 0
-pending: 5
+pending: 4
 skipped: 0
 blocked: 0
 
