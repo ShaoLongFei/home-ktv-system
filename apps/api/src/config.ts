@@ -1,4 +1,5 @@
 export interface ApiConfig {
+  corsAllowedOrigins: readonly string[];
   databaseUrl: string;
   mediaRoot: string;
   publicBaseUrl: string;
@@ -20,8 +21,16 @@ function readPort(value: string | undefined): number {
   return Number.isFinite(parsed) ? parsed : DEFAULT_PORT;
 }
 
+function readList(value: string | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
   return {
+    corsAllowedOrigins: readList(env.CORS_ALLOWED_ORIGINS),
     databaseUrl: readString(env.DATABASE_URL),
     mediaRoot: readString(env.MEDIA_ROOT),
     publicBaseUrl: readString(env.PUBLIC_BASE_URL),

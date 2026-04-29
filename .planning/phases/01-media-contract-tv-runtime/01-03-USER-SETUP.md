@@ -15,6 +15,7 @@ updated: 2026-04-28
 | `DATABASE_URL` | PostgreSQL connection for rooms, playback sessions, queue entries, assets, devices, and events | `postgres://ktv:ktv@localhost:5432/home_ktv` |
 | `MEDIA_ROOT` | NAS/local media root used by the controlled `/media/:assetId` gateway | `/Volumes/KTVMedia` |
 | `PUBLIC_BASE_URL` | URL encoded into TV QR payloads and controlled media URLs | `http://ktv.local:3000` |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated TV web origins allowed to call the API from Chrome | `http://192.168.1.20:5173` |
 
 ## Media Fixture
 

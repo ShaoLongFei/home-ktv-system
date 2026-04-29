@@ -18,6 +18,7 @@ import type {
 import { PgQueueEntryRepository, type QueueEntryRepository } from "./modules/playback/repositories/queue-entry-repository.js";
 import { PgRoomRepository, type RoomRepository } from "./modules/rooms/repositories/room-repository.js";
 import { registerHealthRoutes } from "./routes/health.js";
+import { registerCors } from "./routes/cors.js";
 import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
@@ -70,6 +71,7 @@ export async function createServer(config: ApiConfig = loadConfig()) {
     });
   }
 
+  await registerCors(server, { allowedOrigins: config.corsAllowedOrigins });
   await registerHealthRoutes(server, {
     config,
     room,
