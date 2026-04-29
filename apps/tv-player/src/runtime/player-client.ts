@@ -32,7 +32,7 @@ export class PlayerClient {
     this.apiBaseUrl = options.apiBaseUrl.replace(/\/$/, "");
     this.deviceId = options.deviceId;
     this.deviceName = options.deviceName;
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
     this.roomSlug = options.roomSlug;
   }
 
