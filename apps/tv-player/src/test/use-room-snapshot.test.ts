@@ -1,6 +1,6 @@
 import type { RoomSnapshot } from "@home-ktv/player-contracts";
 import { describe, expect, it } from "vitest";
-import { stabilizeSnapshotPairing } from "../runtime/use-room-snapshot.js";
+import { shouldContinueSnapshotPolling, stabilizeSnapshotPairing } from "../runtime/use-room-snapshot.js";
 
 describe("stabilizeSnapshotPairing", () => {
   it("keeps the first pairing payload stable across later snapshots for the same room", () => {
@@ -25,6 +25,26 @@ describe("stabilizeSnapshotPairing", () => {
   });
 });
 
+describe("shouldContinueSnapshotPolling", () => {
+  it("stops polling after a conflict bootstrap so conflict state is not overwritten", () => {
+    expect(
+      shouldContinueSnapshotPolling({
+        status: "conflict",
+        snapshot: conflictSnapshot()
+      })
+    ).toBe(false);
+  });
+
+  it("continues polling after a registered bootstrap", () => {
+    expect(
+      shouldContinueSnapshotPolling({
+        status: "registered",
+        snapshot: roomSnapshot("token-first")
+      })
+    ).toBe(true);
+  });
+});
+
 function roomSnapshot(token: string, roomSlug = "living-room"): RoomSnapshot {
   return {
     type: "room.snapshot",
@@ -44,5 +64,21 @@ function roomSnapshot(token: string, roomSlug = "living-room"): RoomSnapshot {
     conflict: null,
     notice: null,
     generatedAt: token === "token-first" ? "2026-04-29T13:45:00.000Z" : "2026-04-29T13:45:02.000Z"
+  };
+}
+
+function conflictSnapshot(): RoomSnapshot {
+  return {
+    ...roomSnapshot("token-conflict"),
+    sessionVersion: 0,
+    state: "conflict",
+    conflict: {
+      kind: "active-player-conflict",
+      reason: "active-player-exists",
+      roomId: "living-room",
+      activeDeviceId: "web-tv-active",
+      activeDeviceName: "LivingRoomTV",
+      message: "This room already has an active TV player."
+    }
   };
 }

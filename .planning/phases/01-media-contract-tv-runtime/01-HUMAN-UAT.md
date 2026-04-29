@@ -3,7 +3,7 @@ status: partial
 phase: 01-media-contract-tv-runtime
 source: [01-VERIFICATION.md]
 started: 2026-04-28T09:16:00Z
-updated: 2026-04-29T15:26:56Z
+updated: 2026-04-29T15:32:50Z
 ---
 
 ## Current Test
@@ -62,5 +62,7 @@ blocked: 0
     - "POST /player/bootstrap with deviceId=web-tv-debug-second returned status=conflict while the first TV heartbeat was active."
     - "device_sessions contained only the first TV row during the failed manual test, indicating the second browser window did not register as a distinct TV device."
     - "apps/tv-player/src/runtime/player-client.ts generated deviceId only from local storage/random state and ignored URL device identity."
+    - "POST /player/bootstrap with deviceId=web-tv-uat-second returned status=conflict, but the TV hook immediately fetched /rooms/living-room/snapshot and overwrote the conflict snapshot with a normal playing snapshot."
   missing:
     - "A deterministic runtime deviceId override for UAT and TV shell launches so a second TV instance can be identified separately."
+    - "Conflict bootstrap must stop normal room snapshot polling so a rejected TV player stays on the conflict screen."
