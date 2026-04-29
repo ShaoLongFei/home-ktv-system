@@ -3,15 +3,15 @@ status: partial
 phase: 01-media-contract-tv-runtime
 source: [01-VERIFICATION.md]
 started: 2026-04-28T09:16:00Z
-updated: 2026-04-29T15:03:22Z
+updated: 2026-04-29T15:11:35Z
 ---
 
 ## Current Test
 
-number: 5
-name: Reconnect recovery
+number: 6
+name: Second TV conflict
 expected: |
-  Refreshing/reconnecting resumes near the prior point; if resume cannot be honored, the same song restarts from 0 with a clear notice.
+  A second TV player for `living-room` sees an explicit conflict state and does not take over playback.
 awaiting: user response
 
 ## Tests
@@ -34,7 +34,7 @@ result: pass
 
 ### 5. Reconnect recovery
 expected: Refreshing/reconnecting resumes near the prior point; if resume cannot be honored, the same song restarts from 0 with a clear notice.
-result: pending
+result: pass
 
 ### 6. Second TV conflict
 expected: A second TV player for `living-room` sees an explicit conflict state and does not take over playback.
@@ -43,9 +43,9 @@ result: pending
 ## Summary
 
 total: 6
-passed: 4
+passed: 5
 issues: 0
-pending: 2
+pending: 1
 skipped: 0
 blocked: 0
 
