@@ -1,11 +1,16 @@
 import type { RoomSnapshot } from "@home-ktv/player-contracts";
 import { afterEach, describe, expect, it } from "vitest";
-import { PlayerClient } from "../runtime/player-client.js";
+import { createBrowserPlayerClient, PlayerClient } from "../runtime/player-client.js";
 
 const originalFetch = globalThis.fetch;
+const originalLocation = globalThis.location;
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  Object.defineProperty(globalThis, "location", {
+    configurable: true,
+    value: originalLocation
+  });
 });
 
 describe("PlayerClient", () => {
@@ -39,6 +44,21 @@ describe("PlayerClient", () => {
       state: "idle"
     });
     expect(seenThisValues[0]).toBe(globalThis);
+  });
+
+  it("uses a deviceId runtime query parameter when provided", () => {
+    Object.defineProperty(globalThis, "location", {
+      configurable: true,
+      value: {
+        origin: "http://tv.local:4173",
+        search:
+          "?apiBaseUrl=http%3A%2F%2F192.168.5.58%3A4000&roomSlug=living-room&deviceName=SecondTV&deviceId=web-tv-uat-second"
+      } as Location
+    });
+
+    const client = createBrowserPlayerClient();
+
+    expect(client.deviceId).toBe("web-tv-uat-second");
   });
 });
 

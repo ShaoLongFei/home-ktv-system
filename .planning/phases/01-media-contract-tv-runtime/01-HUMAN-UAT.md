@@ -3,7 +3,7 @@ status: partial
 phase: 01-media-contract-tv-runtime
 source: [01-VERIFICATION.md]
 started: 2026-04-28T09:16:00Z
-updated: 2026-04-29T15:11:35Z
+updated: 2026-04-29T15:26:56Z
 ---
 
 ## Current Test
@@ -38,15 +38,29 @@ result: pass
 
 ### 6. Second TV conflict
 expected: A second TV player for `living-room` sees an explicit conflict state and does not take over playback.
-result: pending
+result: issue
+reported: "第二个窗口没有显示冲突页面，它进入之后也可以开始播放"
+severity: major
 
 ## Summary
 
 total: 6
 passed: 5
-issues: 0
-pending: 1
+issues: 1
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+- truth: "A second TV player for `living-room` sees an explicit conflict state and does not take over playback."
+  status: failed
+  reason: "User reported: 第二个窗口没有显示冲突页面，它进入之后也可以开始播放"
+  severity: major
+  test: 6
+  artifacts:
+    - "POST /player/bootstrap with deviceId=web-tv-debug-second returned status=conflict while the first TV heartbeat was active."
+    - "device_sessions contained only the first TV row during the failed manual test, indicating the second browser window did not register as a distinct TV device."
+    - "apps/tv-player/src/runtime/player-client.ts generated deviceId only from local storage/random state and ignored URL device identity."
+  missing:
+    - "A deterministic runtime deviceId override for UAT and TV shell launches so a second TV instance can be identified separately."

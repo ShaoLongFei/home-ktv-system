@@ -133,7 +133,7 @@ export class PlayerClient {
 export function createBrowserPlayerClient(): PlayerClient {
   return new PlayerClient({
     apiBaseUrl: readRuntimeSetting("apiBaseUrl", globalThis.location?.origin ?? ""),
-    deviceId: readOrCreateDeviceId(),
+    deviceId: readRuntimeSetting("deviceId", "") || readOrCreateDeviceId(),
     deviceName: readRuntimeSetting("deviceName", "Living Room TV"),
     roomSlug: readRuntimeSetting("roomSlug", "living-room")
   });
