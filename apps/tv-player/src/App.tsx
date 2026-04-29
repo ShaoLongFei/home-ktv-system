@@ -5,19 +5,27 @@ import { ConflictScreen } from "./screens/ConflictScreen.js";
 import { IdleScreen } from "./screens/IdleScreen.js";
 import { PlayingScreen } from "./screens/PlayingScreen.js";
 import { ActivePlaybackController } from "./runtime/active-playback-controller.js";
+import { HeartbeatController } from "./runtime/heartbeat-controller.js";
 import { createBrowserPlayerClient } from "./runtime/player-client.js";
 import { RecoveryController } from "./runtime/recovery-controller.js";
 import { SwitchController } from "./runtime/switch-controller.js";
 import { createBrowserVideoPool, type DualVideoPool } from "./runtime/video-pool.js";
 import { useRoomSnapshot } from "./runtime/use-room-snapshot.js";
 
+const HEARTBEAT_INTERVAL_MS = 10_000;
+
 export function App() {
   const [client] = useState(() => createBrowserPlayerClient());
   const roomState = useRoomSnapshot(client);
   const activeVideoRef = useRef<HTMLVideoElement>(null);
   const standbyVideoRef = useRef<HTMLVideoElement>(null);
+  const latestSnapshotRef = useRef<RoomSnapshot | null>(null);
   const videoPoolRef = useRef<DualVideoPool | null>(null);
   const [localNotice, setLocalNotice] = useState<PlaybackNotice | null>(null);
+
+  useEffect(() => {
+    latestSnapshotRef.current = roomState.snapshot;
+  }, [roomState.snapshot]);
 
   useEffect(() => {
     if (!activeVideoRef.current || !standbyVideoRef.current || videoPoolRef.current) {
@@ -51,6 +59,21 @@ export function App() {
     globalThis.addEventListener("pointerdown", handlePointerDown);
     return () => globalThis.removeEventListener("pointerdown", handlePointerDown);
   }, [roomState.snapshot]);
+
+  useEffect(() => {
+    const sendHeartbeat = () => {
+      const pool = videoPoolRef.current;
+      const snapshot = latestSnapshotRef.current;
+      if (!pool || !snapshot) {
+        return;
+      }
+
+      void new HeartbeatController({ client, videoPool: pool }).send(snapshot);
+    };
+
+    const intervalId = globalThis.setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
+    return () => globalThis.clearInterval(intervalId);
+  }, [client]);
 
   useEffect(() => {
     const pool = videoPoolRef.current;
