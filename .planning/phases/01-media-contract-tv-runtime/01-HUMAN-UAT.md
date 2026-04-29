@@ -3,15 +3,15 @@ status: partial
 phase: 01-media-contract-tv-runtime
 source: [01-VERIFICATION.md]
 started: 2026-04-28T09:16:00Z
-updated: 2026-04-29T14:52:25Z
+updated: 2026-04-29T15:03:22Z
 ---
 
 ## Current Test
 
-number: 4
-name: Switch failure rollback
+number: 5
+name: Reconnect recovery
 expected: |
-  A forced switch-target playback failure rolls back to the previous vocal mode and shows productized rollback messaging.
+  Refreshing/reconnecting resumes near the prior point; if resume cannot be honored, the same song restarts from 0 with a clear notice.
 awaiting: user response
 
 ## Tests
@@ -30,7 +30,7 @@ result: pass
 
 ### 4. Switch failure rollback
 expected: A forced switch-target playback failure rolls back to the previous vocal mode and shows productized rollback messaging.
-result: pending
+result: pass
 
 ### 5. Reconnect recovery
 expected: Refreshing/reconnecting resumes near the prior point; if resume cannot be honored, the same song restarts from 0 with a clear notice.
@@ -43,9 +43,9 @@ result: pending
 ## Summary
 
 total: 6
-passed: 3
+passed: 4
 issues: 0
-pending: 3
+pending: 2
 skipped: 0
 blocked: 0
 
