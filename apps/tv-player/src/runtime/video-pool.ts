@@ -4,6 +4,7 @@ export interface KtvVideoElement {
   currentTime: number;
   hidden: boolean | "until-found";
   muted: boolean;
+  paused?: boolean;
   readyState: number;
   src: string;
   addEventListener(type: string, listener: () => void, options?: AddEventListenerOptions | boolean): void;

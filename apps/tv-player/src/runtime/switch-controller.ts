@@ -79,6 +79,7 @@ export class SwitchController {
       this.videoPool.prepareStandby(transition.switchTarget);
       await this.videoPool.playStandbyUntilReady();
       this.videoPool.commitStandby();
+      await this.reportSwitchCommitted(snapshot, transition.switchTarget);
       return {
         status: "committed",
         switchTarget: transition.switchTarget
@@ -108,6 +109,22 @@ export class SwitchController {
       rollbackAssetId: switchTarget.rollbackAssetId,
       message: error instanceof Error ? error.message : "standby playback failed",
       stage: "standby"
+    });
+  }
+
+  private async reportSwitchCommitted(snapshot: RoomSnapshot, switchTarget: SwitchTarget): Promise<void> {
+    await this.client.sendTelemetry({
+      roomSlug: snapshot.roomSlug,
+      deviceId: this.deviceId,
+      eventType: "playing",
+      sessionVersion: switchTarget.sessionVersion,
+      queueEntryId: switchTarget.queueEntryId,
+      assetId: switchTarget.toAssetId,
+      playbackPositionMs: Math.max(0, Math.trunc(this.videoPool.activeVideo.currentTime * 1000)),
+      vocalMode: switchTarget.vocalMode,
+      switchFamily: switchTarget.switchFamily,
+      rollbackAssetId: switchTarget.rollbackAssetId,
+      stage: "switch_committed"
     });
   }
 }

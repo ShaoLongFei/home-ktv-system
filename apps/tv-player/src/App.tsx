@@ -1,14 +1,15 @@
 import type { PlaybackNotice, RoomSnapshot } from "@home-ktv/player-contracts";
-import type { CSSProperties } from "react";
+import type { CSSProperties, Dispatch, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
 import { ConflictScreen } from "./screens/ConflictScreen.js";
 import { IdleScreen } from "./screens/IdleScreen.js";
 import { PlayingScreen } from "./screens/PlayingScreen.js";
+import { ActivePlaybackController } from "./runtime/active-playback-controller.js";
 import { createBrowserPlayerClient } from "./runtime/player-client.js";
 import { RecoveryController } from "./runtime/recovery-controller.js";
 import { SwitchController } from "./runtime/switch-controller.js";
 import { createBrowserVideoPool, type DualVideoPool } from "./runtime/video-pool.js";
-import { playbackEnabledFromSnapshot, useRoomSnapshot } from "./runtime/use-room-snapshot.js";
+import { useRoomSnapshot } from "./runtime/use-room-snapshot.js";
 
 export function App() {
   const [client] = useState(() => createBrowserPlayerClient());
@@ -33,14 +34,22 @@ export function App() {
       return;
     }
 
-    if (!playbackEnabledFromSnapshot(snapshot)) {
-      pool.disable();
-      return;
-    }
+    void ensureCurrentPlayback(pool, snapshot, setLocalNotice);
+  }, [roomState.snapshot]);
 
-    if (snapshot.currentTarget && pool.activeTarget?.assetId !== snapshot.currentTarget.assetId) {
-      pool.primeActive(snapshot.currentTarget);
-    }
+  useEffect(() => {
+    const handlePointerDown = () => {
+      const pool = videoPoolRef.current;
+      const snapshot = roomState.snapshot;
+      if (!pool || !snapshot) {
+        return;
+      }
+
+      void ensureCurrentPlayback(pool, snapshot, setLocalNotice);
+    };
+
+    globalThis.addEventListener("pointerdown", handlePointerDown);
+    return () => globalThis.removeEventListener("pointerdown", handlePointerDown);
   }, [roomState.snapshot]);
 
   useEffect(() => {
@@ -134,6 +143,26 @@ function mergeLocalNotice(snapshot: RoomSnapshot | null, localNotice: PlaybackNo
     ...snapshot,
     notice: localNotice
   };
+}
+
+async function ensureCurrentPlayback(
+  pool: DualVideoPool,
+  snapshot: RoomSnapshot,
+  setLocalNotice: Dispatch<SetStateAction<PlaybackNotice | null>>
+): Promise<void> {
+  const result = await new ActivePlaybackController({ videoPool: pool }).ensurePlaying(snapshot);
+
+  if (result.status === "blocked") {
+    setLocalNotice({
+      kind: "loading",
+      message: "Playback is ready. Click the TV page once to start the song."
+    });
+    return;
+  }
+
+  if (result.status === "playing") {
+    setLocalNotice((notice) => (notice?.kind === "loading" ? null : notice));
+  }
 }
 
 const styles = {

@@ -23,6 +23,16 @@ describe("switch runtime", () => {
     expect(pool.activeVideo.src).toBe("http://ktv.local/media/asset-instrumental");
     expect(pool.activeVideo.currentTime).toBe(82.4);
     expect(pool.activeTarget?.assetId).toBe("asset-instrumental");
+    expect(client.telemetry).toMatchObject([
+      {
+        eventType: "playing",
+        assetId: "asset-instrumental",
+        playbackPositionMs: 82400,
+        vocalMode: "instrumental",
+        switchFamily: "family-main",
+        rollbackAssetId: "asset-original"
+      }
+    ]);
   });
 
   it("rolls back to the prior asset and reports switch_failed when standby play fails", async () => {
