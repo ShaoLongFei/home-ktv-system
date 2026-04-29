@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "@home-ktv/player-contracts": "workspace:*",
+    "qrcode": "1.5.4",
     "react": "19.2.5",
     "react-dom": "19.2.5"
   },
   "devDependencies": {
+    "@types/qrcode": "1.5.6",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.1",
