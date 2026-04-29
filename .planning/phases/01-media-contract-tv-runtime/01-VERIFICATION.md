@@ -1,7 +1,7 @@
 ---
-status: human_needed
+status: complete
 phase: 01-media-contract-tv-runtime
-verified_at: 2026-04-28T09:16:00Z
+verified_at: 2026-04-29T15:36:10Z
 requirements: [LIBR-03, PLAY-01, PLAY-02, PLAY-03, PLAY-06, PLAY-07]
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md]
 ---
@@ -10,7 +10,7 @@ source: [01-01-SUMMARY.md, 01-02-SUMMARY.md, 01-03-SUMMARY.md]
 
 ## Verdict
 
-Automated verification passed, but Phase 1 still requires real TV-path UAT before it should be marked complete.
+Automated verification and real TV-path UAT passed. Phase 1 is complete.
 
 ## Automated Checks
 
@@ -32,17 +32,19 @@ Automated verification passed, but Phase 1 still requires real TV-path UAT befor
 | In-song switching uses standby playback and rollback | automated-pass | `switch-controller.ts`, `video-pool.ts`, `switch-runtime.test.tsx` |
 | Second TV player sees conflict instead of takeover | automated-pass | `conflict-service.ts`, `ConflictScreen.tsx`, `player-runtime-contract.test.ts`, `switch-runtime.test.tsx` |
 | Reload/reconnect resumes or restarts with notice | automated-pass | `apply-reconnect-recovery.ts`, `recovery-controller.ts`, `reconnect-recovery.test.tsx` |
-| Real TV browser/codec/autoplay/switch budget | human-needed | Requires desktop Chrome/Chromium on the mini PC connected to the TV |
+| Real TV browser/codec/autoplay/switch budget | human-pass | `01-HUMAN-UAT.md` completed with 6/6 tests passed |
 
-## Human Verification Required
+## Human Verification
 
-1. Idle screen shows a large QR on the real TV path.
-2. Playing screen shows a small corner QR, current song, next song placeholder, and current vocal mode.
-3. Switching between a verified original/instrumental pair stays near prior progress on desktop Chrome/Chromium.
-4. Forced switch failure rolls back to the prior mode with productized messaging.
-5. Refresh/reconnect either resumes near the prior point or clearly says it restarted the same song from the beginning.
-6. A second TV player shows the explicit conflict screen and does not take over.
+| Test | Result | Evidence |
+|------|--------|----------|
+| Idle screen shows a large QR on the real TV path | passed | `01-HUMAN-UAT.md` test 1 |
+| Playing screen shows a small corner QR, current song, next song placeholder, and current vocal mode | passed | `01-HUMAN-UAT.md` test 2 |
+| Switching between a verified original/instrumental pair stays near prior progress on desktop Chrome/Chromium | passed | `01-HUMAN-UAT.md` test 3 |
+| Forced switch failure rolls back to the prior mode with productized messaging | passed | `01-HUMAN-UAT.md` test 4 |
+| Refresh/reconnect either resumes near the prior point or clearly says it restarted the same song from the beginning | passed | `01-HUMAN-UAT.md` test 5 |
+| A second TV player shows the explicit conflict screen and does not take over | passed | `01-HUMAN-UAT.md` test 6 |
 
 ## Gaps
 
-None found in automated verification. Real TV UAT remains open in `01-HUMAN-UAT.md`.
+None. Automated verification and real TV UAT are complete.
