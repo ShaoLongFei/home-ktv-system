@@ -3,7 +3,7 @@ status: partial
 phase: 01-media-contract-tv-runtime
 source: [01-VERIFICATION.md]
 started: 2026-04-28T09:16:00Z
-updated: 2026-04-28T09:16:00Z
+updated: 2026-04-29T14:12:00Z
 ---
 
 ## Current Test
@@ -14,7 +14,7 @@ Awaiting human testing on desktop Chrome/Chromium running on the mini PC connect
 
 ### 1. Idle QR
 expected: The TV player in `idle` shows a large room pairing QR for `living-room`.
-result: pending
+result: pass
 
 ### 2. Playing HUD
 expected: The TV player in `playing` shows a small corner QR plus current song, next song placeholder, and current vocal mode.
@@ -39,9 +39,9 @@ result: pending
 ## Summary
 
 total: 6
-passed: 0
+passed: 1
 issues: 0
-pending: 6
+pending: 5
 skipped: 0
 blocked: 0
 
