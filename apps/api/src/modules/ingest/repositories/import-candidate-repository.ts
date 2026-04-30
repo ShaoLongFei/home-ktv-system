@@ -13,8 +13,42 @@ import type { QueryExecutor } from "../../../db/query-executor.js";
 import type { ImportCandidateFileDetailRow, ImportCandidateRow } from "../../../db/schema.js";
 
 export interface ImportCandidateRepository {
+  listCandidates(filters?: ListImportCandidateFilters): Promise<ImportCandidate[]>;
+  getCandidateWithFiles(candidateId: ImportCandidateId): Promise<ImportCandidateWithFiles | null>;
+  updateCandidateMetadata(
+    candidateId: ImportCandidateId,
+    input: UpdateImportCandidateMetadataInput
+  ): Promise<ImportCandidateWithFiles | null>;
   listCandidateFileDetails(candidateId: ImportCandidateId): Promise<ImportCandidateFileDetail[]>;
   upsertCandidateWithFiles(input: UpsertImportCandidateWithFilesInput): Promise<ImportCandidate>;
+}
+
+export interface ListImportCandidateFilters {
+  statuses?: ImportCandidateStatus[];
+}
+
+export interface ImportCandidateWithFiles {
+  candidate: ImportCandidate;
+  files: ImportCandidateFileDetail[];
+}
+
+export interface UpdateImportCandidateMetadataInput {
+  title?: string;
+  artistName?: string;
+  language?: Language;
+  sameVersionConfirmed?: boolean;
+  genre?: string[];
+  tags?: string[];
+  aliases?: string[];
+  searchHints?: string[];
+  releaseYear?: number | null;
+  defaultVocalMode?: VocalMode;
+  files?: Array<{
+    candidateFileId: string;
+    selected?: boolean;
+    proposedVocalMode?: VocalMode;
+    proposedAssetKind?: AssetKind;
+  }>;
 }
 
 export interface UpsertImportCandidateWithFilesInput {
@@ -115,6 +149,103 @@ export function mapImportCandidateFileDetailRow(row: ImportCandidateFileDetailRo
 export class PgImportCandidateRepository implements ImportCandidateRepository {
   constructor(private readonly db: QueryExecutor) {}
 
+  async listCandidates(filters: ListImportCandidateFilters = {}): Promise<ImportCandidate[]> {
+    const statuses = filters.statuses?.length ? filters.statuses : ["pending", "held", "review_required", "conflict"];
+    const result = await this.db.query<ImportCandidateRow>(
+      `SELECT id, status, title, normalized_title, title_pinyin, title_initials,
+              artist_id, artist_name, language, genre, tags, aliases, search_hints,
+              release_year, canonical_duration_ms, default_candidate_file_id,
+              same_version_confirmed, conflict_song_id, review_notes, candidate_meta,
+              created_at, updated_at
+       FROM import_candidates
+       WHERE status = ANY($1::text[])
+       ORDER BY updated_at DESC, created_at DESC`,
+      [statuses]
+    );
+
+    return result.rows.map(mapImportCandidateRow);
+  }
+
+  async getCandidateWithFiles(candidateId: ImportCandidateId): Promise<ImportCandidateWithFiles | null> {
+    const candidate = await this.findCandidateById(this.db, candidateId);
+    if (!candidate) {
+      return null;
+    }
+
+    return {
+      candidate,
+      files: await this.listCandidateFileDetails(candidateId)
+    };
+  }
+
+  async updateCandidateMetadata(
+    candidateId: ImportCandidateId,
+    input: UpdateImportCandidateMetadataInput
+  ): Promise<ImportCandidateWithFiles | null> {
+    const candidate = await this.withTransaction(async (db) => {
+      const existing = await this.findCandidateById(db, candidateId);
+      if (!existing) {
+        return null;
+      }
+
+      const candidateMeta = {
+        ...existing.candidateMeta,
+        ...(input.defaultVocalMode ? { defaultVocalMode: input.defaultVocalMode } : {})
+      };
+      const result = await db.query<ImportCandidateRow>(
+        `UPDATE import_candidates
+         SET title = $2,
+             normalized_title = $3,
+             artist_name = $4,
+             language = $5,
+             genre = $6,
+             tags = $7,
+             aliases = $8,
+             search_hints = $9,
+             release_year = $10,
+             same_version_confirmed = $11,
+             candidate_meta = $12::jsonb,
+             updated_at = now()
+         WHERE id = $1
+         RETURNING id, status, title, normalized_title, title_pinyin, title_initials,
+                   artist_id, artist_name, language, genre, tags, aliases, search_hints,
+                   release_year, canonical_duration_ms, default_candidate_file_id,
+                   same_version_confirmed, conflict_song_id, review_notes, candidate_meta,
+                   created_at, updated_at`,
+        [
+          candidateId,
+          input.title ?? existing.title,
+          normalizeTitle(input.title ?? existing.title),
+          input.artistName ?? existing.artistName,
+          input.language ?? existing.language,
+          input.genre ?? [...existing.genre],
+          input.tags ?? [...existing.tags],
+          input.aliases ?? [...existing.aliases],
+          input.searchHints ?? [...existing.searchHints],
+          input.releaseYear ?? existing.releaseYear,
+          input.sameVersionConfirmed ?? existing.sameVersionConfirmed,
+          candidateMeta
+        ]
+      );
+
+      for (const file of input.files ?? []) {
+        await db.query(
+          `UPDATE import_candidate_files
+           SET selected = COALESCE($2, selected),
+               proposed_vocal_mode = COALESCE($3, proposed_vocal_mode),
+               proposed_asset_kind = COALESCE($4, proposed_asset_kind),
+               updated_at = now()
+           WHERE id = $1 AND candidate_id = $5`,
+          [file.candidateFileId, file.selected ?? null, file.proposedVocalMode ?? null, file.proposedAssetKind ?? null, candidateId]
+        );
+      }
+
+      return mapImportCandidateRow(requireRow(result.rows[0], "import_candidates metadata update"));
+    });
+
+    return candidate ? this.getCandidateWithFiles(candidate.id) : null;
+  }
+
   async upsertCandidateWithFiles(input: UpsertImportCandidateWithFilesInput): Promise<ImportCandidate> {
     return this.withTransaction(async (db) => {
       const candidate = await this.upsertCandidate(db, input);
@@ -193,6 +324,23 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
     );
 
     return result.rows.map(mapImportCandidateFileDetailRow);
+  }
+
+  private async findCandidateById(db: QueryExecutor, candidateId: ImportCandidateId): Promise<ImportCandidate | null> {
+    const result = await db.query<ImportCandidateRow>(
+      `SELECT id, status, title, normalized_title, title_pinyin, title_initials,
+              artist_id, artist_name, language, genre, tags, aliases, search_hints,
+              release_year, canonical_duration_ms, default_candidate_file_id,
+              same_version_confirmed, conflict_song_id, review_notes, candidate_meta,
+              created_at, updated_at
+       FROM import_candidates
+       WHERE id = $1
+       LIMIT 1`,
+      [candidateId]
+    );
+
+    const row = result.rows[0];
+    return row ? mapImportCandidateRow(row) : null;
   }
 
   private async withTransaction<TResult>(work: (db: QueryExecutor) => Promise<TResult>): Promise<TResult> {

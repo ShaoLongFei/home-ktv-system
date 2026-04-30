@@ -26,6 +26,7 @@ import { PgQueueEntryRepository, type QueueEntryRepository } from "./modules/pla
 import { PgRoomRepository, type RoomRepository } from "./modules/rooms/repositories/room-repository.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerCors } from "./routes/cors.js";
+import { registerAdminImportRoutes } from "./routes/admin-imports.js";
 import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
@@ -77,14 +78,15 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     mediaPathResolver: new MediaPathResolver({ mediaRoot: resolvedConfig.mediaRoot }),
     publicBaseUrl: resolvedConfig.publicBaseUrl
   });
-  const scheduler =
+  const ingest =
     pool && resolvedConfig.mediaRoot
-      ? createRuntimeScanScheduler({
+      ? createRuntimeIngest({
           config: resolvedConfig,
           pool,
           scanSchedulerFactory: options.scanSchedulerFactory ?? createScanScheduler
         })
       : null;
+  const scheduler = ingest?.scheduler ?? null;
 
   if (scheduler) {
     await scheduler.start();
@@ -105,6 +107,12 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     snapshotEventName: protocolMessageNames.snapshotUpdated
   });
   await registerMediaRoutes(server, { assetGateway });
+  if (ingest) {
+    await registerAdminImportRoutes(server, {
+      importCandidates: ingest.importCandidates,
+      scanScheduler: ingest.scheduler
+    });
+  }
   await registerRoomSnapshotRoutes(server, {
     config: resolvedConfig,
     repositories,
@@ -137,11 +145,11 @@ function createPgRepositories(pool: Pool): PlayerRouteRepositories {
   };
 }
 
-function createRuntimeScanScheduler(input: {
+function createRuntimeIngest(input: {
   config: ApiConfig;
   pool: Pool;
   scanSchedulerFactory: (options: ScanSchedulerOptions) => ScanScheduler;
-}): ScanScheduler {
+}): { scheduler: ScanScheduler; importCandidates: PgImportCandidateRepository } {
   const paths = resolveLibraryPaths(input.config.mediaRoot);
   const importCandidates = new PgImportCandidateRepository(input.pool);
   const candidateBuilder = new CandidateBuilder({ importCandidates });
@@ -152,11 +160,14 @@ function createRuntimeScanScheduler(input: {
     candidateBuilder
   });
 
-  return input.scanSchedulerFactory({
-    scanner,
-    paths,
-    scanIntervalMinutes: input.config.scanIntervalMinutes
-  });
+  return {
+    importCandidates,
+    scheduler: input.scanSchedulerFactory({
+      scanner,
+      paths,
+      scanIntervalMinutes: input.config.scanIntervalMinutes
+    })
+  };
 }
 
 function createInMemoryRepositories(room: Room, session: PlaybackSession): PlayerRouteRepositories {
