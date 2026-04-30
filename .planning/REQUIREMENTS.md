@@ -13,7 +13,7 @@ Requirements for the initial release. These map to roadmap phases and stay const
 - [x] **LIBR-02**: 管理员可以审核候选导入项，确认歌手、歌名、语种、原唱/伴唱等元数据，并对每项执行入库、搁置或拒绝
 - [x] **LIBR-03**: 系统可以将用户看到的 `Song` 与实际播放的 `Asset` 分离建模，使一首歌可以关联多个批准的可播放版本
 - [x] **LIBR-04**: 只有同时具备已验证原唱版与伴唱版、且正式资源状态为 `ready` 的歌曲才会进入正式歌库主路径
-- [ ] **LIBR-05**: 管理员可以在入库后修改歌曲、歌手、默认资源和资源可用状态
+- [x] **LIBR-05**: 管理员可以在入库后修改歌曲、歌手、默认资源和资源可用状态
 - [x] **LIBR-06**: 系统可以校验原唱版与伴唱版是否满足同版本、同时轴的正式入库规则，并将不合格资源标记为 `review-required` 或拒绝入库
 
 ### Search
@@ -58,7 +58,7 @@ Requirements for the initial release. These map to roadmap phases and stay const
 
 ### Admin Operations
 
-- [ ] **ADMN-01**: 管理员可以在后台浏览歌曲和资源，并查看歌词模式、原唱/伴唱模式、资源状态等维护信息
+- [x] **ADMN-01**: 管理员可以在后台浏览歌曲和资源，并查看歌词模式、原唱/伴唱模式、资源状态等维护信息
 - [ ] **ADMN-02**: 管理员可以在后台查看房间状态、当前队列、当前 TV Player、在线控制端数量和最近播放事件
 - [ ] **ADMN-03**: 管理员可以查看二维码 / `pairingToken` 状态，并主动刷新房间入场令牌
 
@@ -109,7 +109,7 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | LIBR-02 | Phase 2 | Complete |
 | LIBR-03 | Phase 1 | Complete |
 | LIBR-04 | Phase 2 | Complete |
-| LIBR-05 | Phase 2 | Pending |
+| LIBR-05 | Phase 2 | Complete |
 | LIBR-06 | Phase 2 | Complete |
 | SRCH-01 | Phase 4 | Pending |
 | SRCH-02 | Phase 4 | Pending |
@@ -136,7 +136,7 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | ONLN-02 | Phase 5 | Pending |
 | ONLN-03 | Phase 5 | Pending |
 | ONLN-04 | Phase 5 | Pending |
-| ADMN-01 | Phase 2 | Pending |
+| ADMN-01 | Phase 2 | Complete |
 | ADMN-02 | Phase 5 | Pending |
 | ADMN-03 | Phase 3 | Pending |
 

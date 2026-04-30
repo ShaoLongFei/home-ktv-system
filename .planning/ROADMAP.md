@@ -56,7 +56,7 @@ Plans:
 - [x] 02-03: 实现导入审核、搁置、拒绝删除和准入 API
 - [x] 02-04: 实现导入优先的后台审核工作台
 - [x] 02-05: 实现正式歌库维护 API 和 song.json 一致性校验
-- [ ] 02-06: 实现正式歌库维护后台界面
+- [x] 02-06: 实现正式歌库维护后台界面
 **UI hint**: yes
 
 ### Phase 3: Room Sessions & Queue Control
@@ -117,7 +117,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Media Contract & TV Runtime | 3/3 | Awaiting UAT | - |
-| 2. Library Ingest & Catalog Admin | 5/6 | In Progress | - |
+| 2. Library Ingest & Catalog Admin | 6/6 | Complete | 2026-04-30 |
 | 3. Room Sessions & Queue Control | 0/3 | Not started | - |
 | 4. Search & Song Selection | 0/2 | Not started | - |
 | 5. Online Supplement & Recovery | 0/3 | Not started | - |
