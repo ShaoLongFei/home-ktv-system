@@ -1,0 +1,57 @@
+export type Language = "mandarin" | "cantonese" | "other";
+export type SongStatus = "ready" | "review_required" | "unavailable";
+export type AssetStatus = "ready" | "caching" | "failed" | "unavailable" | "stale" | "promoted";
+export type VocalMode = "original" | "instrumental" | "dual" | "unknown";
+export type LyricMode = "hard_sub" | "soft_sub" | "external_lrc" | "none";
+export type SwitchQualityStatus = "verified" | "review_required" | "rejected" | "unknown";
+
+export interface AdminCatalogAsset {
+  id: string;
+  songId: string;
+  sourceType: "local" | "online_cached" | "online_ephemeral";
+  assetKind: "video" | "audio+lyrics" | "dual-track-video";
+  displayName: string;
+  filePath: string;
+  durationMs: number;
+  lyricMode: LyricMode;
+  vocalMode: VocalMode;
+  status: AssetStatus;
+  switchFamily: string | null;
+  switchQualityStatus: SwitchQualityStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminCatalogSong {
+  id: string;
+  title: string;
+  normalizedTitle: string;
+  titlePinyin: string;
+  titleInitials: string;
+  artistId: string;
+  artistName: string;
+  language: Language;
+  status: SongStatus;
+  genre: readonly string[];
+  tags: readonly string[];
+  aliases: readonly string[];
+  searchHints: readonly string[];
+  releaseYear: number | null;
+  canonicalDurationMs: number | null;
+  searchWeight: number;
+  defaultAssetId: string | null;
+  capabilities: { canSwitchVocalMode: boolean };
+  createdAt: string;
+  updatedAt: string;
+  defaultAsset: AdminCatalogAsset | null;
+  assets: AdminCatalogAsset[];
+}
+
+export interface CatalogSongListResponse {
+  songs: AdminCatalogSong[];
+}
+
+export interface CatalogSongListFilters {
+  status?: SongStatus;
+  language?: Language;
+}

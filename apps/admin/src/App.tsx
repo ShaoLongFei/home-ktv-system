@@ -1,13 +1,27 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { ImportWorkbench } from "./imports/ImportWorkbench.js";
+import { SongCatalogView } from "./songs/SongCatalogView.js";
+
+type AdminView = "imports" | "songs";
 
 export function App() {
   const [queryClient] = useState(() => new QueryClient());
+  const [view, setView] = useState<AdminView>("imports");
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ImportWorkbench />
+      <div className="admin-app-frame">
+        <nav className="admin-mode-tabs" aria-label="Admin sections">
+          <button className={view === "imports" ? "mode-tab active" : "mode-tab"} type="button" onClick={() => setView("imports")}>
+            Imports
+          </button>
+          <button className={view === "songs" ? "mode-tab active" : "mode-tab"} type="button" onClick={() => setView("songs")}>
+            Songs
+          </button>
+        </nav>
+        {view === "imports" ? <ImportWorkbench /> : <SongCatalogView />}
+      </div>
     </QueryClientProvider>
   );
 }

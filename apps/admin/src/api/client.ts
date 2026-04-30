@@ -1,3 +1,9 @@
+import type {
+  AdminCatalogSong,
+  CatalogSongListFilters,
+  CatalogSongListResponse
+} from "../songs/types.js";
+
 export async function fetchAdmin<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(adminUrl(path), {
     ...init,
@@ -13,6 +19,19 @@ export async function fetchAdmin<T>(path: string, init: RequestInit = {}): Promi
   }
 
   return (await response.json()) as T;
+}
+
+export async function fetchCatalogSongs(filters: CatalogSongListFilters = {}): Promise<AdminCatalogSong[]> {
+  const params = new URLSearchParams();
+  if (filters.status) {
+    params.set("status", filters.status);
+  }
+  if (filters.language) {
+    params.set("language", filters.language);
+  }
+  const query = params.toString();
+  const response = await fetchAdmin<CatalogSongListResponse>(`/admin/catalog/songs${query ? `?${query}` : ""}`);
+  return response.songs;
 }
 
 function adminUrl(path: string): string {
