@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 import { Pool } from "pg";
 import type { Asset, DeviceSession, PlaybackEvent, PlaybackSession, QueueEntry, Room, Song } from "@home-ktv/domain";
 import { protocolMessageNames } from "@home-ktv/protocol";
-import { loadConfig, type ApiConfig } from "./config.js";
+import { loadConfig, normalizeApiConfig, type ApiConfig, type ApiConfigInput } from "./config.js";
 import { MediaPathResolver } from "./modules/assets/media-path-resolver.js";
 import { AssetGateway } from "./modules/assets/asset-gateway.js";
 import { PgAssetRepository, type AssetRepository } from "./modules/catalog/repositories/asset-repository.js";
@@ -64,22 +64,23 @@ function createInitialPlaybackSession(room: Room): PlaybackSession {
   };
 }
 
-export async function createServer(config: ApiConfig = loadConfig(), options: CreateServerOptions = {}) {
+export async function createServer(config: ApiConfigInput = loadConfig(), options: CreateServerOptions = {}) {
+  const resolvedConfig = normalizeApiConfig(config);
   const server = Fastify({ logger: true });
-  const room = createLivingRoom(config);
+  const room = createLivingRoom(resolvedConfig);
   const session = createInitialPlaybackSession(room);
-  const pool = config.databaseUrl ? (options.poolFactory ?? createPgPool)(config.databaseUrl) : null;
+  const pool = resolvedConfig.databaseUrl ? (options.poolFactory ?? createPgPool)(resolvedConfig.databaseUrl) : null;
   const repositories = pool ? createPgRepositories(pool) : createInMemoryRepositories(room, session);
   const assetRepository = repositories.assets;
   const assetGateway = new AssetGateway({
     assetRepository,
-    mediaPathResolver: new MediaPathResolver({ mediaRoot: config.mediaRoot }),
-    publicBaseUrl: config.publicBaseUrl
+    mediaPathResolver: new MediaPathResolver({ mediaRoot: resolvedConfig.mediaRoot }),
+    publicBaseUrl: resolvedConfig.publicBaseUrl
   });
   const scheduler =
-    pool && config.mediaRoot
+    pool && resolvedConfig.mediaRoot
       ? createRuntimeScanScheduler({
-          config,
+          config: resolvedConfig,
           pool,
           scanSchedulerFactory: options.scanSchedulerFactory ?? createScanScheduler
         })
@@ -96,21 +97,21 @@ export async function createServer(config: ApiConfig = loadConfig(), options: Cr
     });
   }
 
-  await registerCors(server, { allowedOrigins: config.corsAllowedOrigins });
+  await registerCors(server, { allowedOrigins: resolvedConfig.corsAllowedOrigins });
   await registerHealthRoutes(server, {
-    config,
+    config: resolvedConfig,
     room,
     session,
     snapshotEventName: protocolMessageNames.snapshotUpdated
   });
   await registerMediaRoutes(server, { assetGateway });
   await registerRoomSnapshotRoutes(server, {
-    config,
+    config: resolvedConfig,
     repositories,
     assetGateway
   });
   await registerPlayerRoutes(server, {
-    config,
+    config: resolvedConfig,
     repositories,
     assetGateway
   });
@@ -309,9 +310,10 @@ class InMemoryRuntimeRepositories implements PlayerRouteRepositories {
   }
 }
 
-export async function startServer(config: ApiConfig = loadConfig()): Promise<void> {
+export async function startServer(config: ApiConfigInput = loadConfig()): Promise<void> {
+  const resolvedConfig = normalizeApiConfig(config);
   const server = await createServer(config);
-  await server.listen({ host: config.host, port: config.port });
+  await server.listen({ host: resolvedConfig.host, port: resolvedConfig.port });
 }
 
 const entrypointUrl = pathToFileURL(process.argv[1] ?? "").href;

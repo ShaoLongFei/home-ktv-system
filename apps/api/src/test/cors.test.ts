@@ -10,8 +10,7 @@ describe("CORS", () => {
       mediaRoot: "/media-root",
       port: 4000,
       publicBaseUrl: "http://192.168.1.20:4000",
-      roomSlug: "living-room",
-      scanIntervalMinutes: 360
+      roomSlug: "living-room"
     });
 
     const preflight = await server.inject({
@@ -50,8 +49,7 @@ describe("CORS", () => {
       mediaRoot: "/media-root",
       port: 4000,
       publicBaseUrl: "http://192.168.1.20:4000",
-      roomSlug: "living-room",
-      scanIntervalMinutes: 360
+      roomSlug: "living-room"
     });
 
     const health = await server.inject({

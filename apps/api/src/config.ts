@@ -9,6 +9,10 @@ export interface ApiConfig {
   scanIntervalMinutes: number;
 }
 
+export type ApiConfigInput = Omit<ApiConfig, "scanIntervalMinutes"> & {
+  scanIntervalMinutes?: number;
+};
+
 const DEFAULT_ROOM_SLUG = "living-room";
 const DEFAULT_PORT = 4000;
 const DEFAULT_HOST = "0.0.0.0";
@@ -45,5 +49,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     port: readPort(env.PORT),
     host: readString(env.HOST) || DEFAULT_HOST,
     scanIntervalMinutes: readPositiveInteger(env.SCAN_INTERVAL_MINUTES, DEFAULT_SCAN_INTERVAL_MINUTES)
+  };
+}
+
+export function normalizeApiConfig(config: ApiConfigInput): ApiConfig {
+  return {
+    ...config,
+    scanIntervalMinutes: config.scanIntervalMinutes ?? DEFAULT_SCAN_INTERVAL_MINUTES
   };
 }
