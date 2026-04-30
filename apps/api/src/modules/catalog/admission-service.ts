@@ -1,11 +1,18 @@
 import { access, mkdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import type {
+  Asset,
+  AssetId,
+  AssetStatus,
   ImportCandidateFileDetail,
   ImportCandidateId,
   ImportCandidateStatus,
   ImportFileRootKind,
   Language,
+  LyricMode,
+  SongId,
+  SwitchFamily,
+  SwitchQualityStatus,
   VocalMode
 } from "@home-ktv/domain";
 import type { QueryExecutor } from "../../db/query-executor.js";
@@ -17,9 +24,18 @@ import type {
 import type { ImportFileRepository } from "../ingest/repositories/import-file-repository.js";
 import type { LibraryPaths } from "../ingest/library-paths.js";
 import { toLibraryRelativePath } from "../ingest/library-paths.js";
+import type {
+  AdminCatalogAssetRepository,
+  UpdateFormalAssetInput
+} from "./repositories/asset-repository.js";
+import type {
+  AdminCatalogSongRecord,
+  AdminCatalogSongRepository
+} from "./repositories/song-repository.js";
 import { writeSongJson, type SongJsonAsset } from "./song-json.js";
 
 export type AdmissionStatus = "approved" | "review_required" | "rejected" | "conflict" | "approval_failed";
+export type FormalPairStatus = "verified" | "review_required" | "rejected";
 export type ConflictResolution =
   | { resolution: "merge_existing"; targetSongId?: string }
   | { resolution: "create_version"; versionSuffix?: string };
@@ -27,6 +43,33 @@ export type ConflictResolution =
 export interface CatalogAdmissionResult extends ImportCandidateWithFiles {
   status: AdmissionStatus;
   reason?: string;
+}
+
+export interface FormalPairEvaluation {
+  status: FormalPairStatus;
+  reason?: string;
+  pairAssetIds: AssetId[];
+}
+
+export interface FormalSongRevalidationResult {
+  record: AdminCatalogSongRecord;
+  evaluation: FormalPairEvaluation;
+}
+
+export interface UpdateFormalAssetWithRevalidationInput {
+  assetId: AssetId;
+  patch: {
+    status?: AssetStatus;
+    vocalMode?: VocalMode;
+    lyricMode?: LyricMode;
+    switchFamily?: SwitchFamily | null;
+    switchQualityStatus?: SwitchQualityStatus;
+    durationMs?: number;
+  };
+}
+
+export interface UpdateFormalAssetWithRevalidationResult extends FormalSongRevalidationResult {
+  asset: Asset;
 }
 
 export interface CatalogAdmissionWriter {
@@ -56,6 +99,8 @@ export interface CatalogAdmissionServiceOptions {
   importCandidates: Pick<ImportCandidateRepository, "getCandidateWithFiles" | "updateCandidateStatus">;
   importFiles: Pick<ImportFileRepository, "updateFileLocation" | "markDeletedById">;
   catalogWriter?: CatalogAdmissionWriter;
+  formalSongs?: AdminCatalogSongRepository;
+  formalAssets?: AdminCatalogAssetRepository;
 }
 
 export class CatalogAdmissionError extends Error {
@@ -99,6 +144,104 @@ export class CatalogAdmissionService {
     }
 
     return { status: "verified" };
+  }
+
+  evaluateFormalPair(assets: Asset[]): FormalPairEvaluation {
+    const candidates = assets.filter(
+      (asset) =>
+        asset.status === "ready" &&
+        Boolean(asset.switchFamily) &&
+        (asset.vocalMode === "original" || asset.vocalMode === "instrumental")
+    );
+    const families = new Map<SwitchFamily, Asset[]>();
+    for (const asset of candidates) {
+      if (!asset.switchFamily) {
+        continue;
+      }
+      const familyAssets = families.get(asset.switchFamily) ?? [];
+      familyAssets.push(asset);
+      families.set(asset.switchFamily, familyAssets);
+    }
+
+    for (const familyAssets of families.values()) {
+      const originals = familyAssets.filter((asset) => asset.vocalMode === "original");
+      const instrumentals = familyAssets.filter((asset) => asset.vocalMode === "instrumental");
+      if (originals.length !== 1 || instrumentals.length !== 1) {
+        continue;
+      }
+
+      const original = originals[0] as Asset;
+      const instrumental = instrumentals[0] as Asset;
+      const delta = Math.abs(original.durationMs - instrumental.durationMs);
+      if (delta > 300) {
+        return {
+          status: "review_required",
+          reason: "duration-delta-over-300ms",
+          pairAssetIds: [original.id, instrumental.id]
+        };
+      }
+
+      return {
+        status: "verified",
+        pairAssetIds: [original.id, instrumental.id]
+      };
+    }
+
+    return { status: "review_required", reason: "missing-ready-switch-pair", pairAssetIds: [] };
+  }
+
+  async revalidateFormalSong(songId: SongId): Promise<FormalSongRevalidationResult> {
+    const catalog = this.requireFormalCatalog();
+    const current = await catalog.formalSongs.getFormalSongWithAssets(songId);
+    if (!current) {
+      throw new CatalogAdmissionError("FORMAL_SONG_NOT_FOUND", "Formal song not found", { songId });
+    }
+
+    const evaluation = this.evaluateFormalPair(current.assets);
+    const nextSongStatus = evaluation.status === "verified" ? "ready" : "review_required";
+    await catalog.formalSongs.updateSongStatus(songId, nextSongStatus);
+
+    const nextSwitchQualityStatus = evaluation.status === "verified" ? "verified" : evaluation.status;
+    const switchSensitiveAssets =
+      evaluation.pairAssetIds.length > 0
+        ? current.assets.filter((asset) => evaluation.pairAssetIds.includes(asset.id))
+        : current.assets.filter(
+            (asset) =>
+              Boolean(asset.switchFamily) && (asset.vocalMode === "original" || asset.vocalMode === "instrumental")
+          );
+
+    for (const asset of switchSensitiveAssets) {
+      if (asset.switchQualityStatus !== nextSwitchQualityStatus) {
+        await catalog.formalAssets.updateFormalAsset(asset.id, { switchQualityStatus: nextSwitchQualityStatus });
+      }
+    }
+
+    const record = await catalog.formalSongs.getFormalSongWithAssets(songId);
+    if (!record) {
+      throw new CatalogAdmissionError("FORMAL_SONG_NOT_FOUND", "Formal song not found after revalidation", { songId });
+    }
+
+    return { record, evaluation };
+  }
+
+  async updateFormalAssetWithRevalidation(
+    input: UpdateFormalAssetWithRevalidationInput
+  ): Promise<UpdateFormalAssetWithRevalidationResult> {
+    const catalog = this.requireFormalCatalog();
+    const asset = await catalog.formalAssets.updateFormalAsset(input.assetId, input.patch satisfies UpdateFormalAssetInput);
+    if (!asset) {
+      throw new CatalogAdmissionError("FORMAL_ASSET_NOT_FOUND", "Formal asset not found", { assetId: input.assetId });
+    }
+
+    const result = await this.revalidateFormalSong(asset.songId);
+    const revalidatedAsset = result.record.assets.find((candidate) => candidate.id === input.assetId);
+    if (!revalidatedAsset) {
+      throw new CatalogAdmissionError("FORMAL_ASSET_NOT_FOUND", "Formal asset missing after revalidation", {
+        assetId: input.assetId
+      });
+    }
+
+    return { ...result, asset: revalidatedAsset };
   }
 
   async holdCandidate(candidateId: ImportCandidateId): Promise<CatalogAdmissionResult> {
@@ -312,6 +455,20 @@ export class CatalogAdmissionService {
       throw new CatalogAdmissionError("IMPORT_CANDIDATE_NOT_FOUND", "Import candidate not found", { candidateId });
     }
     return updated;
+  }
+
+  private requireFormalCatalog(): {
+    formalSongs: AdminCatalogSongRepository;
+    formalAssets: AdminCatalogAssetRepository;
+  } {
+    if (!this.options.formalSongs || !this.options.formalAssets) {
+      throw new CatalogAdmissionError("FORMAL_CATALOG_UNAVAILABLE", "Formal catalog repositories unavailable");
+    }
+
+    return {
+      formalSongs: this.options.formalSongs,
+      formalAssets: this.options.formalAssets
+    };
   }
 }
 

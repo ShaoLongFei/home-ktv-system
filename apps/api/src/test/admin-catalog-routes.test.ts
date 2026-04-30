@@ -10,6 +10,7 @@ import type {
   VocalMode
 } from "@home-ktv/domain";
 import { describe, expect, it, vi } from "vitest";
+import type { CatalogAdmissionService } from "../modules/catalog/admission-service.js";
 import { registerAdminCatalogRoutes } from "../routes/admin-catalog.js";
 
 describe("admin catalog routes", () => {
@@ -39,15 +40,15 @@ describe("admin catalog routes", () => {
             vocalMode: "instrumental",
             switchQualityStatus: "verified"
           },
-          assets: [
-            {
+          assets: expect.arrayContaining([
+            expect.objectContaining({
               id: "asset-original",
               status: "ready",
               vocalMode: "original",
               lyricMode: "hard_sub",
               switchFamily: "main"
-            }
-          ]
+            })
+          ])
         }
       ]
     });
@@ -130,7 +131,11 @@ describe("admin catalog routes", () => {
           createAsset({ id: "asset-instrumental", vocalMode: "instrumental", switchQualityStatus: "review_required" })
         ]
       }),
-      serviceEvaluation: { status: "review_required", reason: "duration-delta-over-300ms" }
+      serviceEvaluation: {
+        status: "review_required",
+        reason: "duration-delta-over-300ms",
+        pairAssetIds: ["asset-original", "asset-instrumental"]
+      }
     });
 
     const response = await server.inject({
@@ -203,12 +208,15 @@ describe("admin catalog routes", () => {
 
 async function createAdminCatalogHarness(input: {
   serviceRecord?: AdminCatalogSongRecord;
-  serviceEvaluation?: { status: "verified" | "review_required" | "rejected"; reason?: string };
+  serviceEvaluation?: { status: "verified" | "review_required" | "rejected"; reason?: string; pairAssetIds: string[] };
 } = {}) {
   const server = Fastify({ logger: false });
   const record = createSongRecord();
   const serviceRecord = input.serviceRecord ?? record;
-  const serviceEvaluation = input.serviceEvaluation ?? { status: "verified" as const };
+  const serviceEvaluation = input.serviceEvaluation ?? {
+    status: "verified" as const,
+    pairAssetIds: ["asset-original", "asset-instrumental"]
+  };
   const songs = {
     listFormalSongs: vi.fn(async (_filters: Record<string, unknown>) => [record]),
     getFormalSongWithAssets: vi.fn(async (_songId: string) => record),
@@ -221,9 +229,10 @@ async function createAdminCatalogHarness(input: {
   };
   const admissionService = {
     revalidateFormalSong: vi.fn(async (_songId: string) => ({ record: serviceRecord, evaluation: serviceEvaluation })),
-    updateFormalAssetWithRevalidation: vi.fn(async (_input: Record<string, unknown>) => ({
+    updateFormalAssetWithRevalidation: vi.fn(
+      async (_input: Parameters<CatalogAdmissionService["updateFormalAssetWithRevalidation"]>[0]) => ({
       record: serviceRecord,
-      asset: serviceRecord.assets[0],
+      asset: serviceRecord.assets[0] ?? createAsset(),
       evaluation: serviceEvaluation
     }))
   };

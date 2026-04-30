@@ -18,6 +18,21 @@ export interface AssetRepository {
   findVerifiedSwitchCounterparts(asset: Asset): Promise<Asset[]>;
 }
 
+export interface UpdateFormalAssetInput {
+  status?: AssetStatus;
+  vocalMode?: VocalMode;
+  lyricMode?: LyricMode;
+  switchFamily?: SwitchFamily | null;
+  switchQualityStatus?: SwitchQualityStatus;
+  durationMs?: number;
+}
+
+export interface AdminCatalogAssetRepository {
+  findById(assetId: AssetId): Promise<Asset | null>;
+  listBySongId(songId: SongId): Promise<Asset[]>;
+  updateFormalAsset(assetId: AssetId, input: UpdateFormalAssetInput): Promise<Asset | null>;
+}
+
 function toIsoString(value: Date): string {
   return value.toISOString();
 }
@@ -41,7 +56,7 @@ export function mapAssetRow(row: AssetRow): Asset {
   };
 }
 
-export class PgAssetRepository implements AssetRepository {
+export class PgAssetRepository implements AssetRepository, AdminCatalogAssetRepository {
   constructor(private readonly db: QueryExecutor) {}
 
   async findById(assetId: AssetId): Promise<Asset | null> {
@@ -57,6 +72,62 @@ export class PgAssetRepository implements AssetRepository {
 
     const row = result.rows[0];
     return row ? mapAssetRow(row) : null;
+  }
+
+  async listBySongId(songId: SongId): Promise<Asset[]> {
+    const result = await this.db.query<AssetRow>(
+      `SELECT id, song_id, source_type, asset_kind, display_name, file_path, duration_ms,
+              lyric_mode, vocal_mode, status, switch_family, switch_quality_status,
+              created_at, updated_at
+       FROM assets
+       WHERE song_id = $1
+       ORDER BY created_at ASC`,
+      [songId]
+    );
+
+    return result.rows.map(mapAssetRow);
+  }
+
+  async updateFormalAsset(assetId: AssetId, input: UpdateFormalAssetInput): Promise<Asset | null> {
+    const assignments: string[] = [];
+    const values: unknown[] = [];
+
+    if (input.status !== undefined) {
+      values.push(input.status);
+      assignments.push(`status = $${values.length}`);
+    }
+    if (input.vocalMode !== undefined) {
+      values.push(input.vocalMode);
+      assignments.push(`vocal_mode = $${values.length}`);
+    }
+    if (input.lyricMode !== undefined) {
+      values.push(input.lyricMode);
+      assignments.push(`lyric_mode = $${values.length}`);
+    }
+    if (input.switchFamily !== undefined) {
+      values.push(input.switchFamily);
+      assignments.push(`switch_family = $${values.length}`);
+    }
+    if (input.switchQualityStatus !== undefined) {
+      values.push(input.switchQualityStatus);
+      assignments.push(`switch_quality_status = $${values.length}`);
+    }
+    if (input.durationMs !== undefined) {
+      values.push(input.durationMs);
+      assignments.push(`duration_ms = $${values.length}`);
+    }
+
+    if (assignments.length > 0) {
+      values.push(assetId);
+      await this.db.query(
+        `UPDATE assets
+         SET ${assignments.join(", ")}, updated_at = now()
+         WHERE id = $${values.length}`,
+        values
+      );
+    }
+
+    return this.findById(assetId);
   }
 
   async findVerifiedSwitchCounterparts(asset: Asset): Promise<Asset[]> {

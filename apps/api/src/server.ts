@@ -27,6 +27,7 @@ import { PgQueueEntryRepository, type QueueEntryRepository } from "./modules/pla
 import { PgRoomRepository, type RoomRepository } from "./modules/rooms/repositories/room-repository.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerCors } from "./routes/cors.js";
+import { registerAdminCatalogRoutes } from "./routes/admin-catalog.js";
 import { registerAdminImportRoutes } from "./routes/admin-imports.js";
 import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
@@ -114,6 +115,10 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
       scanScheduler: ingest.scheduler,
       admissionService: ingest.admissionService
     });
+    await registerAdminCatalogRoutes(server, {
+      songs: ingest.catalogSongs,
+      admissionService: ingest.admissionService
+    });
   }
   await registerRoomSnapshotRoutes(server, {
     config: resolvedConfig,
@@ -154,11 +159,14 @@ function createRuntimeIngest(input: {
 }): {
   scheduler: ScanScheduler;
   importCandidates: PgImportCandidateRepository;
+  catalogSongs: PgSongRepository;
   admissionService: CatalogAdmissionService;
 } {
   const paths = resolveLibraryPaths(input.config.mediaRoot);
   const importCandidates = new PgImportCandidateRepository(input.pool);
   const importFiles = new PgImportFileRepository(input.pool);
+  const catalogSongs = new PgSongRepository(input.pool);
+  const catalogAssets = new PgAssetRepository(input.pool);
   const candidateBuilder = new CandidateBuilder({ importCandidates });
   const scanner = new ImportScanner({
     paths,
@@ -170,11 +178,14 @@ function createRuntimeIngest(input: {
     paths,
     importCandidates,
     importFiles,
-    catalogWriter: new PgCatalogAdmissionWriter(input.pool)
+    catalogWriter: new PgCatalogAdmissionWriter(input.pool),
+    formalSongs: catalogSongs,
+    formalAssets: catalogAssets
   });
 
   return {
     admissionService,
+    catalogSongs,
     importCandidates,
     scheduler: input.scanSchedulerFactory({
       scanner,
