@@ -1,10 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 describe("admin app scaffold", () => {
   it("declares React, Vite, Testing Library, and happy-dom dependencies", () => {
-    const packageJson = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as {
+    const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf8")) as {
       scripts?: Record<string, string>;
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
@@ -26,18 +28,18 @@ describe("admin app scaffold", () => {
   });
 
   it("configures Vitest to use happy-dom for DOM-backed admin tests", () => {
-    const configUrl = new URL("../../vite.config.ts", import.meta.url);
+    const configPath = resolve(process.cwd(), "vite.config.ts");
 
-    expect(existsSync(configUrl)).toBe(true);
-    expect(readFileSync(configUrl, "utf8")).toContain('environment: "happy-dom"');
+    expect(existsSync(configPath)).toBe(true);
+    expect(readFileSync(configPath, "utf8")).toContain('environment: "happy-dom"');
   });
 
   it("renders the import review workbench as the default admin view", async () => {
-    const appUrl = new URL("../App.tsx", import.meta.url);
+    const appPath = resolve(process.cwd(), "src/App.tsx");
 
-    expect(existsSync(appUrl)).toBe(true);
+    expect(existsSync(appPath)).toBe(true);
 
-    const { App } = (await import("../App")) as { App: () => JSX.Element };
+    const { App } = (await import("../App")) as { App: () => ReactElement };
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /import review workbench/i })).toBeTruthy();
