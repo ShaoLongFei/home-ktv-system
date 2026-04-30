@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -49,6 +51,29 @@ afterEach(() => {
 });
 
 describe("import review workbench", () => {
+  it("declares the DOM test stack and opens directly to the import workbench", async () => {
+    installFetchMock();
+    const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const viteConfig = readFileSync(resolve(process.cwd(), "vite.config.ts"), "utf8");
+
+    expect(packageJson.scripts?.build).toContain("vite build");
+    expect(packageJson.dependencies?.react).toBe("19.2.5");
+    expect(packageJson.dependencies?.["react-dom"]).toBe("19.2.5");
+    expect(packageJson.dependencies?.["@tanstack/react-query"]).toBe("5.100.6");
+    expect(packageJson.devDependencies?.["@testing-library/react"]).toBeDefined();
+    expect(packageJson.devDependencies?.["happy-dom"]).toBeDefined();
+    expect(viteConfig).toContain('environment: "happy-dom"');
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: /import review workbench/i })).toBeTruthy();
+    expect(screen.queryByText(/landing page|marketing/i)).toBeNull();
+  });
+
   it("renders candidate groups by song-level status with file count and probe indicators", async () => {
     installFetchMock();
     render(<App />);
