@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-01; continuing Phase 2 Wave 2
-last_updated: "2026-04-30T09:48:21.595Z"
-last_activity: 2026-04-30 -- Phase 02 execution started
+stopped_at: Completed 02-02; continuing Phase 2 Wave 3
+last_updated: "2026-04-30T10:10:34.617Z"
+last_activity: 2026-04-30
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 4
-  percent: 100
+  completed_plans: 5
+  percent: 56
 ---
 
 # Project State
@@ -26,29 +26,30 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 02 (library-ingest-catalog-admin) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 02
-Last activity: 2026-04-30 -- Phase 02 execution started
+Plan: 3 of 6
+Status: Completed 02-02; ready for 02-03
+Last activity: 2026-04-30
 
-Progress: [██████████] 100%
+Progress: [██████░░░░] 56%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
-- Average duration: 17 min
-- Total execution time: 0.8 hours
+- Total plans completed: 5
+- Average duration: 15 min
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-media-contract-tv-runtime | 3 | 50min | 17min |
+| 02-library-ingest-catalog-admin | 2 | 24min | 12min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (12min), 01-02 (15min), 01-03 (23min)
+- Last 5 plans: 01-01 (12min), 01-02 (15min), 01-03 (23min), 02-01 (10min), 02-02 (14min)
 - Trend: Stable
 
 ## Accumulated Context
@@ -71,6 +72,9 @@ Recent decisions affecting current work:
 - [Phase 01-media-contract-tv-runtime]: Keep API tests in src/test for typechecking, but exclude them from production build output.
 - [Phase 01-media-contract-tv-runtime]: Keep TV switching backend-authorized; TV requests switch transitions instead of deriving asset pairing locally.
 - [Phase 01-media-contract-tv-runtime]: Treat second TV players as explicit conflicts with playback disabled, not takeover candidates.
+- [Phase 02]: SCAN_INTERVAL_MINUTES defaults to 360 minutes for lightweight scheduled reconciliation — Watcher events cover normal changes; scheduled scans are a low-frequency fallback to catch missed filesystem events.
+- [Phase 02]: All scan triggers route through ImportScanner.scan — Manual, scheduled, and watcher triggers now share the same scanner path so later admin APIs can reuse the same behavior.
+- [Phase 02]: Scan output persists grouped import candidates immediately — CandidateBuilder calls upsertCandidateWithFiles during scanning so Plan 02-03 can expose reviewable candidate work items instead of raw file rows only.
 
 ### Pending Todos
 
@@ -84,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T09:48:21.592Z
-Stopped at: Completed 02-01; continuing Phase 2 Wave 2
-Resume file: .planning/phases/02-library-ingest-catalog-admin/02-02-PLAN.md
+Last session: 2026-04-30T10:09:34.660Z
+Stopped at: Completed 02-02; continuing Phase 2 Wave 3
+Resume file: .planning/phases/02-library-ingest-catalog-admin/02-03-PLAN.md
