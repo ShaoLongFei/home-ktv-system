@@ -117,6 +117,42 @@ describe("CatalogAdmissionService", () => {
     });
   });
 
+  it("reruns approval_failed promotions as repair instead of directory conflict", async () => {
+    const harness = await createAdmissionHarness({
+      candidate: {
+        status: "approval_failed",
+        sameVersionConfirmed: true,
+        candidateMeta: { targetDirectory: "mandarin/周杰伦/七里香" }
+      },
+      files: [
+        createDetail({
+          id: "candidate-file-original",
+          importFileId: "import-original",
+          rootKind: "songs",
+          relativePath: "mandarin/周杰伦/七里香/original.mp4",
+          proposedVocalMode: "original",
+          durationMs: 180000
+        }),
+        createDetail({
+          id: "candidate-file-instrumental",
+          importFileId: "import-instrumental",
+          rootKind: "songs",
+          relativePath: "mandarin/周杰伦/七里香/instrumental.mp4",
+          proposedVocalMode: "instrumental",
+          durationMs: 180100
+        })
+      ]
+    });
+    await mkdir(path.join(harness.paths.songsRoot, "mandarin/周杰伦/七里香"), { recursive: true });
+    await writeFile(path.join(harness.paths.songsRoot, "mandarin/周杰伦/七里香/original.mp4"), "original");
+    await writeFile(path.join(harness.paths.songsRoot, "mandarin/周杰伦/七里香/instrumental.mp4"), "instrumental");
+
+    const result = await harness.service.approveCandidate("candidate-1");
+
+    expect(result.status).toBe("approved");
+    await expectPathExists(path.join(harness.paths.songsRoot, "mandarin/周杰伦/七里香/song.json"));
+  });
+
   it("requires targetSongId for merge_existing conflict resolution", async () => {
     const harness = await createAdmissionHarness();
 

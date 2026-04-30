@@ -171,8 +171,10 @@ export class CatalogAdmissionService {
     const targetRelativeDirectory = toLibraryRelativePath(this.options.paths.songsRoot, targetDirectory);
     const targetExists = await pathExists(targetDirectory);
     const explicitConflictResolution = Boolean(resolution);
+    const repairableApprovalFailure =
+      record.candidate.status === "approval_failed" && record.candidate.candidateMeta.targetDirectory === targetRelativeDirectory;
 
-    if (targetExists && !explicitConflictResolution) {
+    if (targetExists && !explicitConflictResolution && !repairableApprovalFailure) {
       const conflictMeta = {
         targetDirectory: targetRelativeDirectory,
         conflictType: "formal_directory_exists",
