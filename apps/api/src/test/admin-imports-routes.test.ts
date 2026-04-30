@@ -175,11 +175,15 @@ async function createAdminImportsHarness() {
     enqueueManualScan: vi.fn(async (_scope: ImportScanScope) => undefined)
   };
   const admissionService = {
-    holdCandidate: vi.fn(async (_candidateId: string) => ({ candidate, files })),
-    rejectDeleteCandidate: vi.fn(async (_candidateId: string, _input: { confirmDelete: true }) => ({ candidate, files })),
-    approveCandidate: vi.fn(async (_candidateId: string) => ({ status: "approved", candidate, files })),
+    holdCandidate: vi.fn(async (_candidateId: string) => ({ status: "review_required" as const, candidate, files })),
+    rejectDeleteCandidate: vi.fn(async (_candidateId: string, _input: { confirmDelete: true }) => ({
+      status: "rejected" as const,
+      candidate,
+      files
+    })),
+    approveCandidate: vi.fn(async (_candidateId: string) => ({ status: "approved" as const, candidate, files })),
     resolveCandidateConflict: vi.fn(async (_candidateId: string, _input: Record<string, unknown>) => ({
-      status: "approved",
+      status: "approved" as const,
       candidate,
       files
     }))

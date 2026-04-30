@@ -6,6 +6,7 @@ import { protocolMessageNames } from "@home-ktv/protocol";
 import { loadConfig, normalizeApiConfig, type ApiConfig, type ApiConfigInput } from "./config.js";
 import { MediaPathResolver } from "./modules/assets/media-path-resolver.js";
 import { AssetGateway } from "./modules/assets/asset-gateway.js";
+import { CatalogAdmissionService, PgCatalogAdmissionWriter } from "./modules/catalog/admission-service.js";
 import { PgAssetRepository, type AssetRepository } from "./modules/catalog/repositories/asset-repository.js";
 import { PgSongRepository, type SongRepository } from "./modules/catalog/repositories/song-repository.js";
 import { CandidateBuilder } from "./modules/ingest/candidate-builder.js";
@@ -110,7 +111,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   if (ingest) {
     await registerAdminImportRoutes(server, {
       importCandidates: ingest.importCandidates,
-      scanScheduler: ingest.scheduler
+      scanScheduler: ingest.scheduler,
+      admissionService: ingest.admissionService
     });
   }
   await registerRoomSnapshotRoutes(server, {
@@ -149,18 +151,30 @@ function createRuntimeIngest(input: {
   config: ApiConfig;
   pool: Pool;
   scanSchedulerFactory: (options: ScanSchedulerOptions) => ScanScheduler;
-}): { scheduler: ScanScheduler; importCandidates: PgImportCandidateRepository } {
+}): {
+  scheduler: ScanScheduler;
+  importCandidates: PgImportCandidateRepository;
+  admissionService: CatalogAdmissionService;
+} {
   const paths = resolveLibraryPaths(input.config.mediaRoot);
   const importCandidates = new PgImportCandidateRepository(input.pool);
+  const importFiles = new PgImportFileRepository(input.pool);
   const candidateBuilder = new CandidateBuilder({ importCandidates });
   const scanner = new ImportScanner({
     paths,
-    importFiles: new PgImportFileRepository(input.pool),
+    importFiles,
     scanRuns: new PgScanRunRepository(input.pool),
     candidateBuilder
   });
+  const admissionService = new CatalogAdmissionService({
+    paths,
+    importCandidates,
+    importFiles,
+    catalogWriter: new PgCatalogAdmissionWriter(input.pool)
+  });
 
   return {
+    admissionService,
     importCandidates,
     scheduler: input.scanSchedulerFactory({
       scanner,

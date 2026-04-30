@@ -11,7 +11,7 @@ import type { ScanRunRepository } from "./repositories/scan-run-repository.js";
 
 export interface ImportScannerOptions {
   paths: LibraryPaths;
-  importFiles: ImportFileRepository;
+  importFiles: Pick<ImportFileRepository, "findByRootAndRelativePath" | "upsertDiscoveredFile" | "markDeleted">;
   scanRuns: ScanRunRepository;
   candidateBuilder: Pick<CandidateBuilder, "buildFromImportFiles">;
   probeMedia?: ProbeMediaFunction;

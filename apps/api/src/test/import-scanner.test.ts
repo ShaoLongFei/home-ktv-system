@@ -164,7 +164,7 @@ async function createScannerHarness(input: { existingFile: boolean; content: str
   };
 }
 
-class MemoryImportFileRepository implements ImportFileRepository {
+class MemoryImportFileRepository {
   readonly upserts: Array<{
     rootKind: ImportFile["rootKind"];
     relativePath: string;

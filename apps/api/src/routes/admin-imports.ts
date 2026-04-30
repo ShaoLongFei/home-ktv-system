@@ -1,4 +1,4 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply } from "fastify";
 import type {
   ImportCandidateFileDetail,
   ImportCandidateStatus,
@@ -13,6 +13,7 @@ import type {
   UpdateImportCandidateMetadataInput
 } from "../modules/ingest/repositories/import-candidate-repository.js";
 import type { ScanScheduler } from "../modules/ingest/scan-scheduler.js";
+import type { CatalogAdmissionService, ConflictResolution } from "../modules/catalog/admission-service.js";
 
 export interface AdminImportRouteDependencies {
   importCandidates: Pick<
@@ -20,6 +21,10 @@ export interface AdminImportRouteDependencies {
     "listCandidates" | "getCandidateWithFiles" | "updateCandidateMetadata"
   >;
   scanScheduler: Pick<ScanScheduler, "enqueueManualScan">;
+  admissionService?: Pick<
+    CatalogAdmissionService,
+    "holdCandidate" | "rejectDeleteCandidate" | "approveCandidate" | "resolveCandidateConflict"
+  >;
 }
 
 const importCandidateStatuses: ImportCandidateStatus[] = ["pending", "held", "review_required", "conflict"];
@@ -84,6 +89,67 @@ export async function registerAdminImportRoutes(
     const scan = dependencies.scanScheduler.enqueueManualScan(scope);
     scan.catch((error: unknown) => request.log.error({ error }, "Manual import scan failed"));
     return reply.code(202).send({ accepted: true, scope });
+  });
+
+  server.post("/admin/import-candidates/:candidateId/hold", async (request, reply) => {
+    const admissionService = dependencies.admissionService;
+    if (!admissionService) {
+      return reply.code(503).send({ error: "IMPORT_ADMISSION_UNAVAILABLE" });
+    }
+
+    const { candidateId } = request.params as { candidateId: string };
+    const result = await admissionService.holdCandidate(candidateId);
+    return { candidate: serializeCandidateWithFiles(result) };
+  });
+
+  server.post("/admin/import-candidates/:candidateId/reject-delete", async (request, reply) => {
+    const admissionService = dependencies.admissionService;
+    if (!admissionService) {
+      return reply.code(503).send({ error: "IMPORT_ADMISSION_UNAVAILABLE" });
+    }
+
+    const { candidateId } = request.params as { candidateId: string };
+    if (!isRecord(request.body) || request.body.confirmDelete !== true) {
+      return reply.code(400).send({ error: "DELETE_CONFIRMATION_REQUIRED" });
+    }
+
+    const result = await admissionService.rejectDeleteCandidate(candidateId, { confirmDelete: true });
+    return { candidate: serializeCandidateWithFiles(result) };
+  });
+
+  server.post("/admin/import-candidates/:candidateId/approve", async (request, reply) => {
+    const admissionService = dependencies.admissionService;
+    if (!admissionService) {
+      return reply.code(503).send({ error: "IMPORT_ADMISSION_UNAVAILABLE" });
+    }
+
+    const { candidateId } = request.params as { candidateId: string };
+    try {
+      const result = await admissionService.approveCandidate(candidateId);
+      return { candidate: serializeCandidateWithFiles(result), status: result.status, reason: result.reason };
+    } catch (error) {
+      return handleAdmissionError(reply, error);
+    }
+  });
+
+  server.post("/admin/import-candidates/:candidateId/resolve-conflict", async (request, reply) => {
+    const admissionService = dependencies.admissionService;
+    if (!admissionService) {
+      return reply.code(503).send({ error: "IMPORT_ADMISSION_UNAVAILABLE" });
+    }
+
+    const { candidateId } = request.params as { candidateId: string };
+    const resolution = parseConflictResolution(request.body);
+    if (!resolution) {
+      return reply.code(400).send({ error: "INVALID_CONFLICT_RESOLUTION" });
+    }
+
+    try {
+      const result = await admissionService.resolveCandidateConflict(candidateId, resolution);
+      return { candidate: serializeCandidateWithFiles(result), status: result.status, reason: result.reason };
+    } catch (error) {
+      return handleAdmissionError(reply, error);
+    }
   });
 }
 
@@ -176,6 +242,22 @@ function parseMetadataPatch(body: unknown): UpdateImportCandidateMetadataInput |
   return input;
 }
 
+function parseConflictResolution(body: unknown): ConflictResolution | null {
+  if (!isRecord(body) || typeof body.resolution !== "string") {
+    return null;
+  }
+
+  if (body.resolution === "merge_existing") {
+    const targetSongId = typeof body.targetSongId === "string" ? body.targetSongId : null;
+    return targetSongId ? { resolution: "merge_existing", targetSongId } : { resolution: "merge_existing" };
+  }
+  if (body.resolution === "create_version") {
+    const versionSuffix = typeof body.versionSuffix === "string" ? body.versionSuffix : null;
+    return versionSuffix ? { resolution: "create_version", versionSuffix } : { resolution: "create_version" };
+  }
+  return null;
+}
+
 function serializeCandidateWithFiles(record: ImportCandidateWithFiles) {
   return {
     ...record.candidate,
@@ -228,4 +310,18 @@ function isVocalMode(value: string): value is VocalMode {
 
 function isAssetKind(value: string): value is AssetKind {
   return assetKinds.includes(value as AssetKind);
+}
+
+function handleAdmissionError(reply: FastifyReply, error: unknown) {
+  if (isRecord(error) && typeof error.code === "string") {
+    const statusCode = error.code === "FORMAL_DIRECTORY_CONFLICT" ? 409 : 400;
+    return reply.code(statusCode).send({
+      error: error.code,
+      candidateId: error.candidateId,
+      status: error.status,
+      conflictMeta: error.conflictMeta
+    });
+  }
+
+  throw error;
 }

@@ -19,6 +19,10 @@ export interface ImportCandidateRepository {
     candidateId: ImportCandidateId,
     input: UpdateImportCandidateMetadataInput
   ): Promise<ImportCandidateWithFiles | null>;
+  updateCandidateStatus(
+    candidateId: ImportCandidateId,
+    input: UpdateImportCandidateStatusInput
+  ): Promise<ImportCandidateWithFiles | null>;
   listCandidateFileDetails(candidateId: ImportCandidateId): Promise<ImportCandidateFileDetail[]>;
   upsertCandidateWithFiles(input: UpsertImportCandidateWithFilesInput): Promise<ImportCandidate>;
 }
@@ -49,6 +53,13 @@ export interface UpdateImportCandidateMetadataInput {
     proposedVocalMode?: VocalMode;
     proposedAssetKind?: AssetKind;
   }>;
+}
+
+export interface UpdateImportCandidateStatusInput {
+  status: ImportCandidateStatus;
+  candidateMeta?: Record<string, unknown>;
+  reviewNotes?: string | null;
+  conflictSongId?: string | null;
 }
 
 export interface UpsertImportCandidateWithFilesInput {
@@ -291,6 +302,36 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
 
       return returnedCandidate;
     });
+  }
+
+  async updateCandidateStatus(
+    candidateId: ImportCandidateId,
+    input: UpdateImportCandidateStatusInput
+  ): Promise<ImportCandidateWithFiles | null> {
+    const existing = await this.findCandidateById(this.db, candidateId);
+    if (!existing) {
+      return null;
+    }
+
+    const candidateMeta = input.candidateMeta ? { ...existing.candidateMeta, ...input.candidateMeta } : existing.candidateMeta;
+    await this.db.query(
+      `UPDATE import_candidates
+       SET status = $2,
+           candidate_meta = $3::jsonb,
+           review_notes = $4,
+           conflict_song_id = $5,
+           updated_at = now()
+       WHERE id = $1`,
+      [
+        candidateId,
+        input.status,
+        candidateMeta,
+        input.reviewNotes ?? existing.reviewNotes,
+        input.conflictSongId ?? existing.conflictSongId
+      ]
+    );
+
+    return this.getCandidateWithFiles(candidateId);
   }
 
   async listCandidateFileDetails(candidateId: ImportCandidateId): Promise<ImportCandidateFileDetail[]> {

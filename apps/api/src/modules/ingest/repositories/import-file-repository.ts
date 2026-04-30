@@ -19,10 +19,18 @@ export interface MarkDeletedInput {
   relativePath: string;
 }
 
+export interface UpdateImportFileLocationInput {
+  importFileId: string;
+  rootKind: ImportFileRootKind;
+  relativePath: string;
+}
+
 export interface ImportFileRepository {
   findByRootAndRelativePath(rootKind: ImportFileRootKind, relativePath: string): Promise<ImportFile | null>;
   upsertDiscoveredFile(input: UpsertDiscoveredFileInput): Promise<ImportFile>;
+  updateFileLocation(input: UpdateImportFileLocationInput): Promise<void>;
   markDeleted(input: MarkDeletedInput): Promise<void>;
+  markDeletedById(importFileId: string): Promise<void>;
 }
 
 function toIsoString(value: Date | null): string | null {
@@ -119,6 +127,28 @@ export class PgImportFileRepository implements ImportFileRepository {
            updated_at = now()
        WHERE root_kind = $1 AND relative_path = $2`,
       [input.rootKind, input.relativePath]
+    );
+  }
+
+  async updateFileLocation(input: UpdateImportFileLocationInput): Promise<void> {
+    await this.db.query(
+      `UPDATE import_files
+       SET root_kind = $2,
+           relative_path = $3,
+           updated_at = now()
+       WHERE id = $1`,
+      [input.importFileId, input.rootKind, input.relativePath]
+    );
+  }
+
+  async markDeletedById(importFileId: string): Promise<void> {
+    await this.db.query(
+      `UPDATE import_files
+       SET probe_status = 'deleted',
+           deleted_at = now(),
+           updated_at = now()
+       WHERE id = $1`,
+      [importFileId]
     );
   }
 }
