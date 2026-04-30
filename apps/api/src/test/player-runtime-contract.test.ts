@@ -327,6 +327,7 @@ function createSong(): Song {
     artistId: "artist-jay",
     artistName: "周杰伦",
     language: "mandarin",
+    status: "ready",
     genre: [],
     tags: [],
     aliases: [],

@@ -176,6 +176,7 @@ function createSong(id: string, title: string, artistName: string, defaultAssetI
     artistId: `artist-${id}`,
     artistName,
     language: "mandarin",
+    status: "ready",
     genre: [],
     tags: [],
     aliases: [],

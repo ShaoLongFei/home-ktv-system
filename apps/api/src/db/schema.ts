@@ -11,10 +11,16 @@ export const tableNames = {
   queueEntries: "queue_entries",
   deviceSessions: "device_sessions",
   playbackSessions: "playback_sessions",
-  playbackEvents: "playback_events"
+  playbackEvents: "playback_events",
+  importScanRuns: "import_scan_runs",
+  importFiles: "import_files",
+  importCandidates: "import_candidates",
+  importCandidateFiles: "import_candidate_files",
+  sourceRecords: "source_records"
 } as const;
 
 export const enumValues = {
+  songStatus: ["ready", "review_required", "unavailable"],
   sourceType: ["local", "online_cached", "online_ephemeral"],
   assetKind: ["video", "audio+lyrics", "dual-track-video"],
   lyricMode: ["hard_sub", "soft_sub", "external_lrc", "none"],
@@ -24,7 +30,21 @@ export const enumValues = {
   roomStatus: ["active", "inactive", "maintenance"],
   queueEntryStatus: ["queued", "preparing", "loading", "playing", "played", "skipped", "failed"],
   deviceType: ["tv", "mobile"],
-  playerState: ["idle", "preparing", "loading", "playing", "paused", "recovering", "error"]
+  playerState: ["idle", "preparing", "loading", "playing", "paused", "recovering", "error"],
+  importScanTrigger: ["manual", "scheduled", "watcher"],
+  importScanStatus: ["queued", "running", "completed", "failed"],
+  importScanScope: ["imports", "songs", "all"],
+  importFileRootKind: ["imports_pending", "imports_needs_review", "songs"],
+  importFileProbeStatus: ["pending", "probed", "failed", "skipped", "deleted"],
+  importCandidateStatus: [
+    "pending",
+    "held",
+    "review_required",
+    "conflict",
+    "approved",
+    "rejected_deleted",
+    "approval_failed"
+  ]
 } as const;
 
 export interface SongRow {
@@ -36,6 +56,7 @@ export interface SongRow {
   artist_id: string;
   artist_name: string;
   language: string;
+  status: string;
   genre: readonly string[];
   tags: readonly string[];
   aliases: readonly string[];
@@ -124,6 +145,116 @@ export interface PlaybackEventRow {
   created_at: Date;
 }
 
+export interface ImportScanRunRow {
+  id: string;
+  trigger: string;
+  status: string;
+  scope: string;
+  files_seen: number;
+  files_added: number;
+  files_changed: number;
+  files_deleted: number;
+  candidates_created: number;
+  candidates_updated: number;
+  error_message: string | null;
+  started_at: Date | null;
+  finished_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ImportFileRow {
+  id: string;
+  last_seen_scan_run_id: string | null;
+  root_kind: string;
+  relative_path: string;
+  size_bytes: number;
+  mtime_ms: number;
+  quick_hash: string | null;
+  probe_status: string;
+  probe_payload: Record<string, unknown>;
+  duration_ms: number | null;
+  last_scanned_at: Date | null;
+  deleted_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ImportCandidateRow {
+  id: string;
+  status: string;
+  title: string;
+  normalized_title: string;
+  title_pinyin: string;
+  title_initials: string;
+  artist_id: string | null;
+  artist_name: string;
+  language: string;
+  genre: readonly string[];
+  tags: readonly string[];
+  aliases: readonly string[];
+  search_hints: readonly string[];
+  release_year: number | null;
+  canonical_duration_ms: number | null;
+  default_candidate_file_id: string | null;
+  same_version_confirmed: boolean;
+  conflict_song_id: string | null;
+  review_notes: string | null;
+  candidate_meta: Record<string, unknown>;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ImportCandidateFileRow {
+  id: string;
+  candidate_id: string;
+  import_file_id: string;
+  selected: boolean;
+  proposed_vocal_mode: string | null;
+  proposed_asset_kind: string | null;
+  role_confidence: number | null;
+  probe_duration_ms: number | null;
+  probe_summary: Record<string, unknown>;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface SourceRecordRow {
+  id: string;
+  asset_id: string;
+  provider: string;
+  provider_item_id: string | null;
+  source_uri: string | null;
+  import_file_id: string | null;
+  raw_meta: Record<string, unknown>;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ImportCandidateFileDetailRow {
+  candidate_file_id: string;
+  candidate_id: string;
+  import_file_id: string;
+  selected: boolean;
+  proposed_vocal_mode: string | null;
+  proposed_asset_kind: string | null;
+  role_confidence: number | null;
+  probe_duration_ms: number | null;
+  probe_summary: Record<string, unknown>;
+  candidate_file_created_at: Date;
+  candidate_file_updated_at: Date;
+  root_kind: string;
+  relative_path: string;
+  size_bytes: number;
+  mtime_ms: number;
+  quick_hash: string | null;
+  probe_status: string;
+  probe_payload: Record<string, unknown>;
+  duration_ms: number | null;
+  import_file_created_at: Date;
+  import_file_updated_at: Date;
+}
+
 export const schemaSql = `
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -136,6 +267,7 @@ CREATE TABLE IF NOT EXISTS songs (
   artist_id text NOT NULL,
   artist_name text NOT NULL,
   language text NOT NULL DEFAULT 'mandarin',
+  status text NOT NULL DEFAULT 'ready' CHECK (status IN ('ready', 'review_required', 'unavailable')),
   genre text[] NOT NULL DEFAULT '{}',
   tags text[] NOT NULL DEFAULT '{}',
   aliases text[] NOT NULL DEFAULT '{}',
