@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02; continuing Phase 2 Wave 3
-last_updated: "2026-04-30T10:10:34.617Z"
+stopped_at: Completed 02-03; continuing Phase 2 Wave 4
+last_updated: "2026-04-30T10:31:48.457Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 5
-  percent: 56
+  completed_plans: 6
+  percent: 67
 ---
 
 # Project State
@@ -26,30 +26,30 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 02 (library-ingest-catalog-admin) — EXECUTING
-Plan: 3 of 6
-Status: Completed 02-02; ready for 02-03
+Plan: 4 of 6
+Status: Completed 02-03; ready for 02-04
 Last activity: 2026-04-30
 
-Progress: [██████░░░░] 56%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 15 min
-- Total execution time: 1.2 hours
+- Total execution time: 1.5 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-media-contract-tv-runtime | 3 | 50min | 17min |
-| 02-library-ingest-catalog-admin | 2 | 24min | 12min |
+| 02-library-ingest-catalog-admin | 3 | 41min | 14min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-01 (12min), 01-02 (15min), 01-03 (23min), 02-01 (10min), 02-02 (14min)
+- Last 5 plans: 01-02 (15min), 01-03 (23min), 02-01 (10min), 02-02 (14min), 02-03 (17min)
 - Trend: Stable
 
 ## Accumulated Context
@@ -75,6 +75,9 @@ Recent decisions affecting current work:
 - [Phase 02]: SCAN_INTERVAL_MINUTES defaults to 360 minutes for lightweight scheduled reconciliation — Watcher events cover normal changes; scheduled scans are a low-frequency fallback to catch missed filesystem events.
 - [Phase 02]: All scan triggers route through ImportScanner.scan — Manual, scheduled, and watcher triggers now share the same scanner path so later admin APIs can reuse the same behavior.
 - [Phase 02]: Scan output persists grouped import candidates immediately — CandidateBuilder calls upsertCandidateWithFiles during scanning so Plan 02-03 can expose reviewable candidate work items instead of raw file rows only.
+- [Phase 02]: Import review metadata uses PATCH /admin/import-candidates/:candidateId — Plan 02-04 can use one canonical D-07 metadata update route without aliases.
+- [Phase 02]: Formal directory conflicts require explicit resolve-conflict — Approval never auto-merges existing same-language artist/title directories; admin must choose merge_existing or create_version.
+- [Phase 02]: approval_failed promotions rerun as repair when targetDirectory matches — Non-atomic filesystem/song.json/database promotion can be retried without converting the known target directory into a new conflict.
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T10:09:34.660Z
-Stopped at: Completed 02-02; continuing Phase 2 Wave 3
-Resume file: .planning/phases/02-library-ingest-catalog-admin/02-03-PLAN.md
+Last session: 2026-04-30T10:31:08.717Z
+Stopped at: Completed 02-03; continuing Phase 2 Wave 4
+Resume file: .planning/phases/02-library-ingest-catalog-admin/02-04-PLAN.md
