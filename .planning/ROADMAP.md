@@ -48,12 +48,15 @@ Plans:
   3. 只有满足同版本、同时轴和双资源就绪规则的歌曲会进入正式歌库主路径
   4. 接近合格但未达正式标准的资源会进入 `review-required`，明显不合格的资源会被拒绝
   5. 已批准歌曲会成为可维护的正式目录项，并允许修改默认资源与可用状态
-**Plans**: 3 plans
+**Plans**: 6 plans
 
 Plans:
-- [ ] 02-01: 实现本地扫描、媒体探测和候选导入流水线
-- [ ] 02-02: 实现导入审核与元数据修正后台流
-- [ ] 02-03: 实现歌曲/资源维护能力和正式切换准入规则
+- [ ] 02-01: 建立歌库导入的数据库、领域和明细契约
+- [ ] 02-02: 实现扫描、探测、候选生成和调度启动
+- [ ] 02-03: 实现导入审核、搁置、拒绝删除和准入 API
+- [ ] 02-04: 实现导入优先的后台审核工作台
+- [ ] 02-05: 实现正式歌库维护 API 和 song.json 一致性校验
+- [ ] 02-06: 实现正式歌库维护后台界面
 **UI hint**: yes
 
 ### Phase 3: Room Sessions & Queue Control
@@ -114,7 +117,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Media Contract & TV Runtime | 3/3 | Awaiting UAT | - |
-| 2. Library Ingest & Catalog Admin | 0/3 | Not started | - |
+| 2. Library Ingest & Catalog Admin | 0/6 | Not started | - |
 | 3. Room Sessions & Queue Control | 0/3 | Not started | - |
 | 4. Search & Song Selection | 0/2 | Not started | - |
 | 5. Online Supplement & Recovery | 0/3 | Not started | - |
