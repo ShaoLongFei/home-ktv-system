@@ -55,3 +55,52 @@ export interface CatalogSongListFilters {
   status?: SongStatus;
   language?: Language;
 }
+
+export interface SongMetadataPatch {
+  title: string;
+  artistName: string;
+  language: Language;
+  genre: string[];
+  tags: string[];
+  aliases: string[];
+  searchHints: string[];
+  releaseYear: number | null;
+  status: SongStatus;
+}
+
+export interface CatalogEvaluation {
+  status: "verified" | "review_required" | "rejected";
+  reason?: string;
+}
+
+export interface CatalogSongMutationResponse {
+  song: AdminCatalogSong;
+  evaluation?: CatalogEvaluation;
+}
+
+export interface CatalogAssetMutationResponse extends CatalogSongMutationResponse {
+  asset: AdminCatalogAsset;
+}
+
+export interface CatalogAssetPatch {
+  status?: AssetStatus;
+  vocalMode?: VocalMode;
+  lyricMode?: LyricMode;
+  switchFamily?: string | null;
+}
+
+export interface CatalogValidationIssue {
+  code: string;
+  severity: "warning" | "error";
+  message: string;
+  assetId?: string;
+  path?: string;
+  reason?: string;
+}
+
+export interface CatalogValidationResult {
+  status: "passed" | "review_required" | "failed";
+  songId: string;
+  songJsonPath: string;
+  issues: CatalogValidationIssue[];
+}

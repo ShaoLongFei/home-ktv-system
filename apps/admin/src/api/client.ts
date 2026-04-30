@@ -1,7 +1,13 @@
 import type {
   AdminCatalogSong,
+  CatalogAssetMutationResponse,
+  CatalogAssetPatch,
+  CatalogEvaluation,
   CatalogSongListFilters,
-  CatalogSongListResponse
+  CatalogSongListResponse,
+  CatalogSongMutationResponse,
+  CatalogValidationResult,
+  SongMetadataPatch
 } from "../songs/types.js";
 
 export async function fetchAdmin<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -32,6 +38,37 @@ export async function fetchCatalogSongs(filters: CatalogSongListFilters = {}): P
   const query = params.toString();
   const response = await fetchAdmin<CatalogSongListResponse>(`/admin/catalog/songs${query ? `?${query}` : ""}`);
   return response.songs;
+}
+
+export async function updateCatalogSong(songId: string, input: SongMetadataPatch): Promise<CatalogSongMutationResponse> {
+  return fetchAdmin<CatalogSongMutationResponse>(`/admin/catalog/songs/${songId}`, {
+    method: "PATCH",
+    body: JSON.stringify(input)
+  });
+}
+
+export async function updateCatalogDefaultAsset(songId: string, assetId: string): Promise<CatalogSongMutationResponse> {
+  return fetchAdmin<CatalogSongMutationResponse>(`/admin/catalog/songs/${songId}/default-asset`, {
+    method: "PATCH",
+    body: JSON.stringify({ assetId })
+  });
+}
+
+export async function updateCatalogAsset(assetId: string, patch: CatalogAssetPatch): Promise<CatalogAssetMutationResponse> {
+  return fetchAdmin<CatalogAssetMutationResponse>(`/admin/catalog/assets/${assetId}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch)
+  });
+}
+
+export async function revalidateCatalogSong(songId: string): Promise<CatalogSongMutationResponse & { evaluation: CatalogEvaluation }> {
+  return fetchAdmin<CatalogSongMutationResponse & { evaluation: CatalogEvaluation }>(`/admin/catalog/songs/${songId}/revalidate`, {
+    method: "POST"
+  });
+}
+
+export async function validateCatalogSong(songId: string): Promise<CatalogValidationResult> {
+  return fetchAdmin<CatalogValidationResult>(`/admin/catalog/songs/${songId}/validate`);
 }
 
 function adminUrl(path: string): string {

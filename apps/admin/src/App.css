@@ -694,6 +694,90 @@ button:disabled {
   margin: 2px 0 0;
 }
 
+.asset-editor-section,
+.validation-panel {
+  background: #ffffff;
+  border: 1px solid #d7dde2;
+  border-radius: 6px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.asset-editor-section h3,
+.validation-panel h3 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.asset-editor-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.asset-editor-card {
+  border: 1px solid #e2e7eb;
+  border-radius: 6px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.asset-editor-card header {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.asset-editor-card header div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.asset-editor-card small {
+  color: #63707b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-control-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+}
+
+.asset-control-grid label {
+  color: #43515c;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 5px;
+}
+
+.asset-control-grid input,
+.asset-control-grid select {
+  background: #ffffff;
+  border: 1px solid #b8c2ca;
+  border-radius: 5px;
+  color: #1e252b;
+  min-height: 34px;
+  padding: 6px 8px;
+}
+
+.validation-panel p,
+.validation-panel ul {
+  margin: 0;
+}
+
+.validation-panel ul {
+  display: grid;
+  gap: 5px;
+  padding-left: 18px;
+}
+
 @media (max-width: 800px) {
   .admin-header {
     align-items: stretch;
@@ -727,6 +811,7 @@ button:disabled {
   }
 
   .catalog-filters,
+  .asset-control-grid,
   .asset-facts {
     grid-template-columns: 1fr;
   }

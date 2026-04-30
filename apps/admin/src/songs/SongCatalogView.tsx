@@ -1,7 +1,24 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { fetchCatalogSongs } from "../api/client.js";
-import type { AdminCatalogAsset, AdminCatalogSong, Language, SongStatus } from "./types.js";
+import {
+  fetchCatalogSongs,
+  revalidateCatalogSong,
+  updateCatalogAsset,
+  updateCatalogDefaultAsset,
+  updateCatalogSong,
+  validateCatalogSong
+} from "../api/client.js";
+import { SongDetailEditor } from "./SongDetailEditor.js";
+import type {
+  AdminCatalogAsset,
+  AdminCatalogSong,
+  CatalogAssetPatch,
+  CatalogEvaluation,
+  CatalogValidationResult,
+  Language,
+  SongMetadataPatch,
+  SongStatus
+} from "./types.js";
 
 const songStatusOptions: Array<{ value: SongStatus | ""; label: string }> = [
   { value: "", label: "All statuses" },
@@ -18,9 +35,12 @@ const languageOptions: Array<{ value: Language | ""; label: string }> = [
 ];
 
 export function SongCatalogView() {
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<SongStatus | "">("");
   const [language, setLanguage] = useState<Language | "">("");
   const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
+  const [evaluation, setEvaluation] = useState<CatalogEvaluation | null>(null);
+  const [validation, setValidation] = useState<CatalogValidationResult | null>(null);
   const query = useQuery({
     queryKey: ["catalog-songs", status, language],
     queryFn: () =>
@@ -46,6 +66,43 @@ export function SongCatalogView() {
     () => songs.find((song) => song.id === selectedSongId) ?? songs[0] ?? null,
     [selectedSongId, songs]
   );
+
+  const saveMetadataMutation = useMutation({
+    mutationFn: ({ songId, input }: { songId: string; input: SongMetadataPatch }) => updateCatalogSong(songId, input),
+    onSuccess: (result) => cacheSong(queryClient, result.song)
+  });
+  const defaultAssetMutation = useMutation({
+    mutationFn: ({ songId, assetId }: { songId: string; assetId: string }) => updateCatalogDefaultAsset(songId, assetId),
+    onSuccess: (result) => {
+      setEvaluation(result.evaluation ?? null);
+      cacheSong(queryClient, result.song);
+    }
+  });
+  const assetMutation = useMutation({
+    mutationFn: ({ assetId, patch }: { assetId: string; patch: CatalogAssetPatch }) => updateCatalogAsset(assetId, patch),
+    onSuccess: (result) => {
+      setEvaluation(result.evaluation ?? null);
+      cacheSong(queryClient, result.song);
+    }
+  });
+  const revalidateMutation = useMutation({
+    mutationFn: (songId: string) => revalidateCatalogSong(songId),
+    onSuccess: (result) => {
+      setEvaluation(result.evaluation);
+      cacheSong(queryClient, result.song);
+    }
+  });
+  const validateMutation = useMutation({
+    mutationFn: (songId: string) => validateCatalogSong(songId),
+    onSuccess: (result) => setValidation(result)
+  });
+
+  const isBusy =
+    saveMetadataMutation.isPending ||
+    defaultAssetMutation.isPending ||
+    assetMutation.isPending ||
+    revalidateMutation.isPending ||
+    validateMutation.isPending;
 
   return (
     <main className="admin-shell">
@@ -103,7 +160,31 @@ export function SongCatalogView() {
         </aside>
 
         <section className="catalog-detail-pane" aria-label="Song resource detail">
-          {selectedSong ? <SongResourceSummary song={selectedSong} /> : <EmptySongDetail />}
+          {selectedSong ? (
+            <SongDetailEditor
+              evaluation={evaluation}
+              isBusy={isBusy}
+              song={selectedSong}
+              validation={validation}
+              onRevalidate={async (songId) => {
+                await revalidateMutation.mutateAsync(songId);
+              }}
+              onSaveMetadata={async (songId, input) => {
+                await saveMetadataMutation.mutateAsync({ songId, input });
+              }}
+              onSetDefaultAsset={async (songId, assetId) => {
+                await defaultAssetMutation.mutateAsync({ songId, assetId });
+              }}
+              onUpdateAsset={async (assetId, patch) => {
+                await assetMutation.mutateAsync({ assetId, patch });
+              }}
+              onValidate={async (songId) => {
+                await validateMutation.mutateAsync(songId);
+              }}
+            />
+          ) : (
+            <EmptySongDetail />
+          )}
         </section>
       </section>
     </main>
@@ -169,5 +250,11 @@ function EmptySongDetail() {
       <h2>Select a song</h2>
       <p>Formal song and resource maintenance controls will appear here.</p>
     </div>
+  );
+}
+
+function cacheSong(queryClient: ReturnType<typeof useQueryClient>, song: AdminCatalogSong) {
+  queryClient.setQueriesData<AdminCatalogSong[]>({ queryKey: ["catalog-songs"] }, (current) =>
+    current?.map((item) => (item.id === song.id ? song : item))
   );
 }
