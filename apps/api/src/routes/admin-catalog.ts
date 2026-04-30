@@ -18,6 +18,11 @@ import type {
   AdminCatalogSongRepository,
   UpdateSongMetadataInput
 } from "../modules/catalog/repositories/song-repository.js";
+import {
+  validateSongJsonConsistency,
+  type SongJsonConsistencyResult,
+  type SongJsonConsistencyStatus
+} from "../modules/catalog/song-json-consistency-validator.js";
 
 export interface AdminCatalogRouteDependencies {
   songs: Pick<
@@ -28,6 +33,7 @@ export interface AdminCatalogRouteDependencies {
     | "updateDefaultAsset"
   >;
   admissionService: Pick<CatalogAdmissionService, "revalidateFormalSong" | "updateFormalAssetWithRevalidation">;
+  songsRoot?: string;
 }
 
 const songStatuses: SongStatus[] = ["ready", "review_required", "unavailable"];
@@ -59,6 +65,24 @@ export async function registerAdminCatalogRoutes(
     }
 
     return { song: serializeCatalogSongRecord(record) };
+  });
+
+  server.get("/admin/catalog/songs/:songId/validate", async (request, reply) => {
+    if (!dependencies.songsRoot) {
+      return reply.code(503).send({ error: "SONGS_ROOT_UNAVAILABLE" });
+    }
+
+    const { songId } = request.params as { songId: string };
+    const record = await dependencies.songs.getFormalSongWithAssets(songId);
+    if (!record) {
+      return reply.code(404).send({ error: "FORMAL_SONG_NOT_FOUND" });
+    }
+
+    return validateSongJsonConsistency({
+      songsRoot: dependencies.songsRoot,
+      song: record.song,
+      assets: record.assets
+    });
   });
 
   server.patch("/admin/catalog/songs/:songId", async (request, reply) => {
@@ -125,6 +149,28 @@ export async function registerAdminCatalogRoutes(
     } catch (error) {
       return handleCatalogError(reply, error);
     }
+  });
+
+  server.post("/admin/catalog/validate-songs-root", async (_request, reply) => {
+    if (!dependencies.songsRoot) {
+      return reply.code(503).send({ error: "SONGS_ROOT_UNAVAILABLE" });
+    }
+
+    const records = await dependencies.songs.listFormalSongs({});
+    const results = await Promise.all(
+      records.map((record) =>
+        validateSongJsonConsistency({
+          songsRoot: dependencies.songsRoot as string,
+          song: record.song,
+          assets: record.assets
+        })
+      )
+    );
+
+    return {
+      status: aggregateValidationStatus(results),
+      results
+    };
   });
 }
 
@@ -260,6 +306,16 @@ function handleCatalogError(reply: FastifyReply, error: unknown) {
   }
 
   throw error;
+}
+
+function aggregateValidationStatus(results: SongJsonConsistencyResult[]): SongJsonConsistencyStatus {
+  if (results.some((result) => result.status === "failed")) {
+    return "failed";
+  }
+  if (results.some((result) => result.status === "review_required")) {
+    return "review_required";
+  }
+  return "passed";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

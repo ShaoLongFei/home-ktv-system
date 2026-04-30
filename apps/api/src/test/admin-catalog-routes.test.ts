@@ -1,3 +1,6 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import Fastify from "fastify";
 import type {
   Asset,
@@ -204,11 +207,53 @@ describe("admin catalog routes", () => {
       evaluation: { status: "verified" }
     });
   });
+
+  it("GET /admin/catalog/songs/:songId/validate exposes song.json consistency results", async () => {
+    const songsRoot = await createSongsRootWithValidSongJson();
+    const { server, songs } = await createAdminCatalogHarness({ songsRoot });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/admin/catalog/songs/song-1/validate"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(songs.getFormalSongWithAssets).toHaveBeenCalledWith("song-1");
+    expect(response.json()).toMatchObject({
+      status: "passed",
+      songId: "song-1",
+      issues: []
+    });
+  });
+
+  it("POST /admin/catalog/validate-songs-root scans formal songs through the validator", async () => {
+    const songsRoot = await createSongsRootWithValidSongJson();
+    const { server, songs } = await createAdminCatalogHarness({ songsRoot });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/admin/catalog/validate-songs-root",
+      payload: {}
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(songs.listFormalSongs).toHaveBeenCalledWith({});
+    expect(response.json()).toMatchObject({
+      status: "passed",
+      results: [
+        {
+          status: "passed",
+          songId: "song-1"
+        }
+      ]
+    });
+  });
 });
 
 async function createAdminCatalogHarness(input: {
   serviceRecord?: AdminCatalogSongRecord;
   serviceEvaluation?: { status: "verified" | "review_required" | "rejected"; reason?: string; pairAssetIds: string[] };
+  songsRoot?: string;
 } = {}) {
   const server = Fastify({ logger: false });
   const record = createSongRecord();
@@ -237,7 +282,10 @@ async function createAdminCatalogHarness(input: {
     }))
   };
 
-  await registerAdminCatalogRoutes(server, { songs, admissionService });
+  const dependencies = input.songsRoot
+    ? { songs, admissionService, songsRoot: input.songsRoot }
+    : { songs, admissionService };
+  await registerAdminCatalogRoutes(server, dependencies);
   return { server, songs, admissionService };
 }
 
@@ -314,4 +362,57 @@ function createAsset(
     updatedAt: new Date("2026-04-30T00:00:00.000Z").toISOString(),
     ...overrides
   };
+}
+
+async function createSongsRootWithValidSongJson(): Promise<string> {
+  const songsRoot = await import("node:fs/promises").then((fs) => fs.mkdtemp(path.join(tmpdir(), "home-ktv-admin-songs-")));
+  const songDirectory = path.join(songsRoot, "mandarin/周杰伦/七里香");
+  await mkdir(songDirectory, { recursive: true });
+  await writeFile(path.join(songDirectory, "original.mp4"), "original");
+  await writeFile(path.join(songDirectory, "instrumental.mp4"), "instrumental");
+  await writeFile(
+    path.join(songDirectory, "song.json"),
+    `${JSON.stringify(
+      {
+        title: "七里香",
+        artistName: "周杰伦",
+        language: "mandarin",
+        status: "ready",
+        defaultAssetId: "asset-instrumental",
+        defaultAssetPath: "instrumental.mp4",
+        assets: [
+          {
+            id: "asset-original",
+            filePath: "original.mp4",
+            vocalMode: "original",
+            lyricMode: "hard_sub",
+            status: "ready",
+            switchFamily: "main",
+            switchQualityStatus: "verified",
+            durationMs: 180000
+          },
+          {
+            id: "asset-instrumental",
+            filePath: "instrumental.mp4",
+            vocalMode: "instrumental",
+            lyricMode: "hard_sub",
+            status: "ready",
+            switchFamily: "main",
+            switchQualityStatus: "verified",
+            durationMs: 180000
+          }
+        ],
+        genre: ["pop"],
+        tags: ["ktv"],
+        aliases: ["Qi Li Xiang"],
+        searchHints: ["qlx"],
+        source: { provider: "local-import" }
+      },
+      null,
+      2
+    )}\n`,
+    "utf8"
+  );
+
+  return songsRoot;
 }

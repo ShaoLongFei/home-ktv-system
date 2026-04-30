@@ -117,7 +117,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     });
     await registerAdminCatalogRoutes(server, {
       songs: ingest.catalogSongs,
-      admissionService: ingest.admissionService
+      admissionService: ingest.admissionService,
+      songsRoot: ingest.paths.songsRoot
     });
   }
   await registerRoomSnapshotRoutes(server, {
@@ -160,6 +161,7 @@ function createRuntimeIngest(input: {
   scheduler: ScanScheduler;
   importCandidates: PgImportCandidateRepository;
   catalogSongs: PgSongRepository;
+  paths: ReturnType<typeof resolveLibraryPaths>;
   admissionService: CatalogAdmissionService;
 } {
   const paths = resolveLibraryPaths(input.config.mediaRoot);
@@ -186,6 +188,7 @@ function createRuntimeIngest(input: {
   return {
     admissionService,
     catalogSongs,
+    paths,
     importCandidates,
     scheduler: input.scanSchedulerFactory({
       scanner,
