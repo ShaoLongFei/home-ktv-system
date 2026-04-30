@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-03; continuing Phase 2 Wave 4
-last_updated: "2026-04-30T10:31:48.457Z"
+stopped_at: Completed 02-05; ready for 02-06
+last_updated: "2026-04-30T14:39:35.516Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 6
-  percent: 67
+  completed_plans: 8
+  percent: 89
 ---
 
 # Project State
@@ -26,31 +26,31 @@ See: .planning/PROJECT.md (updated 2026-04-28)
 ## Current Position
 
 Phase: 02 (library-ingest-catalog-admin) — EXECUTING
-Plan: 4 of 6
-Status: Completed 02-03; ready for 02-04
+Plan: 6 of 6
+Status: Completed 02-05; ready for 02-06
 Last activity: 2026-04-30
 
-Progress: [███████░░░] 67%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 6
-- Average duration: 15 min
-- Total execution time: 1.5 hours
+- Total plans completed: 8
+- Average duration: 18 min
+- Total execution time: 2.4 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-media-contract-tv-runtime | 3 | 50min | 17min |
-| 02-library-ingest-catalog-admin | 3 | 41min | 14min |
+| 02-library-ingest-catalog-admin | 5 | 1h 33min | 19min |
 
 **Recent Trend:**
 
-- Last 5 plans: 01-02 (15min), 01-03 (23min), 02-01 (10min), 02-02 (14min), 02-03 (17min)
-- Trend: Stable
+- Last 5 plans: 02-01 (10min), 02-02 (14min), 02-03 (17min), 02-04 (24min), 02-05 (28min)
+- Trend: Increasing with UI/API scope
 
 ## Accumulated Context
 
@@ -78,6 +78,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Import review metadata uses PATCH /admin/import-candidates/:candidateId — Plan 02-04 can use one canonical D-07 metadata update route without aliases.
 - [Phase 02]: Formal directory conflicts require explicit resolve-conflict — Approval never auto-merges existing same-language artist/title directories; admin must choose merge_existing or create_version.
 - [Phase 02]: approval_failed promotions rerun as repair when targetDirectory matches — Non-atomic filesystem/song.json/database promotion can be retried without converting the known target directory into a new conflict.
+- [Phase 02]: Admin app starts at the import workbench — Plan 02-04 keeps the first admin screen operational and imports-first, not a landing page.
+- [Phase 02]: Formal catalog maintenance mutations revalidate switch pairs — Plan 02-05 routes default asset and asset edits through CatalogAdmissionService before returning ready/verified state.
+- [Phase 02]: song.json validation resolves media paths under songsRoot — Unsafe paths, missing files, malformed metadata, and duration deltas over 300ms become structured validation issues.
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T10:31:08.717Z
-Stopped at: Completed 02-03; continuing Phase 2 Wave 4
-Resume file: .planning/phases/02-library-ingest-catalog-admin/02-04-PLAN.md
+Last session: 2026-04-30T14:39:35.513Z
+Stopped at: Completed 02-05; ready for 02-06
+Resume file: .planning/phases/02-library-ingest-catalog-admin/02-06-PLAN.md
