@@ -95,6 +95,68 @@ describe("admin import review routes", () => {
     expect(scanScheduler.enqueueManualScan).toHaveBeenCalledWith("all");
     expect(response.json()).toEqual({ accepted: true, scope: "all" });
   });
+
+  it("POST /admin/import-candidates/:candidateId/reject-delete requires confirmDelete", async () => {
+    const { server, admissionService } = await createAdminImportsHarness();
+
+    const missingConfirmation = await server.inject({
+      method: "POST",
+      url: "/admin/import-candidates/candidate-1/reject-delete",
+      payload: {}
+    });
+
+    expect(missingConfirmation.statusCode).toBe(400);
+    expect(missingConfirmation.json()).toMatchObject({ error: "DELETE_CONFIRMATION_REQUIRED" });
+    expect(admissionService.rejectDeleteCandidate).not.toHaveBeenCalled();
+
+    const confirmed = await server.inject({
+      method: "POST",
+      url: "/admin/import-candidates/candidate-1/reject-delete",
+      payload: { confirmDelete: true }
+    });
+
+    expect(confirmed.statusCode).toBe(200);
+    expect(admissionService.rejectDeleteCandidate).toHaveBeenCalledWith("candidate-1", { confirmDelete: true });
+  });
+
+  it("POST /admin/import-candidates/:candidateId/approve returns FORMAL_DIRECTORY_CONFLICT", async () => {
+    const { server, admissionService } = await createAdminImportsHarness();
+    admissionService.approveCandidate.mockRejectedValueOnce({
+      code: "FORMAL_DIRECTORY_CONFLICT",
+      candidateId: "candidate-1",
+      status: "conflict",
+      conflictMeta: { conflictType: "formal_directory_exists" }
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/admin/import-candidates/candidate-1/approve",
+      payload: {}
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({
+      error: "FORMAL_DIRECTORY_CONFLICT",
+      candidateId: "candidate-1",
+      status: "conflict"
+    });
+  });
+
+  it("POST /admin/import-candidates/:candidateId/resolve-conflict calls explicit conflict resolution", async () => {
+    const { server, admissionService } = await createAdminImportsHarness();
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/admin/import-candidates/candidate-1/resolve-conflict",
+      payload: { resolution: "create_version", versionSuffix: "live" }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(admissionService.resolveCandidateConflict).toHaveBeenCalledWith("candidate-1", {
+      resolution: "create_version",
+      versionSuffix: "live"
+    });
+  });
 });
 
 async function createAdminImportsHarness() {
@@ -112,9 +174,19 @@ async function createAdminImportsHarness() {
   const scanScheduler = {
     enqueueManualScan: vi.fn(async (_scope: ImportScanScope) => undefined)
   };
+  const admissionService = {
+    holdCandidate: vi.fn(async (_candidateId: string) => ({ candidate, files })),
+    rejectDeleteCandidate: vi.fn(async (_candidateId: string, _input: { confirmDelete: true }) => ({ candidate, files })),
+    approveCandidate: vi.fn(async (_candidateId: string) => ({ status: "approved", candidate, files })),
+    resolveCandidateConflict: vi.fn(async (_candidateId: string, _input: Record<string, unknown>) => ({
+      status: "approved",
+      candidate,
+      files
+    }))
+  };
 
-  await registerAdminImportRoutes(server, { importCandidates, scanScheduler });
-  return { server, importCandidates, scanScheduler };
+  await registerAdminImportRoutes(server, { importCandidates, scanScheduler, admissionService });
+  return { server, importCandidates, scanScheduler, admissionService };
 }
 
 function createCandidate(): ImportCandidate {
