@@ -1,20 +1,89 @@
 import type {
   AssetKind,
+  ImportCandidate,
   ImportCandidateFileDetail,
+  ImportCandidateStatus,
   ImportCandidateId,
   ImportFileProbeStatus,
   ImportFileRootKind,
+  Language,
   VocalMode
 } from "@home-ktv/domain";
 import type { QueryExecutor } from "../../../db/query-executor.js";
-import type { ImportCandidateFileDetailRow } from "../../../db/schema.js";
+import type { ImportCandidateFileDetailRow, ImportCandidateRow } from "../../../db/schema.js";
 
 export interface ImportCandidateRepository {
   listCandidateFileDetails(candidateId: ImportCandidateId): Promise<ImportCandidateFileDetail[]>;
+  upsertCandidateWithFiles(input: UpsertImportCandidateWithFilesInput): Promise<ImportCandidate>;
+}
+
+export interface UpsertImportCandidateWithFilesInput {
+  candidate: {
+    title: string;
+    artistName: string;
+    language: Language;
+    status?: ImportCandidateStatus;
+    candidateMeta?: Record<string, unknown>;
+  };
+  files: Array<{
+    importFileId: string;
+    selected: boolean;
+    proposedVocalMode: VocalMode;
+    proposedAssetKind: AssetKind;
+    roleConfidence: number;
+    probeDurationMs: number | null;
+    probeSummary: Record<string, unknown>;
+  }>;
+}
+
+interface ReleasableQueryExecutor extends QueryExecutor {
+  release(): void;
+}
+
+interface TransactionCapableQueryExecutor extends QueryExecutor {
+  connect?: () => Promise<ReleasableQueryExecutor>;
 }
 
 function toIsoString(value: Date): string {
   return value.toISOString();
+}
+
+function requireRow<TRow>(row: TRow | undefined, context: string): TRow {
+  if (!row) {
+    throw new Error(`${context} did not return a row`);
+  }
+  return row;
+}
+
+function normalizeTitle(value: string): string {
+  return value.trim().toLocaleLowerCase();
+}
+
+export function mapImportCandidateRow(row: ImportCandidateRow): ImportCandidate {
+  return {
+    id: row.id,
+    status: row.status as ImportCandidateStatus,
+    title: row.title,
+    normalizedTitle: row.normalized_title,
+    titlePinyin: row.title_pinyin,
+    titleInitials: row.title_initials,
+    artistId: row.artist_id,
+    artistName: row.artist_name,
+    language: row.language as Language,
+    genre: row.genre,
+    tags: row.tags,
+    aliases: row.aliases,
+    searchHints: row.search_hints,
+    releaseYear: row.release_year,
+    canonicalDurationMs: row.canonical_duration_ms,
+    defaultCandidateFileId: row.default_candidate_file_id,
+    sameVersionConfirmed: row.same_version_confirmed,
+    conflictSongId: row.conflict_song_id,
+    reviewNotes: row.review_notes,
+    candidateMeta: row.candidate_meta,
+    createdAt: toIsoString(row.created_at),
+    updatedAt: toIsoString(row.updated_at)
+  };
 }
 
 export function mapImportCandidateFileDetailRow(row: ImportCandidateFileDetailRow): ImportCandidateFileDetail {
@@ -45,6 +114,53 @@ export function mapImportCandidateFileDetailRow(row: ImportCandidateFileDetailRo
 
 export class PgImportCandidateRepository implements ImportCandidateRepository {
   constructor(private readonly db: QueryExecutor) {}
+
+  async upsertCandidateWithFiles(input: UpsertImportCandidateWithFilesInput): Promise<ImportCandidate> {
+    return this.withTransaction(async (db) => {
+      const candidate = await this.upsertCandidate(db, input);
+      const candidateFileIds: string[] = [];
+
+      for (const file of input.files) {
+        const fileResult = await db.query<{ id: string }>(
+          `INSERT INTO import_candidate_files (
+             candidate_id, import_file_id, selected, proposed_vocal_mode,
+             proposed_asset_kind, role_confidence, probe_duration_ms, probe_summary
+           )
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)
+           ON CONFLICT(candidate_id, import_file_id)
+           DO UPDATE SET
+             selected = EXCLUDED.selected,
+             proposed_vocal_mode = EXCLUDED.proposed_vocal_mode,
+             proposed_asset_kind = EXCLUDED.proposed_asset_kind,
+             role_confidence = EXCLUDED.role_confidence,
+             probe_duration_ms = EXCLUDED.probe_duration_ms,
+             probe_summary = EXCLUDED.probe_summary,
+             updated_at = now()
+           RETURNING id`,
+          [
+            candidate.id,
+            file.importFileId,
+            file.selected,
+            file.proposedVocalMode,
+            file.proposedAssetKind,
+            file.roleConfidence,
+            file.probeDurationMs,
+            file.probeSummary
+          ]
+        );
+        const candidateFileId = fileResult.rows[0]?.id;
+        if (candidateFileId) {
+          candidateFileIds.push(candidateFileId);
+        }
+      }
+
+      const returnedCandidate = candidateFileIds[0]
+        ? await this.setDefaultCandidateFile(db, candidate.id, candidateFileIds[0])
+        : candidate;
+
+      return returnedCandidate;
+    });
+  }
 
   async listCandidateFileDetails(candidateId: ImportCandidateId): Promise<ImportCandidateFileDetail[]> {
     const result = await this.db.query<ImportCandidateFileDetailRow>(
@@ -77,5 +193,125 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
     );
 
     return result.rows.map(mapImportCandidateFileDetailRow);
+  }
+
+  private async withTransaction<TResult>(work: (db: QueryExecutor) => Promise<TResult>): Promise<TResult> {
+    const connect = (this.db as TransactionCapableQueryExecutor).connect;
+
+    if (typeof connect === "function") {
+      const client = await connect.call(this.db);
+      try {
+        await client.query("BEGIN");
+        const result = await work(client);
+        await client.query("COMMIT");
+        return result;
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      } finally {
+        client.release();
+      }
+    }
+
+    await this.db.query("BEGIN");
+    try {
+      const result = await work(this.db);
+      await this.db.query("COMMIT");
+      return result;
+    } catch (error) {
+      await this.db.query("ROLLBACK");
+      throw error;
+    }
+  }
+
+  private async upsertCandidate(db: QueryExecutor, input: UpsertImportCandidateWithFilesInput): Promise<ImportCandidate> {
+    const groupKey = typeof input.candidate.candidateMeta?.groupKey === "string" ? input.candidate.candidateMeta.groupKey : null;
+    const existingId = groupKey ? await this.findExistingCandidateId(db, groupKey) : null;
+
+    if (existingId) {
+      const result = await db.query<ImportCandidateRow>(
+        `UPDATE import_candidates
+         SET status = $2,
+             title = $3,
+             normalized_title = $4,
+             artist_name = $5,
+             language = $6,
+             candidate_meta = $7::jsonb,
+             updated_at = now()
+         WHERE id = $1
+         RETURNING id, status, title, normalized_title, title_pinyin, title_initials,
+                   artist_id, artist_name, language, genre, tags, aliases, search_hints,
+                   release_year, canonical_duration_ms, default_candidate_file_id,
+                   same_version_confirmed, conflict_song_id, review_notes, candidate_meta,
+                   created_at, updated_at`,
+        [
+          existingId,
+          input.candidate.status ?? "pending",
+          input.candidate.title,
+          normalizeTitle(input.candidate.title),
+          input.candidate.artistName,
+          input.candidate.language,
+          input.candidate.candidateMeta ?? {}
+        ]
+      );
+      return mapImportCandidateRow(requireRow(result.rows[0], "import_candidates update"));
+    }
+
+    const result = await db.query<ImportCandidateRow>(
+      `INSERT INTO import_candidates (
+         status, title, normalized_title, artist_name, language, candidate_meta
+       )
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+       RETURNING id, status, title, normalized_title, title_pinyin, title_initials,
+                 artist_id, artist_name, language, genre, tags, aliases, search_hints,
+                 release_year, canonical_duration_ms, default_candidate_file_id,
+                 same_version_confirmed, conflict_song_id, review_notes, candidate_meta,
+                 created_at, updated_at`,
+      [
+        input.candidate.status ?? "pending",
+        input.candidate.title,
+        normalizeTitle(input.candidate.title),
+        input.candidate.artistName,
+        input.candidate.language,
+        input.candidate.candidateMeta ?? {}
+      ]
+    );
+
+    return mapImportCandidateRow(requireRow(result.rows[0], "import_candidates insert"));
+  }
+
+  private async findExistingCandidateId(db: QueryExecutor, groupKey: string): Promise<string | null> {
+    const result = await db.query<{ id: string }>(
+      `SELECT id
+       FROM import_candidates
+       WHERE candidate_meta->>'groupKey' = $1
+         AND status IN ('pending', 'held', 'review_required', 'conflict')
+       ORDER BY updated_at DESC
+       LIMIT 1`,
+      [groupKey]
+    );
+
+    return result.rows[0]?.id ?? null;
+  }
+
+  private async setDefaultCandidateFile(
+    db: QueryExecutor,
+    candidateId: string,
+    candidateFileId: string
+  ): Promise<ImportCandidate> {
+    const result = await db.query<ImportCandidateRow>(
+      `UPDATE import_candidates
+       SET default_candidate_file_id = $2,
+           updated_at = now()
+       WHERE id = $1
+       RETURNING id, status, title, normalized_title, title_pinyin, title_initials,
+                 artist_id, artist_name, language, genre, tags, aliases, search_hints,
+                 release_year, canonical_duration_ms, default_candidate_file_id,
+                 same_version_confirmed, conflict_song_id, review_notes, candidate_meta,
+                 created_at, updated_at`,
+      [candidateId, candidateFileId]
+    );
+
+    return mapImportCandidateRow(requireRow(result.rows[0], "import_candidates default candidate file update"));
   }
 }
