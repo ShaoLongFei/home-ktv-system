@@ -1,5 +1,6 @@
 import path from "node:path";
 import type { ImportScanScope } from "@home-ktv/domain";
+import type { Pool } from "pg";
 import { describe, expect, it, vi } from "vitest";
 import { createServer } from "../server.js";
 import { createScanScheduler, type ScanSchedulerWatcher } from "../modules/ingest/scan-scheduler.js";
@@ -69,7 +70,7 @@ describe("API scan scheduler startup", () => {
     };
 
     const server = await createServer(config, {
-      poolFactory: () => pool,
+      poolFactory: () => pool as unknown as Pool,
       scanSchedulerFactory: () => scheduler
     });
 
@@ -133,5 +134,5 @@ function createFakePool() {
       release: vi.fn()
     })),
     end: vi.fn(async () => undefined)
-  } as never;
+  };
 }

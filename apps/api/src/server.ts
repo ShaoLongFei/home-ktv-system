@@ -8,6 +8,13 @@ import { MediaPathResolver } from "./modules/assets/media-path-resolver.js";
 import { AssetGateway } from "./modules/assets/asset-gateway.js";
 import { PgAssetRepository, type AssetRepository } from "./modules/catalog/repositories/asset-repository.js";
 import { PgSongRepository, type SongRepository } from "./modules/catalog/repositories/song-repository.js";
+import { CandidateBuilder } from "./modules/ingest/candidate-builder.js";
+import { ImportScanner } from "./modules/ingest/import-scanner.js";
+import { resolveLibraryPaths } from "./modules/ingest/library-paths.js";
+import { PgImportCandidateRepository } from "./modules/ingest/repositories/import-candidate-repository.js";
+import { PgImportFileRepository } from "./modules/ingest/repositories/import-file-repository.js";
+import { PgScanRunRepository } from "./modules/ingest/repositories/scan-run-repository.js";
+import { createScanScheduler, type ScanScheduler, type ScanSchedulerOptions } from "./modules/ingest/scan-scheduler.js";
 import { PgPlayerDeviceSessionRepository, type PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
 import { PgPlaybackEventRepository, type PlaybackEventRepository } from "./modules/playback/repositories/playback-event-repository.js";
 import { PgPlaybackSessionRepository } from "./modules/playback/repositories/playback-session-repository.js";
@@ -22,6 +29,11 @@ import { registerCors } from "./routes/cors.js";
 import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
+
+export interface CreateServerOptions {
+  poolFactory?: (databaseUrl: string) => Pool;
+  scanSchedulerFactory?: (options: ScanSchedulerOptions) => ScanScheduler;
+}
 
 function createLivingRoom(config: ApiConfig): Room {
   const now = new Date().toISOString();
@@ -52,11 +64,11 @@ function createInitialPlaybackSession(room: Room): PlaybackSession {
   };
 }
 
-export async function createServer(config: ApiConfig = loadConfig()) {
+export async function createServer(config: ApiConfig = loadConfig(), options: CreateServerOptions = {}) {
   const server = Fastify({ logger: true });
   const room = createLivingRoom(config);
   const session = createInitialPlaybackSession(room);
-  const pool = config.databaseUrl ? new Pool({ connectionString: config.databaseUrl }) : null;
+  const pool = config.databaseUrl ? (options.poolFactory ?? createPgPool)(config.databaseUrl) : null;
   const repositories = pool ? createPgRepositories(pool) : createInMemoryRepositories(room, session);
   const assetRepository = repositories.assets;
   const assetGateway = new AssetGateway({
@@ -64,9 +76,22 @@ export async function createServer(config: ApiConfig = loadConfig()) {
     mediaPathResolver: new MediaPathResolver({ mediaRoot: config.mediaRoot }),
     publicBaseUrl: config.publicBaseUrl
   });
+  const scheduler =
+    pool && config.mediaRoot
+      ? createRuntimeScanScheduler({
+          config,
+          pool,
+          scanSchedulerFactory: options.scanSchedulerFactory ?? createScanScheduler
+        })
+      : null;
+
+  if (scheduler) {
+    await scheduler.start();
+  }
 
   if (pool) {
     server.addHook("onClose", async () => {
+      await scheduler?.close();
       await pool.end();
     });
   }
@@ -93,6 +118,10 @@ export async function createServer(config: ApiConfig = loadConfig()) {
   return server;
 }
 
+function createPgPool(databaseUrl: string): Pool {
+  return new Pool({ connectionString: databaseUrl });
+}
+
 function createPgRepositories(pool: Pool): PlayerRouteRepositories {
   const playbackSessions = new PgPlaybackSessionRepository(pool);
 
@@ -105,6 +134,28 @@ function createPgRepositories(pool: Pool): PlayerRouteRepositories {
     deviceSessions: new PgPlayerDeviceSessionRepository(pool),
     playbackEvents: new PgPlaybackEventRepository(pool)
   };
+}
+
+function createRuntimeScanScheduler(input: {
+  config: ApiConfig;
+  pool: Pool;
+  scanSchedulerFactory: (options: ScanSchedulerOptions) => ScanScheduler;
+}): ScanScheduler {
+  const paths = resolveLibraryPaths(input.config.mediaRoot);
+  const importCandidates = new PgImportCandidateRepository(input.pool);
+  const candidateBuilder = new CandidateBuilder({ importCandidates });
+  const scanner = new ImportScanner({
+    paths,
+    importFiles: new PgImportFileRepository(input.pool),
+    scanRuns: new PgScanRunRepository(input.pool),
+    candidateBuilder
+  });
+
+  return input.scanSchedulerFactory({
+    scanner,
+    paths,
+    scanIntervalMinutes: input.config.scanIntervalMinutes
+  });
 }
 
 function createInMemoryRepositories(room: Room, session: PlaybackSession): PlayerRouteRepositories {
