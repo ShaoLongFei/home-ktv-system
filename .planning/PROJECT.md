@@ -12,7 +12,8 @@
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Phase 1 validated the controlled media contract, TV runtime binding, playback telemetry, switch rollback, reconnect behavior, and explicit player conflict handling.
+- [x] Phase 2 validated local library scanning, import candidate review, strict formal catalog admission, `song.json` consistency validation, and admin maintenance for songs/resources.
 
 ### Active
 
@@ -44,6 +45,12 @@
 - 软件系统负责内容与控制，不负责实时麦克风效果处理
 - 架构方向是“中心服务端 + TV Player + Mobile Controller”
 - 计划复用开源播放器、拼音、搜索、媒体探测和下载工具，但保留 Session Engine、统一歌曲模型和搜索去重策略的自研空间
+
+当前实现状态：
+
+- Phase 1 已完成并验证：媒体契约、TV Player 绑定、播放中原唱/伴唱切换、重连恢复和冲突状态闭环已具备。
+- Phase 2 已完成并验证：本地歌库扫描、导入审核、正式歌库准入、`song.json` 校验和后台歌库维护已具备。
+- 下一阶段进入 Phase 3：扫码入场、服务端权威队列、多人控制端同步和播放控制闭环。
 
 ## Constraints
 
@@ -91,4 +98,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-28 after initialization*
+*Last updated: 2026-04-30 after Phase 02 verification*
