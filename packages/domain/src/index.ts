@@ -5,6 +5,8 @@ export type AssetId = EntityId;
 export type QueueEntryId = EntityId;
 export type DeviceSessionId = EntityId;
 export type PlaybackEventId = EntityId;
+export type ControlSessionId = EntityId;
+export type ControlCommandId = EntityId;
 export type SwitchFamily = string;
 
 export const switchFamily = {
@@ -25,6 +27,15 @@ export type DeviceType = "tv" | "mobile";
 export type SwitchQualityStatus = "verified" | "review_required" | "rejected" | "unknown";
 export type RoomStatus = "active" | "inactive" | "maintenance";
 export type QueueEntryStatus = "queued" | "preparing" | "loading" | "playing" | "played" | "skipped" | "failed";
+export type ControlCommandType =
+  | "add-queue-entry"
+  | "delete-queue-entry"
+  | "undo-delete-queue-entry"
+  | "promote-queue-entry"
+  | "skip-current"
+  | "switch-vocal-mode"
+  | "player-ended";
+export type ControlCommandResultStatus = "accepted" | "duplicate" | "conflict" | "rejected";
 export type ImportScanRunId = EntityId;
 export type ImportFileId = EntityId;
 export type ImportCandidateId = EntityId;
@@ -140,6 +151,28 @@ export interface DeviceSession {
   lastSeenAt: string | null;
   capabilities: Record<string, boolean | string | number>;
   pairingToken: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RoomPairingToken {
+  roomId: RoomId;
+  tokenValue: string;
+  tokenHash: string;
+  tokenExpiresAt: string;
+  rotatedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ControlSession {
+  id: ControlSessionId;
+  roomId: RoomId;
+  deviceId: string;
+  deviceName: string;
+  lastSeenAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

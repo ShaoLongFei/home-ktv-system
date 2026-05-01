@@ -1,4 +1,13 @@
-import type { AssetId, QueueEntryId, RoomId, SwitchFamily, VocalMode } from "@home-ktv/domain";
+import type {
+  AssetId,
+  ControlSessionId,
+  QueueEntryId,
+  QueueEntryStatus,
+  RoomId,
+  SongId,
+  SwitchFamily,
+  VocalMode
+} from "@home-ktv/domain";
 import type { PlayerTelemetryEventName } from "@home-ktv/protocol";
 
 export interface QueueEntryPreview {
@@ -63,6 +72,41 @@ export interface PairingInfo {
   tokenExpiresAt: string;
 }
 
+export interface ControlSessionInfo {
+  id: ControlSessionId;
+  roomId: RoomId;
+  roomSlug: string;
+  deviceId: string;
+  deviceName: string;
+  expiresAt: string;
+  lastSeenAt: string;
+}
+
+export interface TvPresence {
+  online: boolean;
+  deviceName: string | null;
+  lastSeenAt: string | null;
+  conflict: PlayerConflictState | null;
+}
+
+export interface ControllerPresenceSummary {
+  onlineCount: number;
+}
+
+export interface RoomQueueEntryPreview {
+  queueEntryId: QueueEntryId;
+  songId: SongId;
+  assetId: AssetId;
+  songTitle: string;
+  artistName: string;
+  requestedBy: string;
+  queuePosition: number;
+  status: QueueEntryStatus;
+  canPromote: boolean;
+  canDelete: boolean;
+  undoExpiresAt: string | null;
+}
+
 export interface PlayerConflictState {
   kind: "active-player-conflict";
   reason: "active-player-exists";
@@ -95,6 +139,22 @@ export interface RoomSnapshot {
   currentTarget: PlaybackTarget | null;
   switchTarget: SwitchTarget | null;
   conflict: PlayerConflictState | null;
+  notice: PlaybackNotice | null;
+  generatedAt: string;
+}
+
+export interface RoomControlSnapshot {
+  type: "room.control.snapshot";
+  roomId: RoomId;
+  roomSlug: string;
+  sessionVersion: number;
+  state: RoomSnapshotState;
+  pairing: PairingInfo;
+  tvPresence: TvPresence;
+  controllers: ControllerPresenceSummary;
+  currentTarget: PlaybackTarget | null;
+  switchTarget: SwitchTarget | null;
+  queue: readonly RoomQueueEntryPreview[];
   notice: PlaybackNotice | null;
   generatedAt: string;
 }
