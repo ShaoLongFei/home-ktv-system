@@ -24,6 +24,10 @@ import type {
   UpdatePlayerPositionInput
 } from "./modules/playback/repositories/playback-session-repository.js";
 import { PgQueueEntryRepository, type QueueEntryRepository } from "./modules/playback/repositories/queue-entry-repository.js";
+import {
+  InMemoryRoomPairingTokenRepository,
+  PgRoomPairingTokenRepository
+} from "./modules/rooms/repositories/pairing-token-repository.js";
 import { PgRoomRepository, type RoomRepository } from "./modules/rooms/repositories/room-repository.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerCors } from "./routes/cors.js";
@@ -148,6 +152,7 @@ function createPgRepositories(pool: Pool): PlayerRouteRepositories {
     queueEntries: new PgQueueEntryRepository(pool),
     assets: new PgAssetRepository(pool),
     songs: new PgSongRepository(pool),
+    pairingTokens: new PgRoomPairingTokenRepository(pool),
     deviceSessions: new PgPlayerDeviceSessionRepository(pool),
     playbackEvents: new PgPlaybackEventRepository(pool)
   };
@@ -216,6 +221,8 @@ class InMemoryRuntimeRepositories implements PlayerRouteRepositories {
   readonly songs: SongRepository = {
     findById: async () => null
   };
+
+  readonly pairingTokens = new InMemoryRoomPairingTokenRepository();
 
   readonly queueEntries: QueueEntryRepository = {
     findById: async () => null

@@ -4,6 +4,7 @@ import { AssetGateway } from "../modules/assets/asset-gateway.js";
 import { MediaPathResolver } from "../modules/assets/media-path-resolver.js";
 import type { AssetRepository } from "../modules/catalog/repositories/asset-repository.js";
 import { registerPlayer, type PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
+import { InMemoryRoomPairingTokenRepository } from "../modules/rooms/repositories/pairing-token-repository.js";
 import { ingestPlayerTelemetry } from "../modules/player/telemetry-service.js";
 import { applyReconnectRecovery } from "../modules/playback/apply-reconnect-recovery.js";
 import type { PlaybackEventRepository } from "../modules/playback/repositories/playback-event-repository.js";
@@ -27,6 +28,7 @@ describe("player runtime contract", () => {
       capabilities: { videoPool: "dual-video" },
       publicBaseUrl: "http://ktv.local",
       repository: deviceRepository,
+      pairingTokens: new InMemoryRoomPairingTokenRepository(),
       now
     });
 

@@ -10,7 +10,8 @@ import { buildSwitchTarget } from "../modules/playback/build-switch-target.js";
 import type { PlaybackSessionRepository } from "../modules/playback/repositories/playback-session-repository.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
-import { createPairingInfo } from "../modules/player/register-player.js";
+import { getOrCreatePairingInfo } from "../modules/rooms/pairing-token-service.js";
+import type { RoomPairingTokenRepository } from "../modules/rooms/repositories/pairing-token-repository.js";
 
 export interface RoomSnapshotRepositories {
   rooms: RoomRepository;
@@ -18,6 +19,7 @@ export interface RoomSnapshotRepositories {
   queueEntries: QueueEntryRepository;
   assets: AssetRepository;
   songs: SongRepository;
+  pairingTokens: RoomPairingTokenRepository;
 }
 
 export interface BuildRoomSnapshotInput {
@@ -37,9 +39,10 @@ export async function buildRoomSnapshot(input: BuildRoomSnapshotInput): Promise<
     return null;
   }
 
-  const pairing = createPairingInfo({
+  const pairing = await getOrCreatePairingInfo({
+    room,
     publicBaseUrl: input.config.publicBaseUrl,
-    roomSlug: room.slug,
+    repository: input.repositories.pairingTokens,
     now
   });
 

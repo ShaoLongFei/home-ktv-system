@@ -13,6 +13,7 @@ import { applySwitchTransition } from "../modules/playback/apply-switch-transiti
 import type { PlaybackEventRepository } from "../modules/playback/repositories/playback-event-repository.js";
 import type { PlaybackSessionRepository } from "../modules/playback/repositories/playback-session-repository.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
+import type { RoomPairingTokenRepository } from "../modules/rooms/repositories/pairing-token-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 import { buildRoomSnapshot } from "./room-snapshots.js";
 
@@ -34,6 +35,7 @@ export interface PlayerRouteRepositories {
   queueEntries: QueueEntryRepository;
   assets: AssetRepository;
   songs: SongRepository;
+  pairingTokens: RoomPairingTokenRepository;
   deviceSessions: PlayerDeviceSessionRepository;
   playbackEvents: PlaybackEventRepository;
 }
@@ -102,7 +104,8 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
       deviceName: body.deviceName ?? "TV Player",
       capabilities: body.capabilities ?? {},
       publicBaseUrl: dependencies.config.publicBaseUrl,
-      repository: dependencies.repositories.deviceSessions
+      repository: dependencies.repositories.deviceSessions,
+      pairingTokens: dependencies.repositories.pairingTokens
     });
     const snapshot = await buildRoomSnapshot({
       roomSlug,

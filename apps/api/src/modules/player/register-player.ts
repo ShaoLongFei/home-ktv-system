@@ -1,11 +1,10 @@
-import { randomUUID } from "node:crypto";
 import type { DeviceSession, DeviceSessionId, Room, RoomId } from "@home-ktv/domain";
 import type { PairingInfo, PlayerConflictState } from "@home-ktv/player-contracts";
 import type { QueryExecutor } from "../../db/query-executor.js";
 import type { DeviceSessionRow } from "../../db/schema.js";
+import { getOrCreatePairingInfo } from "../rooms/pairing-token-service.js";
+import type { RoomPairingTokenRepository } from "../rooms/repositories/pairing-token-repository.js";
 import { detectPlayerConflict } from "./conflict-service.js";
-
-const PAIRING_TOKEN_TTL_MS = 5 * 60 * 1000;
 
 export interface RegisterPlayerInput {
   room: Room;
@@ -14,6 +13,7 @@ export interface RegisterPlayerInput {
   capabilities: Record<string, boolean | string | number>;
   publicBaseUrl: string;
   repository: PlayerDeviceSessionRepository;
+  pairingTokens: RoomPairingTokenRepository;
   now?: Date;
 }
 
@@ -54,9 +54,10 @@ export interface PlayerDeviceSessionRepository {
 
 export async function registerPlayer(input: RegisterPlayerInput): Promise<RegisterPlayerResult> {
   const now = input.now ?? new Date();
-  const pairing = createPairingInfo({
+  const pairing = await getOrCreatePairingInfo({
+    room: input.room,
     publicBaseUrl: input.publicBaseUrl,
-    roomSlug: input.room.slug,
+    repository: input.pairingTokens,
     now
   });
   const conflict = await detectPlayerConflict({
@@ -89,28 +90,6 @@ export async function registerPlayer(input: RegisterPlayerInput): Promise<Regist
     deviceSession,
     pairing,
     conflict: null
-  };
-}
-
-export interface CreatePairingInfoInput {
-  publicBaseUrl: string;
-  roomSlug: string;
-  now?: Date;
-}
-
-export function createPairingInfo(input: CreatePairingInfoInput): PairingInfo {
-  const now = input.now ?? new Date();
-  const tokenExpiresAt = new Date(now.getTime() + PAIRING_TOKEN_TTL_MS);
-  const token = `${input.roomSlug}.${tokenExpiresAt.getTime()}.${randomUUID().replaceAll("-", "").slice(0, 16)}`;
-  const baseUrl = input.publicBaseUrl.trim().replace(/\/$/, "");
-  const controllerUrl = `${baseUrl || ""}/controller?room=${encodeURIComponent(input.roomSlug)}&token=${encodeURIComponent(token)}`;
-
-  return {
-    roomSlug: input.roomSlug,
-    controllerUrl,
-    qrPayload: controllerUrl,
-    token,
-    tokenExpiresAt: tokenExpiresAt.toISOString()
   };
 }
 
