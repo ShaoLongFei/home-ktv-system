@@ -16,7 +16,10 @@ export const tableNames = {
   importFiles: "import_files",
   importCandidates: "import_candidates",
   importCandidateFiles: "import_candidate_files",
-  sourceRecords: "source_records"
+  sourceRecords: "source_records",
+  roomPairingTokens: "room_pairing_tokens",
+  controlSessions: "control_sessions",
+  controlCommands: "control_commands"
 } as const;
 
 export const enumValues = {
@@ -231,6 +234,40 @@ export interface SourceRecordRow {
   updated_at: Date;
 }
 
+export interface RoomPairingTokenRow {
+  room_id: string;
+  token_value: string;
+  token_hash: string;
+  token_expires_at: Date;
+  rotated_at: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ControlSessionRow {
+  id: string;
+  room_id: string;
+  device_id: string;
+  device_name: string;
+  last_seen_at: Date;
+  expires_at: Date;
+  revoked_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ControlCommandRow {
+  command_id: string;
+  room_id: string;
+  control_session_id: string;
+  session_version: number;
+  command_type: string;
+  command_payload: Record<string, unknown>;
+  result_status: string;
+  result_payload: Record<string, unknown>;
+  created_at: Date;
+}
+
 export interface ImportCandidateFileDetailRow {
   candidate_file_id: string;
   candidate_id: string;
@@ -376,4 +413,57 @@ ON CONFLICT (slug) DO NOTHING;
 INSERT INTO playback_sessions (room_id, target_vocal_mode, player_state, player_position_ms, version)
 VALUES ('living-room', 'instrumental', 'idle', 0, 1)
 ON CONFLICT (room_id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS room_pairing_tokens (
+  room_id text PRIMARY KEY REFERENCES rooms(id) ON DELETE CASCADE,
+  token_value text NOT NULL,
+  token_hash text NOT NULL,
+  token_expires_at timestamptz NOT NULL,
+  rotated_at timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS control_sessions (
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  room_id text NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  device_id text NOT NULL,
+  device_name text NOT NULL DEFAULT 'Mobile Controller',
+  last_seen_at timestamptz NOT NULL DEFAULT now(),
+  expires_at timestamptz NOT NULL,
+  revoked_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(room_id, device_id)
+);
+
+CREATE TABLE IF NOT EXISTS control_commands (
+  command_id text PRIMARY KEY,
+  room_id text NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  control_session_id text NOT NULL REFERENCES control_sessions(id) ON DELETE CASCADE,
+  session_version integer NOT NULL CHECK (session_version >= 0),
+  command_type text NOT NULL CHECK (command_type IN (
+    'add-queue-entry',
+    'delete-queue-entry',
+    'undo-delete-queue-entry',
+    'promote-queue-entry',
+    'skip-current',
+    'switch-vocal-mode',
+    'player-ended'
+  )),
+  command_payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+  result_status text NOT NULL CHECK (result_status IN ('accepted', 'duplicate', 'conflict', 'rejected')),
+  result_payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS room_pairing_tokens_expiry_idx
+  ON room_pairing_tokens(room_id, token_expires_at);
+
+CREATE INDEX IF NOT EXISTS control_sessions_room_active_idx
+  ON control_sessions(room_id, expires_at, last_seen_at DESC)
+  WHERE revoked_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS control_commands_room_created_idx
+  ON control_commands(room_id, created_at DESC);
 `;
