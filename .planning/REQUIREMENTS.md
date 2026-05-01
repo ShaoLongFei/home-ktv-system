@@ -25,10 +25,10 @@ Requirements for the initial release. These map to roadmap phases and stay const
 
 ### Pairing & Controller Sessions
 
-- [ ] **PAIR-01**: 用户可以通过扫描电视上的二维码进入 `living-room` 控制页，二维码必须携带房间上下文和短时有效的 `pairingToken`
-- [ ] **PAIR-02**: 用户进入控制页后可以立即看到当前播放状态、当前队列和电视在线状态
-- [ ] **PAIR-03**: 已建立的控制会话在短时刷新或短时断线后可以恢复，而无需重新扫码
-- [ ] **PAIR-04**: 多个手机控制端可以同时加入同一个房间并共享同一套实时状态
+- [x] **PAIR-01**: 用户可以通过扫描电视上的二维码进入 `living-room` 控制页，二维码必须携带房间上下文和短时有效的 `pairingToken`
+- [x] **PAIR-02**: 用户进入控制页后可以立即看到当前播放状态、当前队列和电视在线状态
+- [x] **PAIR-03**: 已建立的控制会话在短时刷新或短时断线后可以恢复，而无需重新扫码
+- [x] **PAIR-04**: 多个手机控制端可以同时加入同一个房间并共享同一套实时状态
 
 ### Queue Control
 
@@ -115,10 +115,10 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | SRCH-02 | Phase 4 | Pending |
 | SRCH-03 | Phase 4 | Pending |
 | SRCH-04 | Phase 4 | Pending |
-| PAIR-01 | Phase 3 | Pending |
-| PAIR-02 | Phase 3 | Pending |
-| PAIR-03 | Phase 3 | Pending |
-| PAIR-04 | Phase 3 | Pending |
+| PAIR-01 | Phase 3 | Complete |
+| PAIR-02 | Phase 3 | Complete |
+| PAIR-03 | Phase 3 | Complete |
+| PAIR-04 | Phase 3 | Complete |
 | QUEU-01 | Phase 3 | Pending |
 | QUEU-02 | Phase 4 | Pending |
 | QUEU-03 | Phase 3 | Pending |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 3 planned
-last_updated: "2026-05-01T13:41:38.073Z"
-last_activity: 2026-05-01 -- Phase 03 execution started
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-05-01T13:55:50.474Z"
+last_activity: 2026-05-01
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 17
-  completed_plans: 9
+  completed_plans: 10
   percent: 100
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-30)
 ## Current Position
 
 Phase: 03 (room-sessions-queue-control) — EXECUTING
-Plan: 1 of 8
-Status: Executing Phase 03
-Last activity: 2026-05-01 -- Phase 03 execution started
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-05-01
 
 Progress: [██████████] 100%
 
@@ -51,6 +51,8 @@ Progress: [██████████] 100%
 
 - Last 5 plans: 02-02 (14min), 02-03 (17min), 02-04 (24min), 02-05 (28min), 02-06 (14min)
 - Trend: Phase 2 verified complete; ready for Phase 3 discussion
+
+| Phase 03-room-sessions-queue-control P01 | 11min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -83,6 +85,9 @@ Recent decisions affecting current work:
 - [Phase 02]: song.json validation resolves media paths under songsRoot — Unsafe paths, missing files, malformed metadata, and duration deltas over 300ms become structured validation issues.
 - [Phase 02]: Formal catalog maintenance UI sends only changed asset fields — Plan 02-06 avoids accidental resource overwrites when editing one maintenance field.
 - [Phase 02]: Admin UI exposes review_required duration results without manual override — Plan 02-06 preserves the strict `>300ms` no-force-verified rule in the frontend.
+- [Phase 03-room-sessions-queue-control]: Store both pairing token plaintext and hash so the same opaque QR token can be re-displayed until expiry while verification still uses the hash.
+- [Phase 03-room-sessions-queue-control]: Model control commands with explicit command/result status fields so later session-engine work can enforce idempotency and conflict handling.
+- [Phase 03-room-sessions-queue-control]: Introduce a separate mobile control snapshot contract instead of extending the TV snapshot shape.
 
 ### Pending Todos
 
@@ -96,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T16:57:31.649Z
-Stopped at: Phase 3 planned
-Resume file: .planning/phases/03-room-sessions-queue-control/03-01-PLAN.md
+Last session: 2026-05-01T13:55:50.471Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None

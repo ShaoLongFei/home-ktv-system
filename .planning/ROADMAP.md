@@ -71,7 +71,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: 实现二维码配对、`pairingToken` 和控制会话生命周期
+- [x] 03-01: 实现二维码配对、`pairingToken` 和控制会话生命周期
 - [ ] 03-02: 实现服务端权威 Session Engine 与队列命令处理
 - [ ] 03-03: 实现多控制端实时同步、当前歌曲控制和 TV 状态闭环
 **UI hint**: yes
