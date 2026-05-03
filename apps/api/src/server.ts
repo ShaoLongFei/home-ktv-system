@@ -17,6 +17,11 @@ import { PgImportFileRepository } from "./modules/ingest/repositories/import-fil
 import { PgScanRunRepository } from "./modules/ingest/repositories/scan-run-repository.js";
 import { createScanScheduler, type ScanScheduler, type ScanSchedulerOptions } from "./modules/ingest/scan-scheduler.js";
 import { PgPlayerDeviceSessionRepository, type PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
+import {
+  InMemoryControlSessionRepository,
+  PgControlSessionRepository,
+  type ControlSessionRepository
+} from "./modules/controller/repositories/control-session-repository.js";
 import { PgPlaybackEventRepository, type PlaybackEventRepository } from "./modules/playback/repositories/playback-event-repository.js";
 import { PgPlaybackSessionRepository } from "./modules/playback/repositories/playback-session-repository.js";
 import type {
@@ -33,6 +38,7 @@ import { registerHealthRoutes } from "./routes/health.js";
 import { registerCors } from "./routes/cors.js";
 import { registerAdminCatalogRoutes } from "./routes/admin-catalog.js";
 import { registerAdminImportRoutes } from "./routes/admin-imports.js";
+import { registerControlSessionRoutes } from "./routes/control-sessions.js";
 import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
@@ -130,6 +136,11 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     repositories,
     assetGateway
   });
+  await registerControlSessionRoutes(server, {
+    config: resolvedConfig,
+    repositories,
+    assetGateway
+  });
   await registerPlayerRoutes(server, {
     config: resolvedConfig,
     repositories,
@@ -143,7 +154,11 @@ function createPgPool(databaseUrl: string): Pool {
   return new Pool({ connectionString: databaseUrl });
 }
 
-function createPgRepositories(pool: Pool): PlayerRouteRepositories {
+type RuntimeRepositories = PlayerRouteRepositories & {
+  controlSessions: ControlSessionRepository;
+};
+
+function createPgRepositories(pool: Pool): RuntimeRepositories {
   const playbackSessions = new PgPlaybackSessionRepository(pool);
 
   return {
@@ -153,6 +168,7 @@ function createPgRepositories(pool: Pool): PlayerRouteRepositories {
     assets: new PgAssetRepository(pool),
     songs: new PgSongRepository(pool),
     pairingTokens: new PgRoomPairingTokenRepository(pool),
+    controlSessions: new PgControlSessionRepository(pool),
     deviceSessions: new PgPlayerDeviceSessionRepository(pool),
     playbackEvents: new PgPlaybackEventRepository(pool)
   };
@@ -203,11 +219,11 @@ function createRuntimeIngest(input: {
   };
 }
 
-function createInMemoryRepositories(room: Room, session: PlaybackSession): PlayerRouteRepositories {
+function createInMemoryRepositories(room: Room, session: PlaybackSession): RuntimeRepositories {
   return new InMemoryRuntimeRepositories(room, session);
 }
 
-class InMemoryRuntimeRepositories implements PlayerRouteRepositories {
+class InMemoryRuntimeRepositories implements RuntimeRepositories {
   readonly rooms: RoomRepository = {
     findById: async (roomId) => (roomId === this.room.id ? this.room : null),
     findBySlug: async (slug) => (slug === this.room.slug ? this.room : null)
@@ -223,6 +239,7 @@ class InMemoryRuntimeRepositories implements PlayerRouteRepositories {
   };
 
   readonly pairingTokens = new InMemoryRoomPairingTokenRepository();
+  readonly controlSessions = new InMemoryControlSessionRepository();
 
   readonly queueEntries: QueueEntryRepository = {
     findById: async () => null
