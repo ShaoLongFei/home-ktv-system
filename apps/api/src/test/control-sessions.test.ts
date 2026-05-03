@@ -108,6 +108,132 @@ describe("room pairing tokens", () => {
   });
 });
 
+describe("control sessions", () => {
+  it("POST /rooms/living-room/control-sessions sets the control session cookie", async () => {
+    const server = await createServer({
+      corsAllowedOrigins: [],
+      databaseUrl: "",
+      host: "0.0.0.0",
+      mediaRoot: "/media-root",
+      port: 4000,
+      publicBaseUrl: "http://ktv.local",
+      roomSlug: "living-room"
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/control-sessions",
+      payload: {
+        pairingToken: await seedPairingToken(server),
+        deviceId: "phone-a",
+        deviceName: "Controller A"
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["set-cookie"]).toContain(
+      "ktv_control_session="
+    );
+    expect(String(response.headers["set-cookie"])).toContain(
+      "HttpOnly; SameSite=Lax; Path=/; Max-Age=7200"
+    );
+    await server.close();
+  });
+
+  it("GET /rooms/living-room/control-session restores from cookie plus device id", async () => {
+    const server = await createServer({
+      corsAllowedOrigins: [],
+      databaseUrl: "",
+      host: "0.0.0.0",
+      mediaRoot: "/media-root",
+      port: 4000,
+      publicBaseUrl: "http://ktv.local",
+      roomSlug: "living-room"
+    });
+    const pairingToken = await seedPairingToken(server);
+    const created = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/control-sessions",
+      payload: {
+        pairingToken,
+        deviceId: "phone-a",
+        deviceName: "Controller A"
+      }
+    });
+    const cookie = extractControlSessionCookie(created.headers["set-cookie"]);
+
+    const restored = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/control-session?deviceId=phone-a",
+      headers: {
+        cookie
+      }
+    });
+
+    expect(restored.statusCode).toBe(200);
+    expect(restored.json().controlSession.deviceId).toBe("phone-a");
+    expect(String(restored.headers["set-cookie"])).toContain("Max-Age=7200");
+    await server.close();
+  });
+
+  it("restore touches last_seen_at, extends expires_at, and refreshes the cookie max age", async () => {
+    const server = await createServer({
+      corsAllowedOrigins: [],
+      databaseUrl: "",
+      host: "0.0.0.0",
+      mediaRoot: "/media-root",
+      port: 4000,
+      publicBaseUrl: "http://ktv.local",
+      roomSlug: "living-room"
+    });
+    const pairingToken = await seedPairingToken(server);
+    const created = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/control-sessions",
+      payload: {
+        pairingToken,
+        deviceId: "phone-a",
+        deviceName: "Controller A"
+      }
+    });
+    const cookie = extractControlSessionCookie(created.headers["set-cookie"]);
+
+    const restored = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/control-session?deviceId=phone-a",
+      headers: {
+        cookie
+      }
+    });
+
+    expect(restored.statusCode).toBe(200);
+    expect(restored.json().controlSession.expiresAt).toBeDefined();
+    expect(String(restored.headers["set-cookie"])).toContain("Max-Age=7200");
+    await server.close();
+  });
+
+  it("expired or revoked sessions return CONTROL_SESSION_REQUIRED", async () => {
+    const server = await createServer({
+      corsAllowedOrigins: [],
+      databaseUrl: "",
+      host: "0.0.0.0",
+      mediaRoot: "/media-root",
+      port: 4000,
+      publicBaseUrl: "http://ktv.local",
+      roomSlug: "living-room"
+    });
+
+    const missing = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/control-session?deviceId=phone-a"
+    });
+
+    expect(missing.statusCode).toBe(401);
+    expect(missing.json()).toEqual({ code: "CONTROL_SESSION_REQUIRED" });
+    await server.close();
+  });
+});
+
 function createRoom(): Room {
   const now = "2026-05-01T10:00:00.000Z";
   return {
@@ -119,4 +245,21 @@ function createRoom(): Room {
     createdAt: now,
     updatedAt: now
   };
+}
+
+async function seedPairingToken(server: Awaited<ReturnType<typeof createServer>>): Promise<string> {
+  const response = await server.inject({
+    method: "GET",
+    url: "/rooms/living-room/snapshot"
+  });
+
+  return response.json().pairing.token;
+}
+
+function extractControlSessionCookie(setCookie: unknown): string {
+  if (Array.isArray(setCookie)) {
+    return String(setCookie[0] ?? "");
+  }
+
+  return String(setCookie ?? "");
 }
