@@ -38,6 +38,7 @@ import { registerHealthRoutes } from "./routes/health.js";
 import { registerCors } from "./routes/cors.js";
 import { registerAdminCatalogRoutes } from "./routes/admin-catalog.js";
 import { registerAdminImportRoutes } from "./routes/admin-imports.js";
+import { registerAdminRoomsRoutes } from "./routes/admin-rooms.js";
 import { registerControlSessionRoutes } from "./routes/control-sessions.js";
 import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
@@ -131,6 +132,11 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
       songsRoot: ingest.paths.songsRoot
     });
   }
+  await registerAdminRoomsRoutes(server, {
+    config: resolvedConfig,
+    rooms: repositories.rooms,
+    pairingTokens: repositories.pairingTokens
+  });
   await registerRoomSnapshotRoutes(server, {
     config: resolvedConfig,
     repositories,
