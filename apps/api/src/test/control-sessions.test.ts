@@ -232,6 +232,68 @@ describe("control sessions", () => {
     expect(missing.json()).toEqual({ code: "CONTROL_SESSION_REQUIRED" });
     await server.close();
   });
+
+  it("POST /admin/rooms/living-room/pairing-token/refresh returns a different token and preserves active sessions", async () => {
+    const server = await createServer({
+      corsAllowedOrigins: [],
+      databaseUrl: "",
+      host: "0.0.0.0",
+      mediaRoot: "/media-root",
+      port: 4000,
+      publicBaseUrl: "http://ktv.local",
+      roomSlug: "living-room"
+    });
+
+    const originalPairing = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/snapshot"
+    });
+    const originalToken = originalPairing.json().pairing.token as string;
+
+    const created = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/control-sessions",
+      payload: {
+        pairingToken: originalToken,
+        deviceId: "phone-a",
+        deviceName: "Controller A"
+      }
+    });
+    const cookie = extractControlSessionCookie(created.headers["set-cookie"]);
+
+    const refreshed = await server.inject({
+      method: "POST",
+      url: "/admin/rooms/living-room/pairing-token/refresh"
+    });
+
+    expect(refreshed.statusCode).toBe(200);
+    expect(refreshed.json().pairing.token).not.toBe(originalToken);
+    expect(refreshed.json().pairing.tokenExpiresAt).toContain("T");
+
+    const rejected = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/control-sessions",
+      payload: {
+        pairingToken: originalToken,
+        deviceId: "phone-b",
+        deviceName: "Controller B"
+      }
+    });
+    expect(rejected.statusCode).toBe(401);
+    expect(rejected.json()).toEqual({ code: "INVALID_PAIRING_TOKEN" });
+
+    const restored = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/control-session?deviceId=phone-a",
+      headers: {
+        cookie
+      }
+    });
+
+    expect(restored.statusCode).toBe(200);
+    expect(restored.json().controlSession.deviceId).toBe("phone-a");
+    await server.close();
+  });
 });
 
 function createRoom(): Room {
