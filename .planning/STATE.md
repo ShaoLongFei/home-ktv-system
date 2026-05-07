@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-05-07T10:43:44.640Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-05-07T11:02:48.926Z"
 last_activity: 2026-05-07
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 23
-  completed_plans: 21
-  percent: 90
+  completed_plans: 22
+  percent: 96
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-04-30)
 ## Current Position
 
 Phase: 05 (online-supplement-recovery) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-05-07
 
-Progress: [█████████░] 90%
+Progress: [██████████] 96%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [█████████░] 90%
 | Phase 04-search-song-selection P02 | 9min | 2 tasks | 5 files |
 | Phase 04-search-song-selection P03 | 12min | 3 tasks | 10 files |
 | Phase 05 P01 | 18min | 3 tasks | 14 files |
+| Phase 05 P02 | 15min | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,9 @@ Recent decisions affecting current work:
 - [Phase 05]: Made online supplement candidates first-class shared domain contracts with explicit task states.
 - [Phase 05]: Kept supplement selection in a dedicated candidate-task service instead of routing it through queue-entry commands.
 - [Phase 05]: Rendered mobile online candidates beneath local results and kept request-supplement separate from add-to-queue.
+- [Phase 05]: Online task repair actions are room- and task-scoped under admin room routes, and do not enqueue playback.
+- [Phase 05]: Failed playback is marked as failed in queue history, then recovered by skipping to the next queue item or idle.
+- [Phase 05]: Ready online_cached assets remain supplement-sourced and queueable only when ready and switch-verified.
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-07T10:43:44.636Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-05-07T11:02:19.802Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
