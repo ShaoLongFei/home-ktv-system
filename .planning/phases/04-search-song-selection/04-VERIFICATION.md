@@ -66,7 +66,7 @@ human_verification:
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| API search normalization, repository, route, and selected queue commands | `pnpm -F @home-ktv/api test -- catalog-search-normalization catalog-search-repository song-search-routes room-queue-commands` | 22 test files passed, 109 tests passed | PASS |
+| API search normalization, repository, route, and selected queue commands | `pnpm -F @home-ktv/api test -- catalog-search-normalization catalog-search-repository song-search-routes room-queue-commands` | 22 test files passed, 110 tests passed | PASS |
 | Mobile search runtime/UI selection flow | `pnpm -F @home-ktv/mobile-controller test -- controller` | 1 test file passed, 21 tests passed | PASS |
 | Workspace type safety | `pnpm typecheck` | 12 turbo tasks successful | PASS |
 | Full build | Already-run supporting evidence from execution summaries: `pnpm build` passed | Not rerun during verification | PASS (supporting evidence) |

@@ -15,6 +15,7 @@ describe("catalog search repository", () => {
     const searchSql = db.searchSql();
     expect(searchSql).toContain("switch_quality_status = 'verified'");
     expect(searchSql).toContain("source_type <> 'online_ephemeral'");
+    expect(searchSql).toContain("lower(s.artist_name) LIKE $2");
     expect(searchSql).toContain("artist_pinyin");
     expect(searchSql).toContain("artist_initials");
     expect(searchSql).toContain("title_initials");
@@ -50,6 +51,16 @@ describe("catalog search repository", () => {
 
     expect(results[0]?.song.artistName).toBe("周杰伦");
     expect(results[0]?.matchReason).toBe("initials");
+  });
+
+  it("finds artist name partial matches", async () => {
+    const song = createSongRow({ artist_name: "周杰伦测试" });
+    const db = new FakeCatalogSearchDb([createSongSearchRows({ song })]);
+
+    const results = await new PgSongRepository(db).searchFormalSongs({ query: "周杰伦" });
+
+    expect(results[0]?.song.artistName).toBe("周杰伦测试");
+    expect(results[0]?.matchReason).toBe("artist");
   });
 
   it("maintains artist search keys when artist metadata changes", async () => {
@@ -215,6 +226,9 @@ function matchReasonFor(row: SearchFixtureRow, query: string): string {
   if (row.artist_initials.includes(query)) {
     return "initials";
   }
+  if (row.artist_name.toLowerCase().includes(query)) {
+    return "artist";
+  }
   if (row.normalized_title.includes(query)) {
     return "normalized_title";
   }
@@ -230,6 +244,9 @@ function scoreFor(row: SearchFixtureRow, query: string): number {
   }
   if (row.artist_initials.includes(query)) {
     return 500;
+  }
+  if (row.artist_name.toLowerCase().includes(query)) {
+    return 800;
   }
   if (row.normalized_title.includes(query)) {
     return 800;

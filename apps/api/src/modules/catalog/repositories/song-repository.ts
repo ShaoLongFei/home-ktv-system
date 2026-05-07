@@ -308,6 +308,7 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
                   WHEN $1 = '' THEN ${searchMatchScores.default}
                   WHEN s.normalized_title = $1 THEN ${searchMatchScores.title_exact}
                   WHEN lower(s.artist_name) = $1 THEN ${searchMatchScores.artist_exact}
+                  WHEN lower(s.artist_name) LIKE $2 THEN ${searchMatchScores.normalized_title}
                   WHEN s.normalized_title LIKE $2 OR similarity(s.normalized_title, $1) > 0.25 THEN ${searchMatchScores.normalized_title}
                   WHEN EXISTS (SELECT 1 FROM unnest(s.aliases) AS alias WHERE lower(alias) LIKE $2) THEN ${searchMatchScores.alias}
                   WHEN s.title_pinyin LIKE $2 OR s.artist_pinyin LIKE $2 THEN ${searchMatchScores.pinyin}
@@ -319,6 +320,7 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
                   WHEN $1 = '' THEN 'default'
                   WHEN s.normalized_title = $1 THEN 'title'
                   WHEN lower(s.artist_name) = $1 THEN 'artist'
+                  WHEN lower(s.artist_name) LIKE $2 THEN 'artist'
                   WHEN s.normalized_title LIKE $2 OR similarity(s.normalized_title, $1) > 0.25 THEN 'normalized_title'
                   WHEN EXISTS (SELECT 1 FROM unnest(s.aliases) AS alias WHERE lower(alias) LIKE $2) THEN 'alias'
                   WHEN s.title_pinyin LIKE $2 OR s.artist_pinyin LIKE $2 THEN 'pinyin'
@@ -333,6 +335,7 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
              $1 = ''
              OR s.normalized_title = $1
              OR lower(s.artist_name) = $1
+             OR lower(s.artist_name) LIKE $2
              OR s.normalized_title LIKE $2
              OR similarity(s.normalized_title, $1) > 0.25
              OR EXISTS (SELECT 1 FROM unnest(s.aliases) AS alias WHERE lower(alias) LIKE $2)
