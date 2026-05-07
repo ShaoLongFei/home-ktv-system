@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ApiConfig } from "../config.js";
-import { buildRoomControlSnapshot } from "../modules/rooms/build-control-snapshot.js";
+import { buildEmptyOnlineTaskSummary, buildRoomControlSnapshot } from "../modules/rooms/build-control-snapshot.js";
 import { getOrCreatePairingInfo, refreshPairingToken } from "../modules/rooms/pairing-token-service.js";
 import type { AssetGateway } from "../modules/assets/asset-gateway.js";
 import type { AssetRepository } from "../modules/catalog/repositories/asset-repository.js";
@@ -13,6 +13,7 @@ import type { RoomPairingTokenRepository } from "../modules/rooms/repositories/p
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
 import type { CandidateTaskService } from "../modules/online/candidate-task-service.js";
+import type { PlaybackEventRepository } from "../modules/playback/repositories/playback-event-repository.js";
 
 export interface AdminRoomsRouteDependencies {
   config: ApiConfig;
@@ -25,7 +26,8 @@ export interface AdminRoomsRouteDependencies {
   controlSessions: ControlSessionRepository;
   assetGateway: AssetGateway;
   deviceSessions: PlayerDeviceSessionRepository;
-  onlineTasks?: Pick<CandidateTaskService, "retryTask" | "purgeTask" | "promoteTask">;
+  playbackEvents?: Pick<PlaybackEventRepository, "listRecentByRoom"> | undefined;
+  onlineTasks?: Pick<CandidateTaskService, "listActiveForRoom" | "retryTask" | "purgeTask" | "promoteTask"> | undefined;
 }
 
 export async function registerAdminRoomsRoutes(
@@ -49,7 +51,9 @@ export async function registerAdminRoomsRoutes(
         songs: dependencies.songs,
         pairingTokens: dependencies.pairingTokens,
         controlSessions: dependencies.controlSessions,
-        deviceSessions: dependencies.deviceSessions
+        deviceSessions: dependencies.deviceSessions,
+        playbackEvents: dependencies.playbackEvents,
+        onlineTasks: dependencies.onlineTasks
       },
       assetGateway: dependencies.assetGateway
     });
@@ -131,7 +135,7 @@ async function buildFallbackRoomStatus(
   dependencies: AdminRoomsRouteDependencies
 ): Promise<any> {
   const now = new Date();
-  const [pairing, session, effectiveQueue, removedQueue, onlineCount] = await Promise.all([
+  const [pairing, session, effectiveQueue, removedQueue, onlineCount, recentEvents, onlineTasks] = await Promise.all([
     getOrCreatePairingInfo({
       room,
       publicBaseUrl: dependencies.config.publicBaseUrl,
@@ -142,7 +146,13 @@ async function buildFallbackRoomStatus(
     dependencies.playbackSessions.findByRoomId(room.id),
     dependencies.queueEntries.listEffectiveQueue(room.id),
     dependencies.queueEntries.listUndoableRemoved(room.id, now),
-    dependencies.controlSessions.countActiveByRoom(room.id, new Date(now.getTime() - 60 * 1000))
+    dependencies.controlSessions.countActiveByRoom(room.id, new Date(now.getTime() - 60 * 1000)),
+    typeof dependencies.playbackEvents?.listRecentByRoom === "function"
+      ? dependencies.playbackEvents.listRecentByRoom(room.id, 20)
+      : Promise.resolve([]),
+    typeof dependencies.onlineTasks?.listActiveForRoom === "function"
+      ? dependencies.onlineTasks.listActiveForRoom(room.id)
+      : Promise.resolve([])
   ]);
 
   const currentQueueEntry = session?.currentQueueEntryId ? await dependencies.queueEntries.findById(session.currentQueueEntryId) : null;
@@ -189,6 +199,37 @@ async function buildFallbackRoomStatus(
         : null,
     switchTarget: null,
     queue,
+    recentEvents,
+    onlineTasks: {
+      counts: onlineTasks.reduce<Record<string, number>>(
+        (counts, task) => {
+          counts.total = (counts.total ?? 0) + 1;
+          counts[task.status] = (counts[task.status] ?? 0) + 1;
+          return counts;
+        },
+        { total: 0 }
+      ),
+      tasks: onlineTasks.map((task) => ({
+        taskId: task.id,
+        roomId: task.roomId,
+        provider: task.provider,
+        providerCandidateId: task.providerCandidateId,
+        title: task.title,
+        artistName: task.artistName,
+        sourceLabel: task.sourceLabel,
+        durationMs: task.durationMs,
+        candidateType: task.candidateType,
+        reliabilityLabel: task.reliabilityLabel,
+        riskLabel: task.riskLabel,
+        status: task.status,
+        failureReason: task.failureReason,
+        recentEvent: task.recentEvent,
+        recentEventAt: typeof task.recentEvent.at === "string" ? task.recentEvent.at : task.updatedAt,
+        readyAssetId: task.readyAssetId,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt
+      }))
+    },
     notice: null,
     generatedAt: now.toISOString()
   };
@@ -216,7 +257,9 @@ function toRoomStatusResponse(
           vocalMode: snapshot.currentTarget.vocalMode
         }
       : null,
-    queue: snapshot.queue
+    queue: snapshot.queue,
+    recentEvents: snapshot.recentEvents ?? [],
+    onlineTasks: snapshot.onlineTasks ?? buildEmptyOnlineTaskSummary()
   };
 }
 

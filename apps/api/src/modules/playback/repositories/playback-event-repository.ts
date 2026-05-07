@@ -11,6 +11,7 @@ export interface CreatePlaybackEventInput<TPayload extends Record<string, unknow
 
 export interface PlaybackEventRepository {
   append<TPayload extends Record<string, unknown>>(input: CreatePlaybackEventInput<TPayload>): Promise<PlaybackEvent<TPayload>>;
+  listRecentByRoom?(roomId: RoomId, limit?: number): Promise<PlaybackEvent[]>;
 }
 
 function mapPlaybackEventRow<TPayload extends Record<string, unknown>>(row: PlaybackEventRow): PlaybackEvent<TPayload> {
@@ -43,5 +44,19 @@ export class PgPlaybackEventRepository implements PlaybackEventRepository {
     }
 
     return mapPlaybackEventRow<TPayload>(row);
+  }
+
+  async listRecentByRoom(roomId: RoomId, limit = 20): Promise<PlaybackEvent[]> {
+    const boundedLimit = Math.max(1, Math.min(limit, 100));
+    const result = await this.db.query<PlaybackEventRow>(
+      `SELECT id, room_id, queue_entry_id, event_type, event_payload, created_at
+       FROM playback_events
+       WHERE room_id = $1
+       ORDER BY created_at DESC, id DESC
+       LIMIT $2`,
+      [roomId, boundedLimit]
+    );
+
+    return result.rows.map(mapPlaybackEventRow);
   }
 }

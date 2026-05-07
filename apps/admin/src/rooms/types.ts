@@ -49,6 +49,43 @@ export interface RoomStatusResponse {
     vocalMode: string;
   } | null;
   queue: RoomQueueEntryPreview[];
+  recentEvents: RoomRecentPlaybackEvent[];
+  onlineTasks: RoomOnlineTaskSummary;
+}
+
+export interface RoomRecentPlaybackEvent {
+  id: string;
+  roomId: string;
+  queueEntryId: string | null;
+  eventType: string;
+  eventPayload: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface RoomOnlineTaskSummary {
+  counts: Record<string, number>;
+  tasks: RoomOnlineTaskSummaryRow[];
+}
+
+export interface RoomOnlineTaskSummaryRow {
+  taskId: string;
+  roomId: string;
+  provider: string;
+  providerCandidateId: string;
+  title: string;
+  artistName: string;
+  sourceLabel: string;
+  durationMs: number | null;
+  candidateType: string;
+  reliabilityLabel: string;
+  riskLabel: string;
+  status: string;
+  failureReason: string | null;
+  recentEvent: Record<string, unknown>;
+  recentEventAt: string | null;
+  readyAssetId: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RoomStatusRefreshResponse {
