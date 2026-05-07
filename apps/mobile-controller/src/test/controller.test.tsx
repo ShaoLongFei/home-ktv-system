@@ -284,7 +284,7 @@ describe("mobile controller runtime", () => {
     installWebSocketMock();
 
     render(<App />);
-    await screen.findByText("七里香");
+    await screen.findByText("电视在线");
     await user.click(screen.getByRole("button", { name: "切歌" }));
     expect(screen.getByRole("dialog", { name: "确认切歌" })).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "确认" }));
@@ -356,11 +356,105 @@ describe("mobile controller runtime", () => {
 
     render(<App />);
 
-    await screen.findByText("七里香");
+    await screen.findByText("电视在线");
     expect(requests.some((request) => request.url.includes("/control-session"))).toBe(true);
     const modeSummary = screen.getByLabelText("current-vocal-mode");
     expect(modeSummary.textContent).toContain("当前模式");
     expect(modeSummary.textContent).toContain("伴唱");
+  });
+
+  it("searches while typing and submits immediately from the search form", async () => {
+    vi.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+    await flush();
+    expect(screen.getByText("电视在线")).toBeTruthy();
+    const searchInput = screen.getByLabelText("搜索歌曲");
+    requests.length = 0;
+
+    await user.type(searchInput, "qlx");
+    await vi.advanceTimersByTimeAsync(250);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(true);
+
+    requests.length = 0;
+    await user.clear(searchInput);
+    await user.type(searchInput, "晴天{Enter}");
+    await flush();
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=%E6%99%B4%E5%A4%A9&limit=30")).toBe(true);
+  });
+
+  it("renders local search results, statuses, version hints, and selected asset add buttons", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    expect(await screen.findByText("晴天")).toBeTruthy();
+    expect(screen.getByText("本地可播")).toBeTruthy();
+    expect(screen.getByText("已点 / 队列中")).toBeTruthy();
+    expect(screen.getByText("1 个版本")).toBeTruthy();
+    expect(screen.getByText("2 个版本")).toBeTruthy();
+    expect(screen.getByText("推荐")).toBeTruthy();
+    expect(screen.getByText("现场版")).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "点歌" }));
+    await flush();
+
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
+      songId: "song-sunny",
+      assetId: "asset-sunny-main"
+    });
+  });
+
+  it("confirms queued multi-version duplicate add before sending the selected assetId", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+    await screen.findAllByText("七里香");
+    const versionButtons = screen.getAllByRole("button", { name: "点这个版本" });
+
+    await user.click(versionButtons[1]!);
+
+    expect(screen.getByRole("dialog", { name: "重复点歌" })).toBeTruthy();
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
+    await user.click(screen.getByRole("button", { name: "确认加点" }));
+    await flush();
+
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
+      songId: "song-qlx",
+      assetId: "asset-qlx-live"
+    });
+  });
+
+  it("shows local empty state before the disabled online placeholder without online queue controls", async () => {
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: (query) => ({
+        query,
+        local: [],
+        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("电视在线");
+    expect(screen.getByText("本地未找到")).toBeTruthy();
+    expect(screen.getByText("本地未入库，补歌功能后续可用")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /补歌|缓存|在线/u })).toBeNull();
   });
 });
 
@@ -395,6 +489,7 @@ function installControllerFetchMock(options: {
   restoreResponses?: Response[];
   createResponses?: Response[];
   commandResponses?: Record<string, Response>;
+  songSearchResponse?: (query: string) => unknown;
 } = {}) {
   const requests: RequestRecord[] = [];
   const restoreResponses = [...(options.restoreResponses ?? [json(sessionResponse(roomSnapshot()))])];
@@ -425,7 +520,8 @@ function installControllerFetchMock(options: {
       }
 
       if (method === "GET" && requestUrl.pathname.endsWith("/songs/search")) {
-        return json(songSearchResponse(requestUrl.searchParams.get("q") ?? ""));
+        const query = requestUrl.searchParams.get("q") ?? "";
+        return json((options.songSearchResponse ?? songSearchResponse)(query));
       }
 
       const commandResponse = commandResponses[requestUrl.pathname];
@@ -521,7 +617,7 @@ function songSearchResponse(query: string) {
     query,
     local: [
       {
-        songId: "song-ready",
+        songId: "song-sunny",
         title: "晴天",
         artistName: "周杰伦",
         language: "mandarin",
@@ -529,13 +625,41 @@ function songSearchResponse(query: string) {
         queueState: "not_queued",
         versions: [
           {
-            assetId: "asset-ready-alt",
+            assetId: "asset-sunny-main",
             displayName: "高清版",
             sourceType: "local",
             sourceLabel: "本地",
             durationMs: 180000,
             qualityLabel: "HD",
             isRecommended: true
+          }
+        ]
+      },
+      {
+        songId: "song-qlx",
+        title: "七里香",
+        artistName: "周杰伦",
+        language: "mandarin",
+        matchReason: query ? "initials" : "default",
+        queueState: "queued",
+        versions: [
+          {
+            assetId: "asset-qlx-hd",
+            displayName: "高清版",
+            sourceType: "local",
+            sourceLabel: "本地",
+            durationMs: 240000,
+            qualityLabel: "HD",
+            isRecommended: true
+          },
+          {
+            assetId: "asset-qlx-live",
+            displayName: "现场版",
+            sourceType: "online_cached",
+            sourceLabel: "缓存",
+            durationMs: 245000,
+            qualityLabel: "Live",
+            isRecommended: false
           }
         ]
       }
