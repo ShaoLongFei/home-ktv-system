@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-05-07T06:38:17.706Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-05-07T06:51:42.026Z"
 last_activity: 2026-05-07
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 20
-  completed_plans: 18
+  completed_plans: 19
   percent: 90
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-30)
 ## Current Position
 
 Phase: 04 (search-song-selection) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-05-07
 
@@ -54,6 +54,7 @@ Progress: [█████████░] 90%
 
 | Phase 03-room-sessions-queue-control P01 | 11min | 2 tasks | 5 files |
 | Phase 04-search-song-selection P01 | 6min | 2 tasks | 12 files |
+| Phase 04-search-song-selection P02 | 9min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,10 @@ Recent decisions affecting current work:
 - [Phase 04-search-song-selection]: Use API-only pinyin-pro and opencc-js dependencies for deterministic Chinese search normalization.
 - [Phase 04-search-song-selection]: Keep Phase 4 search indexes in PostgreSQL with pg_trgm and btree indexes instead of introducing a separate search service.
 - [Phase 04-search-song-selection]: Populate formal-song pinyin search keys in the admission writer rather than relying on migration defaults.
+- [Phase 04-search-song-selection]: Keep formal catalog search server-authoritative: the route forwards room queue state and the repository returns ready queueable local results only.
+- [Phase 04-search-song-selection]: Backfill missing artist pinyin/initials inside PgSongRepository.searchFormalSongs so existing rows become searchable without a separate data script.
+- [Phase 04-search-song-selection]: Preserve defaultAssetId as add-queue fallback only; search version recommendations use D-12 quality/newness/display-name ordering.
+- [Phase 04-search-song-selection]: Expose Phase 5 online supplement only as a disabled placeholder response in Phase 4.
 
 ### Pending Todos
 
@@ -105,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-07T06:37:53.995Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-05-07T06:51:42.023Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None

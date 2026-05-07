@@ -33,7 +33,7 @@ Requirements for the initial release. These map to roadmap phases and stay const
 ### Queue Control
 
 - [ ] **QUEU-01**: 用户可以从手机端将一首本地可播歌曲加入点歌队列
-- [ ] **QUEU-02**: 当一首歌存在多个可播版本时，用户可以在点歌前选择具体资源版本；原唱/伴唱切换通过播放中控制完成
+- [x] **QUEU-02**: 当一首歌存在多个可播版本时，用户可以在点歌前选择具体资源版本；原唱/伴唱切换通过播放中控制完成
 - [ ] **QUEU-03**: 用户可以从手机端删除尚未播放的队列项
 - [ ] **QUEU-04**: 用户可以把已点歌曲上移或顶到更靠前的位置
 - [ ] **QUEU-05**: 用户可以从手机端切掉当前正在播放的歌曲
@@ -120,7 +120,7 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | PAIR-03 | Phase 3 | Complete |
 | PAIR-04 | Phase 3 | Complete |
 | QUEU-01 | Phase 3 | Pending |
-| QUEU-02 | Phase 4 | Pending |
+| QUEU-02 | Phase 4 | Complete |
 | QUEU-03 | Phase 3 | Pending |
 | QUEU-04 | Phase 3 | Pending |
 | QUEU-05 | Phase 3 | Pending |
