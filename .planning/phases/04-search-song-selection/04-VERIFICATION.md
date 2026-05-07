@@ -1,19 +1,21 @@
 ---
 phase: 04-search-song-selection
 verified: 2026-05-07T07:11:21Z
-status: human_needed
+status: passed
 score: 4/4 must-haves verified
 human_verification:
   - test: "Mobile real-device search and version selection UAT"
     expected: "On a phone-width browser, search by Chinese/pinyin/initials, see local results above the disabled online placeholder, select a specific multi-version asset, and confirm duplicate queued adds without text overlap or enabled online queue controls."
     why_human: "Visual layout, touch ergonomics, and an end-to-end browser flow against real catalog data cannot be fully verified by static inspection and unit tests."
+    result: passed
+    verified_by_user: 2026-05-07T07:28:32.330Z
 ---
 
 # Phase 4: Search & Song Selection Verification Report
 
 **Phase Goal:** 让用户可以用中文优先的方式快速找到正确歌曲，并在多版本情况下选到想唱的那一版
 **Verified:** 2026-05-07T07:11:21Z
-**Status:** human_needed
+**Status:** passed
 **Re-verification:** No - initial verification
 
 ## Goal Achievement
@@ -90,17 +92,18 @@ No orphaned Phase 4 requirements found in `.planning/REQUIREMENTS.md`; all Phase
 | `apps/mobile-controller/src/App.tsx` | 178 | `online-placeholder` | Info | Intentional Phase 4 disabled online supplement placeholder; no enabled queue/cache action is rendered. |
 | Various touched files | n/a | Empty arrays/null handling | Info | Matches are initial state, fixture/default handling, or no-result compatibility paths; no user-visible stub blocks the phase goal. |
 
-### Human Verification Required
+### Human Verification Completed
 
 #### 1. Mobile Real-Device Search And Version Selection UAT
 
 **Test:** On a phone-width browser connected to a real room/catalog, search by Chinese title, artist, pinyin, initials, alias/searchHint; choose each version of a multi-version song; confirm a duplicate add; verify the online placeholder remains disabled.
 **Expected:** Local queueable songs appear above the online block, status/version labels are readable, selected version queues the intended asset, duplicate confirmation works, and no online candidate can be queued.
+**Result:** Passed by user on 2026-05-07.
 **Why human:** Static inspection and unit tests verify behavior and wiring, but visual layout, touch ergonomics, and real catalog data quality need browser UAT.
 
 ### Gaps Summary
 
-No implementation gaps were found against the Phase 4 roadmap success criteria. Automated verification passed; the remaining item is human UAT for the mobile visual/touch flow.
+No implementation gaps were found against the Phase 4 roadmap success criteria. Automated verification and human UAT passed.
 
 ---
 

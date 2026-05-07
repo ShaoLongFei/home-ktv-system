@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 4 automated verification passed; awaiting mobile UAT
-last_updated: "2026-05-07T07:13:12.634Z"
+status: planning
+stopped_at: Phase 4 complete; ready to discuss Phase 5
+last_updated: "2026-05-07T07:29:28.729Z"
 last_activity: 2026-05-07
 progress:
   total_phases: 5
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-30)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 04 — search-song-selection
+**Current focus:** Phase 05 — online-supplement-&-recovery
 
 ## Current Position
 
-Phase: 04 (search-song-selection) — AWAITING HUMAN UAT
-Plan: 3 of 3
-Status: Human verification required
+Phase: 5 (online-supplement-&-recovery) — NOT STARTED
+Plan: Not started
+Status: Ready to discuss
 Last activity: 2026-05-07
 
 Progress: [█████████░] 90%
@@ -111,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-07T07:13:12.634Z
-Stopped at: Phase 4 automated verification passed; awaiting mobile UAT
-Resume file: .planning/phases/04-search-song-selection/04-HUMAN-UAT.md
+Last session: 2026-05-07T07:29:28.729Z
+Stopped at: Phase 4 complete; ready to discuss Phase 5
+Resume file: .planning/ROADMAP.md

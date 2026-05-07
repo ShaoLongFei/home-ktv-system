@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Media Contract & TV Runtime** - 建立受控媒体模型、切换契约和 TV 播放基础
 - [x] **Phase 2: Library Ingest & Catalog Admin** - 让本地歌库可扫描、可审核、并按切换准入规则维护
 - [ ] **Phase 3: Room Sessions & Queue Control** - 交付扫码入场、多人控制、播放中切换和服务端权威队列
-- [ ] **Phase 4: Search & Song Selection** - 交付中文优先搜索和版本感知的点歌体验
+- [x] **Phase 4: Search & Song Selection** - 交付中文优先搜索和版本感知的点歌体验
 - [ ] **Phase 5: Online Supplement & Recovery** - 增加安全补歌、失败回退和运维恢复能力
 
 ## Phase Details
@@ -120,5 +120,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Media Contract & TV Runtime | 3/3 | Awaiting UAT | - |
 | 2. Library Ingest & Catalog Admin | 6/6 | Complete | 2026-04-30 |
 | 3. Room Sessions & Queue Control | 0/3 | Not started | - |
-| 4. Search & Song Selection | 3/3 | Awaiting UAT | - |
+| 4. Search & Song Selection | 3/3 | Complete | 2026-05-07 |
 | 5. Online Supplement & Recovery | 0/3 | Not started | - |

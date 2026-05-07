@@ -14,13 +14,13 @@
 
 - [x] Phase 1 validated the controlled media contract, TV runtime binding, playback telemetry, switch rollback, reconnect behavior, and explicit player conflict handling.
 - [x] Phase 2 validated local library scanning, import candidate review, strict formal catalog admission, `song.json` consistency validation, and admin maintenance for songs/resources.
+- [x] Phase 4 validated Chinese-first song search by title, artist, pinyin, initials, aliases, and search hints, plus version-aware mobile song selection.
 
 ### Active
 
 - [ ] 用户可以在手机端完成搜索、点歌、删歌、顶歌、切歌等全部控制操作
 - [ ] 电视端可以稳定全屏播放当前歌曲，并实时反映当前播放、下一首和入场二维码
 - [ ] 系统可以统一管理本地歌库与在线补歌资源，并尽量让用户感知为同一种“歌曲”
-- [ ] 系统可以提供中文歌名、歌手、拼音、首字母、别名等搜索能力
 - [ ] 服务端会话状态机可以作为唯一真相源，驱动手机端与电视端的一致状态
 - [ ] 在线补歌在第一版中必须先缓存再播放，并在播放失败时具备基础回退能力
 
@@ -50,7 +50,8 @@
 
 - Phase 1 已完成并验证：媒体契约、TV Player 绑定、播放中原唱/伴唱切换、重连恢复和冲突状态闭环已具备。
 - Phase 2 已完成并验证：本地歌库扫描、导入审核、正式歌库准入、`song.json` 校验和后台歌库维护已具备。
-- 下一阶段进入 Phase 3：扫码入场、服务端权威队列、多人控制端同步和播放控制闭环。
+- Phase 4 已完成并通过 UAT：中文优先搜索、在线补歌禁用占位、多版本选择和重复点歌确认已具备。
+- 下一阶段进入 Phase 5：在线补歌、安全缓存、播放失败回退和运维恢复。
 
 ## Constraints
 
@@ -98,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-30 after Phase 02 verification*
+*Last updated: 2026-05-07 after Phase 04 verification*
