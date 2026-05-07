@@ -187,7 +187,7 @@ class FakeQueueEntryRepository implements QueueEntryRepository {
   }
 
   async append() {
-    throw new Error("Not implemented in song search route tests");
+    return this.queueEntries[0] ?? createQueueEntry({ songId: "song-qilixiang" });
   }
 
   async markRemoved() {
