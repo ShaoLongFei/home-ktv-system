@@ -208,6 +208,16 @@ class FakeCandidateTaskRepository implements CandidateTaskServiceRepository {
     return this.tasks.get(this.key(input.roomId, input.provider, input.providerCandidateId)) ?? null;
   }
 
+  async findById(taskId: string) {
+    return Array.from(this.tasks.values()).find((candidate) => candidate.id === taskId) ?? null;
+  }
+
+  async listActiveForRoom(roomId: RoomId) {
+    return Array.from(this.tasks.values()).filter(
+      (candidate) => candidate.roomId === roomId && candidate.status !== "promoted" && candidate.status !== "purged"
+    );
+  }
+
   async transition(taskId: string, input: { status: OnlineCandidateTaskState }) {
     this.transitionCalls.push({ taskId, status: input.status });
     const task = Array.from(this.tasks.values()).find((candidate) => candidate.id === taskId);

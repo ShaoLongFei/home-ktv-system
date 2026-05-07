@@ -321,6 +321,20 @@ function createCandidateTaskRow(input: Partial<CandidateTaskRow> = {}): Candidat
 }
 
 function createProvider(input: { id: string }): OnlineCandidateProvider {
+  const candidate: OnlineCandidateCard = {
+    provider: input.id,
+    providerCandidateId: "remote-七里香",
+    title: "七里香",
+    artistName: "周杰伦",
+    sourceLabel: "Demo Provider",
+    durationMs: 180000,
+    candidateType: "mv",
+    reliabilityLabel: "high",
+    riskLabel: "normal",
+    taskState: "discovered",
+    taskId: null
+  };
+
   return {
     id: input.id,
     sourceLabel: "Demo Provider",
@@ -328,26 +342,12 @@ function createProvider(input: { id: string }): OnlineCandidateProvider {
       canDiscover: true,
       canCache: true
     },
-    search: vi.fn(async () => [
-      {
-        provider: input.id,
-        providerCandidateId: "remote-七里香",
-        title: "七里香",
-        artistName: "周杰伦",
-        sourceLabel: "Demo Provider",
-        durationMs: 180000,
-        candidateType: "mv",
-        reliabilityLabel: "high",
-        riskLabel: "normal",
-        taskState: "discovered",
-        taskId: null
-      }
-    ]),
+    search: vi.fn(async () => [candidate]),
     prepareFetch: vi.fn(async () => ({
       cacheKey: "online-cache/demo-provider/remote-七里香.mp4",
       metadata: { prepared: true }
     })),
-    verify: vi.fn(async () => ({
+    verify: vi.fn(async (): Promise<{ status: "ready"; readyAssetId: string; metadata: Record<string, unknown> }> => ({
       status: "ready",
       readyAssetId: "asset-online-ready",
       metadata: { verifiedBy: "demo-provider" }

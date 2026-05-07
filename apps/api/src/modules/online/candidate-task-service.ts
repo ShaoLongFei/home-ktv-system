@@ -1,6 +1,8 @@
 import type {
+  AssetId,
   OnlineCandidateCard,
   OnlineCandidateTask,
+  OnlineCandidateTaskId,
   OnlineCandidateTaskState,
   RoomId
 } from "@home-ktv/domain";
@@ -8,6 +10,8 @@ import type { ProviderRegistry } from "./provider-registry.js";
 
 export interface CandidateTaskServiceRepository {
   upsertDiscovered(input: { roomId: RoomId; candidate: OnlineCandidateCard }): Promise<OnlineCandidateTask>;
+  findById(taskId: OnlineCandidateTaskId): Promise<OnlineCandidateTask | null>;
+  listActiveForRoom(roomId: RoomId): Promise<OnlineCandidateTask[]>;
   findByProviderCandidate(input: {
     roomId: RoomId;
     provider: string;
@@ -19,6 +23,7 @@ export interface CandidateTaskServiceRepository {
       status: OnlineCandidateTaskState;
       failureReason?: string | null;
       recentEvent?: Record<string, unknown>;
+      readyAssetId?: AssetId | null;
     }
   ): Promise<OnlineCandidateTask | null>;
 }
@@ -38,6 +43,23 @@ export interface RequestSupplementInput {
   roomId: RoomId;
   provider: string;
   providerCandidateId: string;
+}
+
+export interface TransitionMetadataInput {
+  metadata?: Record<string, unknown>;
+}
+
+export interface MarkReadyInput extends TransitionMetadataInput {
+  readyAssetId: AssetId;
+}
+
+export interface MarkFailureInput extends TransitionMetadataInput {
+  reason: string;
+}
+
+export interface RoomScopedTaskInput {
+  roomId: RoomId;
+  taskId: OnlineCandidateTaskId;
 }
 
 export class CandidateTaskService {
@@ -92,6 +114,152 @@ export class CandidateTaskService {
         message: status === "selected" ? "Selected for cache flow" : "Supplement request needs review"
       }
     });
+  }
+
+  async listActiveForRoom(roomId: RoomId): Promise<OnlineCandidateTask[]> {
+    return this.options.repository.listActiveForRoom(roomId);
+  }
+
+  async getTask(input: RoomScopedTaskInput): Promise<OnlineCandidateTask | null> {
+    const task = await this.options.repository.findById(input.taskId);
+    if (!task || task.roomId !== input.roomId) {
+      return null;
+    }
+    return task;
+  }
+
+  async markFetching(taskId: OnlineCandidateTaskId, metadata: Record<string, unknown> = {}): Promise<OnlineCandidateTask | null> {
+    return this.transition(taskId, "fetching", {
+      recentEvent: {
+        type: "fetching",
+        ...metadata
+      }
+    });
+  }
+
+  async markFetched(taskId: OnlineCandidateTaskId, metadata: Record<string, unknown> = {}): Promise<OnlineCandidateTask | null> {
+    return this.transition(taskId, "fetched", {
+      recentEvent: {
+        type: "fetched",
+        ...metadata
+      }
+    });
+  }
+
+  async markReady(taskId: OnlineCandidateTaskId, input: MarkReadyInput): Promise<OnlineCandidateTask | null> {
+    return this.transition(taskId, "ready", {
+      readyAssetId: input.readyAssetId,
+      recentEvent: {
+        type: "ready",
+        ...(input.metadata ?? {})
+      }
+    });
+  }
+
+  async markReviewRequired(taskId: OnlineCandidateTaskId, input: MarkFailureInput): Promise<OnlineCandidateTask | null> {
+    return this.transition(taskId, "review_required", {
+      failureReason: input.reason,
+      recentEvent: {
+        type: "review_required",
+        reason: input.reason,
+        ...(input.metadata ?? {})
+      }
+    });
+  }
+
+  async markFailed(taskId: OnlineCandidateTaskId, input: MarkFailureInput): Promise<OnlineCandidateTask | null> {
+    return this.transition(taskId, "failed", {
+      failureReason: input.reason,
+      recentEvent: {
+        type: "failed",
+        reason: input.reason,
+        ...(input.metadata ?? {})
+      }
+    });
+  }
+
+  async markStale(taskId: OnlineCandidateTaskId, input: MarkFailureInput): Promise<OnlineCandidateTask | null> {
+    return this.transition(taskId, "stale", {
+      failureReason: input.reason,
+      recentEvent: {
+        type: "stale",
+        reason: input.reason,
+        ...(input.metadata ?? {})
+      }
+    });
+  }
+
+  async retryTask(input: RoomScopedTaskInput): Promise<OnlineCandidateTask | null> {
+    const task = await this.getTask(input);
+    if (!task || !["failed", "stale", "review_required"].includes(task.status)) {
+      return null;
+    }
+
+    return this.transition(task.id, "selected", {
+      recentEvent: {
+        type: "retry",
+        previousStatus: task.status
+      }
+    });
+  }
+
+  async promoteTask(input: RoomScopedTaskInput): Promise<OnlineCandidateTask | null> {
+    const task = await this.getTask(input);
+    if (!task || task.status !== "ready") {
+      return null;
+    }
+
+    return this.transition(task.id, "promoted", {
+      readyAssetId: task.readyAssetId,
+      recentEvent: {
+        type: "promoted",
+        previousStatus: task.status,
+        readyAssetId: task.readyAssetId
+      }
+    });
+  }
+
+  async purgeTask(input: RoomScopedTaskInput): Promise<OnlineCandidateTask | null> {
+    const task = await this.getTask(input);
+    if (!task || !["failed", "stale"].includes(task.status)) {
+      return null;
+    }
+
+    return this.transition(task.id, "purged", {
+      recentEvent: {
+        type: "purged",
+        previousStatus: task.status
+      }
+    });
+  }
+
+  private async transition(
+    taskId: OnlineCandidateTaskId,
+    status: OnlineCandidateTaskState,
+    input: {
+      failureReason?: string | null;
+      recentEvent?: Record<string, unknown>;
+      readyAssetId?: AssetId | null;
+    } = {}
+  ): Promise<OnlineCandidateTask | null> {
+    const transitionInput: {
+      status: OnlineCandidateTaskState;
+      failureReason?: string | null;
+      recentEvent?: Record<string, unknown>;
+      readyAssetId?: AssetId | null;
+    } = {
+      status,
+      failureReason: input.failureReason ?? null
+    };
+
+    if (input.recentEvent) {
+      transitionInput.recentEvent = input.recentEvent;
+    }
+    if (input.readyAssetId !== undefined) {
+      transitionInput.readyAssetId = input.readyAssetId;
+    }
+
+    return this.options.repository.transition(taskId, transitionInput);
   }
 }
 

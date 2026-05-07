@@ -1,4 +1,4 @@
-import type { OnlineCandidateCard } from "@home-ktv/domain";
+import type { AssetId, OnlineCandidateCard, OnlineCandidateTask } from "@home-ktv/domain";
 
 export interface OnlineCandidateProvider {
   id: string;
@@ -8,12 +8,40 @@ export interface OnlineCandidateProvider {
     canCache: boolean;
   };
   search(input: OnlineCandidateProviderSearchInput): Promise<OnlineCandidateCard[]>;
+  prepareFetch?(input: OnlineCandidateProviderPrepareFetchInput): Promise<OnlineCandidateProviderPrepareFetchResult>;
+  verify?(input: OnlineCandidateProviderVerifyInput): Promise<OnlineCandidateProviderVerifyResult>;
 }
 
 export interface OnlineCandidateProviderSearchInput {
   query: string;
   limit: number;
 }
+
+export interface OnlineCandidateProviderPrepareFetchInput {
+  task: OnlineCandidateTask;
+}
+
+export interface OnlineCandidateProviderPrepareFetchResult {
+  cacheKey: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface OnlineCandidateProviderVerifyInput {
+  task: OnlineCandidateTask;
+  fetchResult: OnlineCandidateProviderPrepareFetchResult;
+}
+
+export type OnlineCandidateProviderVerifyResult =
+  | {
+      status: "ready";
+      readyAssetId: AssetId;
+      metadata?: Record<string, unknown>;
+    }
+  | {
+      status: "failed" | "review_required";
+      reason: string;
+      metadata?: Record<string, unknown>;
+    };
 
 export interface ProviderRegistryOptions {
   providers: OnlineCandidateProvider[];

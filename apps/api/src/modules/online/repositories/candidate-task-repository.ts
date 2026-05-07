@@ -29,6 +29,7 @@ const statusTimestampColumns: Partial<Record<OnlineCandidateTaskState, string>> 
 
 export interface CandidateTaskRepository {
   upsertDiscovered(input: UpsertDiscoveredCandidateTaskInput): Promise<OnlineCandidateTask>;
+  findById(taskId: OnlineCandidateTaskId): Promise<OnlineCandidateTask | null>;
   listActiveForRoom(roomId: RoomId): Promise<OnlineCandidateTask[]>;
   findByProviderCandidate(input: FindProviderCandidateTaskInput): Promise<OnlineCandidateTask | null>;
   transition(taskId: OnlineCandidateTaskId, input: TransitionCandidateTaskInput): Promise<OnlineCandidateTask | null>;
@@ -150,6 +151,19 @@ export class PgCandidateTaskRepository implements CandidateTaskRepository {
     return result.rows.map(mapCandidateTaskRow);
   }
 
+  async findById(taskId: OnlineCandidateTaskId): Promise<OnlineCandidateTask | null> {
+    const result = await this.db.query<CandidateTaskRow>(
+      `SELECT ${candidateTaskColumns}
+       FROM candidate_tasks
+       WHERE id = $1
+       LIMIT 1`,
+      [taskId]
+    );
+
+    const row = result.rows[0];
+    return row ? mapCandidateTaskRow(row) : null;
+  }
+
   async findByProviderCandidate(input: FindProviderCandidateTaskInput): Promise<OnlineCandidateTask | null> {
     const result = await this.db.query<CandidateTaskRow>(
       `SELECT ${candidateTaskColumns}
@@ -240,6 +254,11 @@ export class InMemoryCandidateTaskRepository implements CandidateTaskRepository 
       .filter((task) => task.roomId === roomId && task.status !== "promoted" && task.status !== "purged")
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
       .map((task) => ({ ...task }));
+  }
+
+  async findById(taskId: OnlineCandidateTaskId): Promise<OnlineCandidateTask | null> {
+    const task = this.tasks.get(taskId);
+    return task ? { ...task } : null;
   }
 
   async findByProviderCandidate(input: FindProviderCandidateTaskInput): Promise<OnlineCandidateTask | null> {
