@@ -49,6 +49,7 @@ export type ImportFileId = EntityId;
 export type ImportCandidateId = EntityId;
 export type ImportCandidateFileId = EntityId;
 export type SourceRecordId = EntityId;
+export type OnlineCandidateTaskId = EntityId;
 export type ImportScanTrigger = "manual" | "scheduled" | "watcher";
 export type ImportScanStatus = "queued" | "running" | "completed" | "failed";
 export type ImportScanScope = "imports" | "songs" | "all";
@@ -62,6 +63,22 @@ export type ImportCandidateStatus =
   | "approved"
   | "rejected_deleted"
   | "approval_failed";
+export const onlineCandidateTaskStates = [
+  "discovered",
+  "selected",
+  "review_required",
+  "fetching",
+  "fetched",
+  "ready",
+  "failed",
+  "stale",
+  "promoted",
+  "purged"
+] as const;
+export type OnlineCandidateTaskState = (typeof onlineCandidateTaskStates)[number];
+export type OnlineCandidateType = "mv" | "karaoke" | "audio" | "unknown";
+export type OnlineCandidateRiskLabel = "normal" | "risky" | "blocked";
+export type OnlineCandidateReliabilityLabel = "high" | "medium" | "low" | "unknown";
 
 export interface SongCapabilities {
   canSwitchVocalMode: boolean;
@@ -138,16 +155,66 @@ export interface SongSearchLocalResult {
   versions: SongSearchVersionOption[];
 }
 
-export interface SongSearchOnlinePlaceholder {
-  status: "disabled";
+export interface OnlineCandidateCard {
+  provider: string;
+  providerCandidateId: string;
+  title: string;
+  artistName: string;
+  sourceLabel: string;
+  durationMs: number | null;
+  candidateType: OnlineCandidateType;
+  reliabilityLabel: OnlineCandidateReliabilityLabel;
+  riskLabel: OnlineCandidateRiskLabel;
+  taskState: OnlineCandidateTaskState;
+  taskId: OnlineCandidateTaskId | null;
+}
+
+export interface SongSearchOnlineRequestSupplementEntry {
+  visible: boolean;
+  label: string;
+}
+
+export interface SongSearchOnlineResult {
+  status: "disabled" | "available";
   message: string;
-  candidates: [];
+  requestSupplement: SongSearchOnlineRequestSupplementEntry;
+  candidates: OnlineCandidateCard[];
 }
 
 export interface SongSearchResponse {
   query: string;
   local: SongSearchLocalResult[];
-  online: SongSearchOnlinePlaceholder;
+  online: SongSearchOnlineResult;
+}
+
+export interface OnlineCandidateTask {
+  id: OnlineCandidateTaskId;
+  roomId: RoomId;
+  provider: string;
+  providerCandidateId: string;
+  title: string;
+  artistName: string;
+  sourceLabel: string;
+  durationMs: number | null;
+  candidateType: OnlineCandidateType;
+  reliabilityLabel: OnlineCandidateReliabilityLabel;
+  riskLabel: OnlineCandidateRiskLabel;
+  status: OnlineCandidateTaskState;
+  failureReason: string | null;
+  recentEvent: Record<string, unknown>;
+  providerPayload: Record<string, unknown>;
+  readyAssetId: AssetId | null;
+  createdAt: string;
+  updatedAt: string;
+  selectedAt: string | null;
+  reviewRequiredAt: string | null;
+  fetchingAt: string | null;
+  fetchedAt: string | null;
+  readyAt: string | null;
+  failedAt: string | null;
+  staleAt: string | null;
+  promotedAt: string | null;
+  purgedAt: string | null;
 }
 
 export interface Room {

@@ -91,6 +91,10 @@ describe("song search routes", () => {
       online: {
         status: "disabled",
         message: "本地未入库，补歌功能后续可用",
+        requestSupplement: {
+          visible: false,
+          label: "请求补歌"
+        },
         candidates: []
       }
     });

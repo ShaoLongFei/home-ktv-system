@@ -17,6 +17,7 @@ export const tableNames = {
   importCandidates: "import_candidates",
   importCandidateFiles: "import_candidate_files",
   sourceRecords: "source_records",
+  candidateTasks: "candidate_tasks",
   roomPairingTokens: "room_pairing_tokens",
   controlSessions: "control_sessions",
   controlCommands: "control_commands"
@@ -47,7 +48,22 @@ export const enumValues = {
     "approved",
     "rejected_deleted",
     "approval_failed"
-  ]
+  ],
+  onlineCandidateTaskStatus: [
+    "discovered",
+    "selected",
+    "review_required",
+    "fetching",
+    "fetched",
+    "ready",
+    "failed",
+    "stale",
+    "promoted",
+    "purged"
+  ],
+  onlineCandidateType: ["mv", "karaoke", "audio", "unknown"],
+  onlineCandidateRiskLabel: ["normal", "risky", "blocked"],
+  onlineCandidateReliabilityLabel: ["high", "medium", "low", "unknown"]
 } as const;
 
 export interface SongRow {
@@ -237,6 +253,36 @@ export interface SourceRecordRow {
   raw_meta: Record<string, unknown>;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface CandidateTaskRow {
+  id: string;
+  room_id: string;
+  provider: string;
+  provider_candidate_id: string;
+  title: string;
+  artist_name: string;
+  source_label: string;
+  duration_ms: number | null;
+  candidate_type: string;
+  reliability_label: string;
+  risk_label: string;
+  status: string;
+  failure_reason: string | null;
+  recent_event: Record<string, unknown>;
+  provider_payload: Record<string, unknown>;
+  ready_asset_id: string | null;
+  created_at: Date;
+  updated_at: Date;
+  selected_at: Date | null;
+  review_required_at: Date | null;
+  fetching_at: Date | null;
+  fetched_at: Date | null;
+  ready_at: Date | null;
+  failed_at: Date | null;
+  stale_at: Date | null;
+  promoted_at: Date | null;
+  purged_at: Date | null;
 }
 
 export interface RoomPairingTokenRow {
@@ -430,6 +476,55 @@ CREATE INDEX IF NOT EXISTS queue_entries_room_effective_position_idx
   ON queue_entries(room_id, status, queue_position)
   WHERE status IN ('queued', 'preparing', 'loading', 'playing');
 CREATE INDEX IF NOT EXISTS playback_events_room_created_idx ON playback_events(room_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS candidate_tasks (
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  room_id text NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  provider text NOT NULL,
+  provider_candidate_id text NOT NULL,
+  title text NOT NULL,
+  artist_name text NOT NULL,
+  source_label text NOT NULL,
+  duration_ms integer CHECK (duration_ms IS NULL OR duration_ms >= 0),
+  candidate_type text NOT NULL CHECK (candidate_type IN ('mv', 'karaoke', 'audio', 'unknown')),
+  reliability_label text NOT NULL CHECK (reliability_label IN ('high', 'medium', 'low', 'unknown')),
+  risk_label text NOT NULL CHECK (risk_label IN ('normal', 'risky', 'blocked')),
+  status text NOT NULL DEFAULT 'discovered' CHECK (status IN (
+    'discovered',
+    'selected',
+    'review_required',
+    'fetching',
+    'fetched',
+    'ready',
+    'failed',
+    'stale',
+    'promoted',
+    'purged'
+  )),
+  failure_reason text,
+  recent_event jsonb NOT NULL DEFAULT '{}'::jsonb,
+  provider_payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+  ready_asset_id text REFERENCES assets(id) ON DELETE SET NULL,
+  selected_at timestamptz,
+  review_required_at timestamptz,
+  fetching_at timestamptz,
+  fetched_at timestamptz,
+  ready_at timestamptz,
+  failed_at timestamptz,
+  stale_at timestamptz,
+  promoted_at timestamptz,
+  purged_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(room_id, provider, provider_candidate_id)
+);
+
+CREATE INDEX IF NOT EXISTS candidate_tasks_room_status_updated_idx
+  ON candidate_tasks(room_id, status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS candidate_tasks_provider_candidate_idx
+  ON candidate_tasks(provider, provider_candidate_id);
+CREATE INDEX IF NOT EXISTS candidate_tasks_room_recent_idx
+  ON candidate_tasks(room_id, updated_at DESC);
 
 INSERT INTO rooms (id, slug, name, status)
 VALUES ('living-room', 'living-room', 'Living Room', 'active')
