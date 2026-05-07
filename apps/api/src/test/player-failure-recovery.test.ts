@@ -17,9 +17,9 @@ describe("player failure recovery", () => {
     const server = Fastify({ logger: false });
     await registerPlayerRoutes(server, {
       config: harness.config,
-      repositories: harness.repositories,
+      repositories: harness.repositories as never,
       assetGateway: harness.assetGateway,
-      broadcaster: harness.broadcaster
+      broadcaster: harness.broadcaster as never
     });
 
     const response = await server.inject({

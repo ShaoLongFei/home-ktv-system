@@ -43,6 +43,14 @@ export interface IngestTelemetryResult {
   session: PlaybackSession | null;
 }
 
+export function failureCauseForTelemetry(input: {
+  errorCode?: string | undefined;
+  message?: string | undefined;
+  stage?: string | undefined;
+}): string {
+  return input.errorCode ?? input.message ?? input.stage ?? "playback-failed";
+}
+
 export async function ingestPlayerTelemetry(input: IngestTelemetryInput): Promise<IngestTelemetryResult> {
   const telemetry = input.telemetry;
   const event = await input.playbackEvents.append({

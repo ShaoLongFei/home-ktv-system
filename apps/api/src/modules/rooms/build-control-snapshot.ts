@@ -11,7 +11,7 @@ import type { PlayerDeviceSessionRepository } from "../player/register-player.js
 import { ACTIVE_TV_PLAYER_WINDOW_MS } from "../player/conflict-service.js";
 import { buildRoomSnapshot } from "../../routes/room-snapshots.js";
 import type { QueueEntry, Song } from "@home-ktv/domain";
-import type { RoomControlSnapshot, RoomQueueEntryPreview } from "@home-ktv/player-contracts";
+import type { PlaybackNotice, RoomControlSnapshot, RoomQueueEntryPreview } from "@home-ktv/player-contracts";
 
 export interface ControlSnapshotRepositories {
   rooms: RoomRepository;
@@ -29,17 +29,22 @@ export interface BuildRoomControlSnapshotInput {
   config: ApiConfig;
   repositories: ControlSnapshotRepositories;
   assetGateway: AssetGateway;
+  notice?: PlaybackNotice | null;
   now?: Date;
 }
 
 export async function buildRoomControlSnapshot(input: BuildRoomControlSnapshotInput): Promise<RoomControlSnapshot | null> {
   const now = input.now ?? new Date();
-  const baseSnapshot = await buildRoomSnapshot({
+  const baseSnapshotInput = {
     roomSlug: input.roomSlug,
     config: input.config,
     repositories: input.repositories,
     assetGateway: input.assetGateway,
     now
+  };
+  const baseSnapshot = await buildRoomSnapshot({
+    ...baseSnapshotInput,
+    ...(input.notice !== undefined ? { notice: input.notice } : {})
   });
   if (!baseSnapshot) {
     return null;

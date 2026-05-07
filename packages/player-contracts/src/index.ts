@@ -120,6 +120,7 @@ export type PlaybackNoticeKind =
   | "loading"
   | "recovering"
   | "switch_failed_reverted"
+  | "playback_failed_skipped"
   | "recovery_fallback_start_over";
 
 export interface PlaybackNotice {

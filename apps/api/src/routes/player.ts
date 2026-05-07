@@ -7,10 +7,10 @@ import type { SongRepository } from "../modules/catalog/repositories/song-reposi
 import { recordHeartbeat } from "../modules/player/heartbeat-service.js";
 import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
 import { registerPlayer } from "../modules/player/register-player.js";
-import { ingestPlayerTelemetry } from "../modules/player/telemetry-service.js";
+import { failureCauseForTelemetry, ingestPlayerTelemetry } from "../modules/player/telemetry-service.js";
 import { applyReconnectRecovery } from "../modules/playback/apply-reconnect-recovery.js";
 import { applySwitchTransition } from "../modules/playback/apply-switch-transition.js";
-import { handlePlayerEnded } from "../modules/playback/session-command-service.js";
+import { handlePlayerEnded, handlePlayerFailed } from "../modules/playback/session-command-service.js";
 import type { PlaybackEventRepository } from "../modules/playback/repositories/playback-event-repository.js";
 import type { PlaybackSessionRepository } from "../modules/playback/repositories/playback-session-repository.js";
 import type { RoomSessionCommandRepository } from "../modules/playback/repositories/room-session-command-repository.js";
@@ -206,6 +206,49 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
 
       await reply.send({
         status: result.status === "accepted" ? "ok" : "error",
+        snapshot
+      });
+      return;
+    }
+
+    if (eventType === "failed") {
+      const failureCause = failureCauseForTelemetry({
+        errorCode: body.errorCode,
+        message: body.message,
+        stage: body.stage
+      });
+      const result = await handlePlayerFailed({
+        roomSlug,
+        deviceId: requiredString(body.deviceId, "deviceId"),
+        queueEntryId: requiredString(body.queueEntryId, "queueEntryId"),
+        assetId: requiredString(body.assetId, "assetId"),
+        playbackPositionMs: body.playbackPositionMs ?? 0,
+        sessionVersion: body.sessionVersion ?? 0,
+        playbackEvents: dependencies.repositories.playbackEvents,
+        repositories: dependencies.repositories,
+        assetGateway: dependencies.assetGateway,
+        config: dependencies.config,
+        failureCause,
+        message: body.message,
+        errorCode: body.errorCode,
+        stage: body.stage
+      });
+      const snapshot = await buildRoomSnapshot({
+        roomSlug,
+        config: dependencies.config,
+        repositories: dependencies.repositories,
+        assetGateway: dependencies.assetGateway,
+        notice: result.notice
+      });
+
+      if (result.snapshot) {
+        dependencies.broadcaster?.broadcastRoomSnapshot(roomSlug, result.snapshot);
+      }
+
+      await reply.send({
+        status: result.status === "accepted" ? "ok" : "error",
+        failureCause: result.failureCause,
+        fallbackResult: result.fallbackResult,
         snapshot
       });
       return;

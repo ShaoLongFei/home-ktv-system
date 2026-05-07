@@ -8,6 +8,7 @@ import type {
   Room
 } from "@home-ktv/domain";
 import type { ControlSessionInfo, RoomControlSnapshot } from "@home-ktv/player-contracts";
+import type { PlaybackNotice } from "@home-ktv/player-contracts";
 import { SESSION_VERSION_CONFLICT, promoteAfterCurrent } from "@home-ktv/session-engine";
 import { serializeControlSessionCookie, touchControlSession } from "../controller/control-session-service.js";
 import type { ControlSnapshotRepositories } from "../rooms/build-control-snapshot.js";
@@ -52,12 +53,20 @@ export interface HandlePlayerEndedInput {
   now?: Date;
 }
 
+export interface HandlePlayerFailedInput extends HandlePlayerEndedInput {
+  failureCause: string;
+  message?: string | undefined;
+  errorCode?: string | undefined;
+  stage?: string | undefined;
+}
+
 export interface AdvanceToNextInput {
   room: Room;
   repositories: CommandRepositories;
   assetGateway: AssetGateway;
   config: ApiConfig;
-  completionStatus: "played" | "skipped";
+  completionStatus: "played" | "skipped" | "failed";
+  notice?: PlaybackNotice | null;
   now?: Date;
 }
 
@@ -246,6 +255,70 @@ export async function handlePlayerEnded(input: HandlePlayerEndedInput): Promise<
   };
 }
 
+export async function handlePlayerFailed(input: HandlePlayerFailedInput): Promise<{
+  status: "accepted" | "rejected";
+  snapshot: RoomControlSnapshot | null;
+  sessionVersion: number;
+  failureCause: string;
+  fallbackResult: "skipped_to_next" | "skipped_to_idle";
+  notice: PlaybackNotice;
+}> {
+  const now = input.now ?? new Date();
+  const room = await input.repositories.rooms.findBySlug(input.roomSlug);
+  if (!room) {
+    return {
+      status: "rejected",
+      snapshot: null,
+      sessionVersion: 0,
+      failureCause: input.failureCause,
+      fallbackResult: "skipped_to_idle",
+      notice: playbackFailedNotice(input.failureCause, "skipped_to_idle")
+    };
+  }
+
+  const effectiveQueue = await input.repositories.queueEntries.listEffectiveQueue(room.id);
+  const currentIndex = effectiveQueue.findIndex((entry) => entry.id === input.queueEntryId);
+  const fallbackResult = currentIndex >= 0 && effectiveQueue[currentIndex + 1] ? "skipped_to_next" : "skipped_to_idle";
+  const notice = playbackFailedNotice(input.failureCause, fallbackResult);
+
+  await input.playbackEvents.append({
+    roomId: room.id,
+    queueEntryId: input.queueEntryId,
+    eventType: "failed",
+    eventPayload: {
+      deviceId: input.deviceId,
+      sessionVersion: input.sessionVersion,
+      assetId: input.assetId,
+      playbackPositionMs: input.playbackPositionMs,
+      failureCause: input.failureCause,
+      fallbackResult,
+      message: input.message ?? null,
+      errorCode: input.errorCode ?? null,
+      stage: input.stage ?? null,
+      emittedAt: now.toISOString()
+    }
+  });
+
+  const result = await advanceToNext({
+    room,
+    repositories: input.repositories,
+    assetGateway: input.assetGateway,
+    config: input.config,
+    completionStatus: "failed",
+    notice,
+    now
+  });
+
+  return {
+    status: "accepted",
+    snapshot: result.snapshot,
+    sessionVersion: result.sessionVersion,
+    failureCause: input.failureCause,
+    fallbackResult,
+    notice
+  };
+}
+
 export async function advanceToNext(input: AdvanceToNextInput): Promise<{
   snapshot: RoomControlSnapshot | null;
   sessionVersion: number;
@@ -264,6 +337,7 @@ export async function advanceToNext(input: AdvanceToNextInput): Promise<{
       config: input.config,
       repositories: input.repositories,
       assetGateway: input.assetGateway,
+      ...(input.notice !== undefined ? { notice: input.notice } : {}),
       now
     });
     return { snapshot, sessionVersion: snapshot?.sessionVersion ?? session.version };
@@ -290,6 +364,7 @@ export async function advanceToNext(input: AdvanceToNextInput): Promise<{
       config: input.config,
       repositories: input.repositories,
       assetGateway: input.assetGateway,
+      ...(input.notice !== undefined ? { notice: input.notice } : {}),
       now
     });
     return { snapshot, sessionVersion: idleSession?.version ?? snapshot?.sessionVersion ?? session.version };
@@ -318,12 +393,24 @@ export async function advanceToNext(input: AdvanceToNextInput): Promise<{
     config: input.config,
     repositories: input.repositories,
     assetGateway: input.assetGateway,
+    ...(input.notice !== undefined ? { notice: input.notice } : {}),
     now
   });
 
   return {
     snapshot,
     sessionVersion: updatedSession?.version ?? snapshot?.sessionVersion ?? session.version
+  };
+}
+
+function playbackFailedNotice(
+  failureCause: string,
+  fallbackResult: "skipped_to_next" | "skipped_to_idle"
+): PlaybackNotice {
+  const resultText = fallbackResult === "skipped_to_next" ? "Skipped to next song." : "Skipped and returned to idle.";
+  return {
+    kind: "playback_failed_skipped" as PlaybackNotice["kind"],
+    message: `Playback failed (${failureCause}). ${resultText}`
   };
 }
 
