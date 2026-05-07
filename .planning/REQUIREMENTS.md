@@ -51,9 +51,9 @@ Requirements for the initial release. These map to roadmap phases and stay const
 
 ### Online Supplement
 
-- [ ] **ONLN-01**: 当本地歌库无法满足点歌需求时，用户可以主动请求在线补歌候选
-- [ ] **ONLN-02**: 用户可以把一个在线候选提交到“先缓存、后播放”的流程，而不是直接在线播放
-- [ ] **ONLN-03**: 在线候选只有在生成受控且 `ready` 的资源后才可以进入正式点歌队列
+- [x] **ONLN-01**: 当本地歌库无法满足点歌需求时，用户可以主动请求在线补歌候选
+- [x] **ONLN-02**: 用户可以把一个在线候选提交到“先缓存、后播放”的流程，而不是直接在线播放
+- [x] **ONLN-03**: 在线候选只有在生成受控且 `ready` 的资源后才可以进入正式点歌队列
 - [x] **ONLN-04**: 管理员可以查看在线候选任务状态、重试失败任务、清理失败任务，并把合适的缓存资源转正为正式歌库内容
 
 ### Admin Operations
@@ -132,9 +132,9 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | PLAY-05 | Phase 5 | Complete |
 | PLAY-06 | Phase 1 | Complete |
 | PLAY-07 | Phase 1 | Complete |
-| ONLN-01 | Phase 5 | Blocked (Phase 5 gaps) |
-| ONLN-02 | Phase 5 | Blocked (Phase 5 gaps) |
-| ONLN-03 | Phase 5 | Blocked (Phase 5 gaps) |
+| ONLN-01 | Phase 5 | Complete |
+| ONLN-02 | Phase 5 | Complete |
+| ONLN-03 | Phase 5 | Complete |
 | ONLN-04 | Phase 5 | Complete |
 | ADMN-01 | Phase 2 | Complete |
 | ADMN-02 | Phase 5 | Complete |

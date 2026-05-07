@@ -102,12 +102,13 @@ Plans:
   2. 在线候选只有在形成受控且 `ready` 的资源后才会变成可播放队列项
   3. 当前歌曲播放失败时，系统可以切换备用资源或安全跳过，并向控制端说明原因
   4. 管理员可以查看房间状态、播放器事件和在线任务状态，并执行重试、清理或资源转正
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
 - [x] 05-01: 实现在线候选发现、缓存队列和 ready 资源生成
 - [x] 05-02: 实现播放失败回退、任务重试和资源转正流
 - [x] 05-03: 实现房间/播放器/在线任务的运维恢复视图
+- [x] 05-04: 关闭 runtime wiring、补歌命令和缓存 worker 触发验证缺口
 **UI hint**: yes
 
 ## Progress
@@ -121,4 +122,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Library Ingest & Catalog Admin | 6/6 | Complete | 2026-04-30 |
 | 3. Room Sessions & Queue Control | 0/3 | Not started | - |
 | 4. Search & Song Selection | 3/3 | Complete | 2026-05-07 |
-| 5. Online Supplement & Recovery | 3/3 | Gaps found | - |
+| 5. Online Supplement & Recovery | 4/4 | Complete | 2026-05-07 |

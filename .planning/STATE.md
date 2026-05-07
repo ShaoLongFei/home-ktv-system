@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: gaps_found
-stopped_at: Phase 5 verification found blocking runtime wiring gaps
-last_updated: "2026-05-07T11:23:50.000Z"
+status: complete
+stopped_at: Completed 05-04-PLAN.md
+last_updated: "2026-05-07T12:04:37.986Z"
 last_activity: 2026-05-07
 progress:
   total_phases: 5
-  completed_phases: 4
-  total_plans: 23
-  completed_plans: 23
-  percent: 90
+  completed_phases: 5
+  total_plans: 24
+  completed_plans: 24
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-30)
 
 ## Current Position
 
-Phase: 05 (online-supplement-recovery) — GAPS FOUND
-Plan: 3 of 3
-Status: Verification found blocking runtime wiring gaps
+Phase: 05 (online-supplement-recovery) — COMPLETE
+Plan: 4 of 4
+Status: Phase complete
 Last activity: 2026-05-07
 
-Progress: [█████████░] 90%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Progress: [█████████░] 90%
 | Phase 05 P01 | 18min | 3 tasks | 14 files |
 | Phase 05 P02 | 15min | 3 tasks | 16 files |
 | Phase 05 P03 | 9min | 3 tasks | 10 files |
+| Phase 05 P04 | 15min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Ready online_cached assets remain supplement-sourced and queueable only when ready and switch-verified.
 - [Phase 05]: Admin room recovery data is assembled server-side from playback events and active online tasks instead of inferred in the UI. — Keeps task/event diagnosis aligned with the server-authoritative room state.
 - [Phase 05]: Online task repair and promotion actions remain task-scoped row actions; the Rooms page has no prominent ready-resource promote shortcut. — Preserves the phase decision that promotion belongs in task flow rather than as a room-level shortcut.
+- [Phase 05]: Runtime online providers remain disabled by default and become visible only through ONLINE_PROVIDER_IDS.
+- [Phase 05]: Selected and retried tasks synchronously trigger the in-process cache worker for this phase, without queue entries or playback targets.
 
 ### Pending Todos
 
@@ -119,10 +122,9 @@ None yet.
 - [Phase 1]: 需要尽早在真实 TV 目标环境上验证浏览器、编解码、自动播放与近无感切换预算
 - [Phase 1]: 自动化验证已通过；Phase 1 仍等待 mini PC / desktop Chrome / TV 路径的人类 UAT
 - [Phase 5]: 在线 provider 的具体接入范围和合规边界仍需在实施前锁定
-- [Phase 5]: Verification found runtime wiring gaps: real server does not pass CandidateTaskService into search/control routes, runtime providers are empty, and CandidateCacheWorker has no caller.
 
 ## Session Continuity
 
-Last session: 2026-05-07T11:23:50.000Z
-Stopped at: Phase 5 verification found blocking runtime wiring gaps
-Resume file: .planning/phases/05-online-supplement-recovery/05-VERIFICATION.md
+Last session: 2026-05-07T12:04:37.986Z
+Stopped at: Completed 05-04-PLAN.md
+Resume file: None
