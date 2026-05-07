@@ -88,8 +88,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: 构建中文优先搜索读模型、索引字段与排序规则
-- [ ] 04-02: 构建版本感知的搜索结果与点歌选择流程
+- [ ] 04-01-PLAN.md — 构建中文优先搜索读模型、索引字段与排序规则
+- [ ] 04-02-PLAN.md — 构建版本感知的搜索结果与点歌选择流程
 **UI hint**: yes
 
 ### Phase 5: Online Supplement & Recovery
