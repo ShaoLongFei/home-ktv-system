@@ -138,6 +138,7 @@ export interface RoomSnapshot {
   pairing: PairingInfo;
   currentTarget: PlaybackTarget | null;
   switchTarget: SwitchTarget | null;
+  targetVocalMode?: VocalMode | null;
   conflict: PlayerConflictState | null;
   notice: PlaybackNotice | null;
   generatedAt: string;
@@ -154,6 +155,7 @@ export interface RoomControlSnapshot {
   controllers: ControllerPresenceSummary;
   currentTarget: PlaybackTarget | null;
   switchTarget: SwitchTarget | null;
+  targetVocalMode?: VocalMode | null;
   queue: readonly RoomQueueEntryPreview[];
   notice: PlaybackNotice | null;
   generatedAt: string;

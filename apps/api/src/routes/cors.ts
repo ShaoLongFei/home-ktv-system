@@ -37,6 +37,7 @@ function applyCorsHeaders(
   }
 
   reply.header("Access-Control-Allow-Origin", origin);
+  reply.header("Access-Control-Allow-Credentials", "true");
   reply.header("Access-Control-Allow-Methods", CORS_METHODS);
   reply.header(
     "Access-Control-Allow-Headers",

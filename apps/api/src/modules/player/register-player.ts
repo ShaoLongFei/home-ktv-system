@@ -11,6 +11,7 @@ export interface RegisterPlayerInput {
   deviceId: string;
   deviceName: string;
   capabilities: Record<string, boolean | string | number>;
+  controllerBaseUrl?: string;
   publicBaseUrl: string;
   repository: PlayerDeviceSessionRepository;
   pairingTokens: RoomPairingTokenRepository;
@@ -58,7 +59,8 @@ export async function registerPlayer(input: RegisterPlayerInput): Promise<Regist
     room: input.room,
     publicBaseUrl: input.publicBaseUrl,
     repository: input.pairingTokens,
-    now
+    now,
+    ...(input.controllerBaseUrl ? { controllerBaseUrl: input.controllerBaseUrl } : {})
   });
   const conflict = await detectPlayerConflict({
     roomId: input.room.id,

@@ -64,6 +64,7 @@ class FakeRecoveryClient implements RecoveryRuntimeClient {
 
 class FakeVideo implements KtvVideoElement {
   currentTime = 0;
+  duration = 180;
   hidden = false;
   muted = false;
   playCalls = 0;

@@ -2,6 +2,7 @@ import type { PlaybackTarget, SwitchTarget } from "@home-ktv/player-contracts";
 
 export interface KtvVideoElement {
   currentTime: number;
+  duration: number;
   hidden: boolean | "until-found";
   muted: boolean;
   paused?: boolean;
@@ -89,6 +90,8 @@ export class DualVideoPool {
     this.standbyVideo.pause();
     this.activeVideo.hidden = true;
     this.standbyVideo.hidden = true;
+    this.activeTarget = null;
+    this.previousTarget = null;
     this.standbyTarget = null;
   }
 }

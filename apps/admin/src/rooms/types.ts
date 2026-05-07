@@ -57,3 +57,28 @@ export interface RoomStatusRefreshResponse {
     tokenValue?: string;
   };
 }
+
+export interface RoomControlSnapshotMessage {
+  type: "room.control.snapshot.updated";
+  payload: RoomControlSnapshotPayload;
+}
+
+export interface RoomControlSnapshotPayload {
+  roomId: string;
+  roomSlug: string;
+  sessionVersion: number;
+  pairing: RoomStatusResponse["pairing"] & {
+    token?: string;
+  };
+  tvPresence: TvPresence;
+  controllers: RoomStatusResponse["controllers"];
+  currentTarget: {
+    queueEntryId: string;
+    currentQueueEntryPreview: {
+      songTitle: string;
+      artistName: string;
+    };
+    vocalMode: string;
+  } | null;
+  queue: readonly RoomQueueEntryPreview[];
+}

@@ -8,6 +8,9 @@ body {
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
   border: 1px solid #222;
   border-radius: 8px;
@@ -16,6 +19,8 @@ button {
   background: #fff;
   font: inherit;
   font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
 }
 
 button:disabled {
@@ -124,12 +129,74 @@ button:disabled {
 }
 
 .current-meta span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
   border: 1px solid #e7e5e4;
   border-radius: 999px;
   padding: 6px 10px;
   background: #fafaf9;
   font-size: 0.85rem;
   font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.mode-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #fffefb, #f7f2e8);
+}
+
+.mode-summary-label {
+  color: #57534e;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mode-summary-value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.mode-summary-value.original {
+  color: #064e3b;
+  background: #bbf7d0;
+  border-color: #86efac;
+}
+
+.mode-summary-value.instrumental {
+  color: #92400e;
+  background: #fde68a;
+  border-color: #fcd34d;
+}
+
+.mode-summary-value.dual {
+  color: #1e3a8a;
+  background: #dbeafe;
+  border-color: #bfdbfe;
+}
+
+.mode-summary-value.unknown {
+  color: #52525b;
+  background: #e4e4e7;
+  border-color: #d4d4d8;
 }
 
 .queue-list,

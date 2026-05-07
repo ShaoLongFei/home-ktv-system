@@ -37,10 +37,22 @@ export class ActivePlaybackController {
       return { status: "playing" };
     }
 
+    const shouldTemporarilyMute = targetChanged && this.videoPool.activeVideo.paused;
+    const previousMuted = this.videoPool.activeVideo.muted;
+    if (shouldTemporarilyMute) {
+      this.videoPool.activeVideo.muted = true;
+    }
+
     try {
       await this.videoPool.playActiveUntilReady();
+      if (shouldTemporarilyMute) {
+        this.videoPool.activeVideo.muted = previousMuted;
+      }
       return { status: "playing" };
     } catch (error) {
+      if (shouldTemporarilyMute) {
+        this.videoPool.activeVideo.muted = previousMuted;
+      }
       return {
         status: "blocked",
         message: error instanceof Error ? error.message : "Playback start was blocked"

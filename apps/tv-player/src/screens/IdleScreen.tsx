@@ -23,17 +23,17 @@ const styles = {
   screen: {
     alignItems: "center",
     display: "grid",
-    gap: "min(6vw, 72px)",
+    gap: 72,
     gridTemplateColumns: "minmax(0, 1fr) auto",
     minHeight: "100vh",
-    padding: "clamp(36px, 8vh, 96px) clamp(28px, 7vw, 108px)"
+    padding: "72px 96px"
   },
   copy: {
     maxWidth: 920
   },
   kicker: {
     color: "#8fe6ad",
-    fontSize: "clamp(22px, 2.8vw, 36px)",
+    fontSize: 28,
     fontWeight: 900,
     letterSpacing: 1.5,
     margin: "0 0 28px",
@@ -41,17 +41,19 @@ const styles = {
   },
   title: {
     color: "#fff8e7",
-    fontSize: "clamp(56px, 8vw, 118px)",
+    fontSize: 96,
     fontWeight: 950,
-    letterSpacing: -3,
+    letterSpacing: 0,
     lineHeight: 0.92,
-    margin: 0
+    margin: 0,
+    overflowWrap: "anywhere"
   },
   detail: {
     color: "#d9d0b8",
-    fontSize: "clamp(22px, 3vw, 34px)",
+    fontSize: 30,
     lineHeight: 1.24,
     margin: "32px 0 0",
-    maxWidth: 760
+    maxWidth: 760,
+    overflowWrap: "anywhere"
   }
 } satisfies Record<string, CSSProperties>;

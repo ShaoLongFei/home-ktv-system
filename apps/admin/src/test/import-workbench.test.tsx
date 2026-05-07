@@ -107,6 +107,7 @@ describe("import review workbench", () => {
 
   it("sends the canonical PATCH /admin/import-candidates/:candidateId metadata update request", async () => {
     const user = userEvent.setup();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const { requests } = installFetchMock();
     render(<App />);
 
@@ -162,6 +163,7 @@ describe("import review workbench", () => {
         }
       ]
     });
+    expect(consoleError).not.toHaveBeenCalled();
   });
 
   it("calls hold, confirmed approve, and confirmed reject-delete endpoints", async () => {
@@ -251,7 +253,7 @@ function installFetchMock() {
 
       if (method === "PATCH" && detailMatch?.[1]) {
         const candidate = candidates.find((item) => item.id === detailMatch[1]);
-        return json({ candidate: candidate ? { ...candidate, ...(body as object) } : null });
+        return json({ candidate: candidate ? patchedCandidate(candidate, body) : null });
       }
 
       if (method === "POST" && requestUrl.pathname === "/admin/imports/scan") {
@@ -275,6 +277,20 @@ function json(value: unknown, status = 200): Response {
     status,
     headers: { "content-type": "application/json" }
   });
+}
+
+function patchedCandidate(candidate: TestCandidate, body: unknown): TestCandidate {
+  const patch = body as Partial<TestCandidate>;
+  const filePatches = Array.isArray(patch.files) ? patch.files : [];
+
+  return {
+    ...candidate,
+    ...patch,
+    files: candidate.files.map((file) => ({
+      ...file,
+      ...(filePatches.find((item) => item.candidateFileId === file.candidateFileId) ?? {})
+    }))
+  };
 }
 
 function createCandidates(): TestCandidate[] {

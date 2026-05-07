@@ -7,6 +7,7 @@ export const PAIRING_TOKEN_TTL_MS = 15 * 60 * 1000;
 
 export interface PairingTokenInput {
   room: Room;
+  controllerBaseUrl?: string;
   publicBaseUrl: string;
   repository: RoomPairingTokenRepository;
   now?: Date;
@@ -21,6 +22,7 @@ export interface VerifyPairingTokenInput {
 
 export interface ToPairingInfoInput {
   roomSlug: string;
+  controllerBaseUrl?: string;
   publicBaseUrl: string;
   token: string;
   tokenExpiresAt: Date;
@@ -42,7 +44,8 @@ export async function getOrCreatePairingInfo(input: PairingTokenInput): Promise<
       roomSlug: input.room.slug,
       publicBaseUrl: input.publicBaseUrl,
       token: existing.tokenValue,
-      tokenExpiresAt: new Date(existing.tokenExpiresAt)
+      tokenExpiresAt: new Date(existing.tokenExpiresAt),
+      ...(input.controllerBaseUrl ? { controllerBaseUrl: input.controllerBaseUrl } : {})
     });
   }
 
@@ -64,7 +67,7 @@ export async function verifyPairingToken(input: VerifyPairingTokenInput): Promis
 }
 
 export function toPairingInfo(input: ToPairingInfoInput): PairingInfo {
-  const baseUrl = input.publicBaseUrl.trim().replace(/\/$/, "");
+  const baseUrl = (input.controllerBaseUrl ?? input.publicBaseUrl).trim().replace(/\/$/, "");
   const controllerUrl = `${baseUrl || ""}/controller?room=${encodeURIComponent(input.roomSlug)}&token=${encodeURIComponent(input.token)}`;
 
   return {
@@ -91,6 +94,7 @@ async function createAndStorePairingInfo(input: PairingTokenInput & { now: Date 
     roomSlug: input.room.slug,
     publicBaseUrl: input.publicBaseUrl,
     token: persisted.tokenValue,
-    tokenExpiresAt: new Date(persisted.tokenExpiresAt)
+    tokenExpiresAt: new Date(persisted.tokenExpiresAt),
+    ...(input.controllerBaseUrl ? { controllerBaseUrl: input.controllerBaseUrl } : {})
   });
 }

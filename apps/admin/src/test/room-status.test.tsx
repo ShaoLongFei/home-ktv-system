@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "../App.js";
 
@@ -46,7 +46,33 @@ describe("room status view", () => {
     await user.click(screen.getByRole("button", { name: "Refresh pairing token" }));
 
     expect(requests.some((request) => request.method === "POST" && request.url === "/admin/rooms/living-room/pairing-token/refresh")).toBe(true);
-    expect(await screen.findByText("2026-05-04 18:30")).toBeTruthy();
+    expect(await screen.findByText("2026-05-04 18:30:45")).toBeTruthy();
+  });
+
+  it("updates room status from realtime snapshot messages", async () => {
+    const user = userEvent.setup();
+    installFetchMock();
+    const webSockets = installWebSocketMock();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Rooms" }));
+
+    expect(await screen.findByText("七里香")).toBeTruthy();
+    await waitFor(() => expect(webSockets.instances).toHaveLength(1));
+    expect(webSockets.instances[0]?.url).toContain("/rooms/living-room/realtime");
+    expect(webSockets.instances[0]?.url).toContain("client=admin");
+
+    act(() => {
+      webSockets.instances[0]?.emitJson({
+        type: "room.control.snapshot.updated",
+        payload: realtimeSnapshot()
+      });
+    });
+
+    expect(await screen.findByText("夜空中最亮的星")).toBeTruthy();
+    expect(screen.getByText("后来")).toBeTruthy();
+    expect(screen.getByText("9")).toBeTruthy();
+    expect(screen.queryByText("晴天")).toBeNull();
   });
 });
 
@@ -70,7 +96,7 @@ function installFetchMock() {
         refreshed = true;
         return json({
           pairing: {
-            tokenExpiresAt: "2026-05-04T10:30:00.000Z",
+            tokenExpiresAt: "2026-05-04T10:30:45.000Z",
             controllerUrl: "http://ktv.local/controller?room=living-room&token=token-2",
             qrPayload: "http://ktv.local/controller?room=living-room&token=token-2",
             token: "token-2"
@@ -124,6 +150,104 @@ function roomStatus(tokenExpiresAt: string) {
       }
     ]
   };
+}
+
+function realtimeSnapshot() {
+  return {
+    type: "room.control.snapshot",
+    roomId: "living-room",
+    roomSlug: "living-room",
+    sessionVersion: 9,
+    state: "playing",
+    pairing: {
+      tokenExpiresAt: "2026-05-04T10:45:00.000Z",
+      controllerUrl: "http://ktv.local/controller?room=living-room&token=token-3",
+      qrPayload: "http://ktv.local/controller?room=living-room&token=token-3",
+      token: "token-3"
+    },
+    tvPresence: {
+      online: true,
+      deviceName: "Living Room TV",
+      lastSeenAt: "2026-05-04T10:40:00.000Z",
+      conflict: null
+    },
+    controllers: { onlineCount: 2 },
+    currentTarget: {
+      roomId: "living-room",
+      sessionVersion: 9,
+      queueEntryId: "queue-new",
+      assetId: "asset-new",
+      currentQueueEntryPreview: {
+        queueEntryId: "queue-new",
+        songTitle: "夜空中最亮的星",
+        artistName: "逃跑计划"
+      },
+      playbackUrl: "http://ktv.local/media/asset-new",
+      resumePositionMs: 12000,
+      vocalMode: "original",
+      switchFamily: "family-new",
+      nextQueueEntryPreview: {
+        queueEntryId: "queue-after",
+        songTitle: "后来",
+        artistName: "刘若英"
+      }
+    },
+    switchTarget: null,
+    targetVocalMode: "original",
+    queue: [
+      {
+        queueEntryId: "queue-new",
+        songId: "song-new",
+        assetId: "asset-new",
+        songTitle: "夜空中最亮的星",
+        artistName: "逃跑计划",
+        requestedBy: "mobile-1",
+        queuePosition: 1,
+        status: "playing",
+        canPromote: false,
+        canDelete: false,
+        undoExpiresAt: null
+      },
+      {
+        queueEntryId: "queue-after",
+        songId: "song-after",
+        assetId: "asset-after",
+        songTitle: "后来",
+        artistName: "刘若英",
+        requestedBy: "mobile-1",
+        queuePosition: 2,
+        status: "queued",
+        canPromote: true,
+        canDelete: true,
+        undoExpiresAt: null
+      }
+    ],
+    notice: null,
+    generatedAt: "2026-05-04T10:40:00.000Z"
+  };
+}
+
+function installWebSocketMock() {
+  class MockWebSocket {
+    static instances: MockWebSocket[] = [];
+    onopen: ((event: Event) => void) | null = null;
+    onmessage: ((event: MessageEvent) => void) | null = null;
+    onclose: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+
+    constructor(readonly url: string) {
+      MockWebSocket.instances.push(this);
+    }
+
+    close() {}
+
+    emitJson(payload: unknown) {
+      this.onmessage?.({ data: JSON.stringify(payload) } as MessageEvent);
+    }
+  }
+
+  vi.stubGlobal("WebSocket", MockWebSocket);
+  return { instances: MockWebSocket.instances };
 }
 
 function json(body: unknown, status = 200): Response {

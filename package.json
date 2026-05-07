@@ -5,6 +5,9 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "dev": "turbo run dev --parallel",
+    "dev:local": "bash scripts/dev-local.sh",
+    "db:migrate": "pnpm -F @home-ktv/api migrate",
+    "seed:demo-song": "node scripts/seed-demo-song.mjs",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",

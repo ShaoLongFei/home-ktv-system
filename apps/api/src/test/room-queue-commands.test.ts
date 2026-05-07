@@ -1,10 +1,11 @@
-import type { Asset, ControlSession, PlaybackSession, QueueEntry, Room, Song } from "@home-ktv/domain";
+import type { Asset, ControlSession, PlaybackSession, QueueEntry, Room, Song, VocalMode } from "@home-ktv/domain";
 import { describe, expect, it } from "vitest";
 import { AssetGateway } from "../modules/assets/asset-gateway.js";
 import { MediaPathResolver } from "../modules/assets/media-path-resolver.js";
 import type { AssetRepository } from "../modules/catalog/repositories/asset-repository.js";
 import type { SongRepository } from "../modules/catalog/repositories/song-repository.js";
 import { InMemoryControlSessionRepository } from "../modules/controller/repositories/control-session-repository.js";
+import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
 import {
   QUEUE_DELETE_UNDO_TTL_MS,
   handlePlayerEnded,
@@ -85,7 +86,7 @@ describe("room queue commands", () => {
       })
     );
 
-    expect(harness.queueEntries.findById("queue-queued")).resolves.toMatchObject({ status: "queued" });
+    await expect(harness.queueEntries.findById("queue-queued")).resolves.toMatchObject({ status: "queued" });
 
     const promoted = expectAccepted(
       await executeRoomCommand({
@@ -124,6 +125,90 @@ describe("room queue commands", () => {
     );
 
     expect(rejectedSkip.code).toBe("SKIP_CONFIRMATION_REQUIRED");
+  });
+
+  it("starts playback when a song is added to an idle room", async () => {
+    const harness = createHarness({
+      queueEntries: []
+    });
+
+    const result = expectAccepted(
+      await executeRoomCommand({
+        commandId: "command-add-idle",
+        roomSlug: harness.room.slug,
+        sessionVersion: 1,
+        type: "add-queue-entry",
+        payload: { songId: "song-ready" },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+
+    const currentQueueEntryId = result.snapshot.currentTarget?.queueEntryId;
+    expect(currentQueueEntryId).toBeDefined();
+    expect(result.snapshot.state).toBe("loading");
+    expect(result.sessionVersion).toBe(2);
+    expect(result.snapshot.queue.find((entry) => entry.queueEntryId === currentQueueEntryId)).toMatchObject({
+      songTitle: "Ready Song",
+      status: "loading"
+    });
+  });
+
+  it("loads playback from the promoted head when the room is idle", async () => {
+    const harness = createHarness({
+      queueEntries: [createQueueEntry("queue-one", 1, "queued"), createQueueEntry("queue-two", 2, "queued")]
+    });
+
+    const result = expectAccepted(
+      await executeRoomCommand({
+        commandId: "command-promote-idle",
+        roomSlug: harness.room.slug,
+        sessionVersion: 1,
+        type: "promote-queue-entry",
+        payload: { queueEntryId: "queue-two" },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+
+    expect(result.snapshot.queue.map((entry) => entry.queueEntryId)).toEqual(["queue-two", "queue-one"]);
+    expect(result.snapshot.currentTarget?.queueEntryId).toBe("queue-two");
+    expect(result.snapshot.state).toBe("loading");
+    expect(result.snapshot.queue.find((entry) => entry.queueEntryId === "queue-two")).toMatchObject({
+      status: "loading"
+    });
+    expect(result.sessionVersion).toBe(2);
+  });
+
+  it("publishes the requested vocal mode in the snapshot after a vocal switch command", async () => {
+    const harness = createHarness({
+      queueEntries: [createQueueEntry("queue-current", 1, "playing")],
+      targetVocalMode: "original"
+    });
+
+    const result = expectAccepted(
+      await executeRoomCommand({
+        commandId: "command-switch-vocal-mode",
+        roomSlug: harness.room.slug,
+        sessionVersion: 1,
+        type: "switch-vocal-mode",
+        payload: { playbackPositionMs: 12_345 },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+
+    expect(result.snapshot.currentTarget?.vocalMode).toBe("instrumental");
+    expect(result.snapshot.targetVocalMode).toBe("original");
   });
 
   it("returns duplicate for repeated command ids and conflict for stale versions", async () => {
@@ -239,6 +324,10 @@ describe("room queue commands", () => {
 
     expect(result.status).toBe("accepted");
     expect(result.snapshot?.currentTarget?.queueEntryId).toBe("queue-queued");
+    expect(result.snapshot?.state).toBe("loading");
+    expect(result.snapshot?.queue.find((entry) => entry.queueEntryId === "queue-queued")).toMatchObject({
+      status: "loading"
+    });
     expect(result.snapshot?.sessionVersion).toBe(2);
   });
 
@@ -267,7 +356,7 @@ describe("room queue commands", () => {
   });
 });
 
-function createHarness(options: { queueEntries: readonly QueueEntry[] }) {
+function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVocalMode?: VocalMode }) {
   const room = createRoom();
   const songs = new Map<string, Song>([
     ["song-current", createSong("song-current", "Current", "Artist A", "asset-current-instrumental")],
@@ -287,7 +376,7 @@ function createHarness(options: { queueEntries: readonly QueueEntry[] }) {
     currentQueueEntryId: options.queueEntries.find((entry) => entry.status === "playing")?.id ?? null,
     nextQueueEntryId: null,
     activeAssetId: options.queueEntries.find((entry) => entry.status === "playing")?.assetId ?? null,
-    targetVocalMode: "instrumental",
+    targetVocalMode: options.targetVocalMode ?? "instrumental",
     playerState: options.queueEntries.some((entry) => entry.status === "playing") ? "playing" : "idle",
     playerPositionMs: 0,
     mediaStartedAt: null,
@@ -361,6 +450,7 @@ function createHarness(options: { queueEntries: readonly QueueEntry[] }) {
       pairingTokens: roomPairingTokens,
       controlSessions,
       controlCommands: commandRepo,
+      deviceSessions: new FakeDeviceSessionRepository(),
       playbackEvents
     }
   };
@@ -528,6 +618,35 @@ class FakeRoomSessionCommandRepository {
 
 class FakePlaybackEventRepository {
   async append(): Promise<null> {
+    return null;
+  }
+}
+
+class FakeDeviceSessionRepository implements PlayerDeviceSessionRepository {
+  async findActiveTvPlayer(roomId: string, activeAfter: Date) {
+    if (roomId !== "living-room") {
+      return null;
+    }
+
+    const lastSeenAt = new Date(activeAfter.getTime() + 1000).toISOString();
+    return {
+      id: "tv-1",
+      roomId: "living-room",
+      deviceType: "tv",
+      deviceName: "Living Room TV",
+      lastSeenAt,
+      capabilities: { videoPool: "dual-video" },
+      pairingToken: "token-1",
+      createdAt: now.toISOString(),
+      updatedAt: lastSeenAt
+    } as any;
+  }
+
+  async upsertTvPlayer() {
+    return null as any;
+  }
+
+  async updateTvHeartbeat() {
     return null;
   }
 }

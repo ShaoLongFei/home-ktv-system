@@ -88,6 +88,50 @@ describe("player runtime contract", () => {
     expect(playbackSessions.session.playerPositionMs).toBe(0);
   });
 
+  it("marks the queue entry playing when TV reports playback started", async () => {
+    const eventRepository = new FakePlaybackEventRepository();
+    const playbackSessions = new FakePlaybackSessionRepository({
+      ...createPlaybackSession(0),
+      mediaStartedAt: null,
+      playerState: "loading"
+    });
+    const queueMarks: unknown[] = [];
+
+    await ingestPlayerTelemetry({
+      telemetry: {
+        eventType: "playing",
+        room,
+        deviceId: "tv-active",
+        sessionVersion: 4,
+        queueEntryId: "queue-current",
+        assetId: "asset-original",
+        playbackPositionMs: 1200,
+        vocalMode: "original",
+        switchFamily: "family-main",
+        rollbackAssetId: null,
+        emittedAt: now.toISOString()
+      },
+      playbackEvents: eventRepository,
+      playbackSessions,
+      queueEntries: {
+        async markPlaybackState(input) {
+          queueMarks.push(input);
+          return null;
+        }
+      }
+    });
+
+    expect(playbackSessions.session.playerState).toBe("playing");
+    expect(queueMarks).toEqual([
+      {
+        roomId: "living-room",
+        queueEntryId: "queue-current",
+        status: "playing",
+        startedAt: now
+      }
+    ]);
+  });
+
   it("reconnect recovery resumes near the stored player_position_ms when the asset can honor it", async () => {
     const eventRepository = new FakePlaybackEventRepository();
     const repositories = createRecoveryRepositories({

@@ -57,6 +57,7 @@ describe("switch runtime", () => {
       {
         eventType: "switch_failed",
         assetId: "asset-instrumental",
+        vocalMode: "original",
         rollbackAssetId: "asset-original",
         playbackPositionMs: 41000
       }
@@ -114,6 +115,7 @@ class FakeSwitchClient implements SwitchRuntimeClient {
 
 class FakeVideo implements KtvVideoElement {
   currentTime = 0;
+  duration = 180;
   failPlay = false;
   hidden = false;
   muted = false;

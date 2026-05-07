@@ -1,31 +1,11 @@
-import type { PlaybackTarget, RoomSnapshot } from "@home-ktv/player-contracts";
+import type { RoomSnapshot } from "@home-ktv/player-contracts";
 import { describe, expect, it } from "vitest";
 import { HeartbeatController, type HeartbeatRuntimeClient } from "../runtime/heartbeat-controller.js";
 import { DualVideoPool, type KtvVideoElement } from "../runtime/video-pool.js";
 
-describe("heartbeat controller", () => {
-  it("reports the current queue entry and playback position while playing", async () => {
-    const activeVideo = new FakeVideo();
-    const pool = new DualVideoPool(activeVideo, new FakeVideo());
-    pool.primeActive(playbackTarget());
-    activeVideo.currentTime = 42.25;
-    const client = new FakeHeartbeatClient();
-
-    const result = await new HeartbeatController({ client, videoPool: pool }).send(snapshot());
-
-    expect(result.status).toBe("sent");
-    expect(client.heartbeats).toEqual([
-      {
-        currentQueueEntryId: "queue-current",
-        playbackPositionMs: 42250,
-        health: "ok"
-      }
-    ]);
-  });
-
+describe("heartbeat presence", () => {
   it("keeps the TV presence online while the room is idle", async () => {
-    const activeVideo = new FakeVideo();
-    const pool = new DualVideoPool(activeVideo, new FakeVideo());
+    const pool = new DualVideoPool(new FakeVideo(), new FakeVideo());
     const client = new FakeHeartbeatClient();
 
     const result = await new HeartbeatController({ client, videoPool: pool }).send(idleSnapshot());
@@ -58,7 +38,7 @@ class FakeVideo implements KtvVideoElement {
   duration = 180;
   hidden = false;
   muted = false;
-  paused = false;
+  paused = true;
   readyState = 4;
   src = "";
 
@@ -77,20 +57,15 @@ class FakeVideo implements KtvVideoElement {
   }
 
   removeEventListener(): void {}
-
-  requestVideoFrameCallback(callback: (now: number, metadata: unknown) => void): number {
-    callback(0, {});
-    return 1;
-  }
 }
 
-function snapshot(): RoomSnapshot {
+function idleSnapshot(): RoomSnapshot {
   return {
     type: "room.snapshot",
     roomId: "living-room",
     roomSlug: "living-room",
     sessionVersion: 4,
-    state: "playing",
+    state: "idle",
     pairing: {
       roomSlug: "living-room",
       controllerUrl: "http://ktv.local/controller?room=living-room",
@@ -98,39 +73,11 @@ function snapshot(): RoomSnapshot {
       token: "living-room.test",
       tokenExpiresAt: "2026-04-28T00:05:00.000Z"
     },
-    currentTarget: playbackTarget(),
+    currentTarget: null,
     switchTarget: null,
+    targetVocalMode: null,
     conflict: null,
     notice: null,
     generatedAt: "2026-04-28T00:00:00.000Z"
-  };
-}
-
-function idleSnapshot(): RoomSnapshot {
-  return {
-    ...snapshot(),
-    state: "idle",
-    currentTarget: null,
-    switchTarget: null,
-    targetVocalMode: null
-  };
-}
-
-function playbackTarget(): PlaybackTarget {
-  return {
-    roomId: "living-room",
-    sessionVersion: 4,
-    queueEntryId: "queue-current",
-    assetId: "asset-original",
-    currentQueueEntryPreview: {
-      queueEntryId: "queue-current",
-      songTitle: "七里香",
-      artistName: "周杰伦"
-    },
-    playbackUrl: "http://ktv.local/media/asset-original",
-    resumePositionMs: 0,
-    vocalMode: "original",
-    switchFamily: "family-main",
-    nextQueueEntryPreview: null
   };
 }

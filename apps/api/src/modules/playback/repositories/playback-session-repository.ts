@@ -96,10 +96,10 @@ export class PgPlaybackSessionRepository implements PlaybackSessionRepository {
            player_state = COALESCE($5, 'playing'),
            player_position_ms = COALESCE($6, 0),
            next_queue_entry_id = $7,
-           media_started_at = COALESCE($8, CASE
-             WHEN COALESCE($5, 'playing') = 'playing' THEN now()
-             ELSE media_started_at
-           END),
+           media_started_at = CASE
+             WHEN COALESCE($5, 'playing') = 'playing' THEN COALESCE($8, now())
+             ELSE $8
+           END,
            version = version + 1,
            updated_at = now()
        WHERE room_id = $1

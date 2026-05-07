@@ -482,7 +482,7 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
          language, status, genre, tags, aliases, search_hints, release_year,
          canonical_duration_ms, default_asset_id
        )
-       VALUES ($1, $2, lower($2), '', '', $3, $4, $5, 'ready', '{}', '{}', '{}', '{}', $6, $7, $8)
+       VALUES ($1, $2, lower($2), '', '', $3, $4, $5, 'ready', '{}', '{}', '{}', '{}', $6, $7, NULL)
        ON CONFLICT(id)
        DO UPDATE SET title = EXCLUDED.title,
                      normalized_title = EXCLUDED.normalized_title,
@@ -491,7 +491,7 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
                      status = 'ready',
                      release_year = EXCLUDED.release_year,
                      canonical_duration_ms = EXCLUDED.canonical_duration_ms,
-                     default_asset_id = EXCLUDED.default_asset_id,
+                     default_asset_id = NULL,
                      updated_at = now()`,
       [
         input.songId,
@@ -500,8 +500,7 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
         input.artistName,
         input.language,
         input.releaseYear,
-        input.assets[0]?.durationMs ?? null,
-        input.defaultAssetId
+        input.assets[0]?.durationMs ?? null
       ]
     );
 
@@ -539,6 +538,14 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
         [`source-${asset.assetId}`, asset.assetId, asset.importFileId, { candidateId: input.candidateId }]
       );
     }
+
+    await this.db.query(
+      `UPDATE songs
+       SET default_asset_id = $2,
+           updated_at = now()
+       WHERE id = $1`,
+      [input.songId, input.defaultAssetId]
+    );
   }
 }
 

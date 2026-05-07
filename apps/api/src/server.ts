@@ -157,6 +157,7 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     assets: repositories.assets,
     songs: repositories.songs,
     controlSessions: repositories.controlSessions,
+    deviceSessions: repositories.deviceSessions,
     assetGateway
   });
   await registerRoomSnapshotRoutes(server, {

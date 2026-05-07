@@ -55,6 +55,42 @@ describe("room pairing tokens", () => {
     expect(reloadedPairing.controllerUrl).toContain(`token=${encodeURIComponent(pairing.token)}`);
   });
 
+  it("uses the controller base URL for QR payloads when configured separately from media URLs", async () => {
+    const repository = new InMemoryRoomPairingTokenRepository();
+    const pairing = await getOrCreatePairingInfo({
+      room,
+      controllerBaseUrl: "http://10.91.130.150:5176",
+      publicBaseUrl: "http://localhost:4000",
+      repository,
+      now: new Date("2026-05-01T10:00:00.000Z")
+    });
+
+    expect(pairing.controllerUrl).toContain("http://10.91.130.150:5176/controller?room=living-room");
+    expect(pairing.controllerUrl).not.toContain("localhost:4000");
+  });
+
+  it("keeps using the controller base URL when reusing an existing pairing token", async () => {
+    const repository = new InMemoryRoomPairingTokenRepository();
+    await getOrCreatePairingInfo({
+      room,
+      controllerBaseUrl: "http://10.91.130.150:5176",
+      publicBaseUrl: "http://localhost:4000",
+      repository,
+      now: new Date("2026-05-01T10:00:00.000Z")
+    });
+
+    const pairing = await getOrCreatePairingInfo({
+      room,
+      controllerBaseUrl: "http://10.91.130.150:5176",
+      publicBaseUrl: "http://localhost:4000",
+      repository,
+      now: new Date("2026-05-01T10:01:00.000Z")
+    });
+
+    expect(pairing.controllerUrl).toContain("http://10.91.130.150:5176/controller?room=living-room");
+    expect(pairing.controllerUrl).not.toContain("localhost:4000/controller");
+  });
+
   it("uses a fifteen minute pairing token TTL", () => {
     expect(PAIRING_TOKEN_TTL_MS).toBe(15 * 60 * 1000);
   });

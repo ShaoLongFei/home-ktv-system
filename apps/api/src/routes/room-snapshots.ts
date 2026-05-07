@@ -43,7 +43,8 @@ export async function buildRoomSnapshot(input: BuildRoomSnapshotInput): Promise<
     room,
     publicBaseUrl: input.config.publicBaseUrl,
     repository: input.repositories.pairingTokens,
-    now
+    now,
+    ...(input.config.controllerBaseUrl ? { controllerBaseUrl: input.config.controllerBaseUrl } : {})
   });
 
   if (input.conflict) {
@@ -56,6 +57,7 @@ export async function buildRoomSnapshot(input: BuildRoomSnapshotInput): Promise<
       pairing,
       currentTarget: null,
       switchTarget: null,
+      targetVocalMode: null,
       conflict: input.conflict,
       notice: null,
       generatedAt: now.toISOString()
@@ -87,6 +89,7 @@ export async function buildRoomSnapshot(input: BuildRoomSnapshotInput): Promise<
     pairing,
     currentTarget,
     switchTarget,
+    targetVocalMode: session?.targetVocalMode ?? currentTarget?.vocalMode ?? null,
     conflict: null,
     notice: input.notice ?? noticeFromPlayerState(session?.playerState ?? "idle"),
     generatedAt: now.toISOString()

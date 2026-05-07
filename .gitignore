@@ -4,3 +4,5 @@ coverage/
 .turbo/
 .env
 .env.local
+logs/
+home-ktv-media/

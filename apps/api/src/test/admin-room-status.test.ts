@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { AssetGateway } from "../modules/assets/asset-gateway.js";
 import { MediaPathResolver } from "../modules/assets/media-path-resolver.js";
 import { InMemoryControlSessionRepository } from "../modules/controller/repositories/control-session-repository.js";
+import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
 import { buildRoomControlSnapshot } from "../modules/rooms/build-control-snapshot.js";
 import { InMemoryRoomPairingTokenRepository } from "../modules/rooms/repositories/pairing-token-repository.js";
 import { registerAdminRoomsRoutes } from "../routes/admin-rooms.js";
@@ -20,6 +21,7 @@ describe("admin room status routes", () => {
       queueEntries: harness.queueEntries,
       assets: harness.assets,
       songs: harness.songs,
+      deviceSessions: harness.deviceSessions,
       assetGateway: harness.assetGateway
     } as any);
 
@@ -45,13 +47,13 @@ describe("admin room status routes", () => {
         status: "active"
       },
       pairing: {
-        tokenExpiresAt: "2026-05-04T10:15:00.000Z",
+        tokenExpiresAt: expect.any(String),
         controllerUrl: "http://ktv.local/controller?room=living-room&token=token-1",
         qrPayload: "http://ktv.local/controller?room=living-room&token=token-1"
       },
       tvPresence: {
         online: true,
-        deviceName: null,
+        deviceName: "Living Room TV",
         conflict: null
       },
       controllers: { onlineCount: 1 },
@@ -90,6 +92,7 @@ describe("admin room status routes", () => {
       queueEntries: harness.queueEntries,
       assets: harness.assets,
       songs: harness.songs,
+      deviceSessions: harness.deviceSessions,
       assetGateway: harness.assetGateway
     } as any);
 
@@ -105,9 +108,42 @@ describe("admin room status routes", () => {
     expect(body.pairing.token).toBeTypeOf("string");
     expect(body.pairing.tokenExpiresAt).toMatch(/T/u);
   });
+
+  it("keeps TV status online when the TV heartbeat is active but no song is playing", async () => {
+    const harness = createHarness({ playing: false });
+    const server = Fastify({ logger: false });
+    await registerAdminRoomsRoutes(server, {
+      config: { publicBaseUrl: "http://ktv.local" } as any,
+      rooms: harness.rooms,
+      pairingTokens: harness.pairingTokens,
+      controlSessions: harness.controlSessions,
+      playbackSessions: harness.playbackSessions,
+      queueEntries: harness.queueEntries,
+      assets: harness.assets,
+      songs: harness.songs,
+      deviceSessions: harness.deviceSessions,
+      assetGateway: harness.assetGateway
+    } as any);
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/admin/rooms/living-room"
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json() as { tvPresence: { online: boolean; deviceName: string | null; lastSeenAt: string | null }; current: unknown };
+    expect(body.tvPresence).toMatchObject({
+      online: true,
+      deviceName: "Living Room TV"
+    });
+    expect(body.tvPresence.lastSeenAt).toEqual(expect.any(String));
+    expect(body.current).toBeNull();
+  });
 });
 
-function createHarness() {
+function createHarness(options: { playing?: boolean } = {}) {
+  const playing = options.playing ?? true;
+  const activeNow = new Date();
   const room = {
     id: "living-room",
     slug: "living-room",
@@ -241,11 +277,11 @@ function createHarness() {
       }
       return {
         roomId: "living-room",
-        currentQueueEntryId: "queue-current",
-        nextQueueEntryId: "queue-next",
-        activeAssetId: "asset-current",
+        currentQueueEntryId: playing ? "queue-current" : null,
+        nextQueueEntryId: playing ? "queue-next" : null,
+        activeAssetId: playing ? "asset-current" : null,
         targetVocalMode: "instrumental",
-        playerState: "playing",
+        playerState: playing ? "playing" : "idle",
         playerPositionMs: 1234,
         mediaStartedAt: "2026-05-04T10:00:00.000Z",
         version: 8,
@@ -260,11 +296,11 @@ function createHarness() {
       roomId: "living-room",
       deviceId: "phone-1",
       deviceName: "Phone",
-      lastSeenAt: "2026-05-04T09:59:30.000Z",
-      expiresAt: "2026-05-04T10:15:00.000Z",
+      lastSeenAt: activeNow.toISOString(),
+      expiresAt: new Date(activeNow.getTime() + 15 * 60 * 1000).toISOString(),
       revokedAt: null,
       createdAt: "2026-05-04T09:50:00.000Z",
-      updatedAt: "2026-05-04T09:59:30.000Z"
+      updatedAt: activeNow.toISOString()
     }
   ]);
 
@@ -273,7 +309,7 @@ function createHarness() {
       roomId: "living-room",
       tokenValue: "token-1",
       tokenHash: "hash-1",
-      tokenExpiresAt: "2026-05-04T10:15:00.000Z",
+      tokenExpiresAt: new Date(activeNow.getTime() + 15 * 60 * 1000).toISOString(),
       rotatedAt: "2026-05-04T10:00:00.000Z",
       createdAt: "2026-05-04T09:50:00.000Z",
       updatedAt: "2026-05-04T10:00:00.000Z"
@@ -285,11 +321,38 @@ function createHarness() {
     mediaPathResolver: new MediaPathResolver({ mediaRoot: "/media-root" }),
     publicBaseUrl: "http://ktv.local"
   });
+  const deviceSessions: PlayerDeviceSessionRepository = {
+    async findActiveTvPlayer(roomId: string, activeAfter: Date) {
+      if (roomId !== "living-room") {
+        return null;
+      }
+
+      const lastSeenAt = new Date(activeAfter.getTime() + 1000).toISOString();
+      return {
+        id: "tv-1",
+        roomId: "living-room",
+        deviceType: "tv",
+        deviceName: "Living Room TV",
+        lastSeenAt,
+        capabilities: { videoPool: "dual-video" },
+        pairingToken: "token-1",
+        createdAt: "2026-05-04T09:00:00.000Z",
+        updatedAt: lastSeenAt
+      } as any;
+    },
+    async upsertTvPlayer() {
+      return null as any;
+    },
+    async updateTvHeartbeat() {
+      return null;
+    }
+  };
 
   return {
     rooms: roomRepository,
     pairingTokens,
     controlSessions,
+    deviceSessions,
     playbackSessions,
     queueEntries,
     assets,

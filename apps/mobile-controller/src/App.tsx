@@ -6,6 +6,7 @@ export function App() {
   const current = snapshot?.currentTarget;
   const switchTarget = snapshot?.switchTarget;
   const switchLabel = switchTarget?.vocalMode === "original" ? "切到原唱" : "切到伴唱";
+  const currentModeLabel = vocalModeLabel(current?.vocalMode ?? "unknown");
 
   return (
     <main className="app-shell" aria-label="Home KTV controller">
@@ -33,7 +34,11 @@ export function App() {
         </div>
         <div className="current-meta">
           <span>{snapshot?.state ?? "连接中"}</span>
-          <span>{current?.vocalMode ?? "unknown"}</span>
+          <span>{currentModeLabel}</span>
+        </div>
+        <div className="mode-summary" aria-label="current-vocal-mode">
+          <span className="mode-summary-label">当前模式</span>
+          <span className={`mode-summary-value ${current?.vocalMode ?? "unknown"}`}>{currentModeLabel}</span>
         </div>
         <div className="command-row">
           <button type="button" disabled={!switchTarget} onClick={() => void controller.switchVocalMode()}>
@@ -125,4 +130,20 @@ function formatTime(value: string): string {
     minute: "2-digit",
     second: "2-digit"
   });
+}
+
+function vocalModeLabel(mode: string): string {
+  if (mode === "original") {
+    return "原唱";
+  }
+
+  if (mode === "instrumental") {
+    return "伴唱";
+  }
+
+  if (mode === "dual") {
+    return "双轨";
+  }
+
+  return "unknown";
 }

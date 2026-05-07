@@ -16,12 +16,37 @@ describe("active playback controller", () => {
     expect(activeVideo.currentTime).toBe(12.345);
     expect(activeVideo.playCalls).toBe(1);
   });
+
+  it("starts the first playback muted and restores audible playback after it begins", async () => {
+    const activeVideo = new FakeVideo();
+    const pool = new DualVideoPool(activeVideo, new FakeVideo());
+
+    const result = await new ActivePlaybackController({ videoPool: pool }).ensurePlaying(snapshot());
+
+    expect(result.status).toBe("playing");
+    expect(activeVideo.mutedAtPlay).toEqual([true]);
+    expect(activeVideo.muted).toBe(false);
+  });
+
+  it("clears the active target when the room becomes idle", async () => {
+    const activeVideo = new FakeVideo();
+    const pool = new DualVideoPool(activeVideo, new FakeVideo());
+    pool.primeActive(playbackTarget());
+
+    const result = await new ActivePlaybackController({ videoPool: pool }).ensurePlaying(idleSnapshot());
+
+    expect(result.status).toBe("disabled");
+    expect(pool.activeTarget).toBeNull();
+    expect(activeVideo.paused).toBe(true);
+  });
 });
 
 class FakeVideo implements KtvVideoElement {
   currentTime = 0;
+  duration = 180;
   hidden = false;
   muted = false;
+  mutedAtPlay: boolean[] = [];
   paused = true;
   playCalls = 0;
   readyState = 4;
@@ -35,6 +60,7 @@ class FakeVideo implements KtvVideoElement {
 
   async play(): Promise<void> {
     this.playCalls += 1;
+    this.mutedAtPlay.push(this.muted);
     this.paused = false;
   }
 
@@ -69,6 +95,16 @@ function snapshot(): RoomSnapshot {
     conflict: null,
     notice: null,
     generatedAt: "2026-04-28T00:00:00.000Z"
+  };
+}
+
+function idleSnapshot(): RoomSnapshot {
+  return {
+    ...snapshot(),
+    state: "idle",
+    currentTarget: null,
+    switchTarget: null,
+    targetVocalMode: null
   };
 }
 

@@ -48,14 +48,18 @@ interface CommandBaseInput {
 }
 
 export function getOrCreateDeviceId(): string {
-  const existing = localStorage.getItem(deviceIdStorageKey);
-  if (existing) {
-    return existing;
-  }
+  try {
+    const existing = localStorage.getItem(deviceIdStorageKey);
+    if (existing) {
+      return existing;
+    }
 
-  const deviceId = `mobile-${crypto.randomUUID()}`;
-  localStorage.setItem(deviceIdStorageKey, deviceId);
-  return deviceId;
+    const deviceId = createId("mobile-");
+    localStorage.setItem(deviceIdStorageKey, deviceId);
+    return deviceId;
+  } catch {
+    return createId("mobile-");
+  }
 }
 
 export async function restoreControlSession(input: {
@@ -209,5 +213,13 @@ async function readJson(response: Response): Promise<unknown> {
 }
 
 function createCommandId(): string {
-  return `mobile-command-${crypto.randomUUID()}`;
+  return createId("mobile-command-");
+}
+
+function createId(prefix: string): string {
+  const randomPart =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2);
+  return `${prefix}${randomPart}`;
 }

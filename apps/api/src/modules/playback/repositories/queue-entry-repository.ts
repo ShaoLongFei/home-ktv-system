@@ -54,6 +54,13 @@ export interface MarkCompletedQueueEntryInput {
   endedAt: Date;
 }
 
+export interface MarkPlaybackStateQueueEntryInput {
+  roomId: RoomId;
+  queueEntryId: QueueEntryId;
+  status: Extract<QueueEntryStatus, "loading" | "playing">;
+  startedAt: Date;
+}
+
 export interface QueueEntryRepository {
   findById(queueEntryId: QueueEntryId): Promise<QueueEntry | null>;
   listEffectiveQueue(roomId: RoomId): Promise<QueueEntry[]>;
@@ -63,6 +70,7 @@ export interface QueueEntryRepository {
   markRemoved(input: MarkRemovedQueueEntryInput): Promise<QueueEntry | null>;
   undoRemoved(input: UndoRemovedQueueEntryInput): Promise<QueueEntry | null>;
   renumberQueue(roomId: RoomId, orderedQueueEntryIds: readonly QueueEntryId[]): Promise<QueueEntry[]>;
+  markPlaybackState?(input: MarkPlaybackStateQueueEntryInput): Promise<QueueEntry | null>;
   markCompleted(input: MarkCompletedQueueEntryInput): Promise<QueueEntry | null>;
 }
 
@@ -280,6 +288,28 @@ export class PgQueueEntryRepository implements QueueEntryRepository {
     const row = result.rows[0];
     return row ? mapQueueEntryRow(row) : null;
   }
+
+  async markPlaybackState(input: MarkPlaybackStateQueueEntryInput): Promise<QueueEntry | null> {
+    const result = await this.db.query<QueueEntryRow>(
+      `UPDATE queue_entries
+       SET status = $3,
+           started_at = COALESCE(started_at, $4),
+           ended_at = NULL,
+           removed_at = NULL,
+           removed_by_control_session_id = NULL,
+           undo_expires_at = NULL
+       WHERE room_id = $1
+         AND id = $2
+         AND status IN ('queued', 'preparing', 'loading', 'playing')
+       RETURNING id, room_id, song_id, asset_id, requested_by, queue_position, status,
+                 priority, playback_options, requested_at, started_at, ended_at,
+                 removed_at, removed_by_control_session_id, undo_expires_at`,
+      [input.roomId, input.queueEntryId, input.status, input.startedAt]
+    );
+
+    const row = result.rows[0];
+    return row ? mapQueueEntryRow(row) : null;
+  }
 }
 
 export class InMemoryQueueEntryRepository implements QueueEntryRepository {
@@ -408,6 +438,25 @@ export class InMemoryQueueEntryRepository implements QueueEntryRepository {
       ...entry,
       status: input.status,
       endedAt: input.endedAt.toISOString(),
+      removedAt: null,
+      removedByControlSessionId: null,
+      undoExpiresAt: null
+    };
+    this.entries.set(updated.id, cloneQueueEntry(updated));
+    return cloneQueueEntry(updated);
+  }
+
+  async markPlaybackState(input: MarkPlaybackStateQueueEntryInput): Promise<QueueEntry | null> {
+    const entry = this.entries.get(input.queueEntryId);
+    if (!entry || entry.roomId !== input.roomId || !isEffectiveQueueStatus(entry.status)) {
+      return null;
+    }
+
+    const updated: QueueEntry = {
+      ...entry,
+      status: input.status,
+      startedAt: entry.startedAt ?? input.startedAt.toISOString(),
+      endedAt: null,
       removedAt: null,
       removedByControlSessionId: null,
       undoExpiresAt: null

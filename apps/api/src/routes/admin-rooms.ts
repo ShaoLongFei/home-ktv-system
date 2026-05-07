@@ -11,6 +11,7 @@ import type { QueueEntryRepository } from "../modules/playback/repositories/queu
 import type { QueueEntryStatus } from "@home-ktv/domain";
 import type { RoomPairingTokenRepository } from "../modules/rooms/repositories/pairing-token-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
+import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
 
 export interface AdminRoomsRouteDependencies {
   config: ApiConfig;
@@ -22,6 +23,7 @@ export interface AdminRoomsRouteDependencies {
   songs: SongRepository;
   controlSessions: ControlSessionRepository;
   assetGateway: AssetGateway;
+  deviceSessions: PlayerDeviceSessionRepository;
 }
 
 export async function registerAdminRoomsRoutes(
@@ -44,7 +46,8 @@ export async function registerAdminRoomsRoutes(
         assets: dependencies.assets,
         songs: dependencies.songs,
         pairingTokens: dependencies.pairingTokens,
-        controlSessions: dependencies.controlSessions
+        controlSessions: dependencies.controlSessions,
+        deviceSessions: dependencies.deviceSessions
       },
       assetGateway: dependencies.assetGateway
     });
@@ -65,7 +68,8 @@ export async function registerAdminRoomsRoutes(
     const pairing = await refreshPairingToken({
       room,
       publicBaseUrl: dependencies.config.publicBaseUrl,
-      repository: dependencies.pairingTokens
+      repository: dependencies.pairingTokens,
+      ...(dependencies.config.controllerBaseUrl ? { controllerBaseUrl: dependencies.config.controllerBaseUrl } : {})
     });
 
     return { pairing };
@@ -83,7 +87,8 @@ async function buildFallbackRoomStatus(
       room,
       publicBaseUrl: dependencies.config.publicBaseUrl,
       repository: dependencies.pairingTokens,
-      now
+      now,
+      ...(dependencies.config.controllerBaseUrl ? { controllerBaseUrl: dependencies.config.controllerBaseUrl } : {})
     }),
     dependencies.playbackSessions.findByRoomId(room.id),
     dependencies.queueEntries.listEffectiveQueue(room.id),

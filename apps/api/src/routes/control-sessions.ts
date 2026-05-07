@@ -14,6 +14,7 @@ import type { AssetRepository } from "../modules/catalog/repositories/asset-repo
 import type { SongRepository } from "../modules/catalog/repositories/song-repository.js";
 import type { PlaybackSessionRepository } from "../modules/playback/repositories/playback-session-repository.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
+import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
 
 export interface ControlSessionRouteRepositories {
   rooms: RoomRepository;
@@ -23,6 +24,7 @@ export interface ControlSessionRouteRepositories {
   songs: SongRepository;
   pairingTokens: RoomPairingTokenRepository;
   controlSessions: ControlSessionRepository;
+  deviceSessions: PlayerDeviceSessionRepository;
 }
 
 export interface ControlSessionRouteDependencies {

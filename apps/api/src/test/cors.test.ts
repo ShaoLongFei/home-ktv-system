@@ -25,6 +25,7 @@ describe("CORS", () => {
 
     expect(preflight.statusCode).toBe(204);
     expect(preflight.headers["access-control-allow-origin"]).toBe("http://192.168.1.20:5173");
+    expect(preflight.headers["access-control-allow-credentials"]).toBe("true");
     expect(preflight.headers["access-control-allow-methods"]).toContain("POST");
     expect(preflight.headers["access-control-allow-headers"]).toBe("content-type");
 
@@ -38,6 +39,7 @@ describe("CORS", () => {
 
     expect(health.statusCode).toBe(200);
     expect(health.headers["access-control-allow-origin"]).toBe("http://192.168.1.20:5173");
+    expect(health.headers["access-control-allow-credentials"]).toBe("true");
     await server.close();
   });
 

@@ -107,7 +107,7 @@ const styles = {
   },
   largeCaption: {
     color: "#fff8e7",
-    fontSize: "clamp(24px, 3.1vw, 40px)",
+    fontSize: 30,
     fontWeight: 800
   },
   cornerCaption: {

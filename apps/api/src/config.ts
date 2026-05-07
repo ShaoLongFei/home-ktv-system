@@ -1,6 +1,7 @@
 export interface ApiConfig {
   corsAllowedOrigins: readonly string[];
   databaseUrl: string;
+  controllerBaseUrl?: string;
   mediaRoot: string;
   publicBaseUrl: string;
   roomSlug: string;
@@ -43,6 +44,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
   return {
     corsAllowedOrigins: readList(env.CORS_ALLOWED_ORIGINS),
     databaseUrl: readString(env.DATABASE_URL),
+    controllerBaseUrl: readString(env.CONTROLLER_BASE_URL),
     mediaRoot: readString(env.MEDIA_ROOT),
     publicBaseUrl: readString(env.PUBLIC_BASE_URL),
     roomSlug: readString(env.TV_ROOM_SLUG) || DEFAULT_ROOM_SLUG,

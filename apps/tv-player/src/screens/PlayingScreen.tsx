@@ -5,11 +5,14 @@ import { PlaybackStatusBanner } from "../components/PlaybackStatusBanner.js";
 
 export interface PlayingScreenProps {
   snapshot: RoomSnapshot;
+  playbackPositionMs: number;
+  durationMs: number | null;
 }
 
-export function PlayingScreen({ snapshot }: PlayingScreenProps) {
+export function PlayingScreen({ snapshot, playbackPositionMs, durationMs }: PlayingScreenProps) {
   const target = snapshot.currentTarget;
   const nextSong = target?.nextQueueEntryPreview;
+  const modeLabel = modeLabelFor(target?.vocalMode ?? "unknown");
 
   return (
     <section style={styles.screen}>
@@ -23,11 +26,68 @@ export function PlayingScreen({ snapshot }: PlayingScreenProps) {
         <p style={styles.artist}>{target?.currentQueueEntryPreview.artistName ?? "Preparing playback"}</p>
       </div>
       <footer style={styles.footer}>
-        <span>Mode: {target?.vocalMode ?? "unknown"}</span>
-        <span>Next: {nextSong ? `${nextSong.songTitle} - ${nextSong.artistName}` : "queue empty"}</span>
+        <div style={styles.footerMetric}>
+          <span style={styles.metricLabel}>Mode</span>
+          <span style={{ ...styles.metricValue, ...modeAccent(target?.vocalMode ?? "unknown") }}>{modeLabel}</span>
+        </div>
+        <div style={styles.footerMetric}>
+          <span style={styles.metricLabel}>Time</span>
+          <span style={styles.metricValue}>{formatTime(playbackPositionMs)} / {formatTime(durationMs ?? 0)}</span>
+        </div>
+        <div style={styles.footerMetricWide}>
+          <span style={styles.metricLabel}>Next</span>
+          <span style={styles.metricValue}>{nextSong ? `${nextSong.songTitle} - ${nextSong.artistName}` : "queue empty"}</span>
+        </div>
       </footer>
     </section>
   );
+}
+
+function modeLabelFor(vocalMode: string): string {
+  if (vocalMode === "original") {
+    return "原唱";
+  }
+
+  if (vocalMode === "instrumental") {
+    return "伴唱";
+  }
+
+  if (vocalMode === "dual") {
+    return "双轨";
+  }
+
+  return "unknown";
+}
+
+function modeAccent(vocalMode: string): CSSProperties {
+  if (vocalMode === "original") {
+    return {
+      background: "rgba(143, 230, 173, 0.18)",
+      borderColor: "rgba(143, 230, 173, 0.35)",
+      color: "#b5f5c5"
+    };
+  }
+
+  if (vocalMode === "instrumental") {
+    return {
+      background: "rgba(242, 200, 75, 0.18)",
+      borderColor: "rgba(242, 200, 75, 0.35)",
+      color: "#ffe39d"
+    };
+  }
+
+  return {
+    background: "rgba(255, 248, 231, 0.08)",
+    borderColor: "rgba(255, 248, 231, 0.16)",
+    color: "#fff8e7"
+  };
+}
+
+function formatTime(valueMs: number): string {
+  const safe = Math.max(0, Math.trunc(valueMs));
+  const minutes = Math.floor(safe / 60_000);
+  const seconds = Math.floor((safe % 60_000) / 1_000);
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 const styles = {
@@ -35,7 +95,7 @@ const styles = {
     display: "grid",
     gridTemplateRows: "auto 1fr auto",
     minHeight: "100vh",
-    padding: "clamp(28px, 5vh, 64px) clamp(32px, 6vw, 88px)"
+    padding: "48px 64px"
   },
   topRail: {
     alignItems: "start",
@@ -49,7 +109,7 @@ const styles = {
   },
   kicker: {
     color: "#f2c84b",
-    fontSize: "clamp(22px, 2.6vw, 34px)",
+    fontSize: 28,
     fontWeight: 900,
     letterSpacing: 1.2,
     margin: "0 0 22px",
@@ -57,28 +117,62 @@ const styles = {
   },
   title: {
     color: "#fff8e7",
-    fontSize: "clamp(64px, 10vw, 148px)",
+    fontSize: 108,
     fontWeight: 950,
-    letterSpacing: -4,
-    lineHeight: 0.92,
-    margin: 0
+    letterSpacing: 0,
+    lineHeight: 0.96,
+    margin: 0,
+    overflowWrap: "anywhere"
   },
   artist: {
     color: "#d9d0b8",
-    fontSize: "clamp(30px, 4vw, 54px)",
+    fontSize: 40,
     fontWeight: 800,
-    margin: "28px 0 0"
+    lineHeight: 1.15,
+    margin: "28px 0 0",
+    overflowWrap: "anywhere"
   },
   footer: {
-    alignItems: "center",
+    alignItems: "stretch",
     background: "rgba(17, 20, 15, 0.72)",
     border: "1px solid rgba(255, 248, 231, 0.14)",
-    borderRadius: 28,
+    borderRadius: 24,
     color: "#fff8e7",
-    display: "flex",
-    fontSize: "clamp(20px, 2.4vw, 30px)",
+    display: "grid",
+    gap: 20,
+    gridTemplateColumns: "auto auto 1fr",
+    padding: "22px 28px"
+  },
+  footerMetric: {
+    display: "grid",
+    gap: 8
+  },
+  footerMetricWide: {
+    display: "grid",
+    gap: 8,
+    minWidth: 0
+  },
+  metricLabel: {
+    color: "#d9d0b8",
+    fontSize: 18,
     fontWeight: 850,
-    justifyContent: "space-between",
-    padding: "24px 32px"
+    letterSpacing: 1.2,
+    textTransform: "uppercase"
+  },
+  metricValue: {
+    alignItems: "center",
+    border: "1px solid rgba(255, 248, 231, 0.14)",
+    borderRadius: 16,
+    display: "inline-flex",
+    fontSize: 26,
+    fontWeight: 900,
+    justifyContent: "center",
+    maxWidth: "100%",
+    lineHeight: 1,
+    minHeight: 60,
+    padding: "12px 18px",
+    textAlign: "center",
+    width: "fit-content",
+    overflowWrap: "anywhere"
   }
 } satisfies Record<string, CSSProperties>;

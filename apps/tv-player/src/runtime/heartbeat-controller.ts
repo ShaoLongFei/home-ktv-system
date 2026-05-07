@@ -9,7 +9,7 @@ export interface HeartbeatRuntimeClient {
   }): Promise<void>;
 }
 
-export type HeartbeatResult = { status: "sent" } | { status: "skipped"; reason: "conflict" | "no-current-target" };
+export type HeartbeatResult = { status: "sent" } | { status: "skipped"; reason: "conflict" };
 
 export interface HeartbeatControllerInput {
   client: HeartbeatRuntimeClient;
@@ -31,13 +31,10 @@ export class HeartbeatController {
     }
 
     const target = this.videoPool.activeTarget ?? snapshot.currentTarget;
-    if (!target) {
-      return { status: "skipped", reason: "no-current-target" };
-    }
 
     await this.client.sendHeartbeat({
-      currentQueueEntryId: target.queueEntryId,
-      playbackPositionMs: Math.max(0, Math.trunc(this.videoPool.activeVideo.currentTime * 1000)),
+      currentQueueEntryId: target?.queueEntryId ?? null,
+      playbackPositionMs: target ? Math.max(0, Math.trunc(this.videoPool.activeVideo.currentTime * 1000)) : 0,
       health: "ok"
     });
 

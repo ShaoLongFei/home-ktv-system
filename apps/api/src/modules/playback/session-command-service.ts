@@ -3,6 +3,7 @@ import type { ApiConfig } from "../../config.js";
 import type {
   ControlCommandType,
   ControlSession,
+  PlaybackSession,
   QueueEntry,
   Room
 } from "@home-ktv/domain";
@@ -295,14 +296,20 @@ export async function advanceToNext(input: AdvanceToNextInput): Promise<{
   }
 
   const nextAsset = await input.repositories.assets.findById(nextEntry.assetId);
+  await markQueueEntryPlaybackState(input.repositories, {
+    roomId: input.room.id,
+    queueEntryId: nextEntry.id,
+    status: "loading",
+    startedAt: now
+  });
   const updatedSession = await input.repositories.playbackSessions.startQueueEntry({
     roomId: input.room.id,
     queueEntryId: nextEntry.id,
     activeAssetId: nextEntry.assetId,
-    playerState: "playing",
+    playerState: "loading",
     playerPositionMs: 0,
     nextQueueEntryId: currentIndex >= 0 ? effectiveQueue[currentIndex + 2]?.id ?? null : null,
-    mediaStartedAt: now,
+    mediaStartedAt: null,
     ...(nextAsset ? { targetVocalMode: nextAsset.vocalMode } : {})
   });
 
@@ -555,7 +562,8 @@ async function finishAcceptedCommand(
   input: ExecuteRoomCommandInput,
   context: QueueMutationContext
 ): Promise<{ snapshot: RoomControlSnapshot; sessionVersion: number; controlSessionCookie?: string | undefined }> {
-  await input.repositories.playbackSessions.bumpVersion?.(context.room.id);
+  const playbackSession = await syncPlaybackSessionAfterQueueMutation(input, context);
+  const sessionVersion = playbackSession?.version ?? context.session.version;
   const snapshot = await buildRoomControlSnapshot({
     roomSlug: context.room.slug,
     config: input.config,
@@ -570,9 +578,68 @@ async function finishAcceptedCommand(
   const controlSessionCookie = await touchAcceptedControlSession(input, context.now);
   return {
     snapshot,
-    sessionVersion: snapshot.sessionVersion,
+    sessionVersion: snapshot.sessionVersion ?? sessionVersion,
     controlSessionCookie
   };
+}
+
+async function syncPlaybackSessionAfterQueueMutation(
+  input: ExecuteRoomCommandInput,
+  context: QueueMutationContext
+): Promise<PlaybackSession | null> {
+  const session = await input.repositories.playbackSessions.findByRoomId(context.room.id);
+  if (!session) {
+    return null;
+  }
+
+  const currentQueueEntry =
+    session.currentQueueEntryId ? await input.repositories.queueEntries.findById(session.currentQueueEntryId) : null;
+  const targetQueueEntry = currentQueueEntry ?? (await input.repositories.queueEntries.findCurrentForRoom(context.room.id));
+
+  if (!targetQueueEntry) {
+    return input.repositories.playbackSessions.bumpVersion?.(context.room.id) ?? session;
+  }
+
+  const targetAsset = await input.repositories.assets.findById(targetQueueEntry.assetId);
+  if (!targetAsset) {
+    return input.repositories.playbackSessions.bumpVersion?.(context.room.id) ?? session;
+  }
+
+  const effectiveQueue = await input.repositories.queueEntries.listEffectiveQueue(context.room.id);
+  const currentIndex = effectiveQueue.findIndex((entry) => entry.id === targetQueueEntry.id);
+  const nextQueueEntryId = currentIndex >= 0 ? effectiveQueue[currentIndex + 1]?.id ?? null : null;
+  const shouldPreservePlaybackState = Boolean(session.currentQueueEntryId && session.activeAssetId);
+  if (!shouldPreservePlaybackState) {
+    await markQueueEntryPlaybackState(input.repositories, {
+      roomId: context.room.id,
+      queueEntryId: targetQueueEntry.id,
+      status: "loading",
+      startedAt: context.now
+    });
+  }
+
+  return input.repositories.playbackSessions.startQueueEntry({
+    roomId: context.room.id,
+    queueEntryId: targetQueueEntry.id,
+    activeAssetId: targetAsset.id,
+    targetVocalMode: shouldPreservePlaybackState ? session.targetVocalMode : targetAsset.vocalMode,
+    playerState: shouldPreservePlaybackState ? session.playerState : "loading",
+    playerPositionMs: shouldPreservePlaybackState ? session.playerPositionMs : 0,
+    nextQueueEntryId,
+    mediaStartedAt: shouldPreservePlaybackState && session.mediaStartedAt ? new Date(session.mediaStartedAt) : null
+  });
+}
+
+async function markQueueEntryPlaybackState(
+  repositories: CommandRepositories,
+  input: {
+    roomId: string;
+    queueEntryId: string;
+    status: "loading" | "playing";
+    startedAt: Date;
+  }
+): Promise<QueueEntry | null> {
+  return repositories.queueEntries.markPlaybackState?.(input) ?? null;
 }
 
 async function touchAcceptedControlSession(

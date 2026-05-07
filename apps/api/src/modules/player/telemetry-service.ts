@@ -1,6 +1,7 @@
 import type { AssetId, PlaybackEvent, PlaybackSession, PlayerState, QueueEntryId, Room, VocalMode } from "@home-ktv/domain";
 import type { PlayerTelemetryKind } from "@home-ktv/player-contracts";
 import type { PlaybackEventRepository } from "../playback/repositories/playback-event-repository.js";
+import type { QueueEntryRepository } from "../playback/repositories/queue-entry-repository.js";
 
 export interface TelemetryPlaybackSessionRepository {
   updatePlaybackFacts(input: {
@@ -34,6 +35,7 @@ export interface IngestTelemetryInput {
   telemetry: PlayerTelemetryInput;
   playbackEvents: PlaybackEventRepository;
   playbackSessions: TelemetryPlaybackSessionRepository;
+  queueEntries?: Pick<QueueEntryRepository, "markPlaybackState">;
 }
 
 export interface IngestTelemetryResult {
@@ -70,6 +72,15 @@ export async function ingestPlayerTelemetry(input: IngestTelemetryInput): Promis
     playerPositionMs: positionForTelemetry(telemetry),
     targetVocalMode: telemetry.vocalMode
   });
+  const queueStatus = queueEntryStatusForTelemetry(telemetry.eventType);
+  if (queueStatus) {
+    await input.queueEntries?.markPlaybackState?.({
+      roomId: telemetry.room.id,
+      queueEntryId: telemetry.queueEntryId,
+      status: queueStatus,
+      startedAt: telemetry.emittedAt ? new Date(telemetry.emittedAt) : new Date()
+    });
+  }
 
   return { event, session };
 }
@@ -102,6 +113,23 @@ function playerStateForTelemetry(eventType: PlayerTelemetryKind): PlayerState {
     case "playing":
     case "switch_failed":
       return "playing";
+  }
+
+  const exhaustive: never = eventType;
+  return exhaustive;
+}
+
+function queueEntryStatusForTelemetry(eventType: PlayerTelemetryKind): "loading" | "playing" | null {
+  switch (eventType) {
+    case "loading":
+      return "loading";
+    case "playing":
+    case "recovery_fallback_start_over":
+    case "switch_failed":
+      return "playing";
+    case "ended":
+    case "failed":
+      return null;
   }
 
   const exhaustive: never = eventType;

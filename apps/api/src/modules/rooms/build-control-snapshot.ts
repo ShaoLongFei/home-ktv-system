@@ -7,6 +7,8 @@ import type { AssetRepository } from "../catalog/repositories/asset-repository.j
 import type { SongRepository } from "../catalog/repositories/song-repository.js";
 import type { RoomPairingTokenRepository } from "./repositories/pairing-token-repository.js";
 import type { ControlSessionRepository } from "../controller/repositories/control-session-repository.js";
+import type { PlayerDeviceSessionRepository } from "../player/register-player.js";
+import { ACTIVE_TV_PLAYER_WINDOW_MS } from "../player/conflict-service.js";
 import { buildRoomSnapshot } from "../../routes/room-snapshots.js";
 import type { QueueEntry, Song } from "@home-ktv/domain";
 import type { RoomControlSnapshot, RoomQueueEntryPreview } from "@home-ktv/player-contracts";
@@ -19,6 +21,7 @@ export interface ControlSnapshotRepositories {
   songs: SongRepository;
   pairingTokens: RoomPairingTokenRepository;
   controlSessions: ControlSessionRepository;
+  deviceSessions: PlayerDeviceSessionRepository;
 }
 
 export interface BuildRoomControlSnapshotInput {
@@ -52,6 +55,10 @@ export async function buildRoomControlSnapshot(input: BuildRoomControlSnapshotIn
     input.repositories.queueEntries.listEffectiveQueue(room.id),
     input.repositories.queueEntries.listUndoableRemoved(room.id, now)
   ]);
+  const activeTvPlayer = await input.repositories.deviceSessions.findActiveTvPlayer(
+    room.id,
+    new Date(now.getTime() - ACTIVE_TV_PLAYER_WINDOW_MS)
+  );
 
   const onlineCount = await input.repositories.controlSessions.countActiveByRoom(
     room.id,
@@ -70,12 +77,18 @@ export async function buildRoomControlSnapshot(input: BuildRoomControlSnapshotIn
     sessionVersion: session?.version ?? baseSnapshot.sessionVersion,
     state: baseSnapshot.state,
     pairing: baseSnapshot.pairing,
-    tvPresence: baseSnapshot.currentTarget
-      ? { online: true, deviceName: null, lastSeenAt: now.toISOString(), conflict: null }
+    tvPresence: activeTvPlayer
+      ? {
+          online: true,
+          deviceName: activeTvPlayer.deviceName,
+          lastSeenAt: activeTvPlayer.lastSeenAt,
+          conflict: null
+        }
       : { online: false, deviceName: null, lastSeenAt: null, conflict: null },
     controllers: { onlineCount },
     currentTarget: baseSnapshot.currentTarget,
     switchTarget: baseSnapshot.switchTarget,
+    targetVocalMode: baseSnapshot.targetVocalMode ?? null,
     queue: queuePreview,
     notice: baseSnapshot.notice,
     generatedAt: baseSnapshot.generatedAt

@@ -104,7 +104,7 @@ export class SwitchController {
       queueEntryId: switchTarget.queueEntryId,
       assetId: switchTarget.toAssetId,
       playbackPositionMs: switchTarget.resumePositionMs,
-      vocalMode: switchTarget.vocalMode,
+      vocalMode: snapshot.currentTarget?.vocalMode ?? switchTarget.vocalMode,
       switchFamily: switchTarget.switchFamily,
       rollbackAssetId: switchTarget.rollbackAssetId,
       message: error instanceof Error ? error.message : "standby playback failed",

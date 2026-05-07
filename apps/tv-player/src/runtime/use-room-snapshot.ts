@@ -155,6 +155,7 @@ function toRoomSnapshot(snapshot: RoomSnapshot | RoomControlSnapshot): RoomSnaps
     pairing: snapshot.pairing,
     currentTarget: snapshot.currentTarget,
     switchTarget: snapshot.switchTarget,
+    targetVocalMode: snapshot.targetVocalMode ?? null,
     conflict: snapshot.tvPresence.conflict,
     notice: snapshot.notice,
     generatedAt: snapshot.generatedAt

@@ -34,7 +34,7 @@ const styles = {
     borderRadius: 999,
     color: "#fff8e7",
     display: "flex",
-    fontSize: "clamp(18px, 2vw, 24px)",
+    fontSize: 20,
     fontWeight: 800,
     gap: 18,
     padding: "14px 22px"

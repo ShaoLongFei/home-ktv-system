@@ -113,7 +113,8 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
       capabilities: body.capabilities ?? {},
       publicBaseUrl: dependencies.config.publicBaseUrl,
       repository: dependencies.repositories.deviceSessions,
-      pairingTokens: dependencies.repositories.pairingTokens
+      pairingTokens: dependencies.repositories.pairingTokens,
+      ...(dependencies.config.controllerBaseUrl ? { controllerBaseUrl: dependencies.config.controllerBaseUrl } : {})
     });
     const snapshot = await buildRoomSnapshot({
       roomSlug,
@@ -227,7 +228,8 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
         stage: body.stage
       },
       playbackEvents: dependencies.repositories.playbackEvents,
-      playbackSessions: dependencies.repositories.playbackSessions
+      playbackSessions: dependencies.repositories.playbackSessions,
+      queueEntries: dependencies.repositories.queueEntries
     });
     const snapshot = await buildRoomSnapshot({
       roomSlug,

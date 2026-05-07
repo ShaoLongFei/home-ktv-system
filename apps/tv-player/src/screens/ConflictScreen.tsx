@@ -22,11 +22,11 @@ const styles = {
     display: "grid",
     minHeight: "100vh",
     placeContent: "center",
-    padding: "8vw"
+    padding: "72px"
   },
   kicker: {
     color: "#ff9b72",
-    fontSize: "clamp(22px, 3vw, 38px)",
+    fontSize: 28,
     fontWeight: 900,
     letterSpacing: 1.4,
     margin: "0 0 26px",
@@ -34,18 +34,20 @@ const styles = {
   },
   title: {
     color: "#fff8e7",
-    fontSize: "clamp(56px, 8vw, 116px)",
+    fontSize: 96,
     fontWeight: 950,
-    letterSpacing: -3,
+    letterSpacing: 0,
     lineHeight: 0.94,
     margin: 0,
-    maxWidth: 1080
+    maxWidth: 1080,
+    overflowWrap: "anywhere"
   },
   detail: {
     color: "#d9d0b8",
-    fontSize: "clamp(24px, 3.2vw, 40px)",
+    fontSize: 32,
     lineHeight: 1.25,
     margin: "34px 0 0",
-    maxWidth: 900
+    maxWidth: 900,
+    overflowWrap: "anywhere"
   }
 } satisfies Record<string, CSSProperties>;

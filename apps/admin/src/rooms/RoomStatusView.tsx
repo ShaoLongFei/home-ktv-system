@@ -1,47 +1,107 @@
 import { useEffect, useState } from "react";
-import { fetchRoomStatus, refreshPairingToken } from "../api/client.js";
-import type { RoomStatusResponse } from "./types.js";
+import { fetchRoomStatus, getOrCreateAdminDeviceId, refreshPairingToken, roomRealtimeUrl } from "../api/client.js";
+import type { RoomControlSnapshotMessage, RoomControlSnapshotPayload, RoomStatusResponse } from "./types.js";
+
+const realtimeFallbackPollingMs = 5000;
 
 export function RoomStatusView() {
   const roomSlug = "living-room";
   const [roomStatus, setRoomStatus] = useState<RoomStatusResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isRefreshingPairing, setIsRefreshingPairing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    let websocket: WebSocket | null = null;
+    let fallbackTimer: ReturnType<typeof setInterval> | null = null;
 
-    void fetchRoomStatus(roomSlug)
-      .then((status) => {
+    const loadRoomStatus = async () => {
+      try {
+        const status = await fetchRoomStatus(roomSlug);
         if (!cancelled) {
           setRoomStatus(status);
           setErrorMessage(null);
         }
-      })
-      .catch((error: unknown) => {
+      } catch (error: unknown) {
         if (!cancelled) {
           setErrorMessage(error instanceof Error ? error.message : "Failed to load room status");
         }
-      });
+      }
+    };
+
+    const stopFallbackPolling = () => {
+      if (fallbackTimer) {
+        clearInterval(fallbackTimer);
+        fallbackTimer = null;
+      }
+    };
+
+    const startFallbackPolling = () => {
+      if (cancelled || fallbackTimer) {
+        return;
+      }
+
+      fallbackTimer = setInterval(() => {
+        void loadRoomStatus();
+      }, realtimeFallbackPollingMs);
+    };
+
+    const openRealtime = () => {
+      if (cancelled || typeof WebSocket === "undefined") {
+        startFallbackPolling();
+        return;
+      }
+
+      websocket = new WebSocket(roomRealtimeUrl({ roomSlug, deviceId: getOrCreateAdminDeviceId() }));
+      websocket.onopen = stopFallbackPolling;
+      websocket.onmessage = (event) => {
+        if (cancelled) {
+          return;
+        }
+
+        const message = parseRealtimeMessage(event.data);
+        if (message?.payload.roomSlug !== roomSlug) {
+          return;
+        }
+
+        setRoomStatus((current) => roomStatusFromSnapshot(message.payload, current));
+        setErrorMessage(null);
+      };
+      websocket.onclose = startFallbackPolling;
+      websocket.onerror = startFallbackPolling;
+    };
+
+    void loadRoomStatus().then(openRealtime);
 
     return () => {
       cancelled = true;
+      stopFallbackPolling();
+      websocket?.close();
     };
   }, []);
 
   const handleRefresh = async () => {
-    const refreshed = await refreshPairingToken(roomSlug);
-    setRoomStatus((current) =>
-      current
-        ? {
-            ...current,
-            pairing: {
-              tokenExpiresAt: refreshed.pairing.tokenExpiresAt,
-              controllerUrl: refreshed.pairing.controllerUrl,
-              qrPayload: refreshed.pairing.qrPayload
+    setIsRefreshingPairing(true);
+    try {
+      const refreshed = await refreshPairingToken(roomSlug);
+      setRoomStatus((current) =>
+        current
+          ? {
+              ...current,
+              pairing: {
+                tokenExpiresAt: refreshed.pairing.tokenExpiresAt,
+                controllerUrl: refreshed.pairing.controllerUrl,
+                qrPayload: refreshed.pairing.qrPayload
+              }
             }
-          }
-        : current
-    );
+          : current
+      );
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to refresh pairing token");
+    } finally {
+      setIsRefreshingPairing(false);
+    }
   };
 
   return (
@@ -51,8 +111,8 @@ export function RoomStatusView() {
           <h1>Room status</h1>
           <p>Inspect the live control session state and refresh the pairing token.</p>
         </div>
-        <button className="primary-button" type="button" onClick={handleRefresh} disabled={!roomStatus}>
-          Refresh pairing token
+        <button className="primary-button" type="button" onClick={handleRefresh} disabled={!roomStatus || isRefreshingPairing}>
+          {isRefreshingPairing ? "Refreshing..." : "Refresh pairing token"}
         </button>
       </header>
 
@@ -110,5 +170,52 @@ function formatTime(iso: string): string {
   const day = `${date.getDate()}`.padStart(2, "0");
   const hours = `${date.getHours()}`.padStart(2, "0");
   const minutes = `${date.getMinutes()}`.padStart(2, "0");
-  return `${date.getFullYear()}-${month}-${day} ${hours}:${minutes}`;
+  const seconds = `${date.getSeconds()}`.padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function parseRealtimeMessage(data: unknown): RoomControlSnapshotMessage | null {
+  if (typeof data !== "string") {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(data) as Partial<RoomControlSnapshotMessage>;
+    if (parsed.type === "room.control.snapshot.updated" && isSnapshotPayload(parsed.payload)) {
+      return parsed as RoomControlSnapshotMessage;
+    }
+  } catch {}
+
+  return null;
+}
+
+function isSnapshotPayload(value: unknown): value is RoomControlSnapshotPayload {
+  return typeof value === "object" && value !== null && "roomSlug" in value && "sessionVersion" in value && "queue" in value;
+}
+
+function roomStatusFromSnapshot(snapshot: RoomControlSnapshotPayload, current: RoomStatusResponse | null): RoomStatusResponse {
+  return {
+    room: current?.room ?? {
+      roomId: snapshot.roomId,
+      roomSlug: snapshot.roomSlug,
+      status: "active"
+    },
+    pairing: {
+      tokenExpiresAt: snapshot.pairing.tokenExpiresAt,
+      controllerUrl: snapshot.pairing.controllerUrl,
+      qrPayload: snapshot.pairing.qrPayload
+    },
+    tvPresence: snapshot.tvPresence,
+    controllers: snapshot.controllers,
+    sessionVersion: snapshot.sessionVersion,
+    current: snapshot.currentTarget
+      ? {
+          queueEntryId: snapshot.currentTarget.queueEntryId,
+          songTitle: snapshot.currentTarget.currentQueueEntryPreview.songTitle,
+          artistName: snapshot.currentTarget.currentQueueEntryPreview.artistName,
+          vocalMode: snapshot.currentTarget.vocalMode
+        }
+      : null,
+    queue: snapshot.queue.map((entry) => ({ ...entry }))
+  };
 }

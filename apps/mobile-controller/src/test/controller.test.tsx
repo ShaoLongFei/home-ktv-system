@@ -41,6 +41,30 @@ describe("mobile controller API client", () => {
     expect(Object.keys(localStorage)).toEqual(["home_ktv_device_id"]);
   });
 
+  it("falls back to a generated device id when crypto.randomUUID is unavailable", () => {
+    vi.stubGlobal("crypto", {});
+
+    const deviceId = getOrCreateDeviceId();
+
+    expect(deviceId).toMatch(/^mobile-/u);
+    expect(localStorage.getItem("home_ktv_device_id")).toBe(deviceId);
+  });
+
+  it("falls back to a generated device id when localStorage is unavailable", () => {
+    vi.stubGlobal("localStorage", {
+      getItem() {
+        throw new Error("storage unavailable");
+      },
+      setItem() {
+        throw new Error("storage unavailable");
+      }
+    });
+
+    const deviceId = getOrCreateDeviceId();
+
+    expect(deviceId).toMatch(/^mobile-/u);
+  });
+
   it("sends commandId, sessionVersion, and deviceId with all command helpers", async () => {
     const { requests } = installFetchMock();
     const base = {
@@ -220,6 +244,21 @@ describe("mobile controller runtime", () => {
 
     expect(requests.some((request) => request.url === "/rooms/living-room/commands/switch-vocal-mode")).toBe(true);
     expect(screen.queryByRole("dialog", { name: "确认切歌" })).toBeNull();
+  });
+
+  it("shows the current vocal mode clearly in the playback panel", async () => {
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("七里香");
+    expect(requests.some((request) => request.url.includes("/control-session"))).toBe(true);
+    const modeSummary = screen.getByLabelText("current-vocal-mode");
+    expect(modeSummary.textContent).toContain("当前模式");
+    expect(modeSummary.textContent).toContain("伴唱");
   });
 });
 

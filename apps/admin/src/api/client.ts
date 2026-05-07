@@ -11,6 +11,8 @@ import type {
 } from "../songs/types.js";
 import type { RoomStatusResponse, RoomStatusRefreshResponse } from "../rooms/types.js";
 
+const adminDeviceIdStorageKey = "home_ktv_admin_device_id";
+
 export async function fetchAdmin<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(adminUrl(path), {
     ...init,
@@ -82,14 +84,41 @@ export async function refreshPairingToken(roomSlug: string): Promise<RoomStatusR
   });
 }
 
+export function getOrCreateAdminDeviceId(): string {
+  try {
+    const existing = localStorage.getItem(adminDeviceIdStorageKey);
+    if (existing) {
+      return existing;
+    }
+
+    const deviceId = createId("admin-");
+    localStorage.setItem(adminDeviceIdStorageKey, deviceId);
+    return deviceId;
+  } catch {
+    return createId("admin-");
+  }
+}
+
+export function roomRealtimeUrl(input: { roomSlug: string; deviceId: string }): string {
+  const path = `/rooms/${encodeURIComponent(input.roomSlug)}/realtime?deviceId=${encodeURIComponent(
+    input.deviceId
+  )}&client=admin`;
+  const httpUrl = new URL(path, apiBaseUrl() || window.location.origin);
+  httpUrl.protocol = httpUrl.protocol === "https:" ? "wss:" : "ws:";
+  return httpUrl.toString();
+}
+
 function adminUrl(path: string): string {
   if (/^https?:\/\//u.test(path)) {
     return path;
   }
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/u, "") ?? "";
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  return `${baseUrl}${normalizedPath}`;
+  return `${apiBaseUrl()}${normalizedPath}`;
+}
+
+function apiBaseUrl(): string {
+  return import.meta.env.VITE_API_BASE_URL?.replace(/\/$/u, "") ?? "";
 }
 
 function buildHeaders(init: RequestInit): HeadersInit {
@@ -120,4 +149,12 @@ async function readErrorMessage(response: Response): Promise<string> {
 
 function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function createId(prefix: string): string {
+  const randomPart =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2);
+  return `${prefix}${randomPart}`;
 }
