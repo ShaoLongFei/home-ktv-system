@@ -33,6 +33,10 @@ export interface CandidateTaskServiceOptions {
   repository: CandidateTaskServiceRepository;
 }
 
+export interface SelectedCandidateTaskProcessor {
+  processTask(input: { roomId: RoomId; taskId: OnlineCandidateTaskId }): Promise<OnlineCandidateTask | null>;
+}
+
 export interface DiscoverOnlineCandidatesInput {
   roomId: RoomId;
   query: string;
@@ -63,7 +67,13 @@ export interface RoomScopedTaskInput {
 }
 
 export class CandidateTaskService {
+  private selectedTaskProcessor: SelectedCandidateTaskProcessor | null = null;
+
   constructor(private readonly options: CandidateTaskServiceOptions) {}
+
+  attachSelectedTaskProcessor(processor: SelectedCandidateTaskProcessor): void {
+    this.selectedTaskProcessor = processor;
+  }
 
   async discoverCandidates(input: DiscoverOnlineCandidatesInput): Promise<OnlineCandidateCard[]> {
     const discovered = await this.options.registry.searchEnabled({
@@ -106,7 +116,7 @@ export class CandidateTaskService {
     const status: OnlineCandidateTaskState = provider && task.riskLabel === "normal" ? "selected" : "review_required";
     const failureReason = provider ? null : "provider-not-cache-capable-or-disabled";
 
-    return this.options.repository.transition(task.id, {
+    const selected = await this.options.repository.transition(task.id, {
       status,
       failureReason,
       recentEvent: {
@@ -114,6 +124,7 @@ export class CandidateTaskService {
         message: status === "selected" ? "Selected for cache flow" : "Supplement request needs review"
       }
     });
+    return this.processSelectedTask(selected);
   }
 
   async listActiveForRoom(roomId: RoomId): Promise<OnlineCandidateTask[]> {
@@ -195,12 +206,13 @@ export class CandidateTaskService {
       return null;
     }
 
-    return this.transition(task.id, "selected", {
+    const selected = await this.transition(task.id, "selected", {
       recentEvent: {
         type: "retry",
         previousStatus: task.status
       }
     });
+    return this.processSelectedTask(selected);
   }
 
   async promoteTask(input: RoomScopedTaskInput): Promise<OnlineCandidateTask | null> {
@@ -260,6 +272,18 @@ export class CandidateTaskService {
     }
 
     return this.options.repository.transition(taskId, transitionInput);
+  }
+
+  private async processSelectedTask(task: OnlineCandidateTask | null): Promise<OnlineCandidateTask | null> {
+    if (!task || task.status !== "selected" || !this.selectedTaskProcessor) {
+      return task;
+    }
+
+    const processed = await this.selectedTaskProcessor.processTask({
+      roomId: task.roomId,
+      taskId: task.id
+    });
+    return processed ?? task;
   }
 }
 

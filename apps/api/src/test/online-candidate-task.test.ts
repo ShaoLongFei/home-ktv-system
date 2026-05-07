@@ -148,7 +148,7 @@ describe("candidate task lifecycle service", () => {
       registry: createProviderRegistry({
         enabledProviderIds: ["demo-provider"],
         killSwitchProviderIds: [],
-        providers: [createProvider({ id: "demo-provider", riskLabel: "risky" })]
+        providers: [createProvider({ id: "demo-provider" })]
       })
     });
     const [candidate] = await service.discoverCandidates({ roomId: "living-room", query: "七里香" });
@@ -191,7 +191,7 @@ describe("candidate task lifecycle service", () => {
       registry: createProviderRegistry({
         enabledProviderIds: ["demo-provider"],
         killSwitchProviderIds: [],
-        providers: [createProvider({ id: "demo-provider" })]
+        providers: [createProvider({ id: "demo-provider", riskLabel: "risky" })]
       })
     });
     const [livingRoomCandidate] = await service.discoverCandidates({ roomId: "living-room", query: "七里香" });
@@ -280,7 +280,7 @@ describe("candidate task lifecycle service", () => {
       registry: createProviderRegistry({
         enabledProviderIds: ["demo-provider"],
         killSwitchProviderIds: [],
-        providers: [createProvider({ id: "demo-provider" })]
+        providers: [createProvider({ id: "demo-provider", riskLabel: "risky" })]
       })
     });
     const riskyProcessor: SelectedCandidateTaskProcessor = {
@@ -288,13 +288,6 @@ describe("candidate task lifecycle service", () => {
     };
     riskyService.attachSelectedTaskProcessor(riskyProcessor);
     await riskyService.discoverCandidates({ roomId: "living-room", query: "七里香" });
-    await riskyRepository.transition("candidate-task-1", {
-      status: "discovered",
-      failureReason: null,
-      recentEvent: {},
-      readyAssetId: null
-    });
-
     await riskyService.requestSupplement({
       roomId: "living-room",
       provider: "demo-provider",

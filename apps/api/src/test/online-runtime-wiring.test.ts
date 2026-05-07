@@ -133,7 +133,8 @@ describe("createServer online runtime wiring", () => {
         task: {
           provider: "demo-local",
           providerCandidateId: "demo-local-missing",
-          status: "selected"
+          status: "review_required",
+          failureReason: "demo-ready-asset-not-configured"
         }
       });
 
@@ -147,7 +148,8 @@ describe("createServer online runtime wiring", () => {
         expect.objectContaining({
           provider: "demo-local",
           providerCandidateId: "demo-local-missing",
-          status: "selected"
+          status: "review_required",
+          failureReason: "demo-ready-asset-not-configured"
         })
       ]);
 

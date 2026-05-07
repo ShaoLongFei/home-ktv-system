@@ -36,6 +36,7 @@ export function createOnlineRuntime(input: CreateOnlineRuntimeInput): OnlineRunt
     repository: input.pool ? new PgCandidateTaskRepository(input.pool) : new InMemoryCandidateTaskRepository()
   });
   const worker = new CandidateCacheWorker({ registry, service: tasks });
+  tasks.attachSelectedTaskProcessor(worker);
 
   return { registry, tasks, worker };
 }
