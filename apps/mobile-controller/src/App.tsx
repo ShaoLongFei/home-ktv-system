@@ -111,45 +111,6 @@ export function App() {
         </form>
 
         <div className="song-list">
-          {controller.songSearch?.online ? (
-            <section className="online-panel" aria-label="Online supplement">
-              <div className="panel-heading">
-                <h3>在线补歌</h3>
-                <span className={`search-status ${controller.songSearch.online.status}`}>{controller.songSearch.online.message}</span>
-              </div>
-
-              {controller.songSearch.online.requestSupplement?.visible ? (
-                <div className="request-supplement-entry">
-                  <button type="button" disabled>
-                    {controller.songSearch.online.requestSupplement.label}
-                  </button>
-                </div>
-              ) : null}
-
-              <div className="online-candidate-list">
-                {controller.songSearch.online.candidates.map((candidate) => (
-                  <article className="song-row online-candidate-row" key={`${candidate.provider}:${candidate.providerCandidateId}`}>
-                    <div className="result-main">
-                      <strong>{candidate.title}</strong>
-                      <p>{candidate.artistName}</p>
-                      <div className="result-meta">
-                        <span className="online-source">{candidate.sourceLabel}</span>
-                        <span>{formatDuration(candidate.durationMs ?? 0)}</span>
-                        <span>{candidate.candidateType}</span>
-                        <span>{candidate.reliabilityLabel}</span>
-                        <span>{candidate.riskLabel}</span>
-                        <span>{candidate.taskState}</span>
-                      </div>
-                    </div>
-                    <button type="button" onClick={() => void controller.requestSupplement(candidate.provider, candidate.providerCandidateId)}>
-                      请求补歌
-                    </button>
-                  </article>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
           {controller.songSearch?.local.map((result) => {
             const isQueued = result.queueState === "queued";
             const statusLabel = isQueued ? "已点 / 队列中" : "本地可播";
@@ -210,6 +171,45 @@ export function App() {
 
           {controller.songSearch && controller.songSearch.local.length === 0 ? (
             <p className="empty-state local-empty">本地未找到</p>
+          ) : null}
+
+          {controller.songSearch?.online ? (
+            <section className="online-panel" aria-label="Online supplement">
+              <div className="panel-heading">
+                <h3>在线补歌</h3>
+                <span className={`search-status ${controller.songSearch.online.status}`}>{controller.songSearch.online.message}</span>
+              </div>
+
+              {controller.songSearch.online.requestSupplement?.visible ? (
+                <div className="request-supplement-entry">
+                  <button type="button" disabled>
+                    {controller.songSearch.online.requestSupplement.label}
+                  </button>
+                </div>
+              ) : null}
+
+              <div className="online-candidate-list">
+                {controller.songSearch.online.candidates.map((candidate) => (
+                  <article className="song-row online-candidate-row" key={`${candidate.provider}:${candidate.providerCandidateId}`}>
+                    <div className="result-main">
+                      <strong>{candidate.title}</strong>
+                      <p>{candidate.artistName}</p>
+                      <div className="result-meta">
+                        <span className="online-source">{candidate.sourceLabel}</span>
+                        <span>{formatDuration(candidate.durationMs ?? 0)}</span>
+                        <span>{candidate.candidateType}</span>
+                        <span>{candidate.reliabilityLabel}</span>
+                        <span>{candidate.riskLabel}</span>
+                        <span>{candidate.taskState}</span>
+                      </div>
+                    </div>
+                    <button type="button" onClick={() => void controller.requestSupplement(candidate.provider, candidate.providerCandidateId)}>
+                      请求补歌
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </section>
           ) : null}
         </div>
       </section>
