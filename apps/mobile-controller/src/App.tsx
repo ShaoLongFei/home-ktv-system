@@ -87,21 +87,99 @@ export function App() {
         </div>
       </section>
 
-      <section className="panel" aria-label="Ready songs">
-        <h2>可点歌曲</h2>
-        <div className="song-list">
-          {controller.availableSongs.map((song) => (
-            <article className="song-row" key={song.songId}>
-              <div>
-                <strong>{song.title}</strong>
-                <p>{song.artistName}</p>
-              </div>
-              <button type="button" onClick={() => void controller.addSong(song.songId)}>
-                点歌
-              </button>
-            </article>
-          ))}
+      <section className="panel search-panel" aria-label="Song search">
+        <div className="panel-heading">
+          <h2>搜索歌曲</h2>
+          {controller.songSearchStatus === "loading" ? <span className="search-status">搜索中</span> : null}
         </div>
+        <form
+          role="search"
+          className="search-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            controller.submitSongSearch();
+          }}
+        >
+          <input
+            aria-label="搜索歌曲"
+            className="search-input"
+            value={controller.songSearchQuery}
+            onChange={(event) => controller.setSongSearchQuery(event.currentTarget.value)}
+            placeholder="歌名 / 歌手 / 拼音 / 首字母"
+          />
+          <button type="submit">搜索</button>
+        </form>
+
+        <div className="song-list">
+          {controller.songSearch?.local.map((result) => {
+            const isQueued = result.queueState === "queued";
+            const statusLabel = isQueued ? "已点 / 队列中" : "本地可播";
+
+            return (
+              <article className="song-row search-result-row" key={result.songId}>
+                <div className="result-main">
+                  <strong>{result.title}</strong>
+                  <p>{result.artistName}</p>
+                  <div className="result-meta">
+                    <span className={isQueued ? "queued-badge" : "local-badge"}>{statusLabel}</span>
+                    <span>{result.versions.length} 个版本</span>
+                  </div>
+                </div>
+
+                {result.versions.length === 1 && result.versions[0] ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      controller.requestAddSongVersion(
+                        result.songId,
+                        result.versions[0]!.assetId,
+                        result.title,
+                        result.queueState
+                      )
+                    }
+                  >
+                    {isQueued ? "加点" : "点歌"}
+                  </button>
+                ) : null}
+
+                {result.versions.length > 1 ? (
+                  <div className="version-list">
+                    {result.versions.map((version) => (
+                      <div className="version-row" key={version.assetId}>
+                        <div>
+                          <strong>{version.displayName}</strong>
+                          <p>
+                            {version.sourceLabel} · {formatDuration(version.durationMs)} · {version.qualityLabel}
+                            {version.isRecommended ? <span className="recommended-mark">推荐</span> : null}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            controller.requestAddSongVersion(result.songId, version.assetId, result.title, result.queueState)
+                          }
+                        >
+                          点这个版本
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            );
+          })}
+
+          {controller.songSearch && controller.songSearch.local.length === 0 ? (
+            <p className="empty-state local-empty">本地未找到</p>
+          ) : null}
+        </div>
+
+        {controller.songSearch?.online ? (
+          <div className="online-placeholder" aria-disabled="true">
+            <strong>在线补歌</strong>
+            <p>{controller.songSearch.online.message || "本地未入库，补歌功能后续可用"}</p>
+          </div>
+        ) : null}
       </section>
 
       {controller.skipConfirmOpen ? (
@@ -120,6 +198,23 @@ export function App() {
           </section>
         </div>
       ) : null}
+
+      {controller.duplicateConfirm ? (
+        <div className="modal-backdrop">
+          <section className="modal" role="dialog" aria-modal="true" aria-labelledby="duplicate-title">
+            <h2 id="duplicate-title">重复点歌</h2>
+            <p>{controller.duplicateConfirm.title} 已在队列中，仍要再点一次吗？</p>
+            <div className="command-row">
+              <button type="button" onClick={controller.cancelDuplicateAdd}>
+                取消
+              </button>
+              <button type="button" onClick={() => void controller.confirmDuplicateAdd()}>
+                确认加点
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
@@ -130,6 +225,13 @@ function formatTime(value: string): string {
     minute: "2-digit",
     second: "2-digit"
   });
+}
+
+function formatDuration(durationMs: number): string {
+  const totalSeconds = Math.max(0, Math.round(durationMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function vocalModeLabel(mode: string): string {

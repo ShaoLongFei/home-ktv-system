@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useEffect } from "react";
 import type { RoomControlSnapshot } from "@home-ktv/player-contracts";
@@ -365,7 +365,6 @@ describe("mobile controller runtime", () => {
 
   it("searches while typing and submits immediately from the search form", async () => {
     vi.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const { requests } = installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))]
     });
@@ -377,13 +376,13 @@ describe("mobile controller runtime", () => {
     const searchInput = screen.getByLabelText("搜索歌曲");
     requests.length = 0;
 
-    await user.type(searchInput, "qlx");
+    fireEvent.change(searchInput, { target: { value: "qlx" } });
     await vi.advanceTimersByTimeAsync(250);
     expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(true);
 
     requests.length = 0;
-    await user.clear(searchInput);
-    await user.type(searchInput, "晴天{Enter}");
+    fireEvent.change(searchInput, { target: { value: "晴天" } });
+    fireEvent.submit(searchInput.closest("form")!);
     await flush();
     expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=%E6%99%B4%E5%A4%A9&limit=30")).toBe(true);
   });
