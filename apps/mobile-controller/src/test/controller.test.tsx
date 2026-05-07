@@ -486,6 +486,69 @@ describe("mobile controller runtime", () => {
     expect(screen.queryByRole("button", { name: "点歌" })).toBeNull();
   });
 
+  it("renders online supplement candidates below local results when both exist", async () => {
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: (query) => ({
+        query,
+        local: [
+          {
+            songId: "song-sunny",
+            title: "晴天",
+            artistName: "周杰伦",
+            language: "mandarin",
+            matchReason: "title",
+            queueState: "not_queued",
+            versions: [
+              {
+                assetId: "asset-sunny-main",
+                displayName: "高清版",
+                sourceType: "local",
+                sourceLabel: "本地",
+                durationMs: 180000,
+                qualityLabel: "HD",
+                isRecommended: true
+              }
+            ]
+          }
+        ],
+        online: {
+          status: "available",
+          message: "找到在线补歌候选",
+          requestSupplement: { visible: true, label: "请求补歌" },
+          candidates: [
+            {
+              provider: "demo-provider",
+              providerCandidateId: "remote-qilixiang",
+              title: "远端七里香",
+              artistName: "周杰伦",
+              sourceLabel: "Demo Provider",
+              durationMs: 180000,
+              candidateType: "mv",
+              reliabilityLabel: "high",
+              riskLabel: "normal",
+              taskState: "discovered",
+              taskId: "task-1"
+            }
+          ]
+        }
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("晴天");
+    await screen.findByText("远端七里香");
+    const searchPanelText = screen.getByLabelText("Song search").textContent ?? "";
+    const localIndex = searchPanelText.indexOf("晴天");
+    const onlineIndex = searchPanelText.indexOf("远端七里香");
+
+    expect(localIndex).toBeGreaterThanOrEqual(0);
+    expect(onlineIndex).toBeGreaterThanOrEqual(0);
+    expect(localIndex).toBeLessThan(onlineIndex);
+  });
+
   it("requests supplement explicitly from an online candidate without auto-enqueueing", async () => {
     const user = userEvent.setup();
     const { requests } = installControllerFetchMock({
