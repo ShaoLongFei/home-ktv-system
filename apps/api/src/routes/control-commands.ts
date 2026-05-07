@@ -28,6 +28,7 @@ interface BaseCommandBody {
 
 interface AddQueueEntryBody extends BaseCommandBody {
   songId?: string;
+  assetId?: string;
 }
 
 interface QueueEntryBody extends BaseCommandBody {
@@ -52,7 +53,8 @@ export async function registerControlCommandRoutes(
     "/rooms/:roomSlug/commands/add-queue-entry",
     async (request, reply) => {
       await handleCommand(request, reply, dependencies, "add-queue-entry", {
-        songId: request.body.songId
+        songId: request.body.songId,
+        assetId: request.body.assetId
       });
     }
   );

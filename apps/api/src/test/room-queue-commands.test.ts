@@ -442,7 +442,7 @@ function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVoc
     [
       "asset-ready-unready-instrumental",
       createAsset("asset-ready-unready-instrumental", "song-ready", "instrumental", "family-ready-unready", {
-        status: "processing"
+        status: "caching"
       })
     ],
     ["asset-ready-unready-original", createAsset("asset-ready-unready-original", "song-ready", "original", "family-ready-unready")],
@@ -456,7 +456,7 @@ function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVoc
     [
       "asset-ready-unverified-instrumental",
       createAsset("asset-ready-unverified-instrumental", "song-ready", "instrumental", "family-ready-unverified", {
-        switchQualityStatus: "pending"
+        switchQualityStatus: "review_required"
       })
     ],
     ["asset-ready-unverified-original", createAsset("asset-ready-unverified-original", "song-ready", "original", "family-ready-unverified")],

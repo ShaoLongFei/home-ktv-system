@@ -366,12 +366,22 @@ async function addQueueEntry(
     return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
   }
 
-  const defaultAsset = await input.repositories.assets.findById(song.defaultAssetId);
-  if (!defaultAsset || defaultAsset.songId !== song.id || defaultAsset.status !== "ready") {
+  const requestedAssetId = typeof input.payload.assetId === "string" ? input.payload.assetId : song.defaultAssetId;
+  if (!requestedAssetId) {
     return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
   }
 
-  const counterparts = await input.repositories.assets.findVerifiedSwitchCounterparts(defaultAsset);
+  const selectedAsset = await input.repositories.assets.findById(requestedAssetId);
+  if (!selectedAsset || selectedAsset.songId !== song.id || selectedAsset.status !== "ready") {
+    return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
+  }
+
+  const selectedAssetSourceIsQueueable = selectedAsset.sourceType !== "online_ephemeral";
+  if (!selectedAssetSourceIsQueueable || selectedAsset.switchQualityStatus !== "verified") {
+    return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
+  }
+
+  const counterparts = await input.repositories.assets.findVerifiedSwitchCounterparts(selectedAsset);
   if (counterparts.length === 0) {
     return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
   }
@@ -381,7 +391,7 @@ async function addQueueEntry(
   await input.repositories.queueEntries.append({
     roomId: context.room.id,
     songId: song.id,
-    assetId: defaultAsset.id,
+    assetId: selectedAsset.id,
     requestedBy: input.controlSession.deviceId,
     queuePosition: queuePosition + 1
   });
