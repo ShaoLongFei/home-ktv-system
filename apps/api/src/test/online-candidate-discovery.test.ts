@@ -136,8 +136,7 @@ describe("online candidate discovery", () => {
         assets: {} as never,
         songs: {} as never,
         pairingTokens: {} as never,
-        deviceSessions: {} as never,
-        playbackEvents: {} as never
+        deviceSessions: {} as never
       },
       online: online as never
     });
@@ -311,7 +310,7 @@ function createControlSession(): ControlSession {
     deviceId: "phone-a",
     deviceName: "Phone A",
     lastSeenAt: now,
-    expiresAt: new Date("2026-05-07T02:00:00.000Z").toISOString(),
+    expiresAt: new Date("2030-05-07T02:00:00.000Z").toISOString(),
     revokedAt: null,
     createdAt: now,
     updatedAt: now

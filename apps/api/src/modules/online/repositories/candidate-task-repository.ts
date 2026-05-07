@@ -189,6 +189,101 @@ export class PgCandidateTaskRepository implements CandidateTaskRepository {
   }
 }
 
+export class InMemoryCandidateTaskRepository implements CandidateTaskRepository {
+  private readonly tasks = new Map<OnlineCandidateTaskId, OnlineCandidateTask>();
+
+  async upsertDiscovered(input: UpsertDiscoveredCandidateTaskInput): Promise<OnlineCandidateTask> {
+    const existing = await this.findByProviderCandidate({
+      roomId: input.roomId,
+      provider: input.candidate.provider,
+      providerCandidateId: input.candidate.providerCandidateId
+    });
+    const now = new Date().toISOString();
+    const task: OnlineCandidateTask = {
+      id: existing?.id ?? `candidate-task-${this.tasks.size + 1}`,
+      roomId: input.roomId,
+      provider: input.candidate.provider,
+      providerCandidateId: input.candidate.providerCandidateId,
+      title: input.candidate.title,
+      artistName: input.candidate.artistName,
+      sourceLabel: input.candidate.sourceLabel,
+      durationMs: input.candidate.durationMs,
+      candidateType: input.candidate.candidateType,
+      reliabilityLabel: input.candidate.reliabilityLabel,
+      riskLabel: input.candidate.riskLabel,
+      status: existing?.status ?? "discovered",
+      failureReason: existing?.failureReason ?? null,
+      recentEvent: {
+        type: "discovered",
+        message: "Candidate discovered from provider search"
+      },
+      providerPayload: input.providerPayload ?? existing?.providerPayload ?? {},
+      readyAssetId: existing?.readyAssetId ?? null,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+      selectedAt: existing?.selectedAt ?? null,
+      reviewRequiredAt: existing?.reviewRequiredAt ?? null,
+      fetchingAt: existing?.fetchingAt ?? null,
+      fetchedAt: existing?.fetchedAt ?? null,
+      readyAt: existing?.readyAt ?? null,
+      failedAt: existing?.failedAt ?? null,
+      staleAt: existing?.staleAt ?? null,
+      promotedAt: existing?.promotedAt ?? null,
+      purgedAt: existing?.purgedAt ?? null
+    };
+    this.tasks.set(task.id, task);
+    return { ...task };
+  }
+
+  async listActiveForRoom(roomId: RoomId): Promise<OnlineCandidateTask[]> {
+    return Array.from(this.tasks.values())
+      .filter((task) => task.roomId === roomId && task.status !== "promoted" && task.status !== "purged")
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .map((task) => ({ ...task }));
+  }
+
+  async findByProviderCandidate(input: FindProviderCandidateTaskInput): Promise<OnlineCandidateTask | null> {
+    const task = Array.from(this.tasks.values()).find(
+      (candidate) =>
+        candidate.roomId === input.roomId &&
+        candidate.provider === input.provider &&
+        candidate.providerCandidateId === input.providerCandidateId
+    );
+    return task ? { ...task } : null;
+  }
+
+  async transition(
+    taskId: OnlineCandidateTaskId,
+    input: TransitionCandidateTaskInput
+  ): Promise<OnlineCandidateTask | null> {
+    const existing = this.tasks.get(taskId);
+    if (!existing) {
+      return null;
+    }
+    const now = new Date().toISOString();
+    const updated: OnlineCandidateTask = {
+      ...existing,
+      status: input.status,
+      failureReason: input.failureReason ?? null,
+      recentEvent: input.recentEvent ?? existing.recentEvent,
+      readyAssetId: input.readyAssetId ?? existing.readyAssetId,
+      updatedAt: now,
+      selectedAt: input.status === "selected" ? existing.selectedAt ?? now : existing.selectedAt,
+      reviewRequiredAt:
+        input.status === "review_required" ? existing.reviewRequiredAt ?? now : existing.reviewRequiredAt,
+      fetchingAt: input.status === "fetching" ? existing.fetchingAt ?? now : existing.fetchingAt,
+      fetchedAt: input.status === "fetched" ? existing.fetchedAt ?? now : existing.fetchedAt,
+      readyAt: input.status === "ready" ? existing.readyAt ?? now : existing.readyAt,
+      failedAt: input.status === "failed" ? existing.failedAt ?? now : existing.failedAt,
+      staleAt: input.status === "stale" ? existing.staleAt ?? now : existing.staleAt,
+      promotedAt: input.status === "promoted" ? existing.promotedAt ?? now : existing.promotedAt,
+      purgedAt: input.status === "purged" ? existing.purgedAt ?? now : existing.purgedAt
+    };
+    this.tasks.set(taskId, updated);
+    return { ...updated };
+  }
+}
+
 function requireRow<TRow>(row: TRow | undefined, context: string): TRow {
   if (!row) {
     throw new Error(`${context} did not return a row`);

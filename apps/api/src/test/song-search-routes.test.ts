@@ -178,7 +178,12 @@ async function createHarness(input: {
   const songs = new FakeSongRepository(input.searchResults ?? []);
   const queueEntries = new FakeQueueEntryRepository(input.queueEntries ?? []);
 
-  await registerSongSearchRoutes(server, { rooms, songs, queueEntries, online: input.online });
+  await registerSongSearchRoutes(server, {
+    rooms,
+    songs,
+    queueEntries,
+    ...(input.online ? { online: input.online } : {})
+  });
 
   return { server, rooms, songs, queueEntries };
 }

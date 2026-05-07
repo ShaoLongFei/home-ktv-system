@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { SongSearchResponse } from "@home-ktv/domain";
 import type { AdminCatalogSongRepository } from "../modules/catalog/repositories/song-repository.js";
+import type { CandidateTaskService } from "../modules/online/candidate-task-service.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 
@@ -8,6 +9,7 @@ export interface SongSearchRouteDependencies {
   rooms: RoomRepository;
   songs: AdminCatalogSongRepository;
   queueEntries: QueueEntryRepository;
+  online?: Pick<CandidateTaskService, "discoverCandidates">;
 }
 
 interface SongSearchQuery {
@@ -36,6 +38,12 @@ export async function registerSongSearchRoutes(
       const queue = await dependencies.queueEntries.listEffectiveQueue(room.id);
       const queuedSongIds = queue.map((entry) => entry.songId);
       const records = await dependencies.songs.searchFormalSongs({ query, limit, queuedSongIds });
+      const onlineCandidates =
+        (await dependencies.online?.discoverCandidates({
+          roomId: room.id,
+          query,
+          limit: 10
+        })) ?? [];
 
       const response: SongSearchResponse = {
         query,
@@ -49,13 +57,13 @@ export async function registerSongSearchRoutes(
           versions: record.versions
         })),
         online: {
-          status: "disabled",
-          message: "本地未入库，补歌功能后续可用",
+          status: onlineCandidates.length > 0 ? "available" : "disabled",
+          message: onlineCandidates.length > 0 ? "找到在线补歌候选" : "本地未入库，补歌功能后续可用",
           requestSupplement: {
             visible: records.length === 0,
             label: "请求补歌"
           },
-          candidates: []
+          candidates: onlineCandidates
         }
       };
 

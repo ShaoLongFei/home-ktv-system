@@ -3,6 +3,7 @@ import type { ApiConfig } from "../config.js";
 import type { AssetGateway } from "../modules/assets/asset-gateway.js";
 import type { ControlSessionRepository } from "../modules/controller/repositories/control-session-repository.js";
 import { restoreControlSession, serializeControlSessionCookie } from "../modules/controller/control-session-service.js";
+import type { CandidateTaskService } from "../modules/online/candidate-task-service.js";
 import type { ControlSnapshotRepositories } from "../modules/rooms/build-control-snapshot.js";
 import { executeRoomCommand } from "../modules/playback/session-command-service.js";
 import type { RoomSessionCommandRepository } from "../modules/playback/repositories/room-session-command-repository.js";
@@ -18,6 +19,7 @@ export interface ControlCommandsRouteDependencies {
   repositories: ControlCommandsRouteRepositories;
   assetGateway: AssetGateway;
   broadcaster?: RoomSnapshotBroadcaster;
+  online?: Pick<CandidateTaskService, "requestSupplement">;
 }
 
 interface BaseCommandBody {
@@ -41,6 +43,11 @@ interface SkipCurrentBody extends BaseCommandBody {
 
 interface SwitchVocalModeBody extends BaseCommandBody {
   playbackPositionMs?: number;
+}
+
+interface RequestSupplementBody extends BaseCommandBody {
+  provider?: string;
+  providerCandidateId?: string;
 }
 
 type CommandType = Parameters<typeof executeRoomCommand>[0]["type"];
@@ -103,6 +110,54 @@ export async function registerControlCommandRoutes(
       });
     }
   );
+
+  server.post<{ Params: { roomSlug: string }; Body: RequestSupplementBody }>(
+    "/rooms/:roomSlug/commands/request-supplement",
+    async (request, reply) => {
+      await handleRequestSupplement(request, reply, dependencies);
+    }
+  );
+}
+
+async function handleRequestSupplement(
+  request: FastifyRequest<{ Params: { roomSlug: string }; Body: RequestSupplementBody }>,
+  reply: FastifyReply,
+  dependencies: ControlCommandsRouteDependencies
+): Promise<void> {
+  const room = await dependencies.repositories.rooms.findBySlug(request.params.roomSlug);
+  if (!room) {
+    await reply.code(404).send({ code: "ROOM_NOT_FOUND" });
+    return;
+  }
+
+  const controlSession = await restoreControlSession({
+    room,
+    cookieHeader: request.headers.cookie,
+    deviceId: requiredString(request.body.deviceId, "deviceId"),
+    controlSessions: dependencies.repositories.controlSessions
+  });
+  if (!controlSession) {
+    await reply.code(401).send({ code: "CONTROL_SESSION_REQUIRED" });
+    return;
+  }
+
+  const task = await dependencies.online?.requestSupplement({
+    roomId: room.id,
+    provider: requiredString(request.body.provider, "provider"),
+    providerCandidateId: requiredString(request.body.providerCandidateId, "providerCandidateId")
+  });
+  if (!task) {
+    await reply.code(404).send({ code: "ONLINE_CANDIDATE_NOT_FOUND" });
+    return;
+  }
+
+  reply.header("Set-Cookie", serializeControlSessionCookie({ session: { id: controlSession.id } }));
+  await reply.send({
+    status: "accepted",
+    commandId: requiredString(request.body.commandId, "commandId"),
+    sessionVersion: requiredNumber(request.body.sessionVersion, "sessionVersion"),
+    task
+  });
 }
 
 async function handleCommand(
