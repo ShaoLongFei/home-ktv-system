@@ -22,6 +22,8 @@ describe("admin room status routes", () => {
       assets: harness.assets,
       songs: harness.songs,
       deviceSessions: harness.deviceSessions,
+      playbackEvents: harness.playbackEvents,
+      onlineTasks: harness.onlineTasks,
       assetGateway: harness.assetGateway
     } as any);
 
@@ -75,7 +77,53 @@ describe("admin room status routes", () => {
           songTitle: "晴天",
           artistName: "周杰伦"
         })
-      ])
+      ]),
+      recentEvents: [
+        expect.objectContaining({
+          eventType: "player.failed",
+          queueEntryId: "queue-current",
+          eventPayload: expect.objectContaining({
+            reason: "media-error",
+            recovery: "skipped-to-next"
+          }),
+          createdAt: "2026-05-04T10:03:00.000Z"
+        }),
+        expect.objectContaining({
+          eventType: "player.ended",
+          queueEntryId: "queue-previous"
+        })
+      ],
+      onlineTasks: {
+        counts: {
+          total: 2,
+          ready: 1,
+          failed: 1
+        },
+        tasks: [
+          expect.objectContaining({
+            taskId: "task-ready",
+            roomId: "living-room",
+            title: "稻香",
+            artistName: "周杰伦",
+            provider: "fixture-provider",
+            providerCandidateId: "fixture-ready",
+            status: "ready",
+            failureReason: null,
+            readyAssetId: "asset-online-ready",
+            updatedAt: "2026-05-04T10:02:00.000Z",
+            recentEventAt: "2026-05-04T10:02:00.000Z"
+          }),
+          expect.objectContaining({
+            taskId: "task-failed",
+            roomId: "living-room",
+            title: "倒带",
+            artistName: "蔡依林",
+            status: "failed",
+            failureReason: "provider-timeout",
+            recentEventAt: "2026-05-04T10:01:00.000Z"
+          })
+        ]
+      }
     });
     expect(body.tvPresence.lastSeenAt).toEqual(expect.any(String));
   });
@@ -290,6 +338,100 @@ function createHarness(options: { playing?: boolean } = {}) {
     }
   };
 
+  const playbackEvents = {
+    async listRecentByRoom(roomId: string, limit?: number) {
+      if (roomId !== "living-room") {
+        return [];
+      }
+      return [
+        {
+          id: "playback-event-failed",
+          roomId: "living-room",
+          queueEntryId: "queue-current",
+          eventType: "player.failed",
+          eventPayload: { reason: "media-error", recovery: "skipped-to-next" },
+          createdAt: "2026-05-04T10:03:00.000Z"
+        },
+        {
+          id: "playback-event-ended",
+          roomId: "living-room",
+          queueEntryId: "queue-previous",
+          eventType: "player.ended",
+          eventPayload: { endedReason: "natural" },
+          createdAt: "2026-05-04T10:00:00.000Z"
+        }
+      ].slice(0, limit ?? 20);
+    }
+  };
+
+  const onlineTasks = {
+    async listActiveForRoom(roomId: string) {
+      if (roomId !== "living-room") {
+        return [];
+      }
+      return [
+        {
+          id: "task-ready",
+          roomId: "living-room",
+          provider: "fixture-provider",
+          providerCandidateId: "fixture-ready",
+          title: "稻香",
+          artistName: "周杰伦",
+          sourceLabel: "Fixture Provider",
+          durationMs: 210000,
+          candidateType: "karaoke",
+          reliabilityLabel: "high",
+          riskLabel: "normal",
+          status: "ready",
+          failureReason: null,
+          recentEvent: { type: "ready", at: "2026-05-04T10:02:00.000Z" },
+          providerPayload: {},
+          readyAssetId: "asset-online-ready",
+          createdAt: "2026-05-04T10:00:00.000Z",
+          updatedAt: "2026-05-04T10:02:00.000Z",
+          selectedAt: "2026-05-04T10:00:30.000Z",
+          reviewRequiredAt: null,
+          fetchingAt: "2026-05-04T10:01:00.000Z",
+          fetchedAt: "2026-05-04T10:01:30.000Z",
+          readyAt: "2026-05-04T10:02:00.000Z",
+          failedAt: null,
+          staleAt: null,
+          promotedAt: null,
+          purgedAt: null
+        },
+        {
+          id: "task-failed",
+          roomId: "living-room",
+          provider: "fixture-provider",
+          providerCandidateId: "fixture-failed",
+          title: "倒带",
+          artistName: "蔡依林",
+          sourceLabel: "Fixture Provider",
+          durationMs: 198000,
+          candidateType: "mv",
+          reliabilityLabel: "medium",
+          riskLabel: "normal",
+          status: "failed",
+          failureReason: "provider-timeout",
+          recentEvent: { type: "failed", at: "2026-05-04T10:01:00.000Z", reason: "provider-timeout" },
+          providerPayload: {},
+          readyAssetId: null,
+          createdAt: "2026-05-04T09:59:00.000Z",
+          updatedAt: "2026-05-04T10:01:00.000Z",
+          selectedAt: "2026-05-04T09:59:30.000Z",
+          reviewRequiredAt: null,
+          fetchingAt: "2026-05-04T10:00:00.000Z",
+          fetchedAt: null,
+          readyAt: null,
+          failedAt: "2026-05-04T10:01:00.000Z",
+          staleAt: null,
+          promotedAt: null,
+          purgedAt: null
+        }
+      ] as any;
+    }
+  };
+
   const controlSessions = new InMemoryControlSessionRepository([
     {
       id: "control-session-1",
@@ -354,6 +496,8 @@ function createHarness(options: { playing?: boolean } = {}) {
     controlSessions,
     deviceSessions,
     playbackSessions,
+    playbackEvents,
+    onlineTasks,
     queueEntries,
     assets,
     songs,
