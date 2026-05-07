@@ -21,12 +21,8 @@ import { PgImportCandidateRepository } from "./modules/ingest/repositories/impor
 import { PgImportFileRepository } from "./modules/ingest/repositories/import-file-repository.js";
 import { PgScanRunRepository } from "./modules/ingest/repositories/scan-run-repository.js";
 import { createScanScheduler, type ScanScheduler, type ScanSchedulerOptions } from "./modules/ingest/scan-scheduler.js";
-import { CandidateTaskService } from "./modules/online/candidate-task-service.js";
-import {
-  InMemoryCandidateTaskRepository,
-  PgCandidateTaskRepository
-} from "./modules/online/repositories/candidate-task-repository.js";
-import { createProviderRegistry } from "./modules/online/provider-registry.js";
+import { createOnlineRuntime } from "./modules/online/runtime.js";
+import type { OnlineCandidateProvider } from "./modules/online/provider-registry.js";
 import { PgPlayerDeviceSessionRepository, type PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
 import {
   InMemoryControlSessionRepository,
@@ -66,6 +62,7 @@ import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
 import { registerSongSearchRoutes } from "./routes/song-search.js";
 
 export interface CreateServerOptions {
+  onlineProviders?: OnlineCandidateProvider[];
   poolFactory?: (databaseUrl: string) => Pool;
   scanSchedulerFactory?: (options: ScanSchedulerOptions) => ScanScheduler;
 }
@@ -106,7 +103,11 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   const session = createInitialPlaybackSession(room);
   const pool = resolvedConfig.databaseUrl ? (options.poolFactory ?? createPgPool)(resolvedConfig.databaseUrl) : null;
   const repositories = pool ? createPgRepositories(pool) : createInMemoryRepositories(room, session);
-  const onlineTasks = createOnlineTaskService(pool);
+  const onlineRuntime = createOnlineRuntime({
+    config: resolvedConfig,
+    pool,
+    providers: options.onlineProviders ?? []
+  });
   const assetRepository = repositories.assets;
   const assetGateway = new AssetGateway({
     assetRepository,
@@ -167,7 +168,7 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     controlSessions: repositories.controlSessions,
     deviceSessions: repositories.deviceSessions,
     assetGateway,
-    onlineTasks
+    online: onlineRuntime.tasks
   });
   await registerRoomSnapshotRoutes(server, {
     config: resolvedConfig,
@@ -200,28 +201,18 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   await registerSongSearchRoutes(server, {
     rooms: repositories.rooms,
     songs: repositories.songs,
-    queueEntries: repositories.queueEntries
+    queueEntries: repositories.queueEntries,
+    online: onlineRuntime.tasks
   });
   await registerControlCommandRoutes(server, {
     config: resolvedConfig,
     repositories,
     assetGateway,
-    broadcaster
+    broadcaster,
+    online: onlineRuntime.tasks
   });
 
   return server;
-}
-
-function createOnlineTaskService(pool: Pool | null): CandidateTaskService {
-  const registry = createProviderRegistry({
-    providers: [],
-    enabledProviderIds: [],
-    killSwitchProviderIds: []
-  });
-  return new CandidateTaskService({
-    registry,
-    repository: pool ? new PgCandidateTaskRepository(pool) : new InMemoryCandidateTaskRepository()
-  });
 }
 
 function createPgPool(databaseUrl: string): Pool {

@@ -141,6 +141,7 @@ describe("createServer online runtime wiring", () => {
         url: "/admin/rooms/living-room"
       });
       expect(admin.statusCode).toBe(200);
+      expect(admin.json().queue).toEqual([]);
       expect(admin.json().onlineTasks.tasks).toEqual([
         expect.objectContaining({
           provider: "demo-local",
@@ -155,7 +156,6 @@ describe("createServer online runtime wiring", () => {
       });
       expect(snapshot.statusCode).toBe(200);
       expect(snapshot.json().currentTarget).toBeNull();
-      expect(snapshot.json().queue).toEqual([]);
     } finally {
       await server.close();
     }

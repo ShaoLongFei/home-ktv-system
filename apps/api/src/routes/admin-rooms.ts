@@ -27,6 +27,7 @@ export interface AdminRoomsRouteDependencies {
   assetGateway: AssetGateway;
   deviceSessions: PlayerDeviceSessionRepository;
   playbackEvents?: Pick<PlaybackEventRepository, "listRecentByRoom"> | undefined;
+  online?: Pick<CandidateTaskService, "listActiveForRoom" | "retryTask" | "purgeTask" | "promoteTask"> | undefined;
   onlineTasks?: Pick<CandidateTaskService, "listActiveForRoom" | "retryTask" | "purgeTask" | "promoteTask"> | undefined;
 }
 
@@ -34,6 +35,8 @@ export async function registerAdminRoomsRoutes(
   server: FastifyInstance,
   dependencies: AdminRoomsRouteDependencies
 ): Promise<void> {
+  const onlineTasks = dependencies.online ?? dependencies.onlineTasks;
+
   server.get<{ Params: { roomSlug: string } }>("/admin/rooms/:roomSlug", async (request, reply) => {
     const room = await dependencies.rooms.findBySlug(request.params.roomSlug);
     if (!room) {
@@ -53,7 +56,7 @@ export async function registerAdminRoomsRoutes(
         controlSessions: dependencies.controlSessions,
         deviceSessions: dependencies.deviceSessions,
         playbackEvents: dependencies.playbackEvents,
-        onlineTasks: dependencies.onlineTasks
+        onlineTasks
       },
       assetGateway: dependencies.assetGateway
     });
@@ -115,12 +118,13 @@ async function handleOnlineTaskAction(
     return;
   }
 
-  if (!dependencies.onlineTasks) {
+  const onlineTasks = dependencies.online ?? dependencies.onlineTasks;
+  if (!onlineTasks) {
     await reply.code(404).send({ error: "ONLINE_TASK_NOT_FOUND" });
     return;
   }
 
-  const task = await action(dependencies.onlineTasks, { roomId: room.id, taskId: params.taskId });
+  const task = await action(onlineTasks, { roomId: room.id, taskId: params.taskId });
   if (!task) {
     await reply.code(404).send({ error: "ONLINE_TASK_NOT_FOUND" });
     return;
@@ -150,8 +154,8 @@ async function buildFallbackRoomStatus(
     typeof dependencies.playbackEvents?.listRecentByRoom === "function"
       ? dependencies.playbackEvents.listRecentByRoom(room.id, 20)
       : Promise.resolve([]),
-    typeof dependencies.onlineTasks?.listActiveForRoom === "function"
-      ? dependencies.onlineTasks.listActiveForRoom(room.id)
+    typeof (dependencies.online ?? dependencies.onlineTasks)?.listActiveForRoom === "function"
+      ? (dependencies.online ?? dependencies.onlineTasks)!.listActiveForRoom(room.id)
       : Promise.resolve([])
   ]);
 
