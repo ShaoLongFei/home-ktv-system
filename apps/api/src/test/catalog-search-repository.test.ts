@@ -157,13 +157,28 @@ class FakeCatalogSearchDb implements QueryExecutor {
     if (text.includes("WHERE (artist_pinyin = '' OR artist_initials = '')")) {
       return { rows: this.songs.filter((song) => song.artist_pinyin === "" || song.artist_initials === "") as TRow[] };
     }
-    if (text.startsWith("UPDATE songs") && text.includes("artist_pinyin")) {
+    if (text.startsWith("UPDATE songs") && text.includes("artist_name") && text.includes("artist_pinyin")) {
       const id = values.at(-1);
       const song = this.songs.find((candidate) => candidate.id === id);
       if (song) {
         song.artist_name = String(values[0]);
         song.artist_pinyin = String(values[1]);
         song.artist_initials = String(values[2]);
+      }
+      return { rows: [] };
+    }
+    if (text.startsWith("UPDATE songs") && text.includes("artist_pinyin")) {
+      const [id, artistPinyin, artistInitials] = values;
+      const song = this.songs.find((candidate) => candidate.id === id);
+      if (song) {
+        song.artist_pinyin = String(artistPinyin);
+        song.artist_initials = String(artistInitials);
+      }
+      for (const row of this.rowsBySearch.flat()) {
+        if (row.id === id) {
+          row.artist_pinyin = String(artistPinyin);
+          row.artist_initials = String(artistInitials);
+        }
       }
       return { rows: [] };
     }

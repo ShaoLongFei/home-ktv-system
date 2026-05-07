@@ -289,6 +289,7 @@ class InMemoryRuntimeRepositories implements RuntimeRepositories {
     findById: async () => null,
     listFormalSongs: async () => [],
     getFormalSongWithAssets: async () => null,
+    searchFormalSongs: async () => [],
     updateSongMetadata: async () => null,
     updateDefaultAsset: async () => null,
     updateSongStatus: async () => null
