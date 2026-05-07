@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 05-03-PLAN.md
-last_updated: "2026-05-07T11:15:54.880Z"
+status: gaps_found
+stopped_at: Phase 5 verification found blocking runtime wiring gaps
+last_updated: "2026-05-07T11:23:50.000Z"
 last_activity: 2026-05-07
 progress:
   total_phases: 5
-  completed_phases: 5
+  completed_phases: 4
   total_plans: 23
   completed_plans: 23
-  percent: 100
+  percent: 90
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-30)
 
 ## Current Position
 
-Phase: 05 (online-supplement-recovery) — COMPLETE
+Phase: 05 (online-supplement-recovery) — GAPS FOUND
 Plan: 3 of 3
-Status: Phase complete — ready for verification
+Status: Verification found blocking runtime wiring gaps
 Last activity: 2026-05-07
 
-Progress: [██████████] 100%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -119,9 +119,10 @@ None yet.
 - [Phase 1]: 需要尽早在真实 TV 目标环境上验证浏览器、编解码、自动播放与近无感切换预算
 - [Phase 1]: 自动化验证已通过；Phase 1 仍等待 mini PC / desktop Chrome / TV 路径的人类 UAT
 - [Phase 5]: 在线 provider 的具体接入范围和合规边界仍需在实施前锁定
+- [Phase 5]: Verification found runtime wiring gaps: real server does not pass CandidateTaskService into search/control routes, runtime providers are empty, and CandidateCacheWorker has no caller.
 
 ## Session Continuity
 
-Last session: 2026-05-07T11:15:14.303Z
-Stopped at: Completed 05-03-PLAN.md
-Resume file: None
+Last session: 2026-05-07T11:23:50.000Z
+Stopped at: Phase 5 verification found blocking runtime wiring gaps
+Resume file: .planning/phases/05-online-supplement-recovery/05-VERIFICATION.md
