@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
-import { fetchRoomStatus, getOrCreateAdminDeviceId, refreshPairingToken, roomRealtimeUrl } from "../api/client.js";
-import type { RoomControlSnapshotMessage, RoomControlSnapshotPayload, RoomStatusResponse } from "./types.js";
+import {
+  cleanFailedOnlineTask,
+  getOrCreateAdminDeviceId,
+  promoteOnlineTaskResource,
+  refreshPairingToken,
+  refreshRoomStatus,
+  retryFailedOnlineTask,
+  roomRealtimeUrl
+} from "../api/client.js";
+import type { RoomControlSnapshotMessage, RoomControlSnapshotPayload, RoomOnlineTaskSummaryRow, RoomStatusResponse } from "./types.js";
 
 const realtimeFallbackPollingMs = 5000;
 
@@ -8,7 +16,9 @@ export function RoomStatusView() {
   const roomSlug = "living-room";
   const [roomStatus, setRoomStatus] = useState<RoomStatusResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isRefreshingRoom, setIsRefreshingRoom] = useState(false);
   const [isRefreshingPairing, setIsRefreshingPairing] = useState(false);
+  const [busyTaskAction, setBusyTaskAction] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -17,7 +27,7 @@ export function RoomStatusView() {
 
     const loadRoomStatus = async () => {
       try {
-        const status = await fetchRoomStatus(roomSlug);
+        const status = await refreshRoomStatus(roomSlug);
         if (!cancelled) {
           setRoomStatus(status);
           setErrorMessage(null);
@@ -81,6 +91,19 @@ export function RoomStatusView() {
   }, []);
 
   const handleRefresh = async () => {
+    setIsRefreshingRoom(true);
+    try {
+      const status = await refreshRoomStatus(roomSlug);
+      setRoomStatus(status);
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to refresh room state");
+    } finally {
+      setIsRefreshingRoom(false);
+    }
+  };
+
+  const handlePairingRefresh = async () => {
     setIsRefreshingPairing(true);
     try {
       const refreshed = await refreshPairingToken(roomSlug);
@@ -104,6 +127,25 @@ export function RoomStatusView() {
     }
   };
 
+  const handleTaskAction = async (task: RoomOnlineTaskSummaryRow, action: "retry" | "clean" | "promote") => {
+    const busyKey = `${action}:${task.taskId}`;
+    setBusyTaskAction(busyKey);
+    try {
+      if (action === "retry") {
+        await retryFailedOnlineTask(roomSlug, task.taskId);
+      } else if (action === "clean") {
+        await cleanFailedOnlineTask(roomSlug, task.taskId);
+      } else {
+        await promoteOnlineTaskResource(roomSlug, task.taskId);
+      }
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : `Failed to ${action} task`);
+    } finally {
+      setBusyTaskAction(null);
+    }
+  };
+
   return (
     <main className="admin-shell">
       <header className="admin-header">
@@ -111,14 +153,23 @@ export function RoomStatusView() {
           <h1>Room status</h1>
           <p>Inspect the live control session state and refresh the pairing token.</p>
         </div>
-        <button className="primary-button" type="button" onClick={handleRefresh} disabled={!roomStatus || isRefreshingPairing}>
+        <div className="admin-header-actions">
+          <button className="secondary-button" type="button" onClick={handleRefresh} disabled={isRefreshingRoom}>
+            {isRefreshingRoom ? "Refreshing..." : "Refresh room state"}
+          </button>
+          <button className="primary-button" type="button" onClick={handlePairingRefresh} disabled={!roomStatus || isRefreshingPairing}>
           {isRefreshingPairing ? "Refreshing..." : "Refresh pairing token"}
-        </button>
+          </button>
+        </div>
       </header>
 
       <section className="room-status-grid" aria-label="Room status">
         {errorMessage ? <p className="room-status-error">{errorMessage}</p> : null}
         <dl className="room-status-summary">
+          <div>
+            <dt>Room state</dt>
+            <dd>{roomStatus ? roomStatus.room.status : "Loading..."}</dd>
+          </div>
           <div>
             <dt>Token expires</dt>
             <dd>{roomStatus ? formatTime(roomStatus.pairing.tokenExpiresAt) : "Loading..."}</dd>
@@ -159,6 +210,80 @@ export function RoomStatusView() {
             ))}
           </ol>
         </section>
+
+        <section className="room-status-panel room-status-wide" aria-label="Online tasks">
+          <div className="room-section-header">
+            <h2>Online tasks</h2>
+            <span>
+              <strong>Task counts</strong> {formatTaskCounts(roomStatus?.onlineTasks.counts)}
+            </span>
+          </div>
+          <div className="room-task-list">
+            {(roomStatus?.onlineTasks.tasks ?? []).map((task) => (
+              <article className="room-task-row" key={task.taskId}>
+                <div className="room-task-main">
+                  <strong>{task.title}</strong>
+                  <span>{task.artistName} / {task.sourceLabel}</span>
+                  <small>
+                    {task.provider}:{task.providerCandidateId} / event {task.recentEventAt ? formatTime(task.recentEventAt) : "unknown"}
+                  </small>
+                  {task.failureReason ? <small className="room-status-error">{task.failureReason}</small> : null}
+                </div>
+                <div className="room-task-state">
+                  <span className={`state-chip ${task.status}`}>{task.status}</span>
+                  <div className="task-action-group">
+                    {canRetryTask(task) ? (
+                      <button
+                        aria-label={`Retry task ${task.taskId}`}
+                        className="secondary-button compact-button"
+                        disabled={busyTaskAction !== null}
+                        type="button"
+                        onClick={() => void handleTaskAction(task, "retry")}
+                      >
+                        Retry
+                      </button>
+                    ) : null}
+                    {canCleanTask(task) ? (
+                      <button
+                        aria-label={`Clean task ${task.taskId}`}
+                        className="danger-button compact-button"
+                        disabled={busyTaskAction !== null}
+                        type="button"
+                        onClick={() => void handleTaskAction(task, "clean")}
+                      >
+                        Clean
+                      </button>
+                    ) : null}
+                    {task.status === "ready" ? (
+                      <button
+                        aria-label={`Promote task ${task.taskId}`}
+                        className="secondary-button compact-button"
+                        disabled={busyTaskAction !== null}
+                        type="button"
+                        onClick={() => void handleTaskAction(task, "promote")}
+                      >
+                        Promote
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="room-status-panel room-status-wide" aria-label="Recent events">
+          <h2>Recent events</h2>
+          <ol className="room-event-list">
+            {(roomStatus?.recentEvents ?? []).map((event) => (
+              <li key={event.id}>
+                <strong>{event.eventType}</strong>
+                <span>{event.queueEntryId ?? "room"} / {formatTime(event.createdAt)}</span>
+                <small>{formatPayload(event.eventPayload)}</small>
+              </li>
+            ))}
+          </ol>
+        </section>
       </section>
     </main>
   );
@@ -187,6 +312,29 @@ function parseRealtimeMessage(data: unknown): RoomControlSnapshotMessage | null 
   } catch {}
 
   return null;
+}
+
+function formatTaskCounts(counts: Record<string, number> | undefined): string {
+  if (!counts) {
+    return "total 0";
+  }
+  return Object.entries(counts)
+    .map(([status, count]) => `${status} ${count}`)
+    .join(" / ");
+}
+
+function canRetryTask(task: RoomOnlineTaskSummaryRow): boolean {
+  return task.status === "failed" || task.status === "stale" || task.status === "review_required";
+}
+
+function canCleanTask(task: RoomOnlineTaskSummaryRow): boolean {
+  return task.status === "failed" || task.status === "stale";
+}
+
+function formatPayload(payload: Record<string, unknown>): string {
+  const reason = typeof payload.reason === "string" ? payload.reason : null;
+  const recovery = typeof payload.recovery === "string" ? payload.recovery : null;
+  return [reason, recovery].filter(Boolean).join(" / ") || "no payload";
 }
 
 function isSnapshotPayload(value: unknown): value is RoomControlSnapshotPayload {

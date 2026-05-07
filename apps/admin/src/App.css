@@ -80,6 +80,14 @@ button:disabled {
   padding: 12px 20px;
 }
 
+.admin-header-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .admin-title h1 {
   font-size: 20px;
   line-height: 1.2;
@@ -218,13 +226,15 @@ button:disabled {
 .room-status-grid {
   display: grid;
   gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   padding: 16px 20px 24px;
 }
 
 .room-status-summary {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   margin: 0;
 }
 
@@ -256,6 +266,28 @@ button:disabled {
   margin: 0 0 10px;
 }
 
+.room-status-wide {
+  grid-column: 1 / -1;
+}
+
+.room-section-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.room-section-header h2 {
+  margin: 0;
+}
+
+.room-section-header span {
+  color: #52616d;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .room-status-panel p,
 .room-status-error {
   margin: 0;
@@ -281,6 +313,101 @@ button:disabled {
 .room-status-queue span {
   color: #63707b;
   font-size: 12px;
+}
+
+.room-task-list,
+.room-event-list {
+  display: grid;
+  gap: 8px;
+}
+
+.room-event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.room-task-row {
+  align-items: center;
+  border-top: 1px solid #e4e9ed;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 58px;
+  padding: 9px 0;
+}
+
+.room-task-main,
+.room-task-state,
+.room-event-list li {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.room-task-main strong,
+.room-task-main span,
+.room-task-main small,
+.room-event-list strong,
+.room-event-list span,
+.room-event-list small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-task-main span,
+.room-task-main small,
+.room-event-list span,
+.room-event-list small {
+  color: #63707b;
+  font-size: 12px;
+}
+
+.room-task-state {
+  justify-items: end;
+}
+
+.task-action-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.state-chip {
+  border: 1px solid #c8d1d8;
+  border-radius: 999px;
+  color: #26323b;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 5px 8px;
+}
+
+.state-chip.ready {
+  background: #e3f4ec;
+  border-color: #8fc2a9;
+  color: #1b653f;
+}
+
+.state-chip.failed,
+.state-chip.stale {
+  background: #f8e7e9;
+  border-color: #d99aa2;
+  color: #8a1d2b;
+}
+
+.state-chip.review_required {
+  background: #f7ecda;
+  border-color: #d9b67d;
+  color: #7a5012;
+}
+
+.compact-button {
+  font-size: 12px;
+  min-height: 28px;
+  padding: 4px 8px;
 }
 
 .status-dot {
@@ -879,8 +1006,26 @@ button:disabled {
   }
 
   .catalog-filters,
+  .room-status-grid,
   .asset-control-grid,
   .asset-facts {
     grid-template-columns: 1fr;
+  }
+
+  .room-status-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .room-task-row {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .room-task-state {
+    justify-items: start;
+  }
+
+  .task-action-group {
+    justify-content: flex-start;
   }
 }
