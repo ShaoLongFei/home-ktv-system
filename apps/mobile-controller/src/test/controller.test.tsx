@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useEffect } from "react";
 import type { RoomControlSnapshot } from "@home-ktv/player-contracts";
 import {
   addQueueEntry,
@@ -12,7 +13,7 @@ import {
   undoDeleteQueueEntry
 } from "../api/client.js";
 import { App } from "../App.js";
-import { fallbackPollingIntervalMs, sessionRefreshIntervalMs } from "../runtime/use-room-controller.js";
+import { fallbackPollingIntervalMs, sessionRefreshIntervalMs, useRoomController } from "../runtime/use-room-controller.js";
 
 type RequestRecord = {
   url: string;
@@ -100,6 +101,107 @@ describe("mobile controller API client", () => {
 });
 
 describe("mobile controller runtime", () => {
+  it("loads empty song search results after control-session restore", async () => {
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("电视在线");
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=&limit=30")).toBe(true);
+    expect(requests.some((request) => request.url.endsWith("/available-songs"))).toBe(false);
+  });
+
+  it("debounces song search query changes by 250ms", async () => {
+    vi.useFakeTimers();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+    const controller = renderControllerProbe();
+    await flush();
+    requests.length = 0;
+
+    act(() => {
+      controller.current?.setSongSearchQuery("qlx");
+    });
+    await vi.advanceTimersByTimeAsync(249);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    await flush();
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(true);
+  });
+
+  it("submits the latest song search query immediately", async () => {
+    vi.useFakeTimers();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+    const controller = renderControllerProbe();
+    await flush();
+    requests.length = 0;
+
+    act(() => {
+      controller.current?.setSongSearchQuery("qlx");
+      controller.current?.submitSongSearch();
+    });
+    await flush();
+
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(true);
+  });
+
+  it("sends selected assetId when adding a song version", async () => {
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+    const controller = renderControllerProbe();
+    await flush();
+
+    await act(async () => {
+      await controller.current?.addSongVersion("song-ready", "asset-ready-alt");
+    });
+
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
+      songId: "song-ready",
+      assetId: "asset-ready-alt"
+    });
+  });
+
+  it("requires duplicate confirmation before re-adding a queued song version", async () => {
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+    const controller = renderControllerProbe();
+    await flush();
+
+    act(() => {
+      controller.current?.requestAddSongVersion("song-ready", "asset-ready-alt", "Ready Song", "queued");
+    });
+
+    expect(controller.current?.duplicateConfirm).toEqual({
+      songId: "song-ready",
+      assetId: "asset-ready-alt",
+      title: "Ready Song"
+    });
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
+
+    await act(async () => {
+      await controller.current?.confirmDuplicateAdd();
+    });
+
+    expect(controller.current?.duplicateConfirm).toBeNull();
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
+      songId: "song-ready",
+      assetId: "asset-ready-alt"
+    });
+  });
+
   it("tries cookie restore before token exchange and removes token after success", async () => {
     window.history.pushState({}, "", "/controller?room=living-room&token=pair-token");
     const { requests } = installControllerFetchMock({
@@ -322,6 +424,10 @@ function installControllerFetchMock(options: {
         });
       }
 
+      if (method === "GET" && requestUrl.pathname.endsWith("/songs/search")) {
+        return json(songSearchResponse(requestUrl.searchParams.get("q") ?? ""));
+      }
+
       const commandResponse = commandResponses[requestUrl.pathname];
       if (method === "POST" && commandResponse) {
         return commandResponse;
@@ -336,6 +442,21 @@ function installControllerFetchMock(options: {
   );
 
   return { requests };
+}
+
+function renderControllerProbe() {
+  const holder: { current: any } = { current: null };
+
+  function ControllerProbe() {
+    const controller = useRoomController();
+    useEffect(() => {
+      holder.current = controller;
+    }, [controller]);
+    return null;
+  }
+
+  render(<ControllerProbe />);
+  return holder;
 }
 
 class FakeWebSocket {
@@ -392,6 +513,34 @@ function sessionResponse(snapshot: RoomControlSnapshot) {
       lastSeenAt: "2026-05-04T10:00:00.000Z"
     },
     snapshot
+  };
+}
+
+function songSearchResponse(query: string) {
+  return {
+    query,
+    local: [
+      {
+        songId: "song-ready",
+        title: "晴天",
+        artistName: "周杰伦",
+        language: "mandarin",
+        matchReason: query ? "initials" : "default",
+        queueState: "not_queued",
+        versions: [
+          {
+            assetId: "asset-ready-alt",
+            displayName: "高清版",
+            sourceType: "local",
+            sourceLabel: "本地",
+            durationMs: 180000,
+            qualityLabel: "HD",
+            isRecommended: true
+          }
+        ]
+      }
+    ],
+    online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
   };
 }
 
