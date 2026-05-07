@@ -182,7 +182,10 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   });
   await registerRealtimeRoutes(server, {
     config: resolvedConfig,
-    repositories,
+    repositories: {
+      ...repositories,
+      onlineTasks: onlineRuntime.tasks
+    },
     assetGateway,
     broadcaster
   });

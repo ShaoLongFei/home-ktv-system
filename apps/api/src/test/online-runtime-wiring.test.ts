@@ -254,6 +254,59 @@ describe("createServer online runtime wiring", () => {
     }
   });
 
+  it("includes online task summary in fresh realtime snapshots after supplement requests", async () => {
+    const server = await createServer(
+      createRuntimeConfig({
+        onlineDemoReadyAssetId: "asset-online-ready",
+        onlineProviderIds: ["demo-local"]
+      })
+    );
+    const messages: unknown[] = [];
+
+    try {
+      await server.inject({
+        method: "GET",
+        url: "/rooms/living-room/songs/search?q=ready-demo"
+      });
+      const cookie = await createControlSessionCookie(server);
+      const supplement = await requestSupplement(server, cookie, {
+        provider: "demo-local",
+        providerCandidateId: "demo-local-ready-demo"
+      });
+
+      expect(supplement.statusCode).toBe(200);
+
+      const socket = await server.injectWS(
+        "/rooms/living-room/realtime?deviceId=phone-a&client=mobile",
+        { headers: { cookie } },
+        { onInit: collectJsonMessages(messages) }
+      );
+      await waitFor(() => messages.length >= 1);
+
+      expect(messages[0]).toMatchObject({
+        type: "room.control.snapshot.updated",
+        payload: {
+          onlineTasks: {
+            counts: {
+              total: 1,
+              ready: 1
+            },
+            tasks: [
+              expect.objectContaining({
+                providerCandidateId: "demo-local-ready-demo",
+                status: "ready"
+              })
+            ]
+          }
+        }
+      });
+
+      socket.close();
+    } finally {
+      await server.close();
+    }
+  });
+
   it("runs the cache worker again when an admin retries a failed online task", async () => {
     const provider = createFailThenReadyProvider();
     const server = await createServer(
