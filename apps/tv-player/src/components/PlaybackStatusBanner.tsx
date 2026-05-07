@@ -5,6 +5,7 @@ export const playbackStatusCopy: Record<PlaybackNoticeKind, string> = {
   loading: "Loading the next song.",
   recovering: "Reconnecting playback and restoring the song.",
   switch_failed_reverted: "Switch failed. Playback returned to the previous vocal mode.",
+  playback_failed_skipped: "Playback failed. Skipped to the next song.",
   recovery_fallback_start_over: "Playback reconnected, but this song restarted from the beginning."
 };
 
