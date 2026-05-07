@@ -1,3 +1,4 @@
+import type { SongSearchResponse, SongSearchQueueState } from "@home-ktv/domain";
 import type { RoomControlSnapshot } from "@home-ktv/player-contracts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -6,10 +7,10 @@ import {
   ControllerApiError,
   createControlSession,
   deleteQueueEntry,
-  fetchAvailableSongs,
   promoteQueueEntry,
   realtimeUrl,
   restoreControlSession,
+  searchSongs,
   skipCurrent,
   switchVocalMode,
   undoDeleteQueueEntry
@@ -23,16 +24,26 @@ export interface RoomControllerState {
   availableSongs: AvailableSong[];
   connectionStatus: "connecting" | "connected" | "reconnecting" | "error";
   deviceId: string;
+  duplicateConfirm: { songId: string; assetId: string; title: string } | null;
   errorMessage: string | null;
   pendingUndo: { queueEntryId: string; undoExpiresAt: string } | null;
   roomSlug: string;
   skipConfirmOpen: boolean;
+  songSearch: SongSearchResponse | null;
+  songSearchQuery: string;
+  songSearchStatus: "idle" | "loading" | "success" | "error";
   snapshot: RoomControlSnapshot | null;
   addSong(songId: string): Promise<void>;
+  addSongVersion(songId: string, assetId: string): Promise<void>;
+  cancelDuplicateAdd(): void;
   confirmSkip(): Promise<void>;
+  confirmDuplicateAdd(): Promise<void>;
   deleteQueueEntry(queueEntryId: string): Promise<void>;
   promoteQueueEntry(queueEntryId: string): Promise<void>;
+  requestAddSongVersion(songId: string, assetId: string, title: string, queueState: SongSearchQueueState): void;
   requestSkip(): void;
+  setSongSearchQuery(query: string): void;
+  submitSongSearch(): void;
   switchVocalMode(): Promise<void>;
   undoDelete(queueEntryId: string): Promise<void>;
   cancelSkip(): void;
@@ -42,16 +53,67 @@ export function useRoomController(): RoomControllerState {
   const initial = useMemo(() => readRuntimeParams(), []);
   const [deviceId] = useState(() => getOrCreateDeviceId());
   const [snapshot, setSnapshot] = useState<RoomControlSnapshot | null>(null);
-  const [availableSongs, setAvailableSongs] = useState<AvailableSong[]>([]);
+  const [songSearch, setSongSearch] = useState<SongSearchResponse | null>(null);
+  const [songSearchQuery, setSongSearchQueryState] = useState("");
+  const [songSearchStatus, setSongSearchStatus] = useState<RoomControllerState["songSearchStatus"]>("idle");
+  const [duplicateConfirm, setDuplicateConfirm] = useState<{ songId: string; assetId: string; title: string } | null>(
+    null
+  );
   const [connectionStatus, setConnectionStatus] = useState<RoomControllerState["connectionStatus"]>("connecting");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
   const [pendingUndo, setPendingUndo] = useState<{ queueEntryId: string; undoExpiresAt: string } | null>(null);
   const snapshotRef = useRef<RoomControlSnapshot | null>(null);
+  const songSearchQueryRef = useRef("");
+  const searchRequestIdRef = useRef(0);
+  const searchAbortRef = useRef<AbortController | null>(null);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     snapshotRef.current = snapshot;
   }, [snapshot]);
+
+  const clearSearchDebounce = useCallback(() => {
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+      searchDebounceRef.current = null;
+    }
+  }, []);
+
+  const runSongSearch = useCallback(
+    async (query: string) => {
+      clearSearchDebounce();
+      searchAbortRef.current?.abort();
+      const requestId = searchRequestIdRef.current + 1;
+      searchRequestIdRef.current = requestId;
+      songSearchQueryRef.current = query;
+      const abortController = new AbortController();
+      searchAbortRef.current = abortController;
+      setSongSearchStatus("loading");
+
+      try {
+        const response = await searchSongs({
+          roomSlug: initial.roomSlug,
+          query,
+          limit: 30,
+          signal: abortController.signal
+        });
+        if (searchRequestIdRef.current === requestId && response.query === songSearchQueryRef.current) {
+          setSongSearch(response);
+          setSongSearchStatus("success");
+        }
+      } catch (error) {
+        if (abortController.signal.aborted) {
+          return;
+        }
+        if (searchRequestIdRef.current === requestId) {
+          setSongSearchStatus("error");
+          setErrorMessage(errorMessageFrom(error, "SONG_SEARCH_FAILED"));
+        }
+      }
+    },
+    [clearSearchDebounce, initial.roomSlug]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +142,9 @@ export function useRoomController(): RoomControllerState {
       setSnapshot(response.snapshot);
       setErrorMessage(null);
       removeTokenFromUrl();
-      setAvailableSongs(await fetchAvailableSongs(initial.roomSlug));
+      setSongSearchQueryState("");
+      songSearchQueryRef.current = "";
+      await runSongSearch("");
     };
 
     const pollRestore = async () => {
@@ -181,8 +245,10 @@ export function useRoomController(): RoomControllerState {
       stopFallbackPolling();
       stopSessionRefresh();
       websocket?.close();
+      clearSearchDebounce();
+      searchAbortRef.current?.abort();
     };
-  }, [deviceId, initial.pairingToken, initial.roomSlug]);
+  }, [clearSearchDebounce, deviceId, initial.pairingToken, initial.roomSlug, runSongSearch]);
 
   const runCommand = useCallback(
     async (command: (input: { roomSlug: string; deviceId: string; sessionVersion: number }) => Promise<any>) => {
@@ -219,19 +285,60 @@ export function useRoomController(): RoomControllerState {
     [deviceId, initial.roomSlug]
   );
 
+  const availableSongs = useMemo<AvailableSong[]>(
+    () =>
+      songSearch?.local.map((result) => {
+        const version = result.versions[0];
+        return {
+          songId: result.songId,
+          title: result.title,
+          artistName: result.artistName,
+          language: result.language,
+          defaultAssetId: version?.assetId ?? "",
+          durationMs: version?.durationMs ?? 0
+        };
+      }) ?? [],
+    [songSearch]
+  );
+
+  const addSongVersion = useCallback(
+    async (songId: string, assetId: string) => {
+      await runCommand((input) => addQueueEntry({ ...input, songId, assetId }));
+    },
+    [runCommand]
+  );
+
+  const submitSongSearch = useCallback(() => {
+    void runSongSearch(songSearchQueryRef.current);
+  }, [runSongSearch]);
+
   return {
     availableSongs,
     connectionStatus,
     deviceId,
+    duplicateConfirm,
     errorMessage,
     pendingUndo,
     roomSlug: initial.roomSlug,
     skipConfirmOpen,
+    songSearch,
+    songSearchQuery,
+    songSearchStatus,
     snapshot,
     addSong: async (songId) => {
       await runCommand((input) => addQueueEntry({ ...input, songId }));
     },
+    addSongVersion,
+    cancelDuplicateAdd: () => setDuplicateConfirm(null),
     cancelSkip: () => setSkipConfirmOpen(false),
+    confirmDuplicateAdd: async () => {
+      const selection = duplicateConfirm;
+      if (!selection) {
+        return;
+      }
+      await addSongVersion(selection.songId, selection.assetId);
+      setDuplicateConfirm(null);
+    },
     confirmSkip: async () => {
       setSkipConfirmOpen(false);
       await runCommand((input) => skipCurrent({ ...input, confirmSkip: true }));
@@ -242,7 +349,24 @@ export function useRoomController(): RoomControllerState {
     promoteQueueEntry: async (queueEntryId) => {
       await runCommand((input) => promoteQueueEntry({ ...input, queueEntryId }));
     },
+    requestAddSongVersion: (songId, assetId, title, queueState) => {
+      if (queueState === "queued") {
+        setDuplicateConfirm({ songId, assetId, title });
+        return;
+      }
+
+      void addSongVersion(songId, assetId);
+    },
     requestSkip: () => setSkipConfirmOpen(true),
+    setSongSearchQuery: (query) => {
+      songSearchQueryRef.current = query;
+      setSongSearchQueryState(query);
+      clearSearchDebounce();
+      searchDebounceRef.current = setTimeout(() => {
+        void runSongSearch(query);
+      }, 250);
+    },
+    submitSongSearch,
     switchVocalMode: async () => {
       await runCommand((input) =>
         switchVocalMode({ ...input, playbackPositionMs: snapshotRef.current?.currentTarget?.resumePositionMs ?? 0 })

@@ -103,6 +103,9 @@ importers:
 
   apps/mobile-controller:
     dependencies:
+      '@home-ktv/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@home-ktv/player-contracts':
         specifier: workspace:*
         version: link:../../packages/player-contracts

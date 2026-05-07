@@ -1,3 +1,4 @@
+import type { SongSearchResponse } from "@home-ktv/domain";
 import type { ControlSessionInfo, RoomControlSnapshot } from "@home-ktv/player-contracts";
 
 const deviceIdStorageKey = "home_ktv_device_id";
@@ -94,6 +95,21 @@ export async function fetchAvailableSongs(roomSlug: string): Promise<AvailableSo
   return response.songs;
 }
 
+export async function searchSongs(input: {
+  roomSlug: string;
+  query: string;
+  limit?: number;
+  signal?: AbortSignal;
+}): Promise<SongSearchResponse> {
+  const init: RequestInit = input.signal ? { signal: input.signal } : {};
+  return fetchController<SongSearchResponse>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/songs/search?q=${encodeURIComponent(input.query)}&limit=${
+      input.limit ?? 30
+    }`,
+    init
+  );
+}
+
 export async function fetchControlSnapshot(input: {
   roomSlug: string;
   deviceId: string;
@@ -102,8 +118,11 @@ export async function fetchControlSnapshot(input: {
   return response.snapshot;
 }
 
-export async function addQueueEntry(input: CommandBaseInput & { songId: string }) {
-  return sendCommand(input, "add-queue-entry", { songId: input.songId });
+export async function addQueueEntry(input: CommandBaseInput & { songId: string; assetId?: string }) {
+  return sendCommand(input, "add-queue-entry", {
+    songId: input.songId,
+    ...(input.assetId ? { assetId: input.assetId } : {})
+  });
 }
 
 export async function deleteQueueEntry(input: CommandBaseInput & { queueEntryId: string }) {

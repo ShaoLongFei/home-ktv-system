@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@home-ktv/domain": "workspace:*",
     "@home-ktv/player-contracts": "workspace:*",
     "@home-ktv/protocol": "workspace:*",
     "@tanstack/react-query": "5.100.6",
