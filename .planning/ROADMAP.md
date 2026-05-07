@@ -90,7 +90,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — 构建搜索契约、标准化工具与数据库索引基础
 - [x] 04-02-PLAN.md — 构建正式歌库搜索读模型与房间搜索 API
-- [ ] 04-03-PLAN.md — 构建版本感知的手机端搜索与点歌选择流程
+- [x] 04-03-PLAN.md — 构建版本感知的手机端搜索与点歌选择流程
 **UI hint**: yes
 
 ### Phase 5: Online Supplement & Recovery
