@@ -120,5 +120,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Media Contract & TV Runtime | 3/3 | Awaiting UAT | - |
 | 2. Library Ingest & Catalog Admin | 6/6 | Complete | 2026-04-30 |
 | 3. Room Sessions & Queue Control | 0/3 | Not started | - |
-| 4. Search & Song Selection | 0/3 | Not started | - |
+| 4. Search & Song Selection | 0/3 | Planned | - |
 | 5. Online Supplement & Recovery | 0/3 | Not started | - |
