@@ -9,7 +9,9 @@ import type {
   VocalMode
 } from "@home-ktv/domain";
 import { describe, expect, it } from "vitest";
-import { CatalogAdmissionError, CatalogAdmissionService } from "../modules/catalog/admission-service.js";
+import type { QueryExecutor } from "../db/query-executor.js";
+import { schemaSql } from "../db/schema.js";
+import { CatalogAdmissionError, CatalogAdmissionService, PgCatalogAdmissionWriter } from "../modules/catalog/admission-service.js";
 import { resolveLibraryPaths } from "../modules/ingest/library-paths.js";
 
 describe("CatalogAdmissionService", () => {
@@ -159,6 +161,62 @@ describe("CatalogAdmissionService", () => {
     await expect(
       harness.service.resolveCandidateConflict("candidate-1", { resolution: "merge_existing" })
     ).rejects.toMatchObject({ code: "TARGET_SONG_REQUIRED" });
+  });
+
+  it("persists generated title and artist search keys when promoting formal songs", async () => {
+    const queries: Array<{ text: string; values: readonly unknown[] | undefined }> = [];
+    const db: QueryExecutor = {
+      async query<TRow>(text: string, values?: readonly unknown[]) {
+        queries.push({ text, values });
+        return { rows: [] as TRow[] };
+      }
+    };
+
+    await new PgCatalogAdmissionWriter(db).promoteApprovedCandidate({
+      candidateId: "candidate-1",
+      songId: "song-candidate-1",
+      title: "七里香",
+      artistName: "周杰伦",
+      language: "mandarin",
+      releaseYear: 2004,
+      switchFamily: "candidate-candidate-1",
+      defaultAssetId: "asset-candidate-1-instrumental",
+      assets: [
+        {
+          assetId: "asset-candidate-1-instrumental",
+          importFileId: "import-instrumental",
+          filePath: "songs/mandarin/周杰伦/七里香/instrumental.mp4",
+          vocalMode: "instrumental",
+          durationMs: 180000
+        }
+      ]
+    });
+
+    const songWrite = queries[0];
+    expect(songWrite?.text).toContain("artist_pinyin");
+    expect(songWrite?.text).toContain("artist_initials");
+    expect(songWrite?.values).toEqual(
+      expect.arrayContaining(["qilixiang", "qlx", "zhoujielun", "zjl"])
+    );
+  });
+
+  it("mirrors catalog search columns and indexes in migration and schemaSql", async () => {
+    const migrationSql = await readFile(new URL("../db/migrations/0005_catalog_search.sql", import.meta.url), "utf8");
+
+    for (const sql of [migrationSql, schemaSql]) {
+      expect(sql).toContain("CREATE EXTENSION IF NOT EXISTS pg_trgm");
+      expect(sql).toContain("artist_pinyin");
+      expect(sql).toContain("artist_initials");
+      expect(sql).toContain("songs_normalized_title_trgm_idx");
+      expect(sql).toContain("songs_artist_name_trgm_idx");
+      expect(sql).toContain("songs_title_pinyin_trgm_idx");
+      expect(sql).toContain("songs_title_initials_idx");
+      expect(sql).toContain("songs_artist_pinyin_trgm_idx");
+      expect(sql).toContain("songs_artist_initials_idx");
+      expect(sql).toContain("songs_aliases_gin_idx");
+      expect(sql).toContain("songs_search_hints_gin_idx");
+      expect(sql).toContain("assets_queueable_search_idx");
+    }
   });
 });
 
