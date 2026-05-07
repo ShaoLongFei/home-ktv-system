@@ -107,6 +107,49 @@ export interface Asset {
   updatedAt: string;
 }
 
+export type SongSearchMatchReason =
+  | "title"
+  | "artist"
+  | "normalized_title"
+  | "alias"
+  | "pinyin"
+  | "initials"
+  | "search_hint"
+  | "default";
+export type SongSearchQueueState = "not_queued" | "queued";
+
+export interface SongSearchVersionOption {
+  assetId: AssetId;
+  displayName: string;
+  sourceType: AssetSourceType;
+  sourceLabel: string;
+  durationMs: number;
+  qualityLabel: string;
+  isRecommended: boolean;
+}
+
+export interface SongSearchLocalResult {
+  songId: SongId;
+  title: string;
+  artistName: string;
+  language: Language;
+  matchReason: SongSearchMatchReason;
+  queueState: SongSearchQueueState;
+  versions: SongSearchVersionOption[];
+}
+
+export interface SongSearchOnlinePlaceholder {
+  status: "disabled";
+  message: string;
+  candidates: [];
+}
+
+export interface SongSearchResponse {
+  query: string;
+  local: SongSearchLocalResult[];
+  online: SongSearchOnlinePlaceholder;
+}
+
 export interface Room {
   id: RoomId;
   slug: string;
