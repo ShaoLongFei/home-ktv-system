@@ -3,6 +3,9 @@ export interface ApiConfig {
   databaseUrl: string;
   controllerBaseUrl?: string;
   mediaRoot: string;
+  onlineDemoReadyAssetId: string;
+  onlineProviderIds: readonly string[];
+  onlineProviderKillSwitchIds: readonly string[];
   publicBaseUrl: string;
   roomSlug: string;
   port: number;
@@ -10,7 +13,13 @@ export interface ApiConfig {
   scanIntervalMinutes: number;
 }
 
-export type ApiConfigInput = Omit<ApiConfig, "scanIntervalMinutes"> & {
+export type ApiConfigInput = Omit<
+  ApiConfig,
+  "onlineDemoReadyAssetId" | "onlineProviderIds" | "onlineProviderKillSwitchIds" | "scanIntervalMinutes"
+> & {
+  onlineDemoReadyAssetId?: string;
+  onlineProviderIds?: readonly string[];
+  onlineProviderKillSwitchIds?: readonly string[];
   scanIntervalMinutes?: number;
 };
 
@@ -46,6 +55,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
     databaseUrl: readString(env.DATABASE_URL),
     controllerBaseUrl: readString(env.CONTROLLER_BASE_URL),
     mediaRoot: readString(env.MEDIA_ROOT),
+    onlineDemoReadyAssetId: readString(env.ONLINE_DEMO_READY_ASSET_ID),
+    onlineProviderIds: readList(env.ONLINE_PROVIDER_IDS),
+    onlineProviderKillSwitchIds: readList(env.ONLINE_PROVIDER_KILL_SWITCH_IDS),
     publicBaseUrl: readString(env.PUBLIC_BASE_URL),
     roomSlug: readString(env.TV_ROOM_SLUG) || DEFAULT_ROOM_SLUG,
     port: readPort(env.PORT),
@@ -57,6 +69,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
 export function normalizeApiConfig(config: ApiConfigInput): ApiConfig {
   return {
     ...config,
+    onlineDemoReadyAssetId: config.onlineDemoReadyAssetId ?? "",
+    onlineProviderIds: config.onlineProviderIds ?? [],
+    onlineProviderKillSwitchIds: config.onlineProviderKillSwitchIds ?? [],
     scanIntervalMinutes: config.scanIntervalMinutes ?? DEFAULT_SCAN_INTERVAL_MINUTES
   };
 }
