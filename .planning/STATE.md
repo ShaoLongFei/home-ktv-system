@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 5 context gathered
-last_updated: "2026-05-07T10:22:22.218Z"
-last_activity: 2026-05-07 -- Phase 05 execution started
+last_updated: "2026-05-07T10:43:33.940Z"
+last_activity: 2026-05-07
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 23
-  completed_plans: 20
+  completed_plans: 21
   percent: 90
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-30)
 ## Current Position
 
 Phase: 05 (online-supplement-recovery) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 05
-Last activity: 2026-05-07 -- Phase 05 execution started
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-05-07
 
 Progress: [█████████░] 90%
 
@@ -56,6 +56,7 @@ Progress: [█████████░] 90%
 | Phase 04-search-song-selection P01 | 6min | 2 tasks | 12 files |
 | Phase 04-search-song-selection P02 | 9min | 2 tasks | 5 files |
 | Phase 04-search-song-selection P03 | 12min | 3 tasks | 10 files |
+| Phase 05 P01 | 18min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,9 @@ Recent decisions affecting current work:
 - [Phase 04-search-song-selection]: Backfill missing artist pinyin/initials inside PgSongRepository.searchFormalSongs so existing rows become searchable without a separate data script.
 - [Phase 04-search-song-selection]: Preserve defaultAssetId as add-queue fallback only; search version recommendations use D-12 quality/newness/display-name ordering.
 - [Phase 04-search-song-selection]: Expose Phase 5 online supplement only as a disabled placeholder response in Phase 4.
+- [Phase 05]: Made online supplement candidates first-class shared domain contracts with explicit task states.
+- [Phase 05]: Kept supplement selection in a dedicated candidate-task service instead of routing it through queue-entry commands.
+- [Phase 05]: Rendered mobile online candidates beneath local results and kept request-supplement separate from add-to-queue.
 
 ### Pending Todos
 
