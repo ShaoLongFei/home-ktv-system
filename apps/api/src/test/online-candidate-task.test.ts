@@ -10,7 +10,10 @@ import {
   mapCandidateTaskRow,
   PgCandidateTaskRepository
 } from "../modules/online/repositories/candidate-task-repository.js";
-import { CandidateTaskService } from "../modules/online/candidate-task-service.js";
+import {
+  CandidateTaskService,
+  type SelectedCandidateTaskProcessor
+} from "../modules/online/candidate-task-service.js";
 import { createProviderRegistry, type OnlineCandidateProvider } from "../modules/online/provider-registry.js";
 import { describe, expect, it, vi } from "vitest";
 
@@ -145,7 +148,7 @@ describe("candidate task lifecycle service", () => {
       registry: createProviderRegistry({
         enabledProviderIds: ["demo-provider"],
         killSwitchProviderIds: [],
-        providers: [createProvider({ id: "demo-provider" })]
+        providers: [createProvider({ id: "demo-provider", riskLabel: "risky" })]
       })
     });
     const [candidate] = await service.discoverCandidates({ roomId: "living-room", query: "七里香" });
@@ -235,6 +238,72 @@ describe("candidate task lifecycle service", () => {
     });
   });
 
+  it("triggers an attached selected-task processor for selected request and retry transitions only", async () => {
+    const repository = new InMemoryCandidateTaskRepository();
+    const service = new CandidateTaskService({
+      repository,
+      registry: createProviderRegistry({
+        enabledProviderIds: ["demo-provider"],
+        killSwitchProviderIds: [],
+        providers: [createProvider({ id: "demo-provider" })]
+      })
+    });
+    const processorCalls: Array<{ roomId: string; taskId: string }> = [];
+    const processor: SelectedCandidateTaskProcessor = {
+      processTask: vi.fn(async (input) => {
+        processorCalls.push(input);
+        return service.markReady(input.taskId, { readyAssetId: "asset-online-ready" });
+      })
+    };
+    service.attachSelectedTaskProcessor(processor);
+    const [candidate] = await service.discoverCandidates({ roomId: "living-room", query: "七里香" });
+
+    const requested = await service.requestSupplement({
+      roomId: "living-room",
+      provider: "demo-provider",
+      providerCandidateId: "remote-七里香"
+    });
+    await service.markFailed(candidate!.taskId!, { reason: "provider timeout" });
+    const retried = await service.retryTask({ roomId: "living-room", taskId: candidate!.taskId! });
+
+    expect(requested).toMatchObject({ status: "ready", readyAssetId: "asset-online-ready" });
+    expect(retried).toMatchObject({ status: "ready", readyAssetId: "asset-online-ready" });
+    expect(processor.processTask).toHaveBeenCalledTimes(2);
+    expect(processorCalls).toEqual([
+      { roomId: "living-room", taskId: candidate!.taskId! },
+      { roomId: "living-room", taskId: candidate!.taskId! }
+    ]);
+
+    const riskyRepository = new InMemoryCandidateTaskRepository();
+    const riskyService = new CandidateTaskService({
+      repository: riskyRepository,
+      registry: createProviderRegistry({
+        enabledProviderIds: ["demo-provider"],
+        killSwitchProviderIds: [],
+        providers: [createProvider({ id: "demo-provider" })]
+      })
+    });
+    const riskyProcessor: SelectedCandidateTaskProcessor = {
+      processTask: vi.fn(async () => null)
+    };
+    riskyService.attachSelectedTaskProcessor(riskyProcessor);
+    await riskyService.discoverCandidates({ roomId: "living-room", query: "七里香" });
+    await riskyRepository.transition("candidate-task-1", {
+      status: "discovered",
+      failureReason: null,
+      recentEvent: {},
+      readyAssetId: null
+    });
+
+    await riskyService.requestSupplement({
+      roomId: "living-room",
+      provider: "demo-provider",
+      providerCandidateId: "remote-七里香"
+    });
+
+    expect(riskyProcessor.processTask).not.toHaveBeenCalled();
+  });
+
   it("blocks killed providers in the cache worker before fetch begins", async () => {
     const repository = new InMemoryCandidateTaskRepository();
     const provider = createProvider({ id: "demo-provider" });
@@ -320,7 +389,7 @@ function createCandidateTaskRow(input: Partial<CandidateTaskRow> = {}): Candidat
   };
 }
 
-function createProvider(input: { id: string }): OnlineCandidateProvider {
+function createProvider(input: { id: string; canCache?: boolean; riskLabel?: OnlineCandidateCard["riskLabel"] }): OnlineCandidateProvider {
   const candidate: OnlineCandidateCard = {
     provider: input.id,
     providerCandidateId: "remote-七里香",
@@ -330,7 +399,7 @@ function createProvider(input: { id: string }): OnlineCandidateProvider {
     durationMs: 180000,
     candidateType: "mv",
     reliabilityLabel: "high",
-    riskLabel: "normal",
+    riskLabel: input.riskLabel ?? "normal",
     taskState: "discovered",
     taskId: null
   };
@@ -340,7 +409,7 @@ function createProvider(input: { id: string }): OnlineCandidateProvider {
     sourceLabel: "Demo Provider",
     capabilities: {
       canDiscover: true,
-      canCache: true
+      canCache: input.canCache ?? true
     },
     search: vi.fn(async () => [candidate]),
     prepareFetch: vi.fn(async () => ({

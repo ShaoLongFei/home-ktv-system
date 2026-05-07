@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { loadConfig, normalizeApiConfig } from "../config.js";
 import { createDemoOnlineProvider } from "../modules/online/demo-provider.js";
-import type { OnlineCandidateTask } from "@home-ktv/domain";
+import type { OnlineCandidateCard, OnlineCandidateTask } from "@home-ktv/domain";
 import { createServer } from "../server.js";
+import type { OnlineCandidateProvider } from "../modules/online/provider-registry.js";
 
 const now = new Date("2026-05-07T00:00:00.000Z").toISOString();
 
@@ -160,6 +161,103 @@ describe("createServer online runtime wiring", () => {
       await server.close();
     }
   });
+
+  it("runs the cache worker for selected demo tasks and keeps playback explicit", async () => {
+    const server = await createServer(
+      createRuntimeConfig({
+        onlineDemoReadyAssetId: "asset-online-ready",
+        onlineProviderIds: ["demo-local"]
+      })
+    );
+
+    try {
+      await server.inject({
+        method: "GET",
+        url: "/rooms/living-room/songs/search?q=ready-demo"
+      });
+      const cookie = await createControlSessionCookie(server);
+      const supplement = await requestSupplement(server, cookie, {
+        provider: "demo-local",
+        providerCandidateId: "demo-local-ready-demo"
+      });
+
+      expect(supplement.statusCode).toBe(200);
+      expect(supplement.json().task).toMatchObject({
+        status: "ready",
+        readyAssetId: "asset-online-ready",
+        recentEvent: {
+          type: "ready",
+          provider: "demo-local"
+        }
+      });
+
+      const admin = await server.inject({ method: "GET", url: "/admin/rooms/living-room" });
+      expect(admin.json().queue).toEqual([]);
+      expect(admin.json().onlineTasks.tasks).toEqual([
+        expect.objectContaining({
+          provider: "demo-local",
+          status: "ready",
+          readyAssetId: "asset-online-ready"
+        })
+      ]);
+      const snapshot = await server.inject({ method: "GET", url: "/rooms/living-room/snapshot" });
+      expect(snapshot.json().currentTarget).toBeNull();
+    } finally {
+      await server.close();
+    }
+  });
+
+  it("runs the cache worker again when an admin retries a failed online task", async () => {
+    const provider = createFailThenReadyProvider();
+    const server = await createServer(
+      createRuntimeConfig({
+        onlineProviderIds: [provider.id]
+      }),
+      { onlineProviders: [provider] }
+    );
+
+    try {
+      await server.inject({
+        method: "GET",
+        url: "/rooms/living-room/songs/search?q=flaky"
+      });
+      const cookie = await createControlSessionCookie(server);
+      const supplement = await requestSupplement(server, cookie, {
+        provider: provider.id,
+        providerCandidateId: "flaky-candidate"
+      });
+
+      expect(supplement.statusCode).toBe(200);
+      expect(supplement.json().task).toMatchObject({
+        status: "failed",
+        failureReason: "provider-temporary-failure"
+      });
+
+      const retry = await server.inject({
+        method: "POST",
+        url: `/admin/rooms/living-room/online-tasks/${supplement.json().task.id}/retry`
+      });
+
+      expect(retry.statusCode).toBe(200);
+      expect(retry.json().task).toMatchObject({
+        status: "ready",
+        readyAssetId: "asset-flaky-ready"
+      });
+      const admin = await server.inject({ method: "GET", url: "/admin/rooms/living-room" });
+      expect(admin.json().queue).toEqual([]);
+      expect(admin.json().onlineTasks.tasks).toEqual([
+        expect.objectContaining({
+          provider: provider.id,
+          status: "ready",
+          readyAssetId: "asset-flaky-ready"
+        })
+      ]);
+      const snapshot = await server.inject({ method: "GET", url: "/rooms/living-room/snapshot" });
+      expect(snapshot.json().currentTarget).toBeNull();
+    } finally {
+      await server.close();
+    }
+  });
 });
 
 function createTask(input: Partial<OnlineCandidateTask> = {}): OnlineCandidateTask {
@@ -223,10 +321,92 @@ async function seedPairingToken(server: Awaited<ReturnType<typeof createServer>>
   return response.json().pairing.token;
 }
 
+async function createControlSessionCookie(server: Awaited<ReturnType<typeof createServer>>): Promise<string> {
+  const pairingToken = await seedPairingToken(server);
+  const createdSession = await server.inject({
+    method: "POST",
+    url: "/rooms/living-room/control-sessions",
+    payload: {
+      pairingToken,
+      deviceId: "phone-a",
+      deviceName: "Phone A"
+    }
+  });
+  return extractControlSessionCookie(createdSession.headers["set-cookie"]);
+}
+
+async function requestSupplement(
+  server: Awaited<ReturnType<typeof createServer>>,
+  cookie: string,
+  input: { provider: string; providerCandidateId: string }
+) {
+  return server.inject({
+    method: "POST",
+    url: "/rooms/living-room/commands/request-supplement",
+    headers: { cookie },
+    payload: {
+      commandId: `command-request-${input.providerCandidateId}`,
+      sessionVersion: 1,
+      deviceId: "phone-a",
+      provider: input.provider,
+      providerCandidateId: input.providerCandidateId
+    }
+  });
+}
+
 function extractControlSessionCookie(setCookie: unknown): string {
   if (Array.isArray(setCookie)) {
     return String(setCookie[0] ?? "");
   }
 
   return String(setCookie ?? "");
+}
+
+function createFailThenReadyProvider(): OnlineCandidateProvider {
+  let verifyCalls = 0;
+  const candidate: OnlineCandidateCard = {
+    provider: "flaky-provider",
+    providerCandidateId: "flaky-candidate",
+    title: "flaky",
+    artistName: "Remote Artist",
+    sourceLabel: "Flaky Provider",
+    durationMs: 180000,
+    candidateType: "mv",
+    reliabilityLabel: "medium",
+    riskLabel: "normal",
+    taskState: "discovered",
+    taskId: null
+  };
+
+  return {
+    id: "flaky-provider",
+    sourceLabel: "Flaky Provider",
+    capabilities: {
+      canDiscover: true,
+      canCache: true
+    },
+    search: async () => [candidate],
+    prepareFetch: async ({ task }) => ({
+      cacheKey: `flaky-provider/${task.providerCandidateId}`,
+      metadata: {
+        provider: "flaky-provider"
+      }
+    }),
+    verify: async () => {
+      verifyCalls += 1;
+      if (verifyCalls === 1) {
+        return {
+          status: "failed",
+          reason: "provider-temporary-failure"
+        };
+      }
+      return {
+        status: "ready",
+        readyAssetId: "asset-flaky-ready",
+        metadata: {
+          provider: "flaky-provider"
+        }
+      };
+    }
+  };
 }
