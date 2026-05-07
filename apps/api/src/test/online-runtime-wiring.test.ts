@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { loadConfig, normalizeApiConfig } from "../config.js";
 import { createDemoOnlineProvider } from "../modules/online/demo-provider.js";
 import type { OnlineCandidateTask } from "@home-ktv/domain";
+import { createServer } from "../server.js";
 
 const now = new Date("2026-05-07T00:00:00.000Z").toISOString();
 
@@ -79,6 +80,88 @@ describe("demo online provider", () => {
   });
 });
 
+describe("createServer online runtime wiring", () => {
+  it("discovers candidates and persists supplement requests without queueing playback", async () => {
+    const server = await createServer(createRuntimeConfig({ onlineProviderIds: ["demo-local"] }));
+
+    try {
+      const search = await server.inject({
+        method: "GET",
+        url: "/rooms/living-room/songs/search?q=missing"
+      });
+
+      expect(search.statusCode).toBe(200);
+      expect(search.json().online).toMatchObject({
+        status: "available",
+        candidates: [
+          {
+            provider: "demo-local",
+            providerCandidateId: "demo-local-missing",
+            taskState: "discovered"
+          }
+        ]
+      });
+
+      const pairingToken = await seedPairingToken(server);
+      const createdSession = await server.inject({
+        method: "POST",
+        url: "/rooms/living-room/control-sessions",
+        payload: {
+          pairingToken,
+          deviceId: "phone-a",
+          deviceName: "Phone A"
+        }
+      });
+      const cookie = extractControlSessionCookie(createdSession.headers["set-cookie"]);
+      const supplement = await server.inject({
+        method: "POST",
+        url: "/rooms/living-room/commands/request-supplement",
+        headers: { cookie },
+        payload: {
+          commandId: "command-request-supplement",
+          sessionVersion: 1,
+          deviceId: "phone-a",
+          provider: "demo-local",
+          providerCandidateId: "demo-local-missing"
+        }
+      });
+
+      expect(supplement.statusCode).toBe(200);
+      expect(supplement.json()).toMatchObject({
+        status: "accepted",
+        task: {
+          provider: "demo-local",
+          providerCandidateId: "demo-local-missing",
+          status: "selected"
+        }
+      });
+
+      const admin = await server.inject({
+        method: "GET",
+        url: "/admin/rooms/living-room"
+      });
+      expect(admin.statusCode).toBe(200);
+      expect(admin.json().onlineTasks.tasks).toEqual([
+        expect.objectContaining({
+          provider: "demo-local",
+          providerCandidateId: "demo-local-missing",
+          status: "selected"
+        })
+      ]);
+
+      const snapshot = await server.inject({
+        method: "GET",
+        url: "/rooms/living-room/snapshot"
+      });
+      expect(snapshot.statusCode).toBe(200);
+      expect(snapshot.json().currentTarget).toBeNull();
+      expect(snapshot.json().queue).toEqual([]);
+    } finally {
+      await server.close();
+    }
+  });
+});
+
 function createTask(input: Partial<OnlineCandidateTask> = {}): OnlineCandidateTask {
   return {
     id: "task-demo-local",
@@ -110,4 +193,40 @@ function createTask(input: Partial<OnlineCandidateTask> = {}): OnlineCandidateTa
     purgedAt: null,
     ...input
   };
+}
+
+function createRuntimeConfig(input: {
+  onlineDemoReadyAssetId?: string;
+  onlineProviderIds?: readonly string[];
+  onlineProviderKillSwitchIds?: readonly string[];
+} = {}) {
+  return {
+    corsAllowedOrigins: [],
+    databaseUrl: "",
+    host: "0.0.0.0",
+    mediaRoot: "/media-root",
+    onlineDemoReadyAssetId: input.onlineDemoReadyAssetId ?? "",
+    onlineProviderIds: input.onlineProviderIds ?? [],
+    onlineProviderKillSwitchIds: input.onlineProviderKillSwitchIds ?? [],
+    port: 4000,
+    publicBaseUrl: "http://ktv.local",
+    roomSlug: "living-room"
+  };
+}
+
+async function seedPairingToken(server: Awaited<ReturnType<typeof createServer>>): Promise<string> {
+  const response = await server.inject({
+    method: "GET",
+    url: "/rooms/living-room/snapshot"
+  });
+
+  return response.json().pairing.token;
+}
+
+function extractControlSessionCookie(setCookie: unknown): string {
+  if (Array.isArray(setCookie)) {
+    return String(setCookie[0] ?? "");
+  }
+
+  return String(setCookie ?? "");
 }
