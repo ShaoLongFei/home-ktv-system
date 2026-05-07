@@ -9,7 +9,7 @@ import type {
   CatalogValidationResult,
   SongMetadataPatch
 } from "../songs/types.js";
-import type { RoomStatusResponse, RoomStatusRefreshResponse } from "../rooms/types.js";
+import type { RoomOnlineTaskActionResponse, RoomStatusResponse, RoomStatusRefreshResponse } from "../rooms/types.js";
 
 const adminDeviceIdStorageKey = "home_ktv_admin_device_id";
 
@@ -78,10 +78,26 @@ export async function fetchRoomStatus(roomSlug: string): Promise<RoomStatusRespo
   return fetchAdmin<RoomStatusResponse>(`/admin/rooms/${roomSlug}`);
 }
 
+export async function refreshRoomStatus(roomSlug: string): Promise<RoomStatusResponse> {
+  return fetchRoomStatus(roomSlug);
+}
+
 export async function refreshPairingToken(roomSlug: string): Promise<RoomStatusRefreshResponse> {
   return fetchAdmin<RoomStatusRefreshResponse>(`/admin/rooms/${roomSlug}/pairing-token/refresh`, {
     method: "POST"
   });
+}
+
+export async function retryFailedOnlineTask(roomSlug: string, taskId: string): Promise<RoomOnlineTaskActionResponse> {
+  return postRoomOnlineTaskAction(roomSlug, taskId, "retry");
+}
+
+export async function cleanFailedOnlineTask(roomSlug: string, taskId: string): Promise<RoomOnlineTaskActionResponse> {
+  return postRoomOnlineTaskAction(roomSlug, taskId, "clean");
+}
+
+export async function promoteOnlineTaskResource(roomSlug: string, taskId: string): Promise<RoomOnlineTaskActionResponse> {
+  return postRoomOnlineTaskAction(roomSlug, taskId, "promote");
 }
 
 export function getOrCreateAdminDeviceId(): string {
@@ -115,6 +131,17 @@ function adminUrl(path: string): string {
 
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${apiBaseUrl()}${normalizedPath}`;
+}
+
+function postRoomOnlineTaskAction(
+  roomSlug: string,
+  taskId: string,
+  action: "retry" | "clean" | "promote"
+): Promise<RoomOnlineTaskActionResponse> {
+  return fetchAdmin<RoomOnlineTaskActionResponse>(
+    `/admin/rooms/${encodeURIComponent(roomSlug)}/online-tasks/${encodeURIComponent(taskId)}/${action}`,
+    { method: "POST" }
+  );
 }
 
 function apiBaseUrl(): string {

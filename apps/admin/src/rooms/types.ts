@@ -95,6 +95,40 @@ export interface RoomStatusRefreshResponse {
   };
 }
 
+export interface RoomOnlineTaskActionResponse {
+  task: RoomOnlineTaskActionTask;
+}
+
+export interface RoomOnlineTaskActionTask {
+  id: string;
+  roomId: string;
+  provider: string;
+  providerCandidateId: string;
+  title: string;
+  artistName: string;
+  sourceLabel: string;
+  durationMs: number | null;
+  candidateType: string;
+  reliabilityLabel: string;
+  riskLabel: string;
+  status: string;
+  failureReason: string | null;
+  recentEvent: Record<string, unknown>;
+  providerPayload: Record<string, unknown>;
+  readyAssetId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  selectedAt: string | null;
+  reviewRequiredAt: string | null;
+  fetchingAt: string | null;
+  fetchedAt: string | null;
+  readyAt: string | null;
+  failedAt: string | null;
+  staleAt: string | null;
+  promotedAt: string | null;
+  purgedAt: string | null;
+}
+
 export interface RoomControlSnapshotMessage {
   type: "room.control.snapshot.updated";
   payload: RoomControlSnapshotPayload;
@@ -118,4 +152,6 @@ export interface RoomControlSnapshotPayload {
     vocalMode: string;
   } | null;
   queue: readonly RoomQueueEntryPreview[];
+  recentEvents?: RoomStatusResponse["recentEvents"];
+  onlineTasks?: RoomStatusResponse["onlineTasks"];
 }

@@ -216,6 +216,8 @@ function roomStatusFromSnapshot(snapshot: RoomControlSnapshotPayload, current: R
           vocalMode: snapshot.currentTarget.vocalMode
         }
       : null,
-    queue: snapshot.queue.map((entry) => ({ ...entry }))
+    queue: snapshot.queue.map((entry) => ({ ...entry })),
+    recentEvents: snapshot.recentEvents ?? current?.recentEvents ?? [],
+    onlineTasks: snapshot.onlineTasks ?? current?.onlineTasks ?? { counts: { total: 0 }, tasks: [] }
   };
 }
