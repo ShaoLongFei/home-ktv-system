@@ -9,6 +9,7 @@ import type {
   CatalogValidationResult,
   SongMetadataPatch
 } from "../songs/types.js";
+import type { RoomStatusResponse, RoomStatusRefreshResponse } from "../rooms/types.js";
 
 export async function fetchAdmin<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(adminUrl(path), {
@@ -69,6 +70,16 @@ export async function revalidateCatalogSong(songId: string): Promise<CatalogSong
 
 export async function validateCatalogSong(songId: string): Promise<CatalogValidationResult> {
   return fetchAdmin<CatalogValidationResult>(`/admin/catalog/songs/${songId}/validate`);
+}
+
+export async function fetchRoomStatus(roomSlug: string): Promise<RoomStatusResponse> {
+  return fetchAdmin<RoomStatusResponse>(`/admin/rooms/${roomSlug}`);
+}
+
+export async function refreshPairingToken(roomSlug: string): Promise<RoomStatusRefreshResponse> {
+  return fetchAdmin<RoomStatusRefreshResponse>(`/admin/rooms/${roomSlug}/pairing-token/refresh`, {
+    method: "POST"
+  });
 }
 
 function adminUrl(path: string): string {

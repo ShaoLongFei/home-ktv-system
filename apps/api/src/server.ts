@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import websocket from "@fastify/websocket";
 import { pathToFileURL } from "node:url";
 import { Pool } from "pg";
 import type { Asset, DeviceSession, PlaybackEvent, PlaybackSession, QueueEntry, Room, Song } from "@home-ktv/domain";
@@ -8,7 +9,11 @@ import { MediaPathResolver } from "./modules/assets/media-path-resolver.js";
 import { AssetGateway } from "./modules/assets/asset-gateway.js";
 import { CatalogAdmissionService, PgCatalogAdmissionWriter } from "./modules/catalog/admission-service.js";
 import { PgAssetRepository, type AssetRepository } from "./modules/catalog/repositories/asset-repository.js";
-import { PgSongRepository, type SongRepository } from "./modules/catalog/repositories/song-repository.js";
+import {
+  PgSongRepository,
+  type AdminCatalogSongRepository,
+  type SongRepository
+} from "./modules/catalog/repositories/song-repository.js";
 import { CandidateBuilder } from "./modules/ingest/candidate-builder.js";
 import { ImportScanner } from "./modules/ingest/import-scanner.js";
 import { resolveLibraryPaths } from "./modules/ingest/library-paths.js";
@@ -28,20 +33,29 @@ import type {
   UpdatePlaybackFactsInput,
   UpdatePlayerPositionInput
 } from "./modules/playback/repositories/playback-session-repository.js";
-import { PgQueueEntryRepository, type QueueEntryRepository } from "./modules/playback/repositories/queue-entry-repository.js";
+import { InMemoryQueueEntryRepository, PgQueueEntryRepository } from "./modules/playback/repositories/queue-entry-repository.js";
+import {
+  PgRoomSessionCommandRepository,
+  type RoomSessionCommandRecord,
+  type RoomSessionCommandRepository
+} from "./modules/playback/repositories/room-session-command-repository.js";
 import {
   InMemoryRoomPairingTokenRepository,
   PgRoomPairingTokenRepository
 } from "./modules/rooms/repositories/pairing-token-repository.js";
 import { PgRoomRepository, type RoomRepository } from "./modules/rooms/repositories/room-repository.js";
+import { RoomSnapshotBroadcaster } from "./modules/realtime/room-snapshot-broadcaster.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerCors } from "./routes/cors.js";
 import { registerAdminCatalogRoutes } from "./routes/admin-catalog.js";
 import { registerAdminImportRoutes } from "./routes/admin-imports.js";
 import { registerAdminRoomsRoutes } from "./routes/admin-rooms.js";
+import { registerAvailableSongsRoutes } from "./routes/available-songs.js";
+import { registerControlCommandRoutes } from "./routes/control-commands.js";
 import { registerControlSessionRoutes } from "./routes/control-sessions.js";
 import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
+import { registerRealtimeRoutes } from "./routes/realtime.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
 
 export interface CreateServerOptions {
@@ -91,6 +105,7 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     mediaPathResolver: new MediaPathResolver({ mediaRoot: resolvedConfig.mediaRoot }),
     publicBaseUrl: resolvedConfig.publicBaseUrl
   });
+  const broadcaster = new RoomSnapshotBroadcaster();
   const ingest =
     pool && resolvedConfig.mediaRoot
       ? createRuntimeIngest({
@@ -112,6 +127,7 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     });
   }
 
+  await server.register(websocket);
   await registerCors(server, { allowedOrigins: resolvedConfig.corsAllowedOrigins });
   await registerHealthRoutes(server, {
     config: resolvedConfig,
@@ -135,7 +151,13 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   await registerAdminRoomsRoutes(server, {
     config: resolvedConfig,
     rooms: repositories.rooms,
-    pairingTokens: repositories.pairingTokens
+    pairingTokens: repositories.pairingTokens,
+    playbackSessions: repositories.playbackSessions,
+    queueEntries: repositories.queueEntries,
+    assets: repositories.assets,
+    songs: repositories.songs,
+    controlSessions: repositories.controlSessions,
+    assetGateway
   });
   await registerRoomSnapshotRoutes(server, {
     config: resolvedConfig,
@@ -147,10 +169,29 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     repositories,
     assetGateway
   });
+  await registerRealtimeRoutes(server, {
+    config: resolvedConfig,
+    repositories,
+    assetGateway,
+    broadcaster
+  });
   await registerPlayerRoutes(server, {
     config: resolvedConfig,
     repositories,
+    assetGateway,
+    broadcaster
+  });
+  await registerAvailableSongsRoutes(server, {
+    rooms: repositories.rooms,
+    songs: repositories.songs,
+    assets: repositories.assets,
     assetGateway
+  });
+  await registerControlCommandRoutes(server, {
+    config: resolvedConfig,
+    repositories,
+    assetGateway,
+    broadcaster
   });
 
   return server;
@@ -161,7 +202,9 @@ function createPgPool(databaseUrl: string): Pool {
 }
 
 type RuntimeRepositories = PlayerRouteRepositories & {
+  songs: SongRepository & AdminCatalogSongRepository;
   controlSessions: ControlSessionRepository;
+  controlCommands: RoomSessionCommandRepository;
 };
 
 function createPgRepositories(pool: Pool): RuntimeRepositories {
@@ -175,6 +218,7 @@ function createPgRepositories(pool: Pool): RuntimeRepositories {
     songs: new PgSongRepository(pool),
     pairingTokens: new PgRoomPairingTokenRepository(pool),
     controlSessions: new PgControlSessionRepository(pool),
+    controlCommands: new PgRoomSessionCommandRepository(pool),
     deviceSessions: new PgPlayerDeviceSessionRepository(pool),
     playbackEvents: new PgPlaybackEventRepository(pool)
   };
@@ -240,16 +284,20 @@ class InMemoryRuntimeRepositories implements RuntimeRepositories {
     findVerifiedSwitchCounterparts: async () => []
   };
 
-  readonly songs: SongRepository = {
-    findById: async () => null
+  readonly songs: SongRepository & AdminCatalogSongRepository = {
+    findById: async () => null,
+    listFormalSongs: async () => [],
+    getFormalSongWithAssets: async () => null,
+    updateSongMetadata: async () => null,
+    updateDefaultAsset: async () => null,
+    updateSongStatus: async () => null
   };
 
   readonly pairingTokens = new InMemoryRoomPairingTokenRepository();
   readonly controlSessions = new InMemoryControlSessionRepository();
+  readonly controlCommands = new InMemoryRoomSessionCommandRepository();
 
-  readonly queueEntries: QueueEntryRepository = {
-    findById: async () => null
-  };
+  readonly queueEntries = new InMemoryQueueEntryRepository();
 
   readonly deviceSessions: PlayerDeviceSessionRepository = {
     findActiveTvPlayer: async (roomId, activeAfter) => this.findActiveTvPlayer(roomId, activeAfter),
@@ -263,6 +311,10 @@ class InMemoryRuntimeRepositories implements RuntimeRepositories {
 
   readonly playbackSessions = {
     findByRoomId: async (roomId: string) => this.findByRoomId(roomId),
+    startQueueEntry: async () => this.findByRoomId(this.room.id),
+    setIdle: async () => this.findByRoomId(this.room.id),
+    requestSwitchTarget: async () => this.findByRoomId(this.room.id),
+    bumpVersion: async () => this.bumpVersion(),
     updatePlayerPosition: async (input: UpdatePlayerPositionInput) => this.updatePlayerPosition(input),
     updatePlaybackFacts: async (input: UpdatePlaybackFactsInput) => this.updatePlaybackFacts(input)
   };
@@ -360,6 +412,15 @@ class InMemoryRuntimeRepositories implements RuntimeRepositories {
     return this.session;
   }
 
+  async bumpVersion(): Promise<PlaybackSession | null> {
+    this.session = {
+      ...this.session,
+      version: this.session.version + 1,
+      updatedAt: new Date().toISOString()
+    };
+    return this.session;
+  }
+
   async append<TPayload extends Record<string, unknown>>(input: {
     roomId: string;
     queueEntryId: string | null;
@@ -376,6 +437,49 @@ class InMemoryRuntimeRepositories implements RuntimeRepositories {
     };
     this.events.push(event);
     return event;
+  }
+}
+
+class InMemoryRoomSessionCommandRepository {
+  private readonly records = new Map<string, RoomSessionCommandRecord>();
+
+  async findCommand(commandId: string): Promise<RoomSessionCommandRecord | null> {
+    return this.records.get(commandId) ?? null;
+  }
+
+  async insertCommandAttempt(
+    input: Parameters<RoomSessionCommandRepository["insertCommandAttempt"]>[0]
+  ): Promise<RoomSessionCommandRecord> {
+    const record: RoomSessionCommandRecord = {
+      commandId: input.commandId,
+      roomId: input.roomId,
+      controlSessionId: input.controlSessionId,
+      sessionVersion: input.sessionVersion,
+      type: input.type,
+      payload: input.payload,
+      resultStatus: input.resultStatus,
+      resultPayload: input.resultPayload ?? {},
+      createdAt: new Date().toISOString()
+    };
+    this.records.set(record.commandId, record);
+    return { ...record };
+  }
+
+  async updateCommandResult(
+    input: Parameters<RoomSessionCommandRepository["updateCommandResult"]>[0]
+  ): Promise<RoomSessionCommandRecord | null> {
+    const existing = this.records.get(input.commandId);
+    if (!existing) {
+      return null;
+    }
+
+    const updated: RoomSessionCommandRecord = {
+      ...existing,
+      resultStatus: input.resultStatus,
+      resultPayload: input.resultPayload ?? {}
+    };
+    this.records.set(input.commandId, updated);
+    return { ...updated };
   }
 }
 

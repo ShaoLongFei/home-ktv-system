@@ -14,9 +14,11 @@
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@fastify/websocket": "11.2.0",
     "@home-ktv/domain": "workspace:*",
     "@home-ktv/player-contracts": "workspace:*",
     "@home-ktv/protocol": "workspace:*",
+    "@home-ktv/session-engine": "workspace:*",
     "chokidar": "5.0.0",
     "fastify": "5.8.5",
     "pg": "^8.20.0"

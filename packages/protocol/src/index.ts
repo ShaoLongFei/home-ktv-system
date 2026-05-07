@@ -14,14 +14,41 @@ export const playerTelemetryEventNames = {
   recoveryFallbackStartOver: "player.telemetry.recovery_fallback_start_over"
 } as const;
 
+export const controllerCommandNames = {
+  addQueueEntry: "controller.command.add_queue_entry",
+  deleteQueueEntry: "controller.command.delete_queue_entry",
+  undoDeleteQueueEntry: "controller.command.undo_delete_queue_entry",
+  promoteQueueEntry: "controller.command.promote_queue_entry",
+  skipCurrent: "controller.command.skip_current",
+  switchVocalMode: "controller.command.switch_vocal_mode"
+} as const;
+
 export const roomEventNames = {
-  snapshotUpdated: "room.snapshot.updated"
+  snapshotUpdated: "room.snapshot.updated",
+  controlSnapshotUpdated: "room.control.snapshot.updated"
 } as const;
 
 export const protocolMessageNames = {
   ...playerCommandNames,
   ...playerTelemetryEventNames,
-  ...roomEventNames
+  ...controllerCommandNames,
+  ...roomEventNames,
+  "player.bootstrap": "player.bootstrap",
+  "player.heartbeat": "player.heartbeat",
+  "player.telemetry.loading": "player.telemetry.loading",
+  "player.telemetry.playing": "player.telemetry.playing",
+  "player.telemetry.ended": "player.telemetry.ended",
+  "player.telemetry.failed": "player.telemetry.failed",
+  "player.telemetry.switch_failed": "player.telemetry.switch_failed",
+  "player.telemetry.recovery_fallback_start_over": "player.telemetry.recovery_fallback_start_over",
+  "controller.command.add_queue_entry": "controller.command.add_queue_entry",
+  "controller.command.delete_queue_entry": "controller.command.delete_queue_entry",
+  "controller.command.undo_delete_queue_entry": "controller.command.undo_delete_queue_entry",
+  "controller.command.promote_queue_entry": "controller.command.promote_queue_entry",
+  "controller.command.skip_current": "controller.command.skip_current",
+  "controller.command.switch_vocal_mode": "controller.command.switch_vocal_mode",
+  "room.snapshot.updated": "room.snapshot.updated",
+  "room.control.snapshot.updated": "room.control.snapshot.updated"
 } as const;
 
 export type PlayerCommandName = (typeof playerCommandNames)[keyof typeof playerCommandNames];

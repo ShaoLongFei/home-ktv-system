@@ -1,5 +1,5 @@
 {
-  "name": "@home-ktv/tv-player",
+  "name": "@home-ktv/mobile-controller",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,17 +12,19 @@
   },
   "dependencies": {
     "@home-ktv/player-contracts": "workspace:*",
-    "qrcode": "1.5.4",
+    "@home-ktv/protocol": "workspace:*",
+    "@tanstack/react-query": "5.100.6",
     "react": "19.2.5",
     "react-dom": "19.2.5"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
-    "@types/qrcode": "1.5.6",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.1",
     "happy-dom": "^20.9.0",
+    "typescript": "6.0.3",
     "vite": "8.0.10",
     "vitest": "^4.1.5"
   }

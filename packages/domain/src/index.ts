@@ -26,7 +26,15 @@ export type PlayerState = "idle" | "preparing" | "loading" | "playing" | "paused
 export type DeviceType = "tv" | "mobile";
 export type SwitchQualityStatus = "verified" | "review_required" | "rejected" | "unknown";
 export type RoomStatus = "active" | "inactive" | "maintenance";
-export type QueueEntryStatus = "queued" | "preparing" | "loading" | "playing" | "played" | "skipped" | "failed";
+export type QueueEntryStatus =
+  | "queued"
+  | "preparing"
+  | "loading"
+  | "playing"
+  | "played"
+  | "skipped"
+  | "failed"
+  | "removed";
 export type ControlCommandType =
   | "add-queue-entry"
   | "delete-queue-entry"
@@ -128,6 +136,9 @@ export interface QueueEntry {
   requestedAt: string;
   startedAt: string | null;
   endedAt: string | null;
+  removedAt: string | null;
+  removedByControlSessionId: ControlSessionId | null;
+  undoExpiresAt: string | null;
 }
 
 export interface PlaybackSession {

@@ -52,6 +52,15 @@ export class PlayerClient {
     return this.getJson<RoomSnapshot>(`/rooms/${encodeURIComponent(this.roomSlug)}/snapshot`);
   }
 
+  createSnapshotSocketUrl(): string {
+    const baseUrl = this.apiBaseUrl.replace(/^http:/u, "ws:").replace(/^https:/u, "wss:");
+    const params = new URLSearchParams({
+      deviceId: this.deviceId,
+      client: "tv"
+    });
+    return `${baseUrl}/rooms/${encodeURIComponent(this.roomSlug)}/realtime?${params.toString()}`;
+  }
+
   async sendHeartbeat(input: { currentQueueEntryId: string | null; playbackPositionMs: number; health?: "ok" | "degraded" | "blocked" }): Promise<void> {
     await this.postJson("/player/heartbeat", {
       roomSlug: this.roomSlug,

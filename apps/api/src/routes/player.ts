@@ -10,11 +10,16 @@ import { registerPlayer } from "../modules/player/register-player.js";
 import { ingestPlayerTelemetry } from "../modules/player/telemetry-service.js";
 import { applyReconnectRecovery } from "../modules/playback/apply-reconnect-recovery.js";
 import { applySwitchTransition } from "../modules/playback/apply-switch-transition.js";
+import { handlePlayerEnded } from "../modules/playback/session-command-service.js";
 import type { PlaybackEventRepository } from "../modules/playback/repositories/playback-event-repository.js";
 import type { PlaybackSessionRepository } from "../modules/playback/repositories/playback-session-repository.js";
+import type { RoomSessionCommandRepository } from "../modules/playback/repositories/room-session-command-repository.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomPairingTokenRepository } from "../modules/rooms/repositories/pairing-token-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
+import type { ControlSessionRepository } from "../modules/controller/repositories/control-session-repository.js";
+import type { RoomSnapshotBroadcaster } from "../modules/realtime/room-snapshot-broadcaster.js";
+import { buildRoomControlSnapshot } from "../modules/rooms/build-control-snapshot.js";
 import { buildRoomSnapshot } from "./room-snapshots.js";
 
 const telemetryKinds = new Set<PlayerTelemetryKind>([
@@ -38,12 +43,15 @@ export interface PlayerRouteRepositories {
   pairingTokens: RoomPairingTokenRepository;
   deviceSessions: PlayerDeviceSessionRepository;
   playbackEvents: PlaybackEventRepository;
+  controlSessions: ControlSessionRepository;
+  controlCommands: RoomSessionCommandRepository;
 }
 
 export interface PlayerRouteDependencies {
   config: ApiConfig;
   repositories: PlayerRouteRepositories;
   assetGateway: AssetGateway;
+  broadcaster?: RoomSnapshotBroadcaster;
 }
 
 interface BootstrapBody {
@@ -149,6 +157,10 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
       conflict: result.conflict
     });
 
+    if (result.status === "ok") {
+      await broadcastControlSnapshot(dependencies, roomSlug);
+    }
+
     await reply.send({ status: result.status, snapshot });
   });
 
@@ -164,6 +176,37 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
     const eventType = body.eventType;
     if (!eventType || !telemetryKinds.has(eventType)) {
       await reply.code(400).send({ code: "INVALID_TELEMETRY_EVENT" });
+      return;
+    }
+
+    if (eventType === "ended") {
+      const result = await handlePlayerEnded({
+        roomSlug,
+        deviceId: requiredString(body.deviceId, "deviceId"),
+        queueEntryId: requiredString(body.queueEntryId, "queueEntryId"),
+        assetId: requiredString(body.assetId, "assetId"),
+        playbackPositionMs: body.playbackPositionMs ?? 0,
+        sessionVersion: body.sessionVersion ?? 0,
+        playbackEvents: dependencies.repositories.playbackEvents,
+        repositories: dependencies.repositories,
+        assetGateway: dependencies.assetGateway,
+        config: dependencies.config
+      });
+      const snapshot = await buildRoomSnapshot({
+        roomSlug,
+        config: dependencies.config,
+        repositories: dependencies.repositories,
+        assetGateway: dependencies.assetGateway
+      });
+
+      if (result.snapshot) {
+        dependencies.broadcaster?.broadcastRoomSnapshot(roomSlug, result.snapshot);
+      }
+
+      await reply.send({
+        status: result.status === "accepted" ? "ok" : "error",
+        snapshot
+      });
       return;
     }
 
@@ -193,6 +236,8 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
       assetGateway: dependencies.assetGateway,
       notice: noticeFromTelemetry(eventType)
     });
+
+    await broadcastControlSnapshot(dependencies, roomSlug);
 
     await reply.send({ status: "ok", snapshot });
   });
@@ -226,6 +271,8 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
       notice: result.notice
     });
 
+    await broadcastControlSnapshot(dependencies, roomSlug);
+
     await reply.send({ ...result, snapshot });
   });
 }
@@ -254,4 +301,20 @@ function requiredString(value: string | undefined, fieldName: string): string {
   }
 
   return value;
+}
+
+async function broadcastControlSnapshot(dependencies: PlayerRouteDependencies, roomSlug: string): Promise<void> {
+  if (!dependencies.broadcaster) {
+    return;
+  }
+
+  const snapshot = await buildRoomControlSnapshot({
+    roomSlug,
+    config: dependencies.config,
+    repositories: dependencies.repositories,
+    assetGateway: dependencies.assetGateway
+  });
+  if (snapshot) {
+    dependencies.broadcaster.broadcastRoomSnapshot(roomSlug, snapshot);
+  }
 }

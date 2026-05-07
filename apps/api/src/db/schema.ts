@@ -31,7 +31,7 @@ export const enumValues = {
   assetStatus: ["ready", "caching", "failed", "unavailable", "stale", "promoted"],
   switchQualityStatus: ["verified", "review_required", "rejected", "unknown"],
   roomStatus: ["active", "inactive", "maintenance"],
-  queueEntryStatus: ["queued", "preparing", "loading", "playing", "played", "skipped", "failed"],
+  queueEntryStatus: ["queued", "preparing", "loading", "playing", "played", "skipped", "failed", "removed"],
   deviceType: ["tv", "mobile"],
   playerState: ["idle", "preparing", "loading", "playing", "paused", "recovering", "error"],
   importScanTrigger: ["manual", "scheduled", "watcher"],
@@ -112,6 +112,9 @@ export interface QueueEntryRow {
   requested_at: Date;
   started_at: Date | null;
   ended_at: Date | null;
+  removed_at: Date | null;
+  removed_by_control_session_id: string | null;
+  undo_expires_at: Date | null;
 }
 
 export interface DeviceSessionRow {
@@ -351,12 +354,15 @@ CREATE TABLE IF NOT EXISTS queue_entries (
   asset_id text NOT NULL REFERENCES assets(id) ON DELETE RESTRICT,
   requested_by text NOT NULL,
   queue_position integer NOT NULL,
-  status text NOT NULL CHECK (status IN ('queued', 'preparing', 'loading', 'playing', 'played', 'skipped', 'failed')),
+  status text NOT NULL CHECK (status IN ('queued', 'preparing', 'loading', 'playing', 'played', 'skipped', 'failed', 'removed')),
   priority integer NOT NULL DEFAULT 0,
   playback_options jsonb NOT NULL DEFAULT '{}'::jsonb,
   requested_at timestamptz NOT NULL DEFAULT now(),
   started_at timestamptz,
-  ended_at timestamptz
+  ended_at timestamptz,
+  removed_at timestamptz,
+  removed_by_control_session_id text,
+  undo_expires_at timestamptz
 );
 
 CREATE TABLE IF NOT EXISTS device_sessions (
@@ -404,6 +410,9 @@ ALTER TABLE rooms
 CREATE INDEX IF NOT EXISTS assets_song_switch_mode_idx ON assets(song_id, switch_family, vocal_mode);
 CREATE INDEX IF NOT EXISTS assets_ready_switch_idx ON assets(switch_family, vocal_mode, status, switch_quality_status);
 CREATE INDEX IF NOT EXISTS queue_entries_room_position_idx ON queue_entries(room_id, status, queue_position, priority);
+CREATE INDEX IF NOT EXISTS queue_entries_room_effective_position_idx
+  ON queue_entries(room_id, status, queue_position)
+  WHERE status IN ('queued', 'preparing', 'loading', 'playing');
 CREATE INDEX IF NOT EXISTS playback_events_room_created_idx ON playback_events(room_id, created_at DESC);
 
 INSERT INTO rooms (id, slug, name, status)
@@ -456,6 +465,10 @@ CREATE TABLE IF NOT EXISTS control_commands (
   result_payload jsonb NOT NULL DEFAULT '{}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE queue_entries
+  ADD CONSTRAINT queue_entries_removed_by_control_session_fk
+  FOREIGN KEY (removed_by_control_session_id) REFERENCES control_sessions(id) ON DELETE SET NULL;
 
 CREATE INDEX IF NOT EXISTS room_pairing_tokens_expiry_idx
   ON room_pairing_tokens(room_id, token_expires_at);

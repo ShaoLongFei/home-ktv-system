@@ -5,6 +5,7 @@ import { MediaPathResolver } from "../modules/assets/media-path-resolver.js";
 import type { AssetRepository } from "../modules/catalog/repositories/asset-repository.js";
 import { buildSwitchTarget } from "../modules/playback/build-switch-target.js";
 import type { BuildSwitchTargetRepositories } from "../modules/playback/build-switch-target.js";
+import type { AppendQueueEntryInput } from "../modules/playback/repositories/queue-entry-repository.js";
 
 const now = "2026-04-28T00:00:00.000Z";
 const livingRoom = createRoom("living-room");
@@ -86,11 +87,64 @@ function createRepositories(assets: Asset[]): BuildSwitchTargetRepositories {
     playbackSessions: {
       async findByRoomId(roomId) {
         return roomId === livingRoom.id ? createPlaybackSession() : null;
+      },
+      async startQueueEntry() {
+        return createPlaybackSession();
+      },
+      async setIdle() {
+        return createPlaybackSession();
+      },
+      async requestSwitchTarget() {
+        return createPlaybackSession();
       }
     },
     queueEntries: {
       async findById(queueEntryId) {
         return queueEntryId === "queue-current" ? createQueueEntry() : null;
+      },
+      async listEffectiveQueue() {
+        return [];
+      },
+      async listUndoableRemoved() {
+        return [];
+      },
+      async findCurrentForRoom() {
+        return null;
+      },
+      async append(input: AppendQueueEntryInput) {
+        return {
+          id: "queue-new",
+          roomId: input.roomId,
+          songId: input.songId,
+          assetId: input.assetId,
+          requestedBy: input.requestedBy,
+          queuePosition: input.queuePosition,
+          status: input.status ?? "queued",
+          priority: input.priority ?? 0,
+          playbackOptions: {
+            preferredVocalMode: null,
+            pitchSemitones: 0,
+            requireReadyAsset: true
+          },
+          requestedAt: (input.requestedAt ?? new Date()).toISOString(),
+          startedAt: input.startedAt ? input.startedAt.toISOString() : null,
+          endedAt: input.endedAt ? input.endedAt.toISOString() : null,
+          removedAt: input.removedAt ? input.removedAt.toISOString() : null,
+          removedByControlSessionId: input.removedByControlSessionId ?? null,
+          undoExpiresAt: input.undoExpiresAt ? input.undoExpiresAt.toISOString() : null
+        };
+      },
+      async markRemoved() {
+        return null;
+      },
+      async undoRemoved() {
+        return null;
+      },
+      async renumberQueue() {
+        return [];
+      },
+      async markCompleted() {
+        return null;
       }
     },
     assets: assetRepository
@@ -133,11 +187,11 @@ function createPlaybackSession(): PlaybackSession {
 }
 
 function createQueueEntry(): QueueEntry {
-  return {
-    id: "queue-current",
-    roomId: livingRoom.id,
-    songId: "song-main",
-    assetId: "asset-original",
+    return {
+      id: "queue-current",
+      roomId: livingRoom.id,
+      songId: "song-main",
+      assetId: "asset-original",
     requestedBy: "mobile",
     queuePosition: 1,
     status: "playing",
@@ -147,11 +201,14 @@ function createQueueEntry(): QueueEntry {
       pitchSemitones: 0,
       requireReadyAsset: true
     },
-    requestedAt: now,
-    startedAt: now,
-    endedAt: null
-  };
-}
+      requestedAt: now,
+      startedAt: now,
+      endedAt: null,
+      removedAt: null,
+      removedByControlSessionId: null,
+      undoExpiresAt: null
+    };
+  }
 
 function createAsset(
   id: string,

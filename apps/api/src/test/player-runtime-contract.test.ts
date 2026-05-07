@@ -12,6 +12,7 @@ import type {
   UpdatePlaybackFactsInput,
   UpdatePlayerPositionInput
 } from "../modules/playback/repositories/playback-session-repository.js";
+import type { AppendQueueEntryInput } from "../modules/playback/repositories/queue-entry-repository.js";
 
 const now = new Date("2026-04-28T00:00:00.000Z");
 const room = createRoom();
@@ -149,11 +150,64 @@ function createRecoveryRepositories(input: {
     playbackSessions: {
       async findByRoomId(roomId: string) {
         return roomId === room.id ? input.session : null;
+      },
+      async startQueueEntry() {
+        return input.session;
+      },
+      async setIdle() {
+        return input.session;
+      },
+      async requestSwitchTarget() {
+        return input.session;
       }
     },
     queueEntries: {
       async findById(queueEntryId: string) {
         return queueEntryId === queueEntry.id ? queueEntry : null;
+      },
+      async listEffectiveQueue() {
+        return [];
+      },
+      async listUndoableRemoved() {
+        return [];
+      },
+      async findCurrentForRoom() {
+        return null;
+      },
+      async append(input: AppendQueueEntryInput) {
+        return {
+          id: "queue-new",
+          roomId: input.roomId,
+          songId: input.songId,
+          assetId: input.assetId,
+          requestedBy: input.requestedBy,
+          queuePosition: input.queuePosition,
+          status: input.status ?? "queued",
+          priority: input.priority ?? 0,
+          playbackOptions: {
+            preferredVocalMode: null,
+            pitchSemitones: 0,
+            requireReadyAsset: true
+          },
+          requestedAt: (input.requestedAt ?? new Date()).toISOString(),
+          startedAt: input.startedAt ? input.startedAt.toISOString() : null,
+          endedAt: input.endedAt ? input.endedAt.toISOString() : null,
+          removedAt: input.removedAt ? input.removedAt.toISOString() : null,
+          removedByControlSessionId: input.removedByControlSessionId ?? null,
+          undoExpiresAt: input.undoExpiresAt ? input.undoExpiresAt.toISOString() : null
+        };
+      },
+      async markRemoved() {
+        return null;
+      },
+      async undoRemoved() {
+        return null;
+      },
+      async renumberQueue() {
+        return [];
+      },
+      async markCompleted() {
+        return null;
       }
     },
     assets: {
@@ -299,11 +353,11 @@ function createPlaybackSession(playerPositionMs: number): PlaybackSession {
 }
 
 function createQueueEntry(assetId: string): QueueEntry {
-  return {
-    id: "queue-current",
-    roomId: room.id,
-    songId: "song-main",
-    assetId,
+    return {
+      id: "queue-current",
+      roomId: room.id,
+      songId: "song-main",
+      assetId,
     requestedBy: "mobile",
     queuePosition: 1,
     status: "playing",
@@ -313,11 +367,14 @@ function createQueueEntry(assetId: string): QueueEntry {
       pitchSemitones: 0,
       requireReadyAsset: true
     },
-    requestedAt: now.toISOString(),
-    startedAt: now.toISOString(),
-    endedAt: null
-  };
-}
+      requestedAt: now.toISOString(),
+      startedAt: now.toISOString(),
+      endedAt: null,
+      removedAt: null,
+      removedByControlSessionId: null,
+      undoExpiresAt: null
+    };
+  }
 
 function createSong(): Song {
   return {

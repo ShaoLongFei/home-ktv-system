@@ -9,8 +9,33 @@ import type {
 import type { QueryExecutor } from "../../../db/query-executor.js";
 import type { PlaybackSessionRow } from "../../../db/schema.js";
 
+export interface StartQueueEntryInput {
+  roomId: RoomId;
+  queueEntryId: QueueEntryId;
+  activeAssetId: AssetId;
+  targetVocalMode?: VocalMode;
+  playerState?: PlayerState;
+  playerPositionMs?: number;
+  nextQueueEntryId?: QueueEntryId | null;
+  mediaStartedAt?: Date | null;
+}
+
+export interface SetIdleInput {
+  roomId: RoomId;
+}
+
+export interface RequestSwitchTargetInput {
+  roomId: RoomId;
+  targetVocalMode: VocalMode;
+  playerPositionMs?: number;
+}
+
 export interface PlaybackSessionRepository {
   findByRoomId(roomId: RoomId): Promise<PlaybackSession | null>;
+  startQueueEntry(input: StartQueueEntryInput): Promise<PlaybackSession | null>;
+  setIdle(roomId: RoomId): Promise<PlaybackSession | null>;
+  requestSwitchTarget(input: RequestSwitchTargetInput): Promise<PlaybackSession | null>;
+  bumpVersion?(roomId: RoomId): Promise<PlaybackSession | null>;
 }
 
 export interface UpdatePlayerPositionInput {
@@ -55,6 +80,97 @@ export class PgPlaybackSessionRepository implements PlaybackSessionRepository {
        FROM playback_sessions
        WHERE room_id = $1
        LIMIT 1`,
+      [roomId]
+    );
+
+    const row = result.rows[0];
+    return row ? mapPlaybackSessionRow(row) : null;
+  }
+
+  async startQueueEntry(input: StartQueueEntryInput): Promise<PlaybackSession | null> {
+    const result = await this.db.query<PlaybackSessionRow>(
+      `UPDATE playback_sessions
+       SET current_queue_entry_id = $2,
+           active_asset_id = $3,
+           target_vocal_mode = COALESCE($4, target_vocal_mode),
+           player_state = COALESCE($5, 'playing'),
+           player_position_ms = COALESCE($6, 0),
+           next_queue_entry_id = $7,
+           media_started_at = COALESCE($8, CASE
+             WHEN COALESCE($5, 'playing') = 'playing' THEN now()
+             ELSE media_started_at
+           END),
+           version = version + 1,
+           updated_at = now()
+       WHERE room_id = $1
+       RETURNING room_id, current_queue_entry_id, active_asset_id, target_vocal_mode,
+                 player_state, player_position_ms, next_queue_entry_id, version,
+                 media_started_at, updated_at`,
+      [
+        input.roomId,
+        input.queueEntryId,
+        input.activeAssetId,
+        input.targetVocalMode ?? null,
+        input.playerState ?? null,
+        input.playerPositionMs ?? 0,
+        input.nextQueueEntryId ?? null,
+        input.mediaStartedAt ?? null
+      ]
+    );
+
+    const row = result.rows[0];
+    return row ? mapPlaybackSessionRow(row) : null;
+  }
+
+  async setIdle(roomId: RoomId): Promise<PlaybackSession | null> {
+    const result = await this.db.query<PlaybackSessionRow>(
+      `UPDATE playback_sessions
+       SET current_queue_entry_id = NULL,
+           active_asset_id = NULL,
+           next_queue_entry_id = NULL,
+           player_state = 'idle',
+           player_position_ms = 0,
+           media_started_at = NULL,
+           version = version + 1,
+           updated_at = now()
+       WHERE room_id = $1
+       RETURNING room_id, current_queue_entry_id, active_asset_id, target_vocal_mode,
+                 player_state, player_position_ms, next_queue_entry_id, version,
+                 media_started_at, updated_at`,
+      [roomId]
+    );
+
+    const row = result.rows[0];
+    return row ? mapPlaybackSessionRow(row) : null;
+  }
+
+  async requestSwitchTarget(input: RequestSwitchTargetInput): Promise<PlaybackSession | null> {
+    const result = await this.db.query<PlaybackSessionRow>(
+      `UPDATE playback_sessions
+       SET target_vocal_mode = $2,
+           player_position_ms = COALESCE($3, player_position_ms),
+           version = version + 1,
+           updated_at = now()
+       WHERE room_id = $1
+       RETURNING room_id, current_queue_entry_id, active_asset_id, target_vocal_mode,
+                 player_state, player_position_ms, next_queue_entry_id, version,
+                 media_started_at, updated_at`,
+      [input.roomId, input.targetVocalMode, input.playerPositionMs ?? null]
+    );
+
+    const row = result.rows[0];
+    return row ? mapPlaybackSessionRow(row) : null;
+  }
+
+  async bumpVersion(roomId: RoomId): Promise<PlaybackSession | null> {
+    const result = await this.db.query<PlaybackSessionRow>(
+      `UPDATE playback_sessions
+       SET version = version + 1,
+           updated_at = now()
+       WHERE room_id = $1
+       RETURNING room_id, current_queue_entry_id, active_asset_id, target_vocal_mode,
+                 player_state, player_position_ms, next_queue_entry_id, version,
+                 media_started_at, updated_at`,
       [roomId]
     );
 

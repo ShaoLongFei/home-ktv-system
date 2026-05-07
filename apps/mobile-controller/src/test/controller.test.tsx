@@ -1,0 +1,472 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import type { RoomControlSnapshot } from "@home-ktv/player-contracts";
+import {
+  addQueueEntry,
+  deleteQueueEntry,
+  getOrCreateDeviceId,
+  promoteQueueEntry,
+  skipCurrent,
+  switchVocalMode,
+  undoDeleteQueueEntry
+} from "../api/client.js";
+import { App } from "../App.js";
+import { fallbackPollingIntervalMs, sessionRefreshIntervalMs } from "../runtime/use-room-controller.js";
+
+type RequestRecord = {
+  url: string;
+  method: string;
+  body: unknown;
+};
+
+beforeEach(() => {
+  vi.stubGlobal("localStorage", createMemoryStorage());
+  vi.stubGlobal("crypto", { randomUUID: () => "test-uuid" });
+  window.history.pushState({}, "", "/controller?room=living-room");
+});
+
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
+
+describe("mobile controller API client", () => {
+  it("stores only home_ktv_device_id and never stores pairing or control tokens", () => {
+    const deviceId = getOrCreateDeviceId();
+
+    expect(deviceId).toMatch(/^mobile-/u);
+    expect(localStorage.getItem("home_ktv_device_id")).toBe(deviceId);
+    expect(Object.keys(localStorage)).toEqual(["home_ktv_device_id"]);
+  });
+
+  it("sends commandId, sessionVersion, and deviceId with all command helpers", async () => {
+    const { requests } = installFetchMock();
+    const base = {
+      roomSlug: "living-room",
+      deviceId: "phone-1",
+      sessionVersion: 7
+    };
+
+    await addQueueEntry({ ...base, songId: "song-1" });
+    await deleteQueueEntry({ ...base, queueEntryId: "queue-1" });
+    await undoDeleteQueueEntry({ ...base, queueEntryId: "queue-1" });
+    await promoteQueueEntry({ ...base, queueEntryId: "queue-2" });
+    await skipCurrent({ ...base, confirmSkip: true });
+    await switchVocalMode({ ...base, playbackPositionMs: 1234 });
+
+    expect(requests.map((request) => request.url)).toEqual([
+      "/rooms/living-room/commands/add-queue-entry",
+      "/rooms/living-room/commands/delete-queue-entry",
+      "/rooms/living-room/commands/undo-delete-queue-entry",
+      "/rooms/living-room/commands/promote-queue-entry",
+      "/rooms/living-room/commands/skip-current",
+      "/rooms/living-room/commands/switch-vocal-mode"
+    ]);
+    for (const request of requests) {
+      expect(request.method).toBe("POST");
+      expect(request.body).toMatchObject({
+        commandId: expect.stringMatching(/^mobile-command-/u),
+        sessionVersion: 7,
+        deviceId: "phone-1"
+      });
+    }
+  });
+});
+
+describe("mobile controller runtime", () => {
+  it("tries cookie restore before token exchange and removes token after success", async () => {
+    window.history.pushState({}, "", "/controller?room=living-room&token=pair-token");
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json({ code: "CONTROL_SESSION_REQUIRED" }, 401)],
+      createResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    expect(await screen.findByText("电视在线")).toBeTruthy();
+    expect(requests.slice(0, 2).map((request) => `${request.method} ${request.url}`)).toEqual([
+      "GET /rooms/living-room/control-session?deviceId=mobile-test-uuid",
+      "POST /rooms/living-room/control-sessions"
+    ]);
+    expect(window.location.search).toBe("?room=living-room");
+  });
+
+  it("falls back to cookie restore when token exchange returns INVALID_PAIRING_TOKEN", async () => {
+    window.history.pushState({}, "", "/controller?room=living-room&token=expired-token");
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json({ code: "CONTROL_SESSION_REQUIRED" }, 401), json(sessionResponse(roomSnapshot()))],
+      createResponses: [json({ code: "INVALID_PAIRING_TOKEN" }, 401)]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    expect(await screen.findByText("电视在线")).toBeTruthy();
+    expect(requests.slice(0, 3).map((request) => `${request.method} ${request.url}`)).toEqual([
+      "GET /rooms/living-room/control-session?deviceId=mobile-test-uuid",
+      "POST /rooms/living-room/control-sessions",
+      "GET /rooms/living-room/control-session?deviceId=mobile-test-uuid"
+    ]);
+    expect(window.location.search).toBe("?room=living-room");
+  });
+
+  it("shows reconnect state and polls every 5000ms after WebSocket disconnect", async () => {
+    vi.useFakeTimers();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot())), json(sessionResponse(roomSnapshot({ sessionVersion: 2 })))]
+    });
+    const sockets = installWebSocketMock();
+
+    render(<App />);
+    await flush();
+    expect(screen.getByText("电视在线")).toBeTruthy();
+    sockets[0]?.emitOpen();
+    sockets[0]?.emitClose();
+
+    await flush();
+    expect(screen.getByText("连接中断，正在重连")).toBeTruthy();
+    await vi.advanceTimersByTimeAsync(fallbackPollingIntervalMs);
+    expect(requests.filter((request) => request.url.includes("/control-session")).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("refreshes the httpOnly cookie Max-Age every 15 minutes while WebSocket is connected", async () => {
+    vi.useFakeTimers();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot())), json(sessionResponse(roomSnapshot({ sessionVersion: 2 })))]
+    });
+    const sockets = installWebSocketMock();
+
+    render(<App />);
+    await flush();
+    expect(screen.getByText("电视在线")).toBeTruthy();
+    sockets[0]?.emitOpen();
+    await vi.advanceTimersByTimeAsync(sessionRefreshIntervalMs);
+    expect(requests.filter((request) => request.url.includes("/control-session")).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("confirms skip before sending confirmSkip true", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      commandResponses: {
+        "/rooms/living-room/commands/skip-current": json({ status: "accepted", snapshot: roomSnapshot({ sessionVersion: 2 }) })
+      }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+    await screen.findByText("七里香");
+    await user.click(screen.getByRole("button", { name: "切歌" }));
+    expect(screen.getByRole("dialog", { name: "确认切歌" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "确认" }));
+    await flush();
+
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/skip-current")).toBe(true);
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/skip-current")?.body).toMatchObject({
+      confirmSkip: true
+    });
+  });
+
+  it("deletes immediately and shows undo only from server undoExpiresAt", async () => {
+    const user = userEvent.setup();
+    const undoExpiresAt = "2026-05-04T10:01:00.000Z";
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      commandResponses: {
+        "/rooms/living-room/commands/delete-queue-entry": json({
+          status: "accepted",
+          snapshot: roomSnapshot({ queueUndoExpiresAt: undoExpiresAt, queueStatus: "removed", sessionVersion: 2 }),
+          undo: { queueEntryId: "queue-next", undoExpiresAt }
+        }),
+        "/rooms/living-room/commands/undo-delete-queue-entry": json({
+          status: "accepted",
+          snapshot: roomSnapshot({ sessionVersion: 3 })
+        })
+      }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+    await screen.findByText("下一首");
+    expect(screen.queryByRole("button", { name: "撤销" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "删除" }));
+
+    expect(await screen.findByRole("button", { name: "撤销" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "撤销" }));
+    await flush();
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/undo-delete-queue-entry")).toBe(true);
+  });
+
+  it("sends vocal switch immediately without confirmation", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      commandResponses: {
+        "/rooms/living-room/commands/switch-vocal-mode": json({
+          status: "accepted",
+          snapshot: roomSnapshot({ sessionVersion: 2 })
+        })
+      }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+    await screen.findByRole("button", { name: "切到原唱" });
+    await user.click(screen.getByRole("button", { name: "切到原唱" }));
+    await flush();
+
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/switch-vocal-mode")).toBe(true);
+    expect(screen.queryByRole("dialog", { name: "确认切歌" })).toBeNull();
+  });
+});
+
+function installFetchMock() {
+  const requests: RequestRecord[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const requestUrl = new URL(String(input), "http://controller.test");
+      requests.push({
+        url: `${requestUrl.pathname}${requestUrl.search}`,
+        method: init?.method ?? "GET",
+        body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined
+      });
+      return new Response(JSON.stringify({ status: "accepted", sessionVersion: 8, snapshot: null }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200
+      });
+    })
+  );
+  return { requests };
+}
+
+async function flush() {
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+  });
+}
+
+function installControllerFetchMock(options: {
+  restoreResponses?: Response[];
+  createResponses?: Response[];
+  commandResponses?: Record<string, Response>;
+} = {}) {
+  const requests: RequestRecord[] = [];
+  const restoreResponses = [...(options.restoreResponses ?? [json(sessionResponse(roomSnapshot()))])];
+  const createResponses = [...(options.createResponses ?? [json(sessionResponse(roomSnapshot()))])];
+  const commandResponses = options.commandResponses ?? {};
+
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const requestUrl = new URL(String(input), "http://controller.test");
+      const url = `${requestUrl.pathname}${requestUrl.search}`;
+      const method = init?.method ?? "GET";
+      const body = typeof init?.body === "string" ? JSON.parse(init.body) : undefined;
+      requests.push({ url, method, body });
+
+      if (method === "GET" && requestUrl.pathname.endsWith("/control-session")) {
+        return restoreResponses.shift() ?? json(sessionResponse(roomSnapshot()));
+      }
+
+      if (method === "POST" && requestUrl.pathname.endsWith("/control-sessions")) {
+        return createResponses.shift() ?? json(sessionResponse(roomSnapshot()));
+      }
+
+      if (method === "GET" && requestUrl.pathname.endsWith("/available-songs")) {
+        return json({
+          songs: [{ songId: "song-ready", title: "晴天", artistName: "周杰伦", language: "mandarin", defaultAssetId: "asset-ready", durationMs: 180000 }]
+        });
+      }
+
+      const commandResponse = commandResponses[requestUrl.pathname];
+      if (method === "POST" && commandResponse) {
+        return commandResponse;
+      }
+
+      if (method === "POST" && requestUrl.pathname.includes("/commands/")) {
+        return json({ status: "accepted", snapshot: roomSnapshot({ sessionVersion: 2 }) });
+      }
+
+      return json({ code: "NOT_FOUND" }, 404);
+    })
+  );
+
+  return { requests };
+}
+
+class FakeWebSocket {
+  onopen: (() => void) | null = null;
+  onmessage: ((event: { data: string }) => void) | null = null;
+  onclose: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+
+  constructor(readonly url: string) {}
+
+  close(): void {}
+
+  emitOpen(): void {
+    this.onopen?.();
+  }
+
+  emitClose(): void {
+    this.onclose?.();
+  }
+
+  emitSnapshot(snapshot: RoomControlSnapshot): void {
+    this.onmessage?.({
+      data: JSON.stringify({
+        type: "room.control.snapshot.updated",
+        payload: snapshot
+      })
+    });
+  }
+}
+
+function installWebSocketMock(): FakeWebSocket[] {
+  const sockets: FakeWebSocket[] = [];
+  vi.stubGlobal(
+    "WebSocket",
+    class extends FakeWebSocket {
+      constructor(url: string) {
+        super(url);
+        sockets.push(this);
+      }
+    }
+  );
+  return sockets;
+}
+
+function sessionResponse(snapshot: RoomControlSnapshot) {
+  return {
+    controlSession: {
+      id: "control-session-1",
+      roomId: "living-room",
+      roomSlug: "living-room",
+      deviceId: "mobile-test-uuid",
+      deviceName: "Phone",
+      expiresAt: "2026-05-04T12:00:00.000Z",
+      lastSeenAt: "2026-05-04T10:00:00.000Z"
+    },
+    snapshot
+  };
+}
+
+function roomSnapshot(options: {
+  queueStatus?: "queued" | "removed";
+  queueUndoExpiresAt?: string | null;
+  sessionVersion?: number;
+} = {}): RoomControlSnapshot {
+  const queueStatus = options.queueStatus ?? "queued";
+  return {
+    type: "room.control.snapshot",
+    roomId: "living-room",
+    roomSlug: "living-room",
+    sessionVersion: options.sessionVersion ?? 1,
+    state: "playing",
+    pairing: {
+      roomSlug: "living-room",
+      controllerUrl: "http://ktv.local/controller?room=living-room",
+      qrPayload: "http://ktv.local/controller?room=living-room",
+      token: "token",
+      tokenExpiresAt: "2026-05-04T10:10:00.000Z"
+    },
+    tvPresence: { online: true, deviceName: "TV", lastSeenAt: "2026-05-04T10:00:00.000Z", conflict: null },
+    controllers: { onlineCount: 1 },
+    currentTarget: {
+      roomId: "living-room",
+      sessionVersion: options.sessionVersion ?? 1,
+      queueEntryId: "queue-current",
+      assetId: "asset-current",
+      currentQueueEntryPreview: { queueEntryId: "queue-current", songTitle: "七里香", artistName: "周杰伦" },
+      playbackUrl: "http://ktv.local/media/asset-current",
+      resumePositionMs: 1234,
+      vocalMode: "instrumental",
+      switchFamily: "family-main",
+      nextQueueEntryPreview: { queueEntryId: "queue-next", songTitle: "下一首", artistName: "歌手" }
+    },
+    switchTarget: {
+      roomId: "living-room",
+      sessionVersion: options.sessionVersion ?? 1,
+      queueEntryId: "queue-current",
+      fromAssetId: "asset-current",
+      toAssetId: "asset-original",
+      playbackUrl: "http://ktv.local/media/asset-original",
+      switchFamily: "family-main",
+      vocalMode: "original",
+      resumePositionMs: 1234,
+      rollbackAssetId: "asset-current"
+    },
+    queue: [
+      {
+        queueEntryId: "queue-next",
+        songId: "song-next",
+        assetId: "asset-next",
+        songTitle: "下一首",
+        artistName: "歌手",
+        requestedBy: "phone-1",
+        queuePosition: 2,
+        status: queueStatus,
+        canPromote: queueStatus === "queued",
+        canDelete: queueStatus === "queued",
+        undoExpiresAt: options.queueUndoExpiresAt ?? null
+      }
+    ],
+    notice: null,
+    generatedAt: "2026-05-04T10:00:00.000Z"
+  };
+}
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    headers: { "Content-Type": "application/json" },
+    status
+  });
+}
+
+function createMemoryStorage(): Storage {
+  const values = new Map<string, string>();
+  const storage = {};
+  Object.defineProperties(storage, {
+    length: {
+      get() {
+        return values.size;
+      }
+    },
+    clear: {
+      value() {
+        values.clear();
+      }
+    },
+    getItem: {
+      value(key: string) {
+        return values.get(key) ?? null;
+      }
+    },
+    key: {
+      value(index: number) {
+        return [...values.keys()][index] ?? null;
+      }
+    },
+    removeItem: {
+      value(key: string) {
+        values.delete(key);
+      }
+    },
+    setItem: {
+      value(key: string, value: string) {
+        values.set(key, value);
+        Object.defineProperty(storage, key, {
+          configurable: true,
+          enumerable: true,
+          value
+        });
+      }
+    }
+  });
+  return storage as Storage;
+}

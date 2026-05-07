@@ -60,6 +60,28 @@ describe("PlayerClient", () => {
 
     expect(client.deviceId).toBe("web-tv-uat-second");
   });
+
+  it("builds a TV realtime WebSocket URL from an HTTP API base", () => {
+    const client = new PlayerClient({
+      apiBaseUrl: "http://192.168.5.58:4000",
+      deviceId: "tv-active",
+      deviceName: "Living Room TV",
+      roomSlug: "living-room"
+    });
+
+    expect(client.createSnapshotSocketUrl()).toBe("ws://192.168.5.58:4000/rooms/living-room/realtime?deviceId=tv-active&client=tv");
+  });
+
+  it("builds a secure TV realtime WebSocket URL from an HTTPS API base", () => {
+    const client = new PlayerClient({
+      apiBaseUrl: "https://ktv.local",
+      deviceId: "tv active",
+      deviceName: "Living Room TV",
+      roomSlug: "living-room"
+    });
+
+    expect(client.createSnapshotSocketUrl()).toBe("wss://ktv.local/rooms/living-room/realtime?deviceId=tv+active&client=tv");
+  });
 });
 
 function roomSnapshot(): RoomSnapshot {
