@@ -555,6 +555,42 @@ describe("mobile controller runtime", () => {
     const user = userEvent.setup();
     const { requests } = installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      commandResponses: {
+        "/rooms/living-room/commands/request-supplement": json({
+          status: "accepted",
+          commandId: "mobile-command-test",
+          sessionVersion: 2,
+          task: {
+            id: "task-1",
+            roomId: "living-room",
+            provider: "demo-provider",
+            providerCandidateId: "remote-qilixiang",
+            title: "七里香",
+            artistName: "周杰伦",
+            sourceLabel: "Demo Provider",
+            durationMs: 180000,
+            candidateType: "mv",
+            reliabilityLabel: "high",
+            riskLabel: "normal",
+            status: "ready",
+            failureReason: null,
+            recentEvent: { type: "ready" },
+            providerPayload: {},
+            readyAssetId: "asset-ready-online",
+            createdAt: "2026-05-04T10:00:00.000Z",
+            updatedAt: "2026-05-04T10:00:01.000Z",
+            selectedAt: "2026-05-04T10:00:00.500Z",
+            reviewRequiredAt: null,
+            fetchingAt: "2026-05-04T10:00:00.600Z",
+            fetchedAt: "2026-05-04T10:00:00.700Z",
+            readyAt: "2026-05-04T10:00:01.000Z",
+            failedAt: null,
+            staleAt: null,
+            promotedAt: null,
+            purgedAt: null
+          }
+        })
+      },
       songSearchResponse: (query) => ({
         query,
         local: [],
@@ -592,6 +628,8 @@ describe("mobile controller runtime", () => {
       provider: "demo-provider",
       providerCandidateId: "remote-qilixiang"
     });
+    expect(screen.getByText("ready")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "已准备" }) as HTMLButtonElement).disabled).toBe(true);
     expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
   });
 });

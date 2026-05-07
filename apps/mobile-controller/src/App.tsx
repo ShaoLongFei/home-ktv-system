@@ -1,4 +1,4 @@
-import { useRoomController } from "./runtime/use-room-controller.js";
+import { supplementKey, useRoomController } from "./runtime/use-room-controller.js";
 
 export function App() {
   const controller = useRoomController();
@@ -181,25 +181,36 @@ export function App() {
               </div>
 
               <div className="online-candidate-list">
-                {controller.songSearch.online.candidates.map((candidate) => (
-                  <article className="song-row online-candidate-row" key={`${candidate.provider}:${candidate.providerCandidateId}`}>
-                    <div className="result-main">
-                      <strong>{candidate.title}</strong>
-                      <p>{candidate.artistName}</p>
-                      <div className="result-meta">
-                        <span className="online-source">{candidate.sourceLabel}</span>
-                        <span>{formatDuration(candidate.durationMs ?? 0)}</span>
-                        <span>{candidate.candidateType}</span>
-                        <span>{candidate.reliabilityLabel}</span>
-                        <span>{candidate.riskLabel}</span>
-                        <span>{candidate.taskState}</span>
+                {controller.songSearch.online.candidates.map((candidate) => {
+                  const isPending = controller.pendingSupplementKeys.includes(
+                    supplementKey(candidate.provider, candidate.providerCandidateId)
+                  );
+                  const isReady = candidate.taskState === "ready";
+
+                  return (
+                    <article className="song-row online-candidate-row" key={`${candidate.provider}:${candidate.providerCandidateId}`}>
+                      <div className="result-main">
+                        <strong>{candidate.title}</strong>
+                        <p>{candidate.artistName}</p>
+                        <div className="result-meta">
+                          <span className="online-source">{candidate.sourceLabel}</span>
+                          <span>{formatDuration(candidate.durationMs ?? 0)}</span>
+                          <span>{candidate.candidateType}</span>
+                          <span>{candidate.reliabilityLabel}</span>
+                          <span>{candidate.riskLabel}</span>
+                          <span>{candidate.taskState}</span>
+                        </div>
                       </div>
-                    </div>
-                    <button type="button" onClick={() => void controller.requestSupplement(candidate.provider, candidate.providerCandidateId)}>
-                      请求补歌
-                    </button>
-                  </article>
-                ))}
+                      <button
+                        type="button"
+                        disabled={isPending || isReady}
+                        onClick={() => void controller.requestSupplement(candidate.provider, candidate.providerCandidateId)}
+                      >
+                        {isPending ? "提交中" : isReady ? "已准备" : "请求补歌"}
+                      </button>
+                    </article>
+                  );
+                })}
               </div>
             </section>
           ) : null}

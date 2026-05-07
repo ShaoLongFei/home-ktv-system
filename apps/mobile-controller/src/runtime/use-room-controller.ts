@@ -26,6 +26,7 @@ export interface RoomControllerState {
   duplicateConfirm: { songId: string; assetId: string; title: string } | null;
   errorMessage: string | null;
   pendingUndo: { queueEntryId: string; undoExpiresAt: string } | null;
+  pendingSupplementKeys: readonly string[];
   roomSlug: string;
   skipConfirmOpen: boolean;
   songSearch: SongSearchResponse | null;
@@ -62,6 +63,7 @@ export function useRoomController(): RoomControllerState {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
   const [pendingUndo, setPendingUndo] = useState<{ queueEntryId: string; undoExpiresAt: string } | null>(null);
+  const [pendingSupplementKeys, setPendingSupplementKeys] = useState<readonly string[]>([]);
   const snapshotRef = useRef<RoomControlSnapshot | null>(null);
   const songSearchQueryRef = useRef("");
   const searchRequestIdRef = useRef(0);
@@ -293,13 +295,22 @@ export function useRoomController(): RoomControllerState {
 
   const requestOnlineSupplement = useCallback(
     async (provider: string, providerCandidateId: string) => {
-      await runCommand((input) =>
-        requestSupplement({
-          ...input,
-          provider,
-          providerCandidateId
-        })
-      );
+      const key = supplementKey(provider, providerCandidateId);
+      setPendingSupplementKeys((keys) => (keys.includes(key) ? keys : [...keys, key]));
+      try {
+        const response = await runCommand((input) =>
+          requestSupplement({
+            ...input,
+            provider,
+            providerCandidateId
+          })
+        );
+        if (response?.task) {
+          setSongSearch((current) => applySupplementTask(current, response.task));
+        }
+      } finally {
+        setPendingSupplementKeys((keys) => keys.filter((item) => item !== key));
+      }
     },
     [runCommand]
   );
@@ -314,6 +325,7 @@ export function useRoomController(): RoomControllerState {
     duplicateConfirm,
     errorMessage,
     pendingUndo,
+    pendingSupplementKeys,
     roomSlug: initial.roomSlug,
     skipConfirmOpen,
     songSearch,
@@ -408,4 +420,33 @@ function isApiCode(error: unknown, code: string): boolean {
 
 function errorMessageFrom(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
+}
+
+export function supplementKey(provider: string, providerCandidateId: string): string {
+  return `${provider}:${providerCandidateId}`;
+}
+
+function applySupplementTask(
+  current: SongSearchResponse | null,
+  task: Awaited<ReturnType<typeof requestSupplement>>["task"]
+): SongSearchResponse | null {
+  if (!current) {
+    return current;
+  }
+
+  return {
+    ...current,
+    online: {
+      ...current.online,
+      candidates: current.online.candidates.map((candidate) =>
+        candidate.provider === task.provider && candidate.providerCandidateId === task.providerCandidateId
+          ? {
+              ...candidate,
+              taskId: task.id,
+              taskState: task.status
+            }
+          : candidate
+      )
+    }
+  };
 }
