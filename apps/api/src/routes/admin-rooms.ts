@@ -1,4 +1,4 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ApiConfig } from "../config.js";
 import { buildRoomControlSnapshot } from "../modules/rooms/build-control-snapshot.js";
 import { getOrCreatePairingInfo, refreshPairingToken } from "../modules/rooms/pairing-token-service.js";
@@ -12,6 +12,7 @@ import type { QueueEntryStatus } from "@home-ktv/domain";
 import type { RoomPairingTokenRepository } from "../modules/rooms/repositories/pairing-token-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
+import type { CandidateTaskService } from "../modules/online/candidate-task-service.js";
 
 export interface AdminRoomsRouteDependencies {
   config: ApiConfig;
@@ -24,6 +25,7 @@ export interface AdminRoomsRouteDependencies {
   controlSessions: ControlSessionRepository;
   assetGateway: AssetGateway;
   deviceSessions: PlayerDeviceSessionRepository;
+  onlineTasks?: Pick<CandidateTaskService, "retryTask" | "purgeTask" | "promoteTask">;
 }
 
 export async function registerAdminRoomsRoutes(
@@ -74,6 +76,53 @@ export async function registerAdminRoomsRoutes(
 
     return { pairing };
   });
+
+  server.post<{ Params: { roomSlug: string; taskId: string } }>(
+    "/admin/rooms/:roomSlug/online-tasks/:taskId/retry",
+    async (request, reply) =>
+      handleOnlineTaskAction(request.params, reply, dependencies, (onlineTasks, input) => onlineTasks.retryTask(input))
+  );
+
+  server.post<{ Params: { roomSlug: string; taskId: string } }>(
+    "/admin/rooms/:roomSlug/online-tasks/:taskId/clean",
+    async (request, reply) =>
+      handleOnlineTaskAction(request.params, reply, dependencies, (onlineTasks, input) => onlineTasks.purgeTask(input))
+  );
+
+  server.post<{ Params: { roomSlug: string; taskId: string } }>(
+    "/admin/rooms/:roomSlug/online-tasks/:taskId/promote",
+    async (request, reply) =>
+      handleOnlineTaskAction(request.params, reply, dependencies, (onlineTasks, input) => onlineTasks.promoteTask(input))
+  );
+}
+
+async function handleOnlineTaskAction(
+  params: { roomSlug: string; taskId: string },
+  reply: FastifyReply,
+  dependencies: AdminRoomsRouteDependencies,
+  action: (
+    onlineTasks: NonNullable<AdminRoomsRouteDependencies["onlineTasks"]>,
+    input: { roomId: string; taskId: string }
+  ) => ReturnType<NonNullable<AdminRoomsRouteDependencies["onlineTasks"]>["retryTask"]>
+): Promise<void> {
+  const room = await dependencies.rooms.findBySlug(params.roomSlug);
+  if (!room) {
+    await reply.code(404).send({ error: "ROOM_NOT_FOUND" });
+    return;
+  }
+
+  if (!dependencies.onlineTasks) {
+    await reply.code(404).send({ error: "ONLINE_TASK_NOT_FOUND" });
+    return;
+  }
+
+  const task = await action(dependencies.onlineTasks, { roomId: room.id, taskId: params.taskId });
+  if (!task) {
+    await reply.code(404).send({ error: "ONLINE_TASK_NOT_FOUND" });
+    return;
+  }
+
+  await reply.send({ task });
 }
 
 async function buildFallbackRoomStatus(

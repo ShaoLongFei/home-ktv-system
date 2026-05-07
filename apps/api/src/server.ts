@@ -21,6 +21,12 @@ import { PgImportCandidateRepository } from "./modules/ingest/repositories/impor
 import { PgImportFileRepository } from "./modules/ingest/repositories/import-file-repository.js";
 import { PgScanRunRepository } from "./modules/ingest/repositories/scan-run-repository.js";
 import { createScanScheduler, type ScanScheduler, type ScanSchedulerOptions } from "./modules/ingest/scan-scheduler.js";
+import { CandidateTaskService } from "./modules/online/candidate-task-service.js";
+import {
+  InMemoryCandidateTaskRepository,
+  PgCandidateTaskRepository
+} from "./modules/online/repositories/candidate-task-repository.js";
+import { createProviderRegistry } from "./modules/online/provider-registry.js";
 import { PgPlayerDeviceSessionRepository, type PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
 import {
   InMemoryControlSessionRepository,
@@ -100,6 +106,7 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   const session = createInitialPlaybackSession(room);
   const pool = resolvedConfig.databaseUrl ? (options.poolFactory ?? createPgPool)(resolvedConfig.databaseUrl) : null;
   const repositories = pool ? createPgRepositories(pool) : createInMemoryRepositories(room, session);
+  const onlineTasks = createOnlineTaskService(pool);
   const assetRepository = repositories.assets;
   const assetGateway = new AssetGateway({
     assetRepository,
@@ -159,7 +166,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     songs: repositories.songs,
     controlSessions: repositories.controlSessions,
     deviceSessions: repositories.deviceSessions,
-    assetGateway
+    assetGateway,
+    onlineTasks
   });
   await registerRoomSnapshotRoutes(server, {
     config: resolvedConfig,
@@ -202,6 +210,18 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   });
 
   return server;
+}
+
+function createOnlineTaskService(pool: Pool | null): CandidateTaskService {
+  const registry = createProviderRegistry({
+    providers: [],
+    enabledProviderIds: [],
+    killSwitchProviderIds: []
+  });
+  return new CandidateTaskService({
+    registry,
+    repository: pool ? new PgCandidateTaskRepository(pool) : new InMemoryCandidateTaskRepository()
+  });
 }
 
 function createPgPool(databaseUrl: string): Pool {

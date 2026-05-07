@@ -9,7 +9,7 @@ describe("admin online task actions", () => {
     const server = Fastify({ logger: false });
     await registerAdminRoomsRoutes(server, {
       ...harness.routeDependencies,
-      onlineTasks: harness.onlineTasks
+      onlineTasks: harness.onlineTasks as never
     });
 
     const retry = await server.inject({
@@ -62,7 +62,7 @@ describe("admin online task actions", () => {
     const server = Fastify({ logger: false });
     await registerAdminRoomsRoutes(server, {
       ...harness.routeDependencies,
-      onlineTasks: harness.onlineTasks
+      onlineTasks: harness.onlineTasks as never
     });
 
     const response = await server.inject({
