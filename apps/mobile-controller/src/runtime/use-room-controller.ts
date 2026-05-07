@@ -3,7 +3,6 @@ import type { RoomControlSnapshot } from "@home-ktv/player-contracts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addQueueEntry,
-  type AvailableSong,
   ControllerApiError,
   createControlSession,
   deleteQueueEntry,
@@ -21,7 +20,6 @@ export const fallbackPollingIntervalMs = 5000;
 export const sessionRefreshIntervalMs = 15 * 60 * 1000;
 
 export interface RoomControllerState {
-  availableSongs: AvailableSong[];
   connectionStatus: "connecting" | "connected" | "reconnecting" | "error";
   deviceId: string;
   duplicateConfirm: { songId: string; assetId: string; title: string } | null;
@@ -33,7 +31,6 @@ export interface RoomControllerState {
   songSearchQuery: string;
   songSearchStatus: "idle" | "loading" | "success" | "error";
   snapshot: RoomControlSnapshot | null;
-  addSong(songId: string): Promise<void>;
   addSongVersion(songId: string, assetId: string): Promise<void>;
   cancelDuplicateAdd(): void;
   confirmSkip(): Promise<void>;
@@ -285,22 +282,6 @@ export function useRoomController(): RoomControllerState {
     [deviceId, initial.roomSlug]
   );
 
-  const availableSongs = useMemo<AvailableSong[]>(
-    () =>
-      songSearch?.local.map((result) => {
-        const version = result.versions[0];
-        return {
-          songId: result.songId,
-          title: result.title,
-          artistName: result.artistName,
-          language: result.language,
-          defaultAssetId: version?.assetId ?? "",
-          durationMs: version?.durationMs ?? 0
-        };
-      }) ?? [],
-    [songSearch]
-  );
-
   const addSongVersion = useCallback(
     async (songId: string, assetId: string) => {
       await runCommand((input) => addQueueEntry({ ...input, songId, assetId }));
@@ -313,7 +294,6 @@ export function useRoomController(): RoomControllerState {
   }, [runSongSearch]);
 
   return {
-    availableSongs,
     connectionStatus,
     deviceId,
     duplicateConfirm,
@@ -325,9 +305,6 @@ export function useRoomController(): RoomControllerState {
     songSearchQuery,
     songSearchStatus,
     snapshot,
-    addSong: async (songId) => {
-      await runCommand((input) => addQueueEntry({ ...input, songId }));
-    },
     addSongVersion,
     cancelDuplicateAdd: () => setDuplicateConfirm(null),
     cancelSkip: () => setSkipConfirmOpen(false),

@@ -3,15 +3,6 @@ import type { ControlSessionInfo, RoomControlSnapshot } from "@home-ktv/player-c
 
 const deviceIdStorageKey = "home_ktv_device_id";
 
-export interface AvailableSong {
-  songId: string;
-  title: string;
-  artistName: string;
-  language: string;
-  defaultAssetId: string;
-  durationMs: number;
-}
-
 export interface ControllerSessionResponse {
   controlSession: ControlSessionInfo;
   snapshot: RoomControlSnapshot | null;
@@ -86,13 +77,6 @@ export async function createControlSession(input: {
       deviceName: input.deviceName ?? "Mobile Controller"
     })
   });
-}
-
-export async function fetchAvailableSongs(roomSlug: string): Promise<AvailableSong[]> {
-  const response = await fetchController<{ songs: AvailableSong[] }>(
-    `/rooms/${encodeURIComponent(roomSlug)}/available-songs`
-  );
-  return response.songs;
 }
 
 export async function searchSongs(input: {
