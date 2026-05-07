@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: complete
-stopped_at: Completed 05-04-PLAN.md
-last_updated: "2026-05-07T12:04:37.986Z"
+status: gaps_found
+stopped_at: Phase 5 re-verification found mobile local-first ordering gap
+last_updated: "2026-05-07T12:13:24.000Z"
 last_activity: 2026-05-07
 progress:
   total_phases: 5
-  completed_phases: 5
+  completed_phases: 4
   total_plans: 24
   completed_plans: 24
-  percent: 100
+  percent: 90
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-30)
 
 ## Current Position
 
-Phase: 05 (online-supplement-recovery) — COMPLETE
+Phase: 05 (online-supplement-recovery) — GAPS FOUND
 Plan: 4 of 4
-Status: Phase complete
+Status: Re-verification found mobile local-first ordering gap
 Last activity: 2026-05-07
 
-Progress: [██████████] 100%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -122,9 +122,10 @@ None yet.
 - [Phase 1]: 需要尽早在真实 TV 目标环境上验证浏览器、编解码、自动播放与近无感切换预算
 - [Phase 1]: 自动化验证已通过；Phase 1 仍等待 mini PC / desktop Chrome / TV 路径的人类 UAT
 - [Phase 5]: 在线 provider 的具体接入范围和合规边界仍需在实施前锁定
+- [Phase 5]: Runtime wiring gaps are closed by 05-04; re-verification still found mobile UI ordering gap where online candidates render before local results.
 
 ## Session Continuity
 
-Last session: 2026-05-07T12:04:37.986Z
-Stopped at: Completed 05-04-PLAN.md
-Resume file: None
+Last session: 2026-05-07T12:13:24.000Z
+Stopped at: Phase 5 re-verification found mobile local-first ordering gap
+Resume file: .planning/phases/05-online-supplement-recovery/05-VERIFICATION.md
