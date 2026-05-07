@@ -32,6 +32,7 @@ import type {
   AdminCatalogSongRecord,
   AdminCatalogSongRepository
 } from "./repositories/song-repository.js";
+import { buildPinyinSearchKeys } from "./search-normalization.js";
 import { writeSongJson, type SongJsonAsset } from "./song-json.js";
 
 export type AdmissionStatus = "approved" | "review_required" | "rejected" | "conflict" | "approval_failed";
@@ -476,17 +477,25 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
   constructor(private readonly db: QueryExecutor) {}
 
   async promoteApprovedCandidate(input: PromoteApprovedCandidateInput): Promise<void> {
+    const titleKeys = buildPinyinSearchKeys(input.title);
+    const artistKeys = buildPinyinSearchKeys(input.artistName);
+
     await this.db.query(
       `INSERT INTO songs (
          id, title, normalized_title, title_pinyin, title_initials, artist_id, artist_name,
+         artist_pinyin, artist_initials,
          language, status, genre, tags, aliases, search_hints, release_year,
          canonical_duration_ms, default_asset_id
        )
-       VALUES ($1, $2, lower($2), '', '', $3, $4, $5, 'ready', '{}', '{}', '{}', '{}', $6, $7, NULL)
+       VALUES ($1, $2, lower($2), $3, $4, $5, $6, $7, $8, $9, 'ready', '{}', '{}', '{}', '{}', $10, $11, NULL)
        ON CONFLICT(id)
        DO UPDATE SET title = EXCLUDED.title,
                      normalized_title = EXCLUDED.normalized_title,
+                     title_pinyin = EXCLUDED.title_pinyin,
+                     title_initials = EXCLUDED.title_initials,
                      artist_name = EXCLUDED.artist_name,
+                     artist_pinyin = EXCLUDED.artist_pinyin,
+                     artist_initials = EXCLUDED.artist_initials,
                      language = EXCLUDED.language,
                      status = 'ready',
                      release_year = EXCLUDED.release_year,
@@ -496,8 +505,12 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
       [
         input.songId,
         input.title,
+        titleKeys.pinyin,
+        titleKeys.initials,
         `artist-${input.artistName}`,
         input.artistName,
+        artistKeys.pinyin,
+        artistKeys.initials,
         input.language,
         input.releaseYear,
         input.assets[0]?.durationMs ?? null

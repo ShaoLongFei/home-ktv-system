@@ -64,6 +64,8 @@ function createSongRow(status: string): SongRow {
     title_initials: "qlx",
     artist_id: "artist-jay",
     artist_name: "周杰伦",
+    artist_pinyin: "zhoujielun",
+    artist_initials: "zjl",
     language: "mandarin",
     status,
     genre: [],
