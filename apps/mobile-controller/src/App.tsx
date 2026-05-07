@@ -180,14 +180,6 @@ export function App() {
                 <span className={`search-status ${controller.songSearch.online.status}`}>{controller.songSearch.online.message}</span>
               </div>
 
-              {controller.songSearch.online.requestSupplement?.visible ? (
-                <div className="request-supplement-entry">
-                  <button type="button" disabled>
-                    {controller.songSearch.online.requestSupplement.label}
-                  </button>
-                </div>
-              ) : null}
-
               <div className="online-candidate-list">
                 {controller.songSearch.online.candidates.map((candidate) => (
                   <article className="song-row online-candidate-row" key={`${candidate.provider}:${candidate.providerCandidateId}`}>

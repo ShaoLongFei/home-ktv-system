@@ -444,7 +444,7 @@ describe("mobile controller runtime", () => {
     });
   });
 
-  it("shows local empty state before the disabled online placeholder without online queue controls", async () => {
+  it("shows local empty state before actionable online supplement candidates without disabled duplicate controls", async () => {
     installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))],
       songSearchResponse: (query) => ({
@@ -479,7 +479,9 @@ describe("mobile controller runtime", () => {
     await screen.findByText("电视在线");
     expect(screen.getByText("本地未找到")).toBeTruthy();
     expect(screen.getByText("找到在线补歌候选")).toBeTruthy();
-    expect(screen.getAllByRole("button", { name: "请求补歌" })).toHaveLength(2);
+    const requestButtons = screen.getAllByRole("button", { name: "请求补歌" }) as HTMLButtonElement[];
+    expect(requestButtons).toHaveLength(1);
+    expect(requestButtons[0]?.disabled).toBe(false);
     expect(screen.getByText("七里香", { selector: "strong" })).toBeTruthy();
     expect(screen.getByText("discovered")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "加点" })).toBeNull();
@@ -583,7 +585,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
 
     await screen.findByText("七里香", { selector: "strong" });
-    await user.click(screen.getAllByRole("button", { name: "请求补歌" })[1]!);
+    await user.click(screen.getByRole("button", { name: "请求补歌" }));
     await flush();
 
     expect(requests.find((request) => request.url === "/rooms/living-room/commands/request-supplement")?.body).toMatchObject({
