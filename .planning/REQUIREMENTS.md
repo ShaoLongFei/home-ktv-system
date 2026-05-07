@@ -18,10 +18,10 @@ Requirements for the initial release. These map to roadmap phases and stay const
 
 ### Search
 
-- [ ] **SRCH-01**: 用户可以按中文歌名关键词搜索可点歌曲
-- [ ] **SRCH-02**: 用户可以按歌手名搜索可点歌曲
-- [ ] **SRCH-03**: 用户可以按拼音全拼、拼音首字母、别名或预设 `searchHints` 搜索可点歌曲
-- [ ] **SRCH-04**: 搜索结果可以清楚区分本地可播歌曲与在线补歌候选
+- [x] **SRCH-01**: 用户可以按中文歌名关键词搜索可点歌曲
+- [x] **SRCH-02**: 用户可以按歌手名搜索可点歌曲
+- [x] **SRCH-03**: 用户可以按拼音全拼、拼音首字母、别名或预设 `searchHints` 搜索可点歌曲
+- [x] **SRCH-04**: 搜索结果可以清楚区分本地可播歌曲与在线补歌候选
 
 ### Pairing & Controller Sessions
 
@@ -111,10 +111,10 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | LIBR-04 | Phase 2 | Complete |
 | LIBR-05 | Phase 2 | Complete |
 | LIBR-06 | Phase 2 | Complete |
-| SRCH-01 | Phase 4 | Pending |
-| SRCH-02 | Phase 4 | Pending |
-| SRCH-03 | Phase 4 | Pending |
-| SRCH-04 | Phase 4 | Pending |
+| SRCH-01 | Phase 4 | Complete |
+| SRCH-02 | Phase 4 | Complete |
+| SRCH-03 | Phase 4 | Complete |
+| SRCH-04 | Phase 4 | Complete |
 | PAIR-01 | Phase 3 | Complete |
 | PAIR-02 | Phase 3 | Complete |
 | PAIR-03 | Phase 3 | Complete |
