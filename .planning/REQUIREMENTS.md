@@ -54,12 +54,12 @@ Requirements for the initial release. These map to roadmap phases and stay const
 - [x] **ONLN-01**: 当本地歌库无法满足点歌需求时，用户可以主动请求在线补歌候选
 - [x] **ONLN-02**: 用户可以把一个在线候选提交到“先缓存、后播放”的流程，而不是直接在线播放
 - [x] **ONLN-03**: 在线候选只有在生成受控且 `ready` 的资源后才可以进入正式点歌队列
-- [ ] **ONLN-04**: 管理员可以查看在线候选任务状态、重试失败任务、清理失败任务，并把合适的缓存资源转正为正式歌库内容
+- [x] **ONLN-04**: 管理员可以查看在线候选任务状态、重试失败任务、清理失败任务，并把合适的缓存资源转正为正式歌库内容
 
 ### Admin Operations
 
 - [x] **ADMN-01**: 管理员可以在后台浏览歌曲和资源，并查看歌词模式、原唱/伴唱模式、资源状态等维护信息
-- [ ] **ADMN-02**: 管理员可以在后台查看房间状态、当前队列、当前 TV Player、在线控制端数量和最近播放事件
+- [x] **ADMN-02**: 管理员可以在后台查看房间状态、当前队列、当前 TV Player、在线控制端数量和最近播放事件
 - [ ] **ADMN-03**: 管理员可以查看二维码 / `pairingToken` 状态，并主动刷新房间入场令牌
 
 ## v2 Requirements
@@ -135,9 +135,9 @@ Which phases cover which requirements. This will be updated during roadmap creat
 | ONLN-01 | Phase 5 | Complete |
 | ONLN-02 | Phase 5 | Complete |
 | ONLN-03 | Phase 5 | Complete |
-| ONLN-04 | Phase 5 | Pending |
+| ONLN-04 | Phase 5 | Complete |
 | ADMN-01 | Phase 2 | Complete |
-| ADMN-02 | Phase 5 | Pending |
+| ADMN-02 | Phase 5 | Complete |
 | ADMN-03 | Phase 3 | Pending |
 
 **Coverage:**
