@@ -1,4 +1,4 @@
-import type { SongSearchResponse } from "@home-ktv/domain";
+import type { OnlineCandidateTask, SongSearchResponse } from "@home-ktv/domain";
 import type { ControlSessionInfo, RoomControlSnapshot } from "@home-ktv/player-contracts";
 
 const deviceIdStorageKey = "home_ktv_device_id";
@@ -20,6 +20,13 @@ export interface CommandConflictResponse {
   code: "SESSION_VERSION_CONFLICT";
   latestSessionVersion: number;
   snapshot: RoomControlSnapshot;
+}
+
+export interface SupplementCommandAcceptedResponse {
+  status: "accepted";
+  commandId: string;
+  sessionVersion: number;
+  task: OnlineCandidateTask;
 }
 
 export class ControllerApiError extends Error {
@@ -129,6 +136,25 @@ export async function switchVocalMode(input: CommandBaseInput & { playbackPositi
   return sendCommand(input, "switch-vocal-mode", {
     playbackPositionMs: input.playbackPositionMs
   });
+}
+
+export async function requestSupplement(input: CommandBaseInput & {
+  provider: string;
+  providerCandidateId: string;
+}): Promise<SupplementCommandAcceptedResponse> {
+  return fetchController<SupplementCommandAcceptedResponse>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/commands/request-supplement`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        commandId: createCommandId(),
+        sessionVersion: input.sessionVersion,
+        deviceId: input.deviceId,
+        provider: input.provider,
+        providerCandidateId: input.providerCandidateId
+      })
+    }
+  );
 }
 
 export function realtimeUrl(input: { roomSlug: string; deviceId: string }): string {

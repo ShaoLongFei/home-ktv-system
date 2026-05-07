@@ -9,6 +9,7 @@ import {
   promoteQueueEntry,
   realtimeUrl,
   restoreControlSession,
+  requestSupplement,
   searchSongs,
   skipCurrent,
   switchVocalMode,
@@ -38,6 +39,7 @@ export interface RoomControllerState {
   deleteQueueEntry(queueEntryId: string): Promise<void>;
   promoteQueueEntry(queueEntryId: string): Promise<void>;
   requestAddSongVersion(songId: string, assetId: string, title: string, queueState: SongSearchQueueState): void;
+  requestSupplement(provider: string, providerCandidateId: string): Promise<void>;
   requestSkip(): void;
   setSongSearchQuery(query: string): void;
   submitSongSearch(): void;
@@ -289,6 +291,19 @@ export function useRoomController(): RoomControllerState {
     [runCommand]
   );
 
+  const requestOnlineSupplement = useCallback(
+    async (provider: string, providerCandidateId: string) => {
+      await runCommand((input) =>
+        requestSupplement({
+          ...input,
+          provider,
+          providerCandidateId
+        })
+      );
+    },
+    [runCommand]
+  );
+
   const submitSongSearch = useCallback(() => {
     void runSongSearch(songSearchQueryRef.current);
   }, [runSongSearch]);
@@ -334,6 +349,7 @@ export function useRoomController(): RoomControllerState {
 
       void addSongVersion(songId, assetId);
     },
+    requestSupplement: requestOnlineSupplement,
     requestSkip: () => setSkipConfirmOpen(true),
     setSongSearchQuery: (query) => {
       songSearchQueryRef.current = query;

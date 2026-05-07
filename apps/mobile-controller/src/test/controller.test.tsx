@@ -8,6 +8,7 @@ import {
   deleteQueueEntry,
   getOrCreateDeviceId,
   promoteQueueEntry,
+  requestSupplement,
   skipCurrent,
   switchVocalMode,
   undoDeleteQueueEntry
@@ -80,6 +81,11 @@ describe("mobile controller API client", () => {
     await promoteQueueEntry({ ...base, queueEntryId: "queue-2" });
     await skipCurrent({ ...base, confirmSkip: true });
     await switchVocalMode({ ...base, playbackPositionMs: 1234 });
+    await requestSupplement({
+      ...base,
+      provider: "demo-provider",
+      providerCandidateId: "remote-qilixiang"
+    });
 
     expect(requests.map((request) => request.url)).toEqual([
       "/rooms/living-room/commands/add-queue-entry",
@@ -87,7 +93,8 @@ describe("mobile controller API client", () => {
       "/rooms/living-room/commands/undo-delete-queue-entry",
       "/rooms/living-room/commands/promote-queue-entry",
       "/rooms/living-room/commands/skip-current",
-      "/rooms/living-room/commands/switch-vocal-mode"
+      "/rooms/living-room/commands/switch-vocal-mode",
+      "/rooms/living-room/commands/request-supplement"
     ]);
     for (const request of requests) {
       expect(request.method).toBe("POST");
@@ -443,7 +450,26 @@ describe("mobile controller runtime", () => {
       songSearchResponse: (query) => ({
         query,
         local: [],
-        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
+        online: {
+          status: "available",
+          message: "找到在线补歌候选",
+          requestSupplement: { visible: true, label: "请求补歌" },
+          candidates: [
+            {
+              provider: "demo-provider",
+              providerCandidateId: "remote-qilixiang",
+              title: "七里香",
+              artistName: "周杰伦",
+              sourceLabel: "Demo Provider",
+              durationMs: 180000,
+              candidateType: "mv",
+              reliabilityLabel: "high",
+              riskLabel: "normal",
+              taskState: "discovered",
+              taskId: "task-1"
+            }
+          ]
+        }
       })
     });
     installWebSocketMock();
@@ -452,8 +478,56 @@ describe("mobile controller runtime", () => {
 
     await screen.findByText("电视在线");
     expect(screen.getByText("本地未找到")).toBeTruthy();
-    expect(screen.getByText("本地未入库，补歌功能后续可用")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /补歌|缓存|在线/u })).toBeNull();
+    expect(screen.getByText("找到在线补歌候选")).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "请求补歌" })).toHaveLength(2);
+    expect(screen.getByText("七里香", { selector: "strong" })).toBeTruthy();
+    expect(screen.getByText("discovered")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "加点" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "点歌" })).toBeNull();
+  });
+
+  it("requests supplement explicitly from an online candidate without auto-enqueueing", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: (query) => ({
+        query,
+        local: [],
+        online: {
+          status: "available",
+          message: "找到在线补歌候选",
+          requestSupplement: { visible: true, label: "请求补歌" },
+          candidates: [
+            {
+              provider: "demo-provider",
+              providerCandidateId: "remote-qilixiang",
+              title: "七里香",
+              artistName: "周杰伦",
+              sourceLabel: "Demo Provider",
+              durationMs: 180000,
+              candidateType: "mv",
+              reliabilityLabel: "high",
+              riskLabel: "normal",
+              taskState: "discovered",
+              taskId: "task-1"
+            }
+          ]
+        }
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("七里香", { selector: "strong" });
+    await user.click(screen.getAllByRole("button", { name: "请求补歌" })[1]!);
+    await flush();
+
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/request-supplement")?.body).toMatchObject({
+      provider: "demo-provider",
+      providerCandidateId: "remote-qilixiang"
+    });
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
   });
 });
 
