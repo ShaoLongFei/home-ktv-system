@@ -157,6 +157,70 @@ describe("room queue commands", () => {
     });
   });
 
+  it("queues the selected ready assetId when add-queue-entry includes a version", async () => {
+    const harness = createHarness({
+      queueEntries: []
+    });
+
+    const result = expectAccepted(
+      await executeAddQueueEntry(harness, {
+        commandId: "command-add-selected-asset",
+        payload: { songId: "song-ready", assetId: "asset-ready-alt-instrumental" }
+      })
+    );
+
+    expect(result.snapshot.currentTarget?.assetId).toBe("asset-ready-alt-instrumental");
+    await expect(harness.queueEntries.listEffectiveQueue(harness.room.id)).resolves.toMatchObject([
+      {
+        songId: "song-ready",
+        assetId: "asset-ready-alt-instrumental"
+      }
+    ]);
+  });
+
+  it("falls back to the song default assetId when add-queue-entry omits assetId", async () => {
+    const harness = createHarness({
+      queueEntries: []
+    });
+
+    const result = expectAccepted(
+      await executeAddQueueEntry(harness, {
+        commandId: "command-add-default-asset",
+        payload: { songId: "song-ready" }
+      })
+    );
+
+    expect(result.snapshot.currentTarget?.assetId).toBe("asset-ready-instrumental");
+    await expect(harness.queueEntries.listEffectiveQueue(harness.room.id)).resolves.toMatchObject([
+      {
+        songId: "song-ready",
+        assetId: "asset-ready-instrumental"
+      }
+    ]);
+  });
+
+  it.each([
+    ["another song", "asset-other-instrumental"],
+    ["unready", "asset-ready-unready-instrumental"],
+    ["online ephemeral", "asset-ready-online-ephemeral-instrumental"],
+    ["unverified", "asset-ready-unverified-instrumental"],
+    ["missing counterpart", "asset-ready-solo-instrumental"]
+  ])("rejects add-queue-entry when the selected asset is %s", async (_caseName, assetId) => {
+    const harness = createHarness({
+      queueEntries: []
+    });
+
+    const result = expectRejected(
+      await executeAddQueueEntry(harness, {
+        commandId: `command-add-reject-${assetId}`,
+        payload: { songId: "song-ready", assetId }
+      })
+    );
+
+    expect(result.code).toBe("SONG_NOT_QUEUEABLE");
+    await expect(harness.queueEntries.listEffectiveQueue(harness.room.id)).resolves.toEqual([]);
+  });
+
   it("loads playback from the promoted head when the room is idle", async () => {
     const harness = createHarness({
       queueEntries: [createQueueEntry("queue-one", 1, "queued"), createQueueEntry("queue-two", 2, "queued")]
@@ -361,7 +425,8 @@ function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVoc
   const songs = new Map<string, Song>([
     ["song-current", createSong("song-current", "Current", "Artist A", "asset-current-instrumental")],
     ["song-queued", createSong("song-queued", "Queued", "Artist B", "asset-queued-instrumental")],
-    ["song-ready", createSong("song-ready", "Ready Song", "Artist Ready", "asset-ready-instrumental")]
+    ["song-ready", createSong("song-ready", "Ready Song", "Artist Ready", "asset-ready-instrumental")],
+    ["song-other", createSong("song-other", "Other Song", "Artist Other", "asset-other-instrumental")]
   ]);
   const assets = new Map<string, Asset>([
     ["asset-current-instrumental", createAsset("asset-current-instrumental", "song-current", "instrumental", "family-current")],
@@ -369,7 +434,33 @@ function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVoc
     ["asset-queued-instrumental", createAsset("asset-queued-instrumental", "song-queued", "instrumental", "family-queued")],
     ["asset-queued-original", createAsset("asset-queued-original", "song-queued", "original", "family-queued")],
     ["asset-ready-instrumental", createAsset("asset-ready-instrumental", "song-ready", "instrumental", "family-ready")],
-    ["asset-ready-original", createAsset("asset-ready-original", "song-ready", "original", "family-ready")]
+    ["asset-ready-original", createAsset("asset-ready-original", "song-ready", "original", "family-ready")],
+    ["asset-ready-alt-instrumental", createAsset("asset-ready-alt-instrumental", "song-ready", "instrumental", "family-ready-alt")],
+    ["asset-ready-alt-original", createAsset("asset-ready-alt-original", "song-ready", "original", "family-ready-alt")],
+    ["asset-other-instrumental", createAsset("asset-other-instrumental", "song-other", "instrumental", "family-other")],
+    ["asset-other-original", createAsset("asset-other-original", "song-other", "original", "family-other")],
+    [
+      "asset-ready-unready-instrumental",
+      createAsset("asset-ready-unready-instrumental", "song-ready", "instrumental", "family-ready-unready", {
+        status: "processing"
+      })
+    ],
+    ["asset-ready-unready-original", createAsset("asset-ready-unready-original", "song-ready", "original", "family-ready-unready")],
+    [
+      "asset-ready-online-ephemeral-instrumental",
+      createAsset("asset-ready-online-ephemeral-instrumental", "song-ready", "instrumental", "family-ready-online", {
+        sourceType: "online_ephemeral"
+      })
+    ],
+    ["asset-ready-online-original", createAsset("asset-ready-online-original", "song-ready", "original", "family-ready-online")],
+    [
+      "asset-ready-unverified-instrumental",
+      createAsset("asset-ready-unverified-instrumental", "song-ready", "instrumental", "family-ready-unverified", {
+        switchQualityStatus: "pending"
+      })
+    ],
+    ["asset-ready-unverified-original", createAsset("asset-ready-unverified-original", "song-ready", "original", "family-ready-unverified")],
+    ["asset-ready-solo-instrumental", createAsset("asset-ready-solo-instrumental", "song-ready", "instrumental", "family-ready-solo")]
   ]);
   const playbackSession = new FakePlaybackSessionRepository({
     roomId: room.id,
@@ -705,7 +796,8 @@ function createAsset(
   id: string,
   songId: string,
   vocalMode: Asset["vocalMode"],
-  switchFamily: string
+  switchFamily: string,
+  overrides: Partial<Asset> = {}
 ): Asset {
   return {
     id,
@@ -721,7 +813,8 @@ function createAsset(
     switchFamily,
     switchQualityStatus: "verified",
     createdAt: now.toISOString(),
-    updatedAt: now.toISOString()
+    updatedAt: now.toISOString(),
+    ...overrides
   };
 }
 
@@ -779,4 +872,22 @@ function expectConflict(result: RoomCommandResult): Extract<RoomCommandResult, {
   }
 
   return result;
+}
+
+function executeAddQueueEntry(
+  harness: ReturnType<typeof createHarness>,
+  input: { commandId: string; payload: { songId: string; assetId?: string } }
+): Promise<RoomCommandResult> {
+  return executeRoomCommand({
+    commandId: input.commandId,
+    roomSlug: harness.room.slug,
+    sessionVersion: 1,
+    type: "add-queue-entry",
+    payload: input.payload,
+    controlSession: harness.controlSession,
+    repositories: harness.repositories,
+    assetGateway: harness.assetGateway,
+    config: harness.config,
+    now
+  });
 }
