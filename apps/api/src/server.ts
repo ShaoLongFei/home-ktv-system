@@ -57,6 +57,7 @@ import { registerMediaRoutes } from "./routes/media.js";
 import { registerPlayerRoutes, type PlayerRouteRepositories } from "./routes/player.js";
 import { registerRealtimeRoutes } from "./routes/realtime.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
+import { registerSongSearchRoutes } from "./routes/song-search.js";
 
 export interface CreateServerOptions {
   poolFactory?: (databaseUrl: string) => Pool;
@@ -187,6 +188,11 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     songs: repositories.songs,
     assets: repositories.assets,
     assetGateway
+  });
+  await registerSongSearchRoutes(server, {
+    rooms: repositories.rooms,
+    songs: repositories.songs,
+    queueEntries: repositories.queueEntries
   });
   await registerControlCommandRoutes(server, {
     config: resolvedConfig,
