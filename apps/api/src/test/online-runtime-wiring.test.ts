@@ -209,6 +209,51 @@ describe("createServer online runtime wiring", () => {
     }
   });
 
+  it("broadcasts online task updates after mobile supplement requests", async () => {
+    const server = await createServer(
+      createRuntimeConfig({
+        onlineDemoReadyAssetId: "asset-online-ready",
+        onlineProviderIds: ["demo-local"]
+      })
+    );
+    const messages: unknown[] = [];
+
+    try {
+      await server.inject({
+        method: "GET",
+        url: "/rooms/living-room/songs/search?q=ready-demo"
+      });
+      const cookie = await createControlSessionCookie(server);
+      const socket = await server.injectWS(
+        "/rooms/living-room/realtime?deviceId=phone-a&client=mobile",
+        { headers: { cookie } },
+        { onInit: collectJsonMessages(messages) }
+      );
+      await waitFor(() => messages.some((message) => isSnapshotUpdated(message)));
+      messages.length = 0;
+
+      const supplement = await requestSupplement(server, cookie, {
+        provider: "demo-local",
+        providerCandidateId: "demo-local-ready-demo"
+      });
+
+      expect(supplement.statusCode).toBe(200);
+      await waitFor(() =>
+        messages.some(
+          (message) =>
+            isSnapshotUpdated(message) &&
+            (message as any).payload?.onlineTasks?.tasks?.some(
+              (task: any) => task.providerCandidateId === "demo-local-ready-demo" && task.status === "ready"
+            )
+        )
+      );
+
+      socket.close();
+    } finally {
+      await server.close();
+    }
+  });
+
   it("runs the cache worker again when an admin retries a failed online task", async () => {
     const provider = createFailThenReadyProvider();
     const server = await createServer(
@@ -362,6 +407,28 @@ function extractControlSessionCookie(setCookie: unknown): string {
   }
 
   return String(setCookie ?? "");
+}
+
+function isSnapshotUpdated(message: unknown): boolean {
+  return Boolean(message && typeof message === "object" && (message as { type?: string }).type === "room.control.snapshot.updated");
+}
+
+function collectJsonMessages(messages: unknown[]) {
+  return (socket: any) => {
+    socket.on("message", (buffer: Buffer) => {
+      messages.push(JSON.parse(buffer.toString()));
+    });
+  };
+}
+
+async function waitFor(predicate: () => boolean, timeoutMs = 2000): Promise<void> {
+  const start = Date.now();
+  while (!predicate()) {
+    if (Date.now() - start > timeoutMs) {
+      throw new Error("Timed out waiting for condition");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
 }
 
 function createFailThenReadyProvider(): OnlineCandidateProvider {

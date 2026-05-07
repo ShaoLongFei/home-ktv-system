@@ -4,7 +4,7 @@ import type { AssetGateway } from "../modules/assets/asset-gateway.js";
 import type { ControlSessionRepository } from "../modules/controller/repositories/control-session-repository.js";
 import { restoreControlSession, serializeControlSessionCookie } from "../modules/controller/control-session-service.js";
 import type { CandidateTaskService } from "../modules/online/candidate-task-service.js";
-import type { ControlSnapshotRepositories } from "../modules/rooms/build-control-snapshot.js";
+import { buildRoomControlSnapshot, type ControlSnapshotRepositories } from "../modules/rooms/build-control-snapshot.js";
 import { executeRoomCommand } from "../modules/playback/session-command-service.js";
 import type { RoomSessionCommandRepository } from "../modules/playback/repositories/room-session-command-repository.js";
 import type { RoomSnapshotBroadcaster } from "../modules/realtime/room-snapshot-broadcaster.js";
@@ -19,7 +19,7 @@ export interface ControlCommandsRouteDependencies {
   repositories: ControlCommandsRouteRepositories;
   assetGateway: AssetGateway;
   broadcaster?: RoomSnapshotBroadcaster;
-  online?: Pick<CandidateTaskService, "requestSupplement">;
+  online?: Pick<CandidateTaskService, "listActiveForRoom" | "requestSupplement">;
 }
 
 interface BaseCommandBody {
@@ -149,6 +149,21 @@ async function handleRequestSupplement(
   if (!task) {
     await reply.code(404).send({ code: "ONLINE_CANDIDATE_NOT_FOUND" });
     return;
+  }
+
+  if (dependencies.broadcaster) {
+    const snapshot = await buildRoomControlSnapshot({
+      roomSlug: room.slug,
+      config: dependencies.config,
+      repositories: {
+        ...dependencies.repositories,
+        ...(dependencies.online ? { onlineTasks: dependencies.online } : {})
+      },
+      assetGateway: dependencies.assetGateway
+    });
+    if (snapshot) {
+      dependencies.broadcaster.broadcastRoomSnapshot(room.slug, snapshot);
+    }
   }
 
   reply.header("Set-Cookie", serializeControlSessionCookie({ session: { id: controlSession.id } }));
