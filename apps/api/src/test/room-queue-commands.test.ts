@@ -178,6 +178,27 @@ describe("room queue commands", () => {
     ]);
   });
 
+  it("accepts a ready verified online cached asset while preserving supplement source semantics", async () => {
+    const harness = createHarness({
+      queueEntries: []
+    });
+
+    const result = expectAccepted(
+      await executeAddQueueEntry(harness, {
+        commandId: "command-add-online-cached",
+        payload: { songId: "song-ready", assetId: "asset-ready-online-cached-instrumental" }
+      })
+    );
+
+    expect(result.snapshot.currentTarget?.assetId).toBe("asset-ready-online-cached-instrumental");
+    await expect(harness.assetRepository.findById("asset-ready-online-cached-instrumental")).resolves.toMatchObject({
+      sourceType: "online_cached",
+      status: "ready",
+      switchQualityStatus: "verified"
+    });
+  });
+
+
   it("falls back to the song default assetId when add-queue-entry omits assetId", async () => {
     const harness = createHarness({
       queueEntries: []
@@ -453,6 +474,18 @@ function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVoc
       })
     ],
     ["asset-ready-online-original", createAsset("asset-ready-online-original", "song-ready", "original", "family-ready-online")],
+    [
+      "asset-ready-online-cached-instrumental",
+      createAsset("asset-ready-online-cached-instrumental", "song-ready", "instrumental", "family-ready-online-cached", {
+        sourceType: "online_cached"
+      })
+    ],
+    [
+      "asset-ready-online-cached-original",
+      createAsset("asset-ready-online-cached-original", "song-ready", "original", "family-ready-online-cached", {
+        sourceType: "online_cached"
+      })
+    ],
     [
       "asset-ready-unverified-instrumental",
       createAsset("asset-ready-unverified-instrumental", "song-ready", "instrumental", "family-ready-unverified", {
