@@ -8,7 +8,7 @@ import {
   updateCatalogSong,
   validateCatalogSong
 } from "../api/client.js";
-import { languageName, statusText, useI18n } from "../i18n.js";
+import { languageName, statusText, useI18n, vocalModeName } from "../i18n.js";
 import { SongDetailEditor } from "./SongDetailEditor.js";
 import type {
   AdminCatalogAsset,
@@ -141,7 +141,8 @@ export function SongCatalogView() {
                 <span className="song-row-main">
                   <strong>{song.title}</strong>
                   <small>
-                    {song.artistName} · {song.language} · {song.status} · {song.assets.length} {t("songs.assets")}
+                    {song.artistName} · {languageName(song.language, t)} · {statusText(song.status, t)} · {song.assets.length}{" "}
+                    {t("songs.assets")}
                   </small>
                 </span>
                 <span className={`status-dot ${song.status}`} aria-hidden="true" />
@@ -218,7 +219,7 @@ function AssetSummary({ asset }: { asset: AdminCatalogAsset }) {
       <dl className="asset-facts">
         <div>
           <dt>{t("asset.vocal")}</dt>
-          <dd>{asset.vocalMode}</dd>
+          <dd>{vocalModeName(asset.vocalMode, t)}</dd>
         </div>
         <div>
           <dt>{t("asset.lyric")}</dt>

@@ -47,15 +47,15 @@ describe("song catalog maintenance", () => {
 
     await user.click(screen.getByRole("button", { name: "歌曲" }));
 
-    const row = await screen.findByRole("button", { name: /七里香.+ready.+2 个资源/u });
+    const row = await screen.findByRole("button", { name: /七里香.+国语.+已准备.+2 个资源/u });
     expect(row).toBeTruthy();
     expect(screen.getAllByText(/周杰伦/u).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/mandarin/u).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/国语/u).length).toBeGreaterThan(0);
     expect(screen.getAllByText("asset-instrumental").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("original").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("instrumental").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("原唱").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("伴唱").length).toBeGreaterThan(0);
     expect(screen.getAllByText("hard_sub").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("ready").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("已准备").length).toBeGreaterThan(0);
     expect(screen.getAllByDisplayValue("main").length).toBeGreaterThan(0);
     expect(screen.getAllByText((_, element) => element?.textContent === "切换质量: verified").length).toBeGreaterThan(0);
   });

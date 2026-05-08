@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useI18n } from "../i18n.js";
+import { statusText, useI18n, vocalModeName } from "../i18n.js";
 import { ConfirmDangerDialog } from "./ConfirmDangerDialog.js";
 import type {
   AdminCatalogAsset,
@@ -92,12 +92,12 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
                     value={draft.status}
                     onChange={(event) => updateDraft(asset.id, { status: event.target.value as AssetStatus })}
                   >
-                    <option value="ready">ready</option>
-                    <option value="caching">caching</option>
-                    <option value="failed">failed</option>
-                    <option value="unavailable">unavailable</option>
-                    <option value="stale">stale</option>
-                    <option value="promoted">promoted</option>
+                    <option value="ready">{statusText("ready", t)}</option>
+                    <option value="caching">{statusText("caching", t)}</option>
+                    <option value="failed">{statusText("failed", t)}</option>
+                    <option value="unavailable">{statusText("unavailable", t)}</option>
+                    <option value="stale">{statusText("stale", t)}</option>
+                    <option value="promoted">{statusText("promoted", t)}</option>
                   </select>
                 </label>
                 <label>
@@ -106,10 +106,10 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
                     value={draft.vocalMode}
                     onChange={(event) => updateDraft(asset.id, { vocalMode: event.target.value as VocalMode })}
                   >
-                    <option value="original">original</option>
-                    <option value="instrumental">instrumental</option>
-                    <option value="dual">dual</option>
-                    <option value="unknown">unknown</option>
+                    <option value="original">{vocalModeName("original", t)}</option>
+                    <option value="instrumental">{vocalModeName("instrumental", t)}</option>
+                    <option value="dual">{vocalModeName("dual", t)}</option>
+                    <option value="unknown">{vocalModeName("unknown", t)}</option>
                   </select>
                 </label>
                 <label>

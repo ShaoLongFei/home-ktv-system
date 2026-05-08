@@ -8,7 +8,7 @@ import {
   retryFailedOnlineTask,
   roomRealtimeUrl
 } from "../api/client.js";
-import { statusText, useI18n } from "../i18n.js";
+import { eventTypeText, roomStateText, taskStateText, useI18n, vocalModeName } from "../i18n.js";
 import type { RoomControlSnapshotMessage, RoomControlSnapshotPayload, RoomOnlineTaskSummaryRow, RoomStatusResponse } from "./types.js";
 
 const realtimeFallbackPollingMs = 5000;
@@ -174,7 +174,7 @@ export function RoomStatusView() {
         <dl className="room-status-summary">
           <div>
             <dt>{t("rooms.state")}</dt>
-            <dd>{roomStatus ? roomStatus.room.status : t("common.loading")}</dd>
+            <dd>{roomStatus ? roomStateText(roomStatus.room.status, t) : t("common.loading")}</dd>
           </div>
           <div>
             <dt>{t("rooms.tokenExpires")}</dt>
@@ -198,7 +198,7 @@ export function RoomStatusView() {
           <h2>{t("rooms.currentSong")}</h2>
           {roomStatus?.current ? (
             <p>
-              {roomStatus.current.songTitle} - {roomStatus.current.artistName} ({roomStatus.current.vocalMode})
+              {roomStatus.current.songTitle} - {roomStatus.current.artistName} ({vocalModeName(roomStatus.current.vocalMode, t)})
             </p>
           ) : (
             <p>{t("rooms.noCurrentSong")}</p>
@@ -236,7 +236,7 @@ export function RoomStatusView() {
                   {task.failureReason ? <small className="room-status-error">{task.failureReason}</small> : null}
                 </div>
                 <div className="room-task-state">
-                  <span className={`state-chip ${task.status}`}>{statusText(task.status, t)}</span>
+                  <span className={`state-chip ${task.status}`}>{taskStateText(task.status, t)}</span>
                   <div className="task-action-group">
                     {canRetryTask(task) ? (
                       <button
@@ -283,8 +283,10 @@ export function RoomStatusView() {
           <ol className="room-event-list">
             {(roomStatus?.recentEvents ?? []).map((event) => (
               <li key={event.id}>
-                <strong>{event.eventType}</strong>
-                <span>{event.queueEntryId ?? t("rooms.roomFallback")} / {formatTime(event.createdAt)}</span>
+                <strong>{eventTypeText(event.eventType, t)}</strong>
+                <span>
+                  <code>{event.eventType}</code> / {event.queueEntryId ?? t("rooms.roomFallback")} / {formatTime(event.createdAt)}
+                </span>
                 <small>{formatPayload(event.eventPayload, t)}</small>
               </li>
             ))}
@@ -322,10 +324,10 @@ function parseRealtimeMessage(data: unknown): RoomControlSnapshotMessage | null 
 
 function formatTaskCounts(counts: Record<string, number> | undefined, t: ReturnType<typeof useI18n>["t"]): string {
   if (!counts) {
-    return `${t("status.total")} 0`;
+    return `${taskStateText("total", t)} 0`;
   }
   return Object.entries(counts)
-    .map(([status, count]) => `${statusText(status, t)} ${count}`)
+    .map(([status, count]) => `${taskStateText(status, t)} ${count}`)
     .join(" / ");
 }
 

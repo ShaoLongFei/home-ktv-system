@@ -32,6 +32,40 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "status.promoted": "Promoted",
     "status.purged": "Purged",
     "status.total": "total",
+    "roomState.active": "Active",
+    "roomState.inactive": "Inactive",
+    "roomState.maintenance": "Maintenance",
+    "roomState.unknown": "Unknown",
+    "playbackState.idle": "Idle",
+    "playbackState.preparing": "Preparing",
+    "playbackState.loading": "Loading",
+    "playbackState.playing": "Playing",
+    "playbackState.paused": "Paused",
+    "playbackState.recovering": "Recovering",
+    "playbackState.error": "Error",
+    "playbackState.conflict": "Conflict",
+    "playbackState.unknown": "Unknown",
+    "event.player.failed": "Playback failed",
+    "event.player.ended": "Playback ended",
+    "event.player.loading": "Playback loading",
+    "event.player.playing": "Playback started",
+    "event.controller.add_queue_entry": "Song queued",
+    "event.controller.delete_queue_entry": "Song removed",
+    "event.controller.promote_queue_entry": "Song moved up",
+    "event.controller.skip_current": "Song skipped",
+    "event.system.notice": "System notice",
+    "event.unknown": "Unknown event",
+    "task.discovered": "Discovered",
+    "task.selected": "Selected",
+    "task.review_required": "Review required",
+    "task.fetching": "Fetching",
+    "task.fetched": "Fetched",
+    "task.ready": "Ready",
+    "task.failed": "Failed",
+    "task.stale": "Stale",
+    "task.promoted": "Promoted",
+    "task.purged": "Purged",
+    "task.total": "total",
     "languageName.all": "All languages",
     "languageName.mandarin": "Mandarin",
     "languageName.cantonese": "Cantonese",
@@ -190,6 +224,40 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "status.promoted": "已入库",
     "status.purged": "已清理",
     "status.total": "总计",
+    "roomState.active": "启用中",
+    "roomState.inactive": "未启用",
+    "roomState.maintenance": "维护中",
+    "roomState.unknown": "未知",
+    "playbackState.idle": "待点歌",
+    "playbackState.preparing": "准备中",
+    "playbackState.loading": "加载中",
+    "playbackState.playing": "播放中",
+    "playbackState.paused": "已暂停",
+    "playbackState.recovering": "恢复中",
+    "playbackState.error": "播放异常",
+    "playbackState.conflict": "设备冲突",
+    "playbackState.unknown": "未知",
+    "event.player.failed": "播放失败",
+    "event.player.ended": "播放结束",
+    "event.player.loading": "开始加载",
+    "event.player.playing": "开始播放",
+    "event.controller.add_queue_entry": "点歌",
+    "event.controller.delete_queue_entry": "删除歌曲",
+    "event.controller.promote_queue_entry": "顶歌",
+    "event.controller.skip_current": "切歌",
+    "event.system.notice": "系统通知",
+    "event.unknown": "未知事件",
+    "task.discovered": "已发现",
+    "task.selected": "已选择",
+    "task.review_required": "需复核",
+    "task.fetching": "获取中",
+    "task.fetched": "已获取",
+    "task.ready": "已准备",
+    "task.failed": "失败",
+    "task.stale": "过期",
+    "task.promoted": "已入库",
+    "task.purged": "已清理",
+    "task.total": "总计",
     "languageName.all": "全部语言",
     "languageName.mandarin": "国语",
     "languageName.cantonese": "粤语",
@@ -395,15 +463,31 @@ export function LanguageSwitch() {
 }
 
 export function statusText(status: string, t: I18nContextValue["t"]): string {
-  return t(`status.${status}`);
+  return localizedEnum("status", status, "unavailable", t);
 }
 
 export function languageName(language: string, t: I18nContextValue["t"]): string {
-  return t(`languageName.${language}`);
+  return localizedEnum("languageName", language, "other", t);
 }
 
 export function vocalModeName(mode: string, t: I18nContextValue["t"]): string {
-  return t(`vocal.${mode}`);
+  return localizedEnum("vocal", mode, "unknown", t);
+}
+
+export function roomStateText(status: string, t: I18nContextValue["t"]): string {
+  return localizedEnum("roomState", status, "unknown", t);
+}
+
+export function playbackStateText(status: string, t: I18nContextValue["t"]): string {
+  return localizedEnum("playbackState", status, "unknown", t);
+}
+
+export function eventTypeText(eventType: string, t: I18nContextValue["t"]): string {
+  return localizedEnum("event", eventType, "unknown", t);
+}
+
+export function taskStateText(status: string, t: I18nContextValue["t"]): string {
+  return localizedEnum("task", status, "discovered", t);
 }
 
 function readStoredLanguage(defaultLanguage: AppLanguage): AppLanguage {
@@ -429,4 +513,11 @@ function applyReplacements(template: string, replacements: Record<string, string
     (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
     template
   );
+}
+
+function localizedEnum(prefix: string, value: string | null | undefined, fallback: string, t: I18nContextValue["t"]): string {
+  const keyValue = typeof value === "string" && value.length > 0 ? value : fallback;
+  const key = `${prefix}.${keyValue}`;
+  const text = t(key);
+  return text === key ? t(`${prefix}.${fallback}`) : text;
 }

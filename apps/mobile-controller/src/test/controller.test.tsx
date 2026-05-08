@@ -128,6 +128,9 @@ describe("mobile controller runtime", () => {
 
     expect(screen.getByRole("heading", { name: "点歌控制台" })).toBeTruthy();
     expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "当前播放" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "播放队列" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "搜索歌曲" })).toBeTruthy();
   });
 
   it("shows an empty online supplement state when a search has no local result and no candidates", async () => {
@@ -141,8 +144,8 @@ describe("mobile controller runtime", () => {
     render(<App />);
 
     await screen.findByText("电视在线");
-    await user.clear(screen.getByLabelText("搜索歌曲"));
-    await user.type(screen.getByLabelText("搜索歌曲"), "不存在的歌曲");
+    await user.clear(screen.getByLabelText("搜索关键词"));
+    await user.type(screen.getByLabelText("搜索关键词"), "不存在的歌曲");
 
     expect(await screen.findByText("暂未找到在线补歌候选")).toBeTruthy();
     expect(screen.getByText("当前没有可请求的在线候选，可以换关键词或稍后重试。")).toBeTruthy();
@@ -411,6 +414,26 @@ describe("mobile controller runtime", () => {
     expect(modeSummary.textContent).toContain("伴唱");
   });
 
+  it("does not expose raw playback or vocal enum labels in the Chinese controller", async () => {
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("电视在线");
+    expect(screen.getByText("播放中")).toBeTruthy();
+    expect(screen.getAllByText("伴唱").length).toBeGreaterThan(0);
+    expect(screen.getByText("当前模式")).toBeTruthy();
+
+    const appText = screen.getByLabelText("Home KTV 点歌控制台").textContent ?? "";
+    expect(appText).not.toContain("unknown");
+    expect(appText).not.toContain("original");
+    expect(appText).not.toContain("instrumental");
+    expect(appText).not.toContain("playing");
+  });
+
   it("searches while typing and submits immediately from the search form", async () => {
     vi.useFakeTimers();
     const { requests } = installControllerFetchMock({
@@ -421,7 +444,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
     await flush();
     expect(screen.getByText("电视在线")).toBeTruthy();
-    const searchInput = screen.getByLabelText("搜索歌曲");
+    const searchInput = screen.getByLabelText("搜索关键词");
     requests.length = 0;
 
     fireEvent.change(searchInput, { target: { value: "qlx" } });
@@ -524,7 +547,10 @@ describe("mobile controller runtime", () => {
     expect(requestButtons).toHaveLength(1);
     expect(requestButtons[0]?.disabled).toBe(false);
     expect(screen.getByText("七里香", { selector: "strong" })).toBeTruthy();
-    expect(screen.getByText("discovered")).toBeTruthy();
+    expect(screen.getByText("MV")).toBeTruthy();
+    expect(screen.getByText("高可靠")).toBeTruthy();
+    expect(screen.getByText("普通风险")).toBeTruthy();
+    expect(screen.getByText("已发现")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "加点" })).toBeNull();
     expect(screen.queryByRole("button", { name: "点歌" })).toBeNull();
   });
@@ -583,7 +609,7 @@ describe("mobile controller runtime", () => {
 
     await screen.findByText("晴天");
     await screen.findByText("远端七里香");
-    const searchPanelText = screen.getByLabelText("Song search").textContent ?? "";
+    const searchPanelText = screen.getByRole("region", { name: "搜索歌曲" }).textContent ?? "";
     const localIndex = searchPanelText.indexOf("晴天");
     const onlineIndex = searchPanelText.indexOf("远端七里香");
 
@@ -669,7 +695,7 @@ describe("mobile controller runtime", () => {
       provider: "demo-provider",
       providerCandidateId: "remote-qilixiang"
     });
-    expect(screen.getByText("ready")).toBeTruthy();
+    expect(screen.getAllByText("已准备").length).toBeGreaterThan(0);
     expect((screen.getByRole("button", { name: "已准备" }) as HTMLButtonElement).disabled).toBe(true);
     expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
   });

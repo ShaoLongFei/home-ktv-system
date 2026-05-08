@@ -85,15 +85,21 @@ describe("room status view", () => {
     expect(screen.getByText("在线控制端")).toBeTruthy();
     expect(screen.getByText("电视状态")).toBeTruthy();
     expect(screen.getByText("会话版本")).toBeTruthy();
+    expect(screen.getByText("启用中")).toBeTruthy();
     expect(screen.getByRole("button", { name: "刷新房间状态" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "刷新配对 token" })).toBeTruthy();
     expect(screen.getByText("七里香")).toBeTruthy();
+    expect(screen.getByText(/伴唱/u)).toBeTruthy();
     expect(screen.getByText("晴天")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "在线补歌任务" })).toBeTruthy();
     expect(screen.getByText("任务统计")).toBeTruthy();
+    expect(screen.getByText(/总计 2/u)).toBeTruthy();
+    expect(screen.getByText(/已准备 1/u)).toBeTruthy();
+    expect(screen.getByText(/失败 1/u)).toBeTruthy();
     expect(screen.getByText("稻香")).toBeTruthy();
     expect(screen.getByText("provider-timeout")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "最近事件" })).toBeTruthy();
+    expect(screen.getByText("播放失败")).toBeTruthy();
     expect(screen.getByText("player.failed")).toBeTruthy();
     expect(screen.getByRole("button", { name: "入库任务 task-ready" })).toBeTruthy();
 

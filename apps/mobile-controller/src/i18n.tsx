@@ -28,7 +28,7 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "search.aria": "Song search",
     "search.title": "Search songs",
     "search.loading": "Searching",
-    "search.inputAria": "Search songs",
+    "search.inputAria": "Search keyword",
     "search.placeholder": "Title / artist / pinyin / initials",
     "search.submit": "Search",
     "search.localPlayable": "Local",
@@ -62,7 +62,38 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "vocal.original": "Vocal",
     "vocal.instrumental": "Instrumental",
     "vocal.dual": "Dual",
-    "vocal.unknown": "unknown"
+    "vocal.unknown": "Unknown",
+    "playbackState.idle": "Idle",
+    "playbackState.preparing": "Preparing",
+    "playbackState.loading": "Loading",
+    "playbackState.playing": "Playing",
+    "playbackState.paused": "Paused",
+    "playbackState.recovering": "Recovering",
+    "playbackState.error": "Error",
+    "playbackState.conflict": "Conflict",
+    "playbackState.unknown": "Unknown",
+    "onlineTask.discovered": "Discovered",
+    "onlineTask.selected": "Selected",
+    "onlineTask.review_required": "Review required",
+    "onlineTask.fetching": "Fetching",
+    "onlineTask.fetched": "Fetched",
+    "onlineTask.ready": "Ready",
+    "onlineTask.failed": "Failed",
+    "onlineTask.stale": "Stale",
+    "onlineTask.promoted": "Promoted",
+    "onlineTask.purged": "Purged",
+    "candidateType.mv": "MV",
+    "candidateType.karaoke": "KTV",
+    "candidateType.audio": "Audio",
+    "candidateType.unknown": "Unknown",
+    "reliability.high": "High reliability",
+    "reliability.medium": "Medium reliability",
+    "reliability.low": "Low reliability",
+    "reliability.unknown": "Unknown reliability",
+    "risk.normal": "Normal risk",
+    "risk.review": "Needs review",
+    "risk.high": "High risk",
+    "risk.unknown": "Unknown risk"
   },
   zh: {
     "app.aria": "Home KTV 点歌控制台",
@@ -73,21 +104,21 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "status.tvOnline": "电视在线",
     "status.tvOffline": "电视离线",
     "status.reconnecting": "连接中断，正在重连",
-    "current.aria": "Current playback",
+    "current.aria": "当前播放",
     "current.eyebrow": "正在播放",
     "current.waiting": "等待点歌",
     "current.emptyQueue": "队列为空",
     "current.connecting": "连接中",
     "current.currentMode": "当前模式",
     "current.modeAria": "current-vocal-mode",
-    "queue.aria": "Queue",
+    "queue.aria": "播放队列",
     "queue.title": "播放队列",
     "queue.empty": "暂无排队歌曲",
     "queue.undoUntil": "可撤销至 {time}",
-    "search.aria": "Song search",
+    "search.aria": "搜索歌曲",
     "search.title": "搜索歌曲",
     "search.loading": "搜索中",
-    "search.inputAria": "搜索歌曲",
+    "search.inputAria": "搜索关键词",
     "search.placeholder": "歌名 / 歌手 / 拼音 / 首字母",
     "search.submit": "搜索",
     "search.localPlayable": "本地可播",
@@ -95,7 +126,7 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "search.versionCount": "{count} 个版本",
     "search.recommended": "推荐",
     "search.localEmpty": "本地未找到",
-    "online.aria": "Online supplement",
+    "online.aria": "在线补歌",
     "online.title": "在线补歌",
     "online.emptyTitle": "暂未找到在线补歌候选",
     "online.emptyBody": "当前没有可请求的在线候选，可以换关键词或稍后重试。",
@@ -121,7 +152,38 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "vocal.original": "原唱",
     "vocal.instrumental": "伴唱",
     "vocal.dual": "双轨",
-    "vocal.unknown": "unknown"
+    "vocal.unknown": "未知",
+    "playbackState.idle": "待点歌",
+    "playbackState.preparing": "准备中",
+    "playbackState.loading": "加载中",
+    "playbackState.playing": "播放中",
+    "playbackState.paused": "已暂停",
+    "playbackState.recovering": "恢复中",
+    "playbackState.error": "播放异常",
+    "playbackState.conflict": "设备冲突",
+    "playbackState.unknown": "未知",
+    "onlineTask.discovered": "已发现",
+    "onlineTask.selected": "已选择",
+    "onlineTask.review_required": "需复核",
+    "onlineTask.fetching": "获取中",
+    "onlineTask.fetched": "已获取",
+    "onlineTask.ready": "已准备",
+    "onlineTask.failed": "失败",
+    "onlineTask.stale": "过期",
+    "onlineTask.promoted": "已入库",
+    "onlineTask.purged": "已清理",
+    "candidateType.mv": "MV",
+    "candidateType.karaoke": "KTV",
+    "candidateType.audio": "音频",
+    "candidateType.unknown": "未知类型",
+    "reliability.high": "高可靠",
+    "reliability.medium": "中等可靠",
+    "reliability.low": "低可靠",
+    "reliability.unknown": "可靠度未知",
+    "risk.normal": "普通风险",
+    "risk.review": "需复核",
+    "risk.high": "高风险",
+    "risk.unknown": "风险未知"
   }
 };
 
@@ -197,7 +259,27 @@ export function LanguageSwitch() {
 }
 
 export function vocalModeName(mode: string, t: I18nContextValue["t"]): string {
-  return t(`vocal.${mode}`);
+  return localizedEnum("vocal", mode, "unknown", t);
+}
+
+export function playbackStateName(state: string | null | undefined, t: I18nContextValue["t"]): string {
+  return localizedEnum("playbackState", state, "unknown", t);
+}
+
+export function onlineTaskStateName(state: string | null | undefined, t: I18nContextValue["t"]): string {
+  return localizedEnum("onlineTask", state, "discovered", t);
+}
+
+export function candidateTypeName(type: string | null | undefined, t: I18nContextValue["t"]): string {
+  return localizedEnum("candidateType", type, "unknown", t);
+}
+
+export function reliabilityName(value: string | null | undefined, t: I18nContextValue["t"]): string {
+  return localizedEnum("reliability", value, "unknown", t);
+}
+
+export function riskName(value: string | null | undefined, t: I18nContextValue["t"]): string {
+  return localizedEnum("risk", value, "unknown", t);
 }
 
 function readStoredLanguage(defaultLanguage: AppLanguage): AppLanguage {
@@ -223,4 +305,16 @@ function applyReplacements(template: string, replacements: Record<string, string
     (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
     template
   );
+}
+
+function localizedEnum(
+  prefix: string,
+  value: string | null | undefined,
+  fallback: string,
+  t: I18nContextValue["t"]
+): string {
+  const keyValue = typeof value === "string" && value.length > 0 ? value : fallback;
+  const key = `${prefix}.${keyValue}`;
+  const text = t(key);
+  return text === key ? t(`${prefix}.${fallback}`) : text;
 }

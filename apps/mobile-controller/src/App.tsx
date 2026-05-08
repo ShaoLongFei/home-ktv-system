@@ -1,4 +1,14 @@
-import { I18nProvider, LanguageSwitch, useI18n, vocalModeName } from "./i18n.js";
+import {
+  candidateTypeName,
+  I18nProvider,
+  LanguageSwitch,
+  onlineTaskStateName,
+  playbackStateName,
+  reliabilityName,
+  riskName,
+  useI18n,
+  vocalModeName
+} from "./i18n.js";
 import { supplementKey, useRoomController } from "./runtime/use-room-controller.js";
 
 export function App() {
@@ -18,6 +28,7 @@ function ControllerApp() {
   const switchTarget = snapshot?.switchTarget;
   const switchLabel = switchTarget?.vocalMode === "original" ? t("button.switchToOriginal") : t("button.switchToInstrumental");
   const currentModeLabel = vocalModeName(current?.vocalMode ?? "unknown", t);
+  const playbackLabel = snapshot ? playbackStateName(snapshot?.state, t) : t("current.connecting");
 
   return (
     <main className="app-shell" aria-label={t("app.aria")}>
@@ -47,7 +58,7 @@ function ControllerApp() {
           <p>{current?.currentQueueEntryPreview.artistName ?? t("current.emptyQueue")}</p>
         </div>
         <div className="current-meta">
-          <span>{snapshot?.state ?? t("current.connecting")}</span>
+          <span>{playbackLabel}</span>
           <span>{currentModeLabel}</span>
         </div>
         <div className="mode-summary" aria-label={t("current.modeAria")}>
@@ -210,10 +221,10 @@ function ControllerApp() {
                           <div className="result-meta">
                             <span className="online-source">{candidate.sourceLabel}</span>
                             <span>{formatDuration(candidate.durationMs ?? 0)}</span>
-                            <span>{candidate.candidateType}</span>
-                            <span>{candidate.reliabilityLabel}</span>
-                            <span>{candidate.riskLabel}</span>
-                            <span>{candidate.taskState}</span>
+                            <span>{candidateTypeName(candidate.candidateType, t)}</span>
+                            <span>{reliabilityName(candidate.reliabilityLabel, t)}</span>
+                            <span>{riskName(candidate.riskLabel, t)}</span>
+                            <span>{onlineTaskStateName(candidate.taskState, t)}</span>
                           </div>
                         </div>
                         <button
