@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Polish
-status: defining_requirements
-stopped_at: Created v1.1 roadmap
-last_updated: "2026-05-08T08:30:00.000Z"
+status: context_gathered
+stopped_at: Phase 6 context gathered
+last_updated: "2026-05-08T08:43:18.000Z"
 last_activity: 2026-05-08
 progress:
   total_phases: 3
@@ -27,8 +27,8 @@ See: `.planning/PROJECT.md` (updated 2026-05-08)
 
 Phase: 06 (TV Playback Experience Polish) — NOT STARTED
 Plan: —
-Status: Ready for Phase 6 discussion/planning
-Last activity: 2026-05-08 — Milestone v1.1 roadmap created
+Status: Context gathered; ready for Phase 6 planning
+Last activity: 2026-05-08 — Phase 6 context gathered
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,4 +52,4 @@ None yet.
 
 ## Next Step
 
-Run `$gsd-discuss-phase 6` to gather implementation context for TV playback experience polish.
+Run `$gsd-plan-phase 6` to create the implementation plan for TV playback experience polish.
