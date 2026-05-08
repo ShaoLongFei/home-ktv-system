@@ -17,6 +17,18 @@ describe("PlaybackStatusBanner", () => {
     render(<PlaybackStatusBanner notice={notice} />);
 
     expect(screen.getByRole("status")).toBeTruthy();
-    expect(screen.getByText("Playback failed. Skipped to the next song.")).toBeTruthy();
+    expect(screen.getByText("播放失败，已跳到下一首")).toBeTruthy();
+  });
+
+  it("shows fallback copy for reverted switch notices", () => {
+    const notice: PlaybackNotice = {
+      kind: "switch_failed_reverted",
+      message: ""
+    };
+
+    render(<PlaybackStatusBanner notice={notice} />);
+
+    expect(screen.getByRole("status")).toBeTruthy();
+    expect(screen.getByText("切换失败，已恢复到原模式")).toBeTruthy();
   });
 });

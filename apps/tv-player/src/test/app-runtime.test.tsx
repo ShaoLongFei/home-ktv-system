@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { RoomSnapshot, SwitchTarget } from "@home-ktv/player-contracts";
 
 type MockActivePlaybackResult = { status: "playing" } | { status: "blocked"; message: string };
@@ -200,6 +200,8 @@ describe("tv app runtime", () => {
 
     render(<App />);
 
+    await screen.findByText("点击电视开始播放");
+
     await waitFor(() =>
       expect(sendTelemetry).toHaveBeenCalledWith({
         roomSlug: "living-room",
@@ -216,6 +218,10 @@ describe("tv app runtime", () => {
         stage: "autoplay_blocked"
       })
     );
+
+    fireEvent.pointerDown(window);
+
+    await waitFor(() => expect(screen.queryByText("点击电视开始播放")).toBeNull());
   });
 });
 

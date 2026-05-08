@@ -2,14 +2,48 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import type { RoomSnapshot } from "@home-ktv/player-contracts";
 import { PlayingScreen } from "../screens/PlayingScreen.js";
+import { deriveTvDisplayState } from "../screens/tv-display-model.js";
 
 describe("PlayingScreen", () => {
   it("shows the vocal mode and the mm:ss time pair", () => {
-    render(<PlayingScreen snapshot={snapshot()} playbackPositionMs={12_345} durationMs={180_000} />);
+    const roomSnapshot = snapshot();
+    render(
+      <PlayingScreen
+        displayState={deriveTvDisplayState({
+          errorMessage: null,
+          firstPlayBlocked: false,
+          snapshot: roomSnapshot,
+          status: "ready"
+        })}
+        snapshot={roomSnapshot}
+        playbackPositionMs={12_345}
+        durationMs={180_000}
+      />
+    );
 
+    expect(screen.getByText("播放中")).toBeTruthy();
     expect(screen.getByText("伴唱")).toBeTruthy();
     expect(screen.getByText("00:12 / 03:00")).toBeTruthy();
     expect(screen.getByText("下一首 - 歌手")).toBeTruthy();
+  });
+
+  it("shows an actionable first-play prompt when playback is blocked", () => {
+    const roomSnapshot = snapshot({ state: "loading" });
+    render(
+      <PlayingScreen
+        displayState={deriveTvDisplayState({
+          errorMessage: null,
+          firstPlayBlocked: true,
+          snapshot: roomSnapshot,
+          status: "ready"
+        })}
+        snapshot={roomSnapshot}
+        playbackPositionMs={12_345}
+        durationMs={180_000}
+      />
+    );
+
+    expect(screen.getByText("点击电视开始播放")).toBeTruthy();
   });
 });
 
