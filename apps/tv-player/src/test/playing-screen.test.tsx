@@ -47,7 +47,7 @@ describe("PlayingScreen", () => {
   });
 });
 
-function snapshot(): RoomSnapshot {
+function snapshot(overrides: Partial<RoomSnapshot> = {}): RoomSnapshot {
   return {
     type: "room.snapshot",
     roomId: "living-room",
@@ -84,6 +84,7 @@ function snapshot(): RoomSnapshot {
     switchTarget: null,
     conflict: null,
     notice: null,
-    generatedAt: "2026-04-28T00:00:00.000Z"
+    generatedAt: "2026-04-28T00:00:00.000Z",
+    ...overrides
   };
 }

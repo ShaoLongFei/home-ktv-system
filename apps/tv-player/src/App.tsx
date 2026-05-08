@@ -11,6 +11,7 @@ import { RecoveryController } from "./runtime/recovery-controller.js";
 import { SwitchController } from "./runtime/switch-controller.js";
 import { createBrowserVideoPool, type DualVideoPool, type KtvVideoElement } from "./runtime/video-pool.js";
 import { useRoomSnapshot } from "./runtime/use-room-snapshot.js";
+import { deriveTvDisplayState, type TvDisplayState } from "./screens/tv-display-model.js";
 
 const HEARTBEAT_INTERVAL_MS = 10_000;
 
@@ -24,6 +25,7 @@ export function App() {
   const vocalModeSwitchInFlightRef = useRef(false);
   const sentPlaybackTelemetryRef = useRef<Set<string>>(new Set());
   const [localNotice, setLocalNotice] = useState<PlaybackNotice | null>(null);
+  const [firstPlayBlocked, setFirstPlayBlocked] = useState(false);
   const [, setPlaybackFrame] = useState(0);
 
   useEffect(() => {
@@ -49,11 +51,18 @@ export function App() {
       client,
       pool,
       snapshot,
+      setFirstPlayBlocked,
       sentPlaybackTelemetryRef,
       setLocalNotice,
       switchInFlightRef: vocalModeSwitchInFlightRef
     });
   }, [roomState.snapshot]);
+
+  useEffect(() => {
+    if (roomState.status === "error" || !roomState.snapshot?.currentTarget || roomState.snapshot.conflict) {
+      setFirstPlayBlocked(false);
+    }
+  }, [roomState.status, roomState.snapshot?.currentTarget?.queueEntryId, roomState.snapshot?.conflict]);
 
   useEffect(() => {
     if (!roomState.snapshot?.currentTarget) {
@@ -79,6 +88,7 @@ export function App() {
         client,
         pool,
         snapshot,
+        setFirstPlayBlocked,
         sentPlaybackTelemetryRef,
         setLocalNotice,
         switchInFlightRef: vocalModeSwitchInFlightRef
@@ -176,7 +186,9 @@ export function App() {
       <video ref={activeVideoRef} onEnded={handleVideoEnded} playsInline preload="auto" style={styles.video} />
       <video ref={standbyVideoRef} onEnded={handleVideoEnded} playsInline preload="auto" style={styles.video} />
       <div style={styles.atmosphere} />
-      <div style={styles.content}>{renderScreen(roomState.status, snapshot, roomState.errorMessage, playbackPositionMs, durationMs)}</div>
+      <div style={styles.content}>
+        {renderScreen(roomState.status, snapshot, roomState.errorMessage, playbackPositionMs, durationMs, firstPlayBlocked)}
+      </div>
     </main>
   );
 }
@@ -186,37 +198,49 @@ function renderScreen(
   snapshot: RoomSnapshot | null,
   errorMessage: string | null,
   playbackPositionMs: number,
-  durationMs: number | null
+  durationMs: number | null,
+  firstPlayBlocked: boolean
 ) {
+  const displayState = deriveTvDisplayState({
+    errorMessage,
+    firstPlayBlocked,
+    snapshot,
+    status
+  });
+
   if (status === "booting") {
-    return <SystemScreen title="Starting player" detail="Preparing the living-room display." />;
+    return <SystemScreen displayState={displayState} />;
   }
 
   if (status === "error") {
-    return <SystemScreen title="TV player offline" detail={errorMessage ?? "Unable to connect to the backend."} />;
+    return <SystemScreen displayState={displayState} />;
   }
 
   if (!snapshot) {
-    return <SystemScreen title="Waiting for room" detail="No room snapshot is available yet." />;
+    return <SystemScreen displayState={displayState} />;
   }
 
   if (snapshot.conflict) {
-    return <ConflictScreen conflict={snapshot.conflict} />;
+    return <ConflictScreen conflict={snapshot.conflict} displayState={displayState} />;
+  }
+
+  if (snapshot.state === "error") {
+    return <SystemScreen displayState={displayState} />;
   }
 
   if (snapshot.state === "playing" || snapshot.state === "loading" || snapshot.state === "recovering") {
-    return <PlayingScreen snapshot={snapshot} playbackPositionMs={playbackPositionMs} durationMs={durationMs} />;
+    return <PlayingScreen displayState={displayState} snapshot={snapshot} playbackPositionMs={playbackPositionMs} durationMs={durationMs} />;
   }
 
-  return <IdleScreen pairing={snapshot.pairing} />;
+  return <IdleScreen displayState={displayState} pairing={snapshot.pairing} />;
 }
 
-function SystemScreen({ title, detail }: { title: string; detail: string }) {
+function SystemScreen({ displayState }: { displayState: TvDisplayState }) {
   return (
     <section style={styles.systemScreen}>
-      <p style={styles.systemKicker}>home ktv</p>
-      <h1 style={styles.systemTitle}>{title}</h1>
-      <p style={styles.systemDetail}>{detail}</p>
+      <p style={styles.systemKicker}>家庭 KTV</p>
+      <h1 style={styles.systemTitle}>{displayState.heading}</h1>
+      <p style={styles.systemDetail}>{displayState.detail}</p>
     </section>
   );
 }
@@ -237,18 +261,21 @@ async function ensureCurrentPlayback(
   pool: DualVideoPool,
   snapshot: RoomSnapshot,
   sentPlaybackTelemetryRef: MutableRefObject<Set<string>>,
-  setLocalNotice: Dispatch<SetStateAction<PlaybackNotice | null>>
+  setLocalNotice: Dispatch<SetStateAction<PlaybackNotice | null>>,
+  setFirstPlayBlocked: Dispatch<SetStateAction<boolean>>
 ): Promise<void> {
   const result = await new ActivePlaybackController({ videoPool: pool }).ensurePlaying(snapshot);
   const target = snapshot.currentTarget;
   if (!target) {
+    setFirstPlayBlocked(false);
     return;
   }
 
   if (result.status === "blocked") {
+    setFirstPlayBlocked(true);
     setLocalNotice({
       kind: "loading",
-      message: "Playback is ready. Click the TV page once to start the song."
+      message: "点击电视开始播放"
     });
     await sendPlaybackTelemetryOnce({
       client,
@@ -263,6 +290,7 @@ async function ensureCurrentPlayback(
   }
 
   if (result.status === "playing") {
+    setFirstPlayBlocked(false);
     setLocalNotice((notice) => (notice?.kind === "loading" ? null : notice));
     await sendPlaybackTelemetryOnce({
       client,
@@ -278,6 +306,7 @@ async function ensureCurrentPlayback(
 async function synchronizePlayback(input: {
   client: ReturnType<typeof createBrowserPlayerClient>;
   pool: DualVideoPool;
+  setFirstPlayBlocked: Dispatch<SetStateAction<boolean>>;
   sentPlaybackTelemetryRef: MutableRefObject<Set<string>>;
   snapshot: RoomSnapshot;
   setLocalNotice: Dispatch<SetStateAction<PlaybackNotice | null>>;
@@ -288,7 +317,14 @@ async function synchronizePlayback(input: {
   const hasPendingVocalSwitch = Boolean(input.snapshot.currentTarget && targetVocalMode && targetVocalMode !== currentVocalMode);
 
   if (hasPendingVocalSwitch && !isCurrentPlaybackReadyForSwitch(input.pool, input.snapshot)) {
-    await ensureCurrentPlayback(input.client, input.pool, input.snapshot, input.sentPlaybackTelemetryRef, input.setLocalNotice);
+    await ensureCurrentPlayback(
+      input.client,
+      input.pool,
+      input.snapshot,
+      input.sentPlaybackTelemetryRef,
+      input.setLocalNotice,
+      input.setFirstPlayBlocked
+    );
     return;
   }
 
@@ -312,7 +348,14 @@ async function synchronizePlayback(input: {
     return;
   }
 
-  await ensureCurrentPlayback(input.client, input.pool, input.snapshot, input.sentPlaybackTelemetryRef, input.setLocalNotice);
+  await ensureCurrentPlayback(
+    input.client,
+    input.pool,
+    input.snapshot,
+    input.sentPlaybackTelemetryRef,
+    input.setLocalNotice,
+    input.setFirstPlayBlocked
+  );
 }
 
 function isCurrentPlaybackReadyForSwitch(pool: DualVideoPool, snapshot: RoomSnapshot): boolean {
@@ -381,8 +424,7 @@ function endedPlaybackPositionMs(video: HTMLVideoElement): number {
 
 const styles = {
   shell: {
-    background:
-      "radial-gradient(circle at 18% 20%, rgba(143, 230, 173, 0.22), transparent 28%), radial-gradient(circle at 82% 8%, rgba(242, 200, 75, 0.2), transparent 32%), linear-gradient(135deg, #11140f 0%, #15180f 46%, #070806 100%)",
+    background: "linear-gradient(135deg, #050604 0%, #11140f 54%, #070806 100%)",
     color: "#fff8e7",
     fontFamily: "Avenir Next, Futura, Gill Sans, Trebuchet MS, sans-serif",
     minHeight: "100vh",

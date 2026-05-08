@@ -97,6 +97,16 @@ export function deriveTvDisplayState(input: {
     });
   }
 
+  if (input.snapshot.state === "error") {
+    return baseState({
+      detail: "请检查后台服务和电视网络，然后刷新电视页面。",
+      heading: "电视端离线",
+      kind: "offline",
+      stateLabel: "离线",
+      tone: "danger"
+    });
+  }
+
   const firstPlayPrompt = input.firstPlayBlocked && input.snapshot.currentTarget
     ? { ...firstPlayPromptCopy, visible: true }
     : hiddenFirstPlayPrompt;
