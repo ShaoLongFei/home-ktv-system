@@ -8,6 +8,7 @@ import {
   updateCatalogSong,
   validateCatalogSong
 } from "../api/client.js";
+import { languageName, statusText, useI18n } from "../i18n.js";
 import { SongDetailEditor } from "./SongDetailEditor.js";
 import type {
   AdminCatalogAsset,
@@ -20,21 +21,11 @@ import type {
   SongStatus
 } from "./types.js";
 
-const songStatusOptions: Array<{ value: SongStatus | ""; label: string }> = [
-  { value: "", label: "All statuses" },
-  { value: "ready", label: "Ready" },
-  { value: "review_required", label: "Review required" },
-  { value: "unavailable", label: "Unavailable" }
-];
-
-const languageOptions: Array<{ value: Language | ""; label: string }> = [
-  { value: "", label: "All languages" },
-  { value: "mandarin", label: "Mandarin" },
-  { value: "cantonese", label: "Cantonese" },
-  { value: "other", label: "Other" }
-];
+const songStatusOptions: Array<SongStatus | ""> = ["", "ready", "review_required", "unavailable"];
+const languageOptions: Array<Language | ""> = ["", "mandarin", "cantonese", "other"];
 
 export function SongCatalogView() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<SongStatus | "">("");
   const [language, setLanguage] = useState<Language | "">("");
@@ -108,37 +99,37 @@ export function SongCatalogView() {
     <main className="admin-shell">
       <header className="admin-header">
         <div className="admin-title">
-          <h1>Song catalog</h1>
-          <p>Maintain formal songs, default resources, and switch eligibility.</p>
+          <h1>{t("songs.title")}</h1>
+          <p>{t("songs.description")}</p>
         </div>
       </header>
 
-      <section className="catalog-workbench" aria-label="Formal song catalog">
-        <aside className="catalog-list-pane" aria-label="Song list">
-          <p className="pane-title">Formal songs</p>
+      <section className="catalog-workbench" aria-label={t("songs.catalogAria")}>
+        <aside className="catalog-list-pane" aria-label={t("songs.listAria")}>
+          <p className="pane-title">{t("songs.formalSongs")}</p>
           <div className="catalog-filters">
             <label>
-              <span>Song status</span>
+              <span>{t("songs.status")}</span>
               <select value={status} onChange={(event) => setStatus(event.target.value as SongStatus | "")}>
                 {songStatusOptions.map((option) => (
-                  <option key={option.value || "all"} value={option.value}>
-                    {option.label}
+                  <option key={option || "all"} value={option}>
+                    {option ? statusText(option, t) : t("songs.allStatuses")}
                   </option>
                 ))}
               </select>
             </label>
             <label>
-              <span>Language</span>
+              <span>{t("candidate.language")}</span>
               <select value={language} onChange={(event) => setLanguage(event.target.value as Language | "")}>
                 {languageOptions.map((option) => (
-                  <option key={option.value || "all"} value={option.value}>
-                    {option.label}
+                  <option key={option || "all"} value={option}>
+                    {option ? languageName(option, t) : languageName("all", t)}
                   </option>
                 ))}
               </select>
             </label>
           </div>
-          {query.isLoading ? <p className="queue-empty-text">Loading songs</p> : null}
+          {query.isLoading ? <p className="queue-empty-text">{t("songs.loading")}</p> : null}
           <div className="song-list">
             {songs.map((song) => (
               <button
@@ -150,7 +141,7 @@ export function SongCatalogView() {
                 <span className="song-row-main">
                   <strong>{song.title}</strong>
                   <small>
-                    {song.artistName} · {song.language} · {song.status} · {song.assets.length} assets
+                    {song.artistName} · {song.language} · {song.status} · {song.assets.length} {t("songs.assets")}
                   </small>
                 </span>
                 <span className={`status-dot ${song.status}`} aria-hidden="true" />
@@ -159,7 +150,7 @@ export function SongCatalogView() {
           </div>
         </aside>
 
-        <section className="catalog-detail-pane" aria-label="Song resource detail">
+        <section className="catalog-detail-pane" aria-label={t("songs.detailAria")}>
           {selectedSong ? (
             <SongDetailEditor
               evaluation={evaluation}
@@ -192,21 +183,22 @@ export function SongCatalogView() {
 }
 
 function SongResourceSummary({ song }: { song: AdminCatalogSong }) {
+  const { t } = useI18n();
   return (
     <article className="song-detail-shell">
       <header className="editor-header">
         <div>
-          <p className="status-label">{song.status}</p>
+          <p className="status-label">{statusText(song.status, t)}</p>
           <h2>
             {song.artistName} - {song.title}
           </h2>
           <p className="action-note">
-            Default asset: <strong>{song.defaultAssetId ?? "none"}</strong>
+            {t("songs.defaultAsset")}: <strong>{song.defaultAssetId ?? t("common.none")}</strong>
           </p>
         </div>
       </header>
 
-      <section className="asset-summary-grid" aria-label="Asset summaries">
+      <section className="asset-summary-grid" aria-label={t("asset.summaryAria")}>
         {song.assets.map((asset) => (
           <AssetSummary key={asset.id} asset={asset} />
         ))}
@@ -216,27 +208,28 @@ function SongResourceSummary({ song }: { song: AdminCatalogSong }) {
 }
 
 function AssetSummary({ asset }: { asset: AdminCatalogAsset }) {
+  const { t } = useI18n();
   return (
     <article className="asset-summary">
       <header>
         <strong>{asset.id}</strong>
-        <span className="badge">{asset.status}</span>
+        <span className="badge">{statusText(asset.status, t)}</span>
       </header>
       <dl className="asset-facts">
         <div>
-          <dt>Vocal</dt>
+          <dt>{t("asset.vocal")}</dt>
           <dd>{asset.vocalMode}</dd>
         </div>
         <div>
-          <dt>Lyric</dt>
+          <dt>{t("asset.lyric")}</dt>
           <dd>{asset.lyricMode}</dd>
         </div>
         <div>
-          <dt>Switch family</dt>
-          <dd>{asset.switchFamily ?? "none"}</dd>
+          <dt>{t("asset.switchFamily")}</dt>
+          <dd>{asset.switchFamily ?? t("common.none")}</dd>
         </div>
         <div>
-          <dt>Switch quality</dt>
+          <dt>{t("asset.switchQuality")}</dt>
           <dd>{asset.switchQualityStatus}</dd>
         </div>
       </dl>
@@ -245,10 +238,11 @@ function AssetSummary({ asset }: { asset: AdminCatalogAsset }) {
 }
 
 function EmptySongDetail() {
+  const { t } = useI18n();
   return (
     <div className="editor-empty">
-      <h2>Select a song</h2>
-      <p>Formal song and resource maintenance controls will appear here.</p>
+      <h2>{t("songs.emptyTitle")}</h2>
+      <p>{t("songs.emptyBody")}</p>
     </div>
   );
 }

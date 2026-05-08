@@ -1,6 +1,7 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { fetchAdmin } from "../api/client.js";
+import { statusText, useI18n } from "../i18n.js";
 import { CandidateEditor } from "./CandidateEditor.js";
 import type {
   ConflictResolution,
@@ -11,14 +12,15 @@ import type {
   MetadataUpdateInput
 } from "./types.js";
 
-const STATUS_FILTERS: Array<{ status: ImportCandidateStatus; label: string }> = [
-  { status: "pending", label: "Pending" },
-  { status: "held", label: "Held" },
-  { status: "review_required", label: "Review required" },
-  { status: "conflict", label: "Conflict" }
+const STATUS_FILTERS: Array<{ status: ImportCandidateStatus }> = [
+  { status: "pending" },
+  { status: "held" },
+  { status: "review_required" },
+  { status: "conflict" }
 ];
 
 export function ImportWorkbench() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [activeStatus, setActiveStatus] = useState<ImportCandidateStatus>("pending");
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
@@ -140,49 +142,49 @@ export function ImportWorkbench() {
     <main className="admin-shell">
       <header className="admin-header">
         <div className="admin-title">
-          <h1>Import review workbench</h1>
-          <p>Review grouped local media candidates before they enter the formal catalog.</p>
+          <h1>{t("imports.title")}</h1>
+          <p>{t("imports.description")}</p>
         </div>
         <button className="primary-button" disabled={scanMutation.isPending} type="button" onClick={() => scanMutation.mutate()}>
-          Scan imports
+          {t("imports.scan")}
         </button>
       </header>
 
-      <section className="admin-workbench" aria-label="Import candidate workbench">
-        <aside className="queue-pane" aria-label="Candidate queue">
-          <p className="pane-title">Candidate queue</p>
-          <div className="status-strip" aria-label="Candidate status filters">
-            {STATUS_FILTERS.map(({ status, label }) => (
+      <section className="admin-workbench" aria-label={t("imports.workbenchAria")}>
+        <aside className="queue-pane" aria-label={t("imports.queueAria")}>
+          <p className="pane-title">{t("imports.queueTitle")}</p>
+          <div className="status-strip" aria-label={t("imports.statusFiltersAria")}>
+            {STATUS_FILTERS.map(({ status }) => (
               <button
                 className={status === activeStatus ? "status-chip active" : "status-chip"}
                 key={status}
                 type="button"
                 onClick={() => setActiveStatus(status)}
               >
-                {label} <strong aria-hidden="true">{candidatesByStatus[status].length}</strong>
+                {statusText(status, t)} <strong aria-hidden="true">{candidatesByStatus[status].length}</strong>
               </button>
             ))}
           </div>
           {queueReady ? (
             <div className="queue-groups">
-              {STATUS_FILTERS.map(({ status, label }) => (
+              {STATUS_FILTERS.map(({ status }) => (
                 <CandidateGroup
                   activeStatus={activeStatus}
                   candidates={candidatesByStatus[status]}
                   key={status}
-                  label={label}
                   selectedCandidateId={selectedCandidateId}
                   status={status}
+                  t={t}
                   onSelect={setSelectedCandidateId}
                 />
               ))}
             </div>
           ) : (
-            <p className="queue-empty-text">Loading candidates</p>
+            <p className="queue-empty-text">{t("imports.loadingCandidates")}</p>
           )}
         </aside>
 
-        <section className="detail-pane" aria-label="Candidate detail">
+        <section className="detail-pane" aria-label={t("imports.detailAria")}>
           <CandidateEditor
             candidate={selectedDetail}
             isBusy={isBusy}
@@ -210,26 +212,27 @@ export function ImportWorkbench() {
 
 function CandidateGroup({
   status,
-  label,
   candidates,
   selectedCandidateId,
   activeStatus,
+  t,
   onSelect
 }: {
   status: ImportCandidateStatus;
-  label: string;
   candidates: ImportCandidate[];
   selectedCandidateId: string | null;
   activeStatus: ImportCandidateStatus;
+  t: ReturnType<typeof useI18n>["t"];
   onSelect: (candidateId: string) => void;
 }) {
   const isActive = status === activeStatus;
+  const label = statusText(status, t);
 
   return (
-    <section className={isActive ? "queue-group active" : "queue-group"} aria-label={`${label} candidates`}>
+    <section className={isActive ? "queue-group active" : "queue-group"} aria-label={t("imports.groupAria", { status: label })}>
       <h2>{label}</h2>
       {candidates.length === 0 ? (
-        <p className="queue-empty-text">No candidates</p>
+        <p className="queue-empty-text">{t("imports.noCandidates")}</p>
       ) : (
         <div className="candidate-list">
           {candidates.map((candidate) => (
@@ -244,7 +247,7 @@ function CandidateGroup({
                   {candidate.artistName} - {candidate.title}
                 </strong>
                 <small>
-                  {candidate.files.length} files · {probeSummary(candidate)} · {durationSummary(candidate)}
+                  {candidate.files.length} {t("imports.files")} · {probeSummary(candidate, t)} · {durationSummary(candidate, t)}
                 </small>
               </span>
               <span className={`status-dot ${candidate.status}`} aria-hidden="true" />
@@ -275,18 +278,18 @@ function cacheCandidate(queryClient: ReturnType<typeof useQueryClient>, candidat
   }
 }
 
-function probeSummary(candidate: ImportCandidate): string {
+function probeSummary(candidate: ImportCandidate, t: ReturnType<typeof useI18n>["t"]): string {
   const statuses = new Set(candidate.files.map((file) => file.probeStatus));
   if (statuses.size === 0) {
-    return "no probe";
+    return t("imports.noProbe");
   }
   return Array.from(statuses).join("/");
 }
 
-function durationSummary(candidate: ImportCandidate): string {
+function durationSummary(candidate: ImportCandidate, t: ReturnType<typeof useI18n>["t"]): string {
   const durations = candidate.files.map((file) => file.durationMs ?? file.probeDurationMs).filter((value): value is number => value !== null);
   if (durations.length === 0) {
-    return "unknown";
+    return t("common.unknown");
   }
   return formatDuration(Math.min(...durations));
 }

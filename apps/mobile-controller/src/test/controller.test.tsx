@@ -108,6 +108,47 @@ describe("mobile controller API client", () => {
 });
 
 describe("mobile controller runtime", () => {
+  it("switches the KTV controller chrome between Chinese and English", async () => {
+    const user = userEvent.setup();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByRole("heading", { name: "点歌控制台" });
+    await user.click(screen.getByRole("button", { name: "English" }));
+
+    expect(screen.getByRole("heading", { name: "KTV controller" })).toBeTruthy();
+    expect(screen.getByText("TV online")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Search songs" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "中文" }));
+
+    expect(screen.getByRole("heading", { name: "点歌控制台" })).toBeTruthy();
+    expect(screen.getByText("电视在线")).toBeTruthy();
+  });
+
+  it("shows an empty online supplement state when a search has no local result and no candidates", async () => {
+    const user = userEvent.setup();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: emptySongSearchResponse
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("电视在线");
+    await user.clear(screen.getByLabelText("搜索歌曲"));
+    await user.type(screen.getByLabelText("搜索歌曲"), "不存在的歌曲");
+
+    expect(await screen.findByText("暂未找到在线补歌候选")).toBeTruthy();
+    expect(screen.getByText("当前没有可请求的在线候选，可以换关键词或稍后重试。")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "请求补歌" })).toBeNull();
+  });
+
   it("loads empty song search results after control-session restore", async () => {
     const { requests } = installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))]
@@ -841,6 +882,19 @@ function songSearchResponse(query: string) {
       }
     ],
     online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
+  };
+}
+
+function emptySongSearchResponse(query: string) {
+  return {
+    query,
+    local: [],
+    online: {
+      status: "disabled",
+      message: "本地未入库，补歌功能后续可用",
+      requestSupplement: { visible: true, label: "请求补歌" },
+      candidates: []
+    }
   };
 }
 

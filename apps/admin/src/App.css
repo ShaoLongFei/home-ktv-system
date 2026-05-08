@@ -63,6 +63,33 @@ button:disabled {
   color: #1e252b;
 }
 
+.language-switch {
+  align-items: center;
+  background: #111820;
+  border: 1px solid #3b4652;
+  border-radius: 6px;
+  display: inline-flex;
+  gap: 2px;
+  margin-left: auto;
+  padding: 2px;
+}
+
+.language-option {
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: #d7dde2;
+  font-size: 12px;
+  font-weight: 800;
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+.language-option.active {
+  background: #ffffff;
+  color: #1e252b;
+}
+
 .admin-shell {
   display: grid;
   grid-template-rows: auto 1fr;

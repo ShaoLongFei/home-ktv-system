@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 import { loadConfig, normalizeApiConfig } from "../config.js";
 import { createDemoOnlineProvider } from "../modules/online/demo-provider.js";
@@ -6,6 +7,8 @@ import { createServer } from "../server.js";
 import type { OnlineCandidateProvider } from "../modules/online/provider-registry.js";
 
 const now = new Date("2026-05-07T00:00:00.000Z").toISOString();
+const websocketRequire = createRequire(import.meta.url).resolve("@fastify/websocket");
+const WebSocket = createRequire(websocketRequire)("ws") as any;
 
 describe("runtime online provider configuration", () => {
   it("parses enabled providers, kill-switches, and demo ready asset config", () => {
@@ -307,6 +310,71 @@ describe("createServer online runtime wiring", () => {
     }
   });
 
+  it("broadcasts promoted online task removal to admin realtime subscribers", async () => {
+    const server = await createServer(
+      createRuntimeConfig({
+        onlineDemoReadyAssetId: "asset-online-ready",
+        onlineProviderIds: ["demo-local"]
+      })
+    );
+    const messages: unknown[] = [];
+
+    try {
+      await server.listen({ host: "127.0.0.1", port: 0 });
+      const port = getListeningPort(server);
+
+      await server.inject({
+        method: "GET",
+        url: "/rooms/living-room/songs/search?q=ready-demo"
+      });
+      const cookie = await createControlSessionCookie(server);
+
+      const socket = await connectRealtimeSocket(
+        `ws://127.0.0.1:${port}/rooms/living-room/realtime?deviceId=admin-a&client=admin`,
+        messages
+      );
+      await waitFor(() => messages.some((message) => isSnapshotUpdated(message)));
+      messages.length = 0;
+
+      const supplement = await requestSupplement(server, cookie, {
+        provider: "demo-local",
+        providerCandidateId: "demo-local-ready-demo"
+      });
+
+      expect(supplement.statusCode).toBe(200);
+      const promotedTaskId = (supplement.json() as { task: { id: string } }).task.id;
+      await waitFor(() =>
+        messages.some(
+          (message) =>
+            isSnapshotUpdated(message) &&
+            (message as any).payload?.onlineTasks?.tasks?.some(
+              (task: any) => task.providerCandidateId === "demo-local-ready-demo" && task.status === "ready"
+            )
+        )
+      );
+      messages.length = 0;
+
+      const promote = await server.inject({
+        method: "POST",
+        url: `/admin/rooms/living-room/online-tasks/${promotedTaskId}/promote`
+      });
+
+      expect(promote.statusCode).toBe(200);
+      await waitFor(() =>
+        messages.some(
+          (message) =>
+            isSnapshotUpdated(message) &&
+            (message as any).payload?.onlineTasks?.counts?.total === 0 &&
+            (message as any).payload?.onlineTasks?.tasks?.length === 0
+        )
+      );
+
+      socket.close();
+    } finally {
+      await server.close();
+    }
+  });
+
   it("runs the cache worker again when an admin retries a failed online task", async () => {
     const provider = createFailThenReadyProvider();
     const server = await createServer(
@@ -472,6 +540,29 @@ function collectJsonMessages(messages: unknown[]) {
       messages.push(JSON.parse(buffer.toString()));
     });
   };
+}
+
+async function connectRealtimeSocket(url: string, messages: unknown[]) {
+  const socket = new WebSocket(url);
+  socket.on("message", (buffer: Buffer) => {
+    messages.push(JSON.parse(buffer.toString()));
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    socket.once("open", () => resolve());
+    socket.once("error", (error: Error) => reject(error));
+  });
+
+  return socket;
+}
+
+function getListeningPort(server: Awaited<ReturnType<typeof createServer>>): number {
+  const address = server.server.address();
+  if (!address || typeof address === "string") {
+    throw new Error("Server did not bind to a listening port");
+  }
+
+  return address.port;
 }
 
 async function waitFor(predicate: () => boolean, timeoutMs = 2000): Promise<void> {

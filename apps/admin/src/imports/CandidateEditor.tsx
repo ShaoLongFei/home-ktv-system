@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { languageName, statusText, useI18n, vocalModeName } from "../i18n.js";
 import { ConfirmActionDialog } from "./ConfirmActionDialog.js";
 import type {
   AssetKind,
@@ -53,6 +54,7 @@ export function CandidateEditor({
   onRejectDelete,
   onResolveConflict
 }: CandidateEditorProps) {
+  const { t } = useI18n();
   const [showFiles, setShowFiles] = useState(false);
   const [pendingConfirm, setPendingConfirm] = useState<PendingConfirm>(null);
   const [targetSongId, setTargetSongId] = useState("");
@@ -72,8 +74,8 @@ export function CandidateEditor({
   if (!candidate || !form) {
     return (
       <div className="editor-empty">
-        <h2>Select a candidate</h2>
-        <p>Metadata and file review controls will appear here.</p>
+        <h2>{t("candidate.emptyTitle")}</h2>
+        <p>{t("candidate.emptyBody")}</p>
       </div>
     );
   }
@@ -128,20 +130,20 @@ export function CandidateEditor({
   };
 
   return (
-    <article className="candidate-editor" aria-label="Candidate editor">
+    <article className="candidate-editor" aria-label={t("candidate.editorAria")}>
       <header className="editor-header">
         <div>
-          <p className="status-label">{statusLabel(candidate.status)}</p>
+          <p className="status-label">{statusText(candidate.status, t)}</p>
           <h2>
             {candidate.artistName} - {candidate.title}
           </h2>
         </div>
         <div className="editor-actions">
           <button className="secondary-button" disabled={isBusy} type="button" onClick={() => void onHold(candidate.id)}>
-            Hold
+            {t("candidate.hold")}
           </button>
           <button className="primary-button" disabled={isBusy} type="button" onClick={() => setPendingConfirm("approve")}>
-            Approve
+            {t("candidate.approve")}
           </button>
           <button
             className="danger-button"
@@ -149,60 +151,60 @@ export function CandidateEditor({
             type="button"
             onClick={() => setPendingConfirm("reject-delete")}
           >
-            Reject delete
+            {t("candidate.rejectDelete")}
           </button>
         </div>
       </header>
 
-      <p className="action-note">Hold keeps files in imports/needs-review for later review.</p>
+      <p className="action-note">{t("candidate.holdNote")}</p>
 
       <form className="metadata-form" onSubmit={(event) => void handleSave(event)}>
         <label>
-          <span>Title</span>
+          <span>{t("candidate.title")}</span>
           <input value={form.title} onChange={(event) => updateField("title", event.target.value)} />
         </label>
         <label>
-          <span>Artist</span>
+          <span>{t("candidate.artist")}</span>
           <input value={form.artistName} onChange={(event) => updateField("artistName", event.target.value)} />
         </label>
         <label>
-          <span>Language</span>
+          <span>{t("candidate.language")}</span>
           <select value={form.language} onChange={(event) => updateField("language", event.target.value as Language)}>
-            <option value="mandarin">Mandarin</option>
-            <option value="cantonese">Cantonese</option>
-            <option value="other">Other</option>
+            <option value="mandarin">{languageName("mandarin", t)}</option>
+            <option value="cantonese">{languageName("cantonese", t)}</option>
+            <option value="other">{languageName("other", t)}</option>
           </select>
         </label>
         <label>
-          <span>Default vocal mode</span>
+          <span>{t("candidate.defaultVocalMode")}</span>
           <select
             value={form.defaultVocalMode}
             onChange={(event) => updateField("defaultVocalMode", event.target.value as VocalMode)}
           >
-            <option value="instrumental">Instrumental</option>
-            <option value="original">Original</option>
-            <option value="dual">Dual</option>
-            <option value="unknown">Unknown</option>
+            <option value="instrumental">{vocalModeName("instrumental", t)}</option>
+            <option value="original">{vocalModeName("original", t)}</option>
+            <option value="dual">{vocalModeName("dual", t)}</option>
+            <option value="unknown">{vocalModeName("unknown", t)}</option>
           </select>
         </label>
         <label>
-          <span>Genre</span>
+          <span>{t("candidate.genre")}</span>
           <input value={form.genre} onChange={(event) => updateField("genre", event.target.value)} />
         </label>
         <label>
-          <span>Tags</span>
+          <span>{t("candidate.tags")}</span>
           <input value={form.tags} onChange={(event) => updateField("tags", event.target.value)} />
         </label>
         <label>
-          <span>Year</span>
+          <span>{t("candidate.year")}</span>
           <input inputMode="numeric" value={form.releaseYear} onChange={(event) => updateField("releaseYear", event.target.value)} />
         </label>
         <label>
-          <span>Aliases</span>
+          <span>{t("candidate.aliases")}</span>
           <input value={form.aliases} onChange={(event) => updateField("aliases", event.target.value)} />
         </label>
         <label className="wide-field">
-          <span>Search hints</span>
+          <span>{t("candidate.searchHints")}</span>
           <input value={form.searchHints} onChange={(event) => updateField("searchHints", event.target.value)} />
         </label>
         <label className="check-field">
@@ -211,10 +213,10 @@ export function CandidateEditor({
             type="checkbox"
             onChange={(event) => updateField("sameVersionConfirmed", event.target.checked)}
           />
-          <span>Same version proof confirmed</span>
+          <span>{t("candidate.sameVersion")}</span>
         </label>
 
-        <section className="file-role-grid" aria-label="File role editing">
+        <section className="file-role-grid" aria-label={t("candidate.fileRoleAria")}>
           {candidate.files.map((file) => {
             const currentFile = form.files.find((item) => item.candidateFileId === file.candidateFileId);
             if (!currentFile) {
@@ -229,20 +231,20 @@ export function CandidateEditor({
                     type="checkbox"
                     onChange={(event) => updateFile(file.candidateFileId, { selected: event.target.checked })}
                   />
-                  <span>Use {fileName(file.relativePath)}</span>
+                  <span>{t("candidate.useFile", { file: fileName(file.relativePath) })}</span>
                 </label>
                 <label>
-                  <span>Vocal role for {fileName(file.relativePath)}</span>
+                  <span>{t("candidate.vocalRole", { file: fileName(file.relativePath) })}</span>
                   <select
                     value={currentFile.proposedVocalMode}
                     onChange={(event) =>
                       updateFile(file.candidateFileId, { proposedVocalMode: event.target.value as VocalMode })
                     }
                   >
-                    <option value="original">Original</option>
-                    <option value="instrumental">Instrumental</option>
-                    <option value="dual">Dual</option>
-                    <option value="unknown">Unknown</option>
+                    <option value="original">{vocalModeName("original", t)}</option>
+                    <option value="instrumental">{vocalModeName("instrumental", t)}</option>
+                    <option value="dual">{vocalModeName("dual", t)}</option>
+                    <option value="unknown">{vocalModeName("unknown", t)}</option>
                   </select>
                 </label>
               </div>
@@ -252,49 +254,49 @@ export function CandidateEditor({
 
         <div className="form-actions">
           <button className="primary-button" disabled={isBusy} type="submit">
-            Save metadata
+            {t("candidate.saveMetadata")}
           </button>
         </div>
       </form>
 
       <section className="file-detail-section">
         <button className="link-button" type="button" onClick={() => setShowFiles((current) => !current)}>
-          File details
+          {t("candidate.fileDetails")}
         </button>
         {showFiles ? <CandidateFiles files={candidate.files} /> : null}
       </section>
 
       {conflict ? (
-        <section className="conflict-section" aria-label="Conflict resolution">
-          <h3>Conflict resolution</h3>
+        <section className="conflict-section" aria-label={t("candidate.conflictAria")}>
+          <h3>{t("candidate.conflictTitle")}</h3>
           <dl className="fact-grid">
             <div>
-              <dt>Conflict type</dt>
+              <dt>{t("candidate.conflictType")}</dt>
               <dd>{conflict.conflictType}</dd>
             </div>
             <div>
-              <dt>Target directory</dt>
+              <dt>{t("candidate.targetDirectory")}</dt>
               <dd>{conflict.targetDirectory}</dd>
             </div>
             <div>
-              <dt>Matched song id</dt>
+              <dt>{t("candidate.matchedSongId")}</dt>
               <dd>{conflict.songId}</dd>
             </div>
           </dl>
           <div className="resolution-grid">
             <label>
-              <span>Target song id</span>
+              <span>{t("candidate.targetSongId")}</span>
               <input value={targetSongId} onChange={(event) => setTargetSongId(event.target.value)} />
             </label>
             <button className="secondary-button" disabled={isBusy || !targetSongId.trim()} type="button" onClick={() => void mergeExisting()}>
-              Merge existing
+              {t("candidate.mergeExisting")}
             </button>
             <label>
-              <span>Version suffix</span>
+              <span>{t("candidate.versionSuffix")}</span>
               <input value={versionSuffix} onChange={(event) => setVersionSuffix(event.target.value)} />
             </label>
             <button className="secondary-button" disabled={isBusy || !versionSuffix.trim()} type="button" onClick={() => void createVersion()}>
-              Create version
+              {t("candidate.createVersion")}
             </button>
           </div>
         </section>
@@ -302,9 +304,9 @@ export function CandidateEditor({
 
       {pendingConfirm === "approve" ? (
         <ConfirmActionDialog
-          confirmLabel="Approve"
-          message="Approve this candidate into the formal library after the backend admission checks pass."
-          title="Confirm approve"
+          confirmLabel={t("candidate.approve")}
+          message={t("candidate.confirmApproveMessage")}
+          title={t("candidate.confirmApproveTitle")}
           tone="normal"
           onCancel={() => setPendingConfirm(null)}
           onConfirm={() => void handleConfirm()}
@@ -312,9 +314,9 @@ export function CandidateEditor({
       ) : null}
       {pendingConfirm === "reject-delete" ? (
         <ConfirmActionDialog
-          confirmLabel="Reject delete"
-          message="Rejecting this candidate deletes its import files. This cannot be undone."
-          title="Confirm reject delete"
+          confirmLabel={t("candidate.rejectDelete")}
+          message={t("candidate.confirmRejectMessage")}
+          title={t("candidate.confirmRejectTitle")}
           tone="danger"
           onCancel={() => setPendingConfirm(null)}
           onConfirm={() => void handleConfirm()}
@@ -325,14 +327,15 @@ export function CandidateEditor({
 }
 
 function CandidateFiles({ files }: { files: ImportCandidateFileDetail[] }) {
+  const { t } = useI18n();
   return (
-    <div className="file-table" role="table" aria-label="Candidate file details">
+    <div className="file-table" role="table" aria-label={t("candidate.fileDetailsAria")}>
       <div className="file-table-head" role="row">
-        <span role="columnheader">File</span>
-        <span role="columnheader">Role</span>
-        <span role="columnheader">Root</span>
-        <span role="columnheader">Probe</span>
-        <span role="columnheader">Duration</span>
+        <span role="columnheader">{t("candidate.file")}</span>
+        <span role="columnheader">{t("candidate.role")}</span>
+        <span role="columnheader">{t("candidate.root")}</span>
+        <span role="columnheader">{t("candidate.probe")}</span>
+        <span role="columnheader">{t("candidate.duration")}</span>
       </div>
       {files.map((file) => (
         <div className="file-table-row" key={file.candidateFileId} role="row">
@@ -442,13 +445,6 @@ function asVocalMode(value: unknown): VocalMode | null {
 
 function fileName(relativePath: string): string {
   return relativePath.split("/").pop() ?? relativePath;
-}
-
-function statusLabel(status: ImportCandidate["status"]): string {
-  if (status === "review_required") {
-    return "Review required";
-  }
-  return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 function formatDuration(durationMs: number | null): string {

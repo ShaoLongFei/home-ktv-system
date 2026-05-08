@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { languageName, statusText, useI18n } from "../i18n.js";
 import { AssetPairEditor } from "./AssetPairEditor.js";
 import type {
   AdminCatalogSong,
@@ -46,6 +47,7 @@ export function SongDetailEditor({
   onRevalidate,
   onValidate
 }: SongDetailEditorProps) {
+  const { t } = useI18n();
   const [form, setForm] = useState<SongFormState>(() => toFormState(song));
 
   useEffect(() => {
@@ -65,76 +67,76 @@ export function SongDetailEditor({
     <article className="song-detail-shell">
       <header className="editor-header">
         <div>
-          <p className="status-label">{song.status}</p>
+          <p className="status-label">{statusText(song.status, t)}</p>
           <h2>
             {song.artistName} - {song.title}
           </h2>
         </div>
         <div className="editor-actions">
           <button className="secondary-button" disabled={isBusy} type="button" onClick={() => void onRevalidate(song.id)}>
-            Revalidate song
+            {t("songs.revalidate")}
           </button>
           <button className="secondary-button" disabled={isBusy} type="button" onClick={() => void onValidate(song.id)}>
-            Validate song.json
+            {t("songs.validateJson")}
           </button>
         </div>
       </header>
 
       <form className="metadata-form" onSubmit={(event) => void saveMetadata(event)}>
         <label>
-          <span>Title</span>
+          <span>{t("candidate.title")}</span>
           <input value={form.title} onChange={(event) => updateField("title", event.target.value)} />
         </label>
         <label>
-          <span>Artist</span>
+          <span>{t("candidate.artist")}</span>
           <input value={form.artistName} onChange={(event) => updateField("artistName", event.target.value)} />
         </label>
         <label>
-          <span>Language</span>
+          <span>{t("candidate.language")}</span>
           <select value={form.language} onChange={(event) => updateField("language", event.target.value as Language)}>
-            <option value="mandarin">mandarin</option>
-            <option value="cantonese">cantonese</option>
-            <option value="other">other</option>
+            <option value="mandarin">{languageName("mandarin", t)}</option>
+            <option value="cantonese">{languageName("cantonese", t)}</option>
+            <option value="other">{languageName("other", t)}</option>
           </select>
         </label>
         <label>
-          <span>Catalog status</span>
+          <span>{t("songs.catalogStatus")}</span>
           <select value={form.status} onChange={(event) => updateField("status", event.target.value as SongStatus)}>
-            <option value="ready">ready</option>
-            <option value="review_required">review_required</option>
-            <option value="unavailable">unavailable</option>
+            <option value="ready">{statusText("ready", t)}</option>
+            <option value="review_required">{statusText("review_required", t)}</option>
+            <option value="unavailable">{statusText("unavailable", t)}</option>
           </select>
         </label>
         <label>
-          <span>Genre</span>
+          <span>{t("candidate.genre")}</span>
           <input value={form.genre} onChange={(event) => updateField("genre", event.target.value)} />
         </label>
         <label>
-          <span>Tags</span>
+          <span>{t("candidate.tags")}</span>
           <input value={form.tags} onChange={(event) => updateField("tags", event.target.value)} />
         </label>
         <label>
-          <span>Year</span>
+          <span>{t("candidate.year")}</span>
           <input inputMode="numeric" value={form.releaseYear} onChange={(event) => updateField("releaseYear", event.target.value)} />
         </label>
         <label>
-          <span>Aliases</span>
+          <span>{t("candidate.aliases")}</span>
           <input value={form.aliases} onChange={(event) => updateField("aliases", event.target.value)} />
         </label>
         <label className="wide-field">
-          <span>Search hints</span>
+          <span>{t("candidate.searchHints")}</span>
           <input value={form.searchHints} onChange={(event) => updateField("searchHints", event.target.value)} />
         </label>
         <div className="form-actions">
           <button className="primary-button" disabled={isBusy} type="submit">
-            Save song metadata
+            {t("songs.saveMetadata")}
           </button>
         </div>
       </form>
 
-      <section className="metadata-form" aria-label="Default asset editor">
+      <section className="metadata-form" aria-label={t("songs.defaultAssetAria")}>
         <label>
-          <span>Default asset</span>
+          <span>{t("songs.defaultAsset")}</span>
           <select value={form.defaultAssetId} onChange={(event) => updateField("defaultAssetId", event.target.value)}>
             {song.assets.map((asset) => (
               <option key={asset.id} value={asset.id}>
@@ -150,14 +152,14 @@ export function SongDetailEditor({
             type="button"
             onClick={() => void onSetDefaultAsset(song.id, form.defaultAssetId)}
           >
-            Set default asset
+            {t("songs.setDefaultAsset")}
           </button>
         </div>
       </section>
 
       {evaluation ? (
-        <section className="validation-panel" aria-label="Revalidation result">
-          <h3>Revalidation</h3>
+        <section className="validation-panel" aria-label={t("songs.revalidationAria")}>
+          <h3>{t("songs.revalidation")}</h3>
           <p>
             {evaluation.status}
             {evaluation.reason ? `: ${evaluation.reason}` : ""}
@@ -166,8 +168,8 @@ export function SongDetailEditor({
       ) : null}
 
       {validation ? (
-        <section className="validation-panel" aria-label="song.json validation result">
-          <h3>song.json validation</h3>
+        <section className="validation-panel" aria-label={t("songs.validationAria")}>
+          <h3>{t("songs.validation")}</h3>
           <p>{validation.status}</p>
           <ul>
             {validation.issues.map((issue) => (

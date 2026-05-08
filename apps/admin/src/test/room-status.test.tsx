@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "../App.js";
@@ -9,23 +9,69 @@ type RequestRecord = {
   body: unknown;
 };
 
+const languageStorageKey = "home_ktv_language_v2";
+
+beforeEach(() => {
+  try {
+    localStorage.removeItem(languageStorageKey);
+  } catch {}
+});
+
 afterEach(() => {
   cleanup();
+  try {
+    localStorage.removeItem?.(languageStorageKey);
+  } catch {}
   vi.unstubAllGlobals();
 });
 
 describe("room status view", () => {
+  it("defaults to Chinese when no saved language exists", async () => {
+    installFetchMock();
+    try {
+      localStorage.removeItem(languageStorageKey);
+    } catch {}
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "导入审核工作台" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "中文" })).toBeTruthy();
+  });
+
+  it("switches the admin console chrome and active view to Chinese", async () => {
+    const user = userEvent.setup();
+    installFetchMock();
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "导入审核工作台" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "English" }));
+
+    expect(await screen.findByRole("heading", { name: "Import review workbench" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Imports" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Songs" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Rooms" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "中文" }));
+
+    expect(screen.getByRole("heading", { name: "导入审核工作台" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "房间" }));
+
+    expect(await screen.findByRole("heading", { name: "房间状态" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "刷新房间状态" })).toBeTruthy();
+  });
+
   it("defaults to Imports and switches to Rooms without reloading", async () => {
     const user = userEvent.setup();
     installFetchMock();
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: /import review workbench/i })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "导入审核工作台" })).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: "Rooms" }));
+    await user.click(screen.getByRole("button", { name: "房间" }));
 
-    expect(await screen.findByRole("heading", { name: "Room status" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Imports" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "房间状态" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "导入" })).toBeTruthy();
   });
 
   it("renders room status fields and refreshes the pairing token", async () => {
@@ -33,38 +79,41 @@ describe("room status view", () => {
     const { requests } = installFetchMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Rooms" }));
+    await user.click(screen.getByRole("button", { name: "房间" }));
 
-    expect(await screen.findByText("Token expires")).toBeTruthy();
-    expect(screen.getByText("Online controllers")).toBeTruthy();
-    expect(screen.getByText("TV status")).toBeTruthy();
-    expect(screen.getByText("Session version")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Refresh room state" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Refresh pairing token" })).toBeTruthy();
+    expect(await screen.findByText("Token 过期时间")).toBeTruthy();
+    expect(screen.getByText("在线控制端")).toBeTruthy();
+    expect(screen.getByText("电视状态")).toBeTruthy();
+    expect(screen.getByText("会话版本")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "刷新房间状态" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "刷新配对 token" })).toBeTruthy();
     expect(screen.getByText("七里香")).toBeTruthy();
     expect(screen.getByText("晴天")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Online tasks" })).toBeTruthy();
-    expect(screen.getByText("Task counts")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "在线补歌任务" })).toBeTruthy();
+    expect(screen.getByText("任务统计")).toBeTruthy();
     expect(screen.getByText("稻香")).toBeTruthy();
     expect(screen.getByText("provider-timeout")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Recent events" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "最近事件" })).toBeTruthy();
     expect(screen.getByText("player.failed")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Promote ready resource" })).toBeNull();
+    expect(screen.getByRole("button", { name: "入库任务 task-ready" })).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: "Refresh pairing token" }));
+    await user.click(screen.getByRole("button", { name: "刷新配对 token" }));
 
     expect(requests.some((request) => request.method === "POST" && request.url === "/admin/rooms/living-room/pairing-token/refresh")).toBe(true);
     expect(await screen.findByText("2026-05-04 18:30:45")).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: "Refresh room state" }));
-    await user.click(screen.getByRole("button", { name: "Retry task task-failed" }));
-    await user.click(screen.getByRole("button", { name: "Clean task task-failed" }));
-    await user.click(screen.getByRole("button", { name: "Promote task task-ready" }));
+    await user.click(screen.getByRole("button", { name: "刷新房间状态" }));
+    await user.click(screen.getByRole("button", { name: "重试任务 task-failed" }));
+    await user.click(screen.getByRole("button", { name: "清理任务 task-failed" }));
+    await user.click(screen.getByRole("button", { name: "入库任务 task-ready" }));
 
-    expect(requests.filter((request) => request.method === "GET" && request.url === "/admin/rooms/living-room")).toHaveLength(2);
+    await waitFor(() =>
+      expect(requests.filter((request) => request.method === "GET" && request.url === "/admin/rooms/living-room")).toHaveLength(5)
+    );
     expect(requests.some((request) => request.method === "POST" && request.url === "/admin/rooms/living-room/online-tasks/task-failed/retry")).toBe(true);
     expect(requests.some((request) => request.method === "POST" && request.url === "/admin/rooms/living-room/online-tasks/task-failed/clean")).toBe(true);
     expect(requests.some((request) => request.method === "POST" && request.url === "/admin/rooms/living-room/online-tasks/task-ready/promote")).toBe(true);
+    await waitFor(() => expect(screen.queryByText("稻香")).toBeNull());
   });
 
   it("updates room status from realtime snapshot messages", async () => {
@@ -73,7 +122,7 @@ describe("room status view", () => {
     const webSockets = installWebSocketMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Rooms" }));
+    await user.click(screen.getByRole("button", { name: "房间" }));
 
     expect(await screen.findByText("七里香")).toBeTruthy();
     await waitFor(() => expect(webSockets.instances).toHaveLength(1));
@@ -97,6 +146,7 @@ describe("room status view", () => {
 function installFetchMock() {
   const requests: RequestRecord[] = [];
   let refreshed = false;
+  let promoted = false;
 
   vi.stubGlobal(
     "fetch",
@@ -107,7 +157,7 @@ function installFetchMock() {
       requests.push({ url: `${requestUrl.pathname}${requestUrl.search}`, method, body });
 
       if (method === "GET" && requestUrl.pathname === "/admin/rooms/living-room") {
-        return json(roomStatus(refreshed ? "2026-05-04T10:30:00.000Z" : "2026-05-04T10:15:00.000Z"));
+        return json(roomStatus(refreshed ? "2026-05-04T10:30:00.000Z" : "2026-05-04T10:15:00.000Z", promoted));
       }
 
       if (method === "POST" && requestUrl.pathname === "/admin/rooms/living-room/pairing-token/refresh") {
@@ -123,6 +173,10 @@ function installFetchMock() {
       }
 
       if (method === "POST" && requestUrl.pathname.includes("/online-tasks/")) {
+        if (requestUrl.pathname.endsWith("/promote")) {
+          promoted = true;
+        }
+
         return json({
           task: {
             id: requestUrl.pathname.includes("task-ready") ? "task-ready" : "task-failed",
@@ -163,7 +217,79 @@ function installFetchMock() {
   return { requests };
 }
 
-function roomStatus(tokenExpiresAt: string) {
+function roomStatus(tokenExpiresAt: string, promoted = false) {
+  const onlineTasks = promoted
+    ? {
+        counts: { total: 1, failed: 1 },
+        tasks: [
+          {
+            taskId: "task-failed",
+            roomId: "living-room",
+            provider: "fixture-provider",
+            providerCandidateId: "fixture-failed",
+            title: "倒带",
+            artistName: "蔡依林",
+            sourceLabel: "Fixture Provider",
+            durationMs: 198000,
+            candidateType: "mv",
+            reliabilityLabel: "medium",
+            riskLabel: "normal",
+            status: "failed",
+            failureReason: "provider-timeout",
+            recentEvent: { type: "failed" },
+            recentEventAt: "2026-05-04T10:01:00.000Z",
+            readyAssetId: null,
+            createdAt: "2026-05-04T09:59:00.000Z",
+            updatedAt: "2026-05-04T10:01:00.000Z"
+          }
+        ]
+      }
+    : {
+        counts: { total: 2, ready: 1, failed: 1 },
+        tasks: [
+          {
+            taskId: "task-ready",
+            roomId: "living-room",
+            provider: "fixture-provider",
+            providerCandidateId: "fixture-ready",
+            title: "稻香",
+            artistName: "周杰伦",
+            sourceLabel: "Fixture Provider",
+            durationMs: 210000,
+            candidateType: "karaoke",
+            reliabilityLabel: "high",
+            riskLabel: "normal",
+            status: "ready",
+            failureReason: null,
+            recentEvent: { type: "ready" },
+            recentEventAt: "2026-05-04T10:02:00.000Z",
+            readyAssetId: "asset-online-ready",
+            createdAt: "2026-05-04T10:00:00.000Z",
+            updatedAt: "2026-05-04T10:02:00.000Z"
+          },
+          {
+            taskId: "task-failed",
+            roomId: "living-room",
+            provider: "fixture-provider",
+            providerCandidateId: "fixture-failed",
+            title: "倒带",
+            artistName: "蔡依林",
+            sourceLabel: "Fixture Provider",
+            durationMs: 198000,
+            candidateType: "mv",
+            reliabilityLabel: "medium",
+            riskLabel: "normal",
+            status: "failed",
+            failureReason: "provider-timeout",
+            recentEvent: { type: "failed" },
+            recentEventAt: "2026-05-04T10:01:00.000Z",
+            readyAssetId: null,
+            createdAt: "2026-05-04T09:59:00.000Z",
+            updatedAt: "2026-05-04T10:01:00.000Z"
+          }
+        ]
+      };
+
   return {
     room: {
       roomId: "living-room",
@@ -211,51 +337,7 @@ function roomStatus(tokenExpiresAt: string) {
         createdAt: "2026-05-04T10:03:00.000Z"
       }
     ],
-    onlineTasks: {
-      counts: { total: 2, ready: 1, failed: 1 },
-      tasks: [
-        {
-          taskId: "task-ready",
-          roomId: "living-room",
-          provider: "fixture-provider",
-          providerCandidateId: "fixture-ready",
-          title: "稻香",
-          artistName: "周杰伦",
-          sourceLabel: "Fixture Provider",
-          durationMs: 210000,
-          candidateType: "karaoke",
-          reliabilityLabel: "high",
-          riskLabel: "normal",
-          status: "ready",
-          failureReason: null,
-          recentEvent: { type: "ready" },
-          recentEventAt: "2026-05-04T10:02:00.000Z",
-          readyAssetId: "asset-online-ready",
-          createdAt: "2026-05-04T10:00:00.000Z",
-          updatedAt: "2026-05-04T10:02:00.000Z"
-        },
-        {
-          taskId: "task-failed",
-          roomId: "living-room",
-          provider: "fixture-provider",
-          providerCandidateId: "fixture-failed",
-          title: "倒带",
-          artistName: "蔡依林",
-          sourceLabel: "Fixture Provider",
-          durationMs: 198000,
-          candidateType: "mv",
-          reliabilityLabel: "medium",
-          riskLabel: "normal",
-          status: "failed",
-          failureReason: "provider-timeout",
-          recentEvent: { type: "failed" },
-          recentEventAt: "2026-05-04T10:01:00.000Z",
-          readyAssetId: null,
-          createdAt: "2026-05-04T09:59:00.000Z",
-          updatedAt: "2026-05-04T10:01:00.000Z"
-        }
-      ]
-    }
+    onlineTasks
   };
 }
 

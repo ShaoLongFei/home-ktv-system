@@ -14,6 +14,7 @@ import type { RoomRepository } from "../modules/rooms/repositories/room-reposito
 import type { PlayerDeviceSessionRepository } from "../modules/player/register-player.js";
 import type { CandidateTaskService } from "../modules/online/candidate-task-service.js";
 import type { PlaybackEventRepository } from "../modules/playback/repositories/playback-event-repository.js";
+import type { RoomSnapshotBroadcaster } from "../modules/realtime/room-snapshot-broadcaster.js";
 
 export interface AdminRoomsRouteDependencies {
   config: ApiConfig;
@@ -29,6 +30,7 @@ export interface AdminRoomsRouteDependencies {
   playbackEvents?: Pick<PlaybackEventRepository, "listRecentByRoom"> | undefined;
   online?: Pick<CandidateTaskService, "listActiveForRoom" | "retryTask" | "purgeTask" | "promoteTask"> | undefined;
   onlineTasks?: Pick<CandidateTaskService, "listActiveForRoom" | "retryTask" | "purgeTask" | "promoteTask"> | undefined;
+  broadcaster?: RoomSnapshotBroadcaster | undefined;
 }
 
 export async function registerAdminRoomsRoutes(
@@ -128,6 +130,29 @@ async function handleOnlineTaskAction(
   if (!task) {
     await reply.code(404).send({ error: "ONLINE_TASK_NOT_FOUND" });
     return;
+  }
+
+  if (dependencies.broadcaster) {
+    const snapshot = await buildRoomControlSnapshot({
+      roomSlug: room.slug,
+      config: dependencies.config,
+      repositories: {
+        rooms: dependencies.rooms,
+        playbackSessions: dependencies.playbackSessions,
+        queueEntries: dependencies.queueEntries,
+        assets: dependencies.assets,
+        songs: dependencies.songs,
+        pairingTokens: dependencies.pairingTokens,
+        controlSessions: dependencies.controlSessions,
+        deviceSessions: dependencies.deviceSessions,
+        playbackEvents: dependencies.playbackEvents,
+        onlineTasks
+      },
+      assetGateway: dependencies.assetGateway
+    });
+    if (snapshot) {
+      dependencies.broadcaster.broadcastRoomSnapshot(room.slug, snapshot);
+    }
   }
 
   await reply.send({ task });

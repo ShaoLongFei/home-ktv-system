@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useI18n } from "../i18n.js";
 import { ConfirmDangerDialog } from "./ConfirmDangerDialog.js";
 import type {
   AdminCatalogAsset,
@@ -27,6 +28,7 @@ interface PendingChange {
 }
 
 export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEditorProps) {
+  const { t } = useI18n();
   const [drafts, setDrafts] = useState<Record<string, AssetDraft>>(() => toDrafts(assets));
   const [pendingChange, setPendingChange] = useState<PendingChange | null>(null);
 
@@ -69,8 +71,8 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
   };
 
   return (
-    <section className="asset-editor-section" aria-label="Asset pair editor">
-      <h3>Assets</h3>
+    <section className="asset-editor-section" aria-label={t("asset.editorAria")}>
+      <h3>{t("asset.assets")}</h3>
       <div className="asset-editor-grid">
         {assets.map((asset) => {
           const draft = drafts[asset.id] ?? toDraft(asset);
@@ -85,7 +87,7 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
               </header>
               <div className="asset-control-grid">
                 <label>
-                  <span>{`Status for ${asset.id}`}</span>
+                  <span>{t("asset.statusFor", { asset: asset.id })}</span>
                   <select
                     value={draft.status}
                     onChange={(event) => updateDraft(asset.id, { status: event.target.value as AssetStatus })}
@@ -99,7 +101,7 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
                   </select>
                 </label>
                 <label>
-                  <span>{`Vocal mode for ${asset.id}`}</span>
+                  <span>{t("asset.vocalFor", { asset: asset.id })}</span>
                   <select
                     value={draft.vocalMode}
                     onChange={(event) => updateDraft(asset.id, { vocalMode: event.target.value as VocalMode })}
@@ -111,7 +113,7 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
                   </select>
                 </label>
                 <label>
-                  <span>{`Lyric mode for ${asset.id}`}</span>
+                  <span>{t("asset.lyricFor", { asset: asset.id })}</span>
                   <select
                     value={draft.lyricMode}
                     onChange={(event) => updateDraft(asset.id, { lyricMode: event.target.value as LyricMode })}
@@ -123,13 +125,13 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
                   </select>
                 </label>
                 <label>
-                  <span>{`Switch family for ${asset.id}`}</span>
+                  <span>{t("asset.switchFamilyFor", { asset: asset.id })}</span>
                   <input value={draft.switchFamily} onChange={(event) => updateDraft(asset.id, { switchFamily: event.target.value })} />
                 </label>
               </div>
-              <p className="action-note">Switch quality: {asset.switchQualityStatus}</p>
+              <p className="action-note">{t("asset.switchQuality")}: {asset.switchQualityStatus}</p>
               <button className="secondary-button" disabled={isBusy} type="button" onClick={() => updateAsset(asset)}>
-                Update {asset.id}
+                {t("asset.update", { asset: asset.id })}
               </button>
             </article>
           );
@@ -137,9 +139,9 @@ export function AssetPairEditor({ assets, isBusy, onUpdateAsset }: AssetPairEdit
       </div>
       {pendingChange ? (
         <ConfirmDangerDialog
-          confirmLabel="Apply change"
-          message="This resource change can alter readiness or vocal switching eligibility and will be revalidated."
-          title="Confirm catalog change"
+          confirmLabel={t("asset.confirmApply")}
+          message={t("asset.confirmMessage")}
+          title={t("asset.confirmTitle")}
           onCancel={() => setPendingChange(null)}
           onConfirm={() => void confirmChange()}
         />

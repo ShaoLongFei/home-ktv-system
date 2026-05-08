@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "../App.js";
@@ -45,8 +45,19 @@ interface TestCandidateFile {
   durationMs: number | null;
 }
 
+const languageStorageKey = "home_ktv_language_v2";
+
+beforeEach(() => {
+  try {
+    localStorage.removeItem(languageStorageKey);
+  } catch {}
+});
+
 afterEach(() => {
   cleanup();
+  try {
+    localStorage.removeItem?.(languageStorageKey);
+  } catch {}
   vi.unstubAllGlobals();
 });
 
@@ -70,7 +81,7 @@ describe("import review workbench", () => {
 
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: /import review workbench/i })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "导入审核工作台" })).toBeTruthy();
     expect(screen.queryByText(/landing page|marketing/i)).toBeNull();
   });
 
@@ -78,12 +89,12 @@ describe("import review workbench", () => {
     installFetchMock();
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: "Pending" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Held" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Review required" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Conflict" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "待处理" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "已暂存" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "需复核" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "冲突" })).toBeTruthy();
 
-    const candidate = screen.getByRole("button", { name: /七里香.+2 files.+probed.+03:00/u });
+    const candidate = screen.getByRole("button", { name: /七里香.+2 个文件.+probed.+03:00/u });
     expect(candidate).toBeTruthy();
   });
 
@@ -93,7 +104,7 @@ describe("import review workbench", () => {
     render(<App />);
 
     await user.click(await screen.findByRole("button", { name: /七里香/u }));
-    await user.click(screen.getByRole("button", { name: /file details/i }));
+    await user.click(screen.getByRole("button", { name: "文件详情" }));
 
     expect(screen.getByText("original.mp4")).toBeTruthy();
     expect(screen.getByText("instrumental.mp4")).toBeTruthy();
@@ -112,26 +123,26 @@ describe("import review workbench", () => {
     render(<App />);
 
     await user.click(await screen.findByRole("button", { name: /七里香/u }));
-    await user.clear(screen.getByLabelText("Title"));
-    await user.type(screen.getByLabelText("Title"), "七里香 Live");
-    await user.clear(screen.getByLabelText("Artist"));
-    await user.type(screen.getByLabelText("Artist"), "周杰伦 & Lara");
-    await user.selectOptions(screen.getByLabelText("Language"), "cantonese");
-    await user.selectOptions(screen.getByLabelText("Default vocal mode"), "instrumental");
-    await user.clear(screen.getByLabelText("Genre"));
-    await user.type(screen.getByLabelText("Genre"), "pop, live");
-    await user.clear(screen.getByLabelText("Tags"));
-    await user.type(screen.getByLabelText("Tags"), "duet, family");
-    await user.clear(screen.getByLabelText("Year"));
-    await user.type(screen.getByLabelText("Year"), "2005");
-    await user.clear(screen.getByLabelText("Aliases"));
-    await user.type(screen.getByLabelText("Aliases"), "Qi Li Xiang, Orange Jasmine");
-    await user.clear(screen.getByLabelText("Search hints"));
-    await user.type(screen.getByLabelText("Search hints"), "qlx, jay");
-    await user.click(screen.getByLabelText("Same version proof confirmed"));
-    await user.selectOptions(screen.getByLabelText("Vocal role for original.mp4"), "original");
-    await user.selectOptions(screen.getByLabelText("Vocal role for instrumental.mp4"), "instrumental");
-    await user.click(screen.getByRole("button", { name: "Save metadata" }));
+    await user.clear(screen.getByLabelText("歌名"));
+    await user.type(screen.getByLabelText("歌名"), "七里香 Live");
+    await user.clear(screen.getByLabelText("歌手"));
+    await user.type(screen.getByLabelText("歌手"), "周杰伦 & Lara");
+    await user.selectOptions(screen.getByLabelText("语言"), "cantonese");
+    await user.selectOptions(screen.getByLabelText("默认声轨"), "instrumental");
+    await user.clear(screen.getByLabelText("流派"));
+    await user.type(screen.getByLabelText("流派"), "pop, live");
+    await user.clear(screen.getByLabelText("标签"));
+    await user.type(screen.getByLabelText("标签"), "duet, family");
+    await user.clear(screen.getByLabelText("年份"));
+    await user.type(screen.getByLabelText("年份"), "2005");
+    await user.clear(screen.getByLabelText("别名"));
+    await user.type(screen.getByLabelText("别名"), "Qi Li Xiang, Orange Jasmine");
+    await user.clear(screen.getByLabelText("搜索提示"));
+    await user.type(screen.getByLabelText("搜索提示"), "qlx, jay");
+    await user.click(screen.getByLabelText("已确认同版本证据"));
+    await user.selectOptions(screen.getByLabelText("original.mp4 的声轨角色"), "original");
+    await user.selectOptions(screen.getByLabelText("instrumental.mp4 的声轨角色"), "instrumental");
+    await user.click(screen.getByRole("button", { name: "保存元数据" }));
 
     const patchRequest = await waitFor(() =>
       requests.find((request) => request.method === "PATCH" && request.url === "/admin/import-candidates/candidate-1")
@@ -172,17 +183,17 @@ describe("import review workbench", () => {
     render(<App />);
 
     await user.click(await screen.findByRole("button", { name: /七里香/u }));
-    await user.click(screen.getByRole("button", { name: "Hold" }));
+    await user.click(screen.getByRole("button", { name: "暂存" }));
     expect(requests.some((request) => request.method === "POST" && request.url === "/admin/import-candidates/candidate-1/hold")).toBe(true);
 
-    await user.click(screen.getByRole("button", { name: "Approve" }));
-    expect(screen.getByRole("dialog", { name: "Confirm approve" })).toBeTruthy();
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Approve" }));
+    await user.click(screen.getByRole("button", { name: "批准入库" }));
+    expect(screen.getByRole("dialog", { name: "确认批准入库" })).toBeTruthy();
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "批准入库" }));
     expect(requests.some((request) => request.method === "POST" && request.url === "/admin/import-candidates/candidate-1/approve")).toBe(true);
 
-    await user.click(screen.getByRole("button", { name: "Reject delete" }));
-    expect(screen.getByRole("dialog", { name: "Confirm reject delete" })).toBeTruthy();
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Reject delete" }));
+    await user.click(screen.getByRole("button", { name: "拒绝并删除" }));
+    expect(screen.getByRole("dialog", { name: "确认拒绝并删除" })).toBeTruthy();
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "拒绝并删除" }));
 
     const deleteRequest = requests.find(
       (request) => request.method === "POST" && request.url === "/admin/import-candidates/candidate-1/reject-delete"
@@ -195,20 +206,20 @@ describe("import review workbench", () => {
     const { requests } = installFetchMock();
     render(<App />);
 
-    await user.click(await screen.findByRole("button", { name: "Conflict" }));
+    await user.click(await screen.findByRole("button", { name: "冲突" }));
     await user.click(await screen.findByRole("button", { name: /晴天/u }));
 
     expect(screen.getByText("formal_directory_exists")).toBeTruthy();
     expect(screen.getByText("mandarin/周杰伦/晴天")).toBeTruthy();
     expect(screen.getByText("song-existing-1")).toBeTruthy();
 
-    await user.clear(screen.getByLabelText("Target song id"));
-    await user.type(screen.getByLabelText("Target song id"), "song-existing-1");
-    await user.click(screen.getByRole("button", { name: "Merge existing" }));
+    await user.clear(screen.getByLabelText("目标歌曲 ID"));
+    await user.type(screen.getByLabelText("目标歌曲 ID"), "song-existing-1");
+    await user.click(screen.getByRole("button", { name: "合并到现有歌曲" }));
 
-    await user.clear(screen.getByLabelText("Version suffix"));
-    await user.type(screen.getByLabelText("Version suffix"), "live-2004");
-    await user.click(screen.getByRole("button", { name: "Create version" }));
+    await user.clear(screen.getByLabelText("版本后缀"));
+    await user.type(screen.getByLabelText("版本后缀"), "live-2004");
+    await user.click(screen.getByRole("button", { name: "创建新版本" }));
 
     expect(
       requests.some(

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "../App.js";
@@ -10,8 +10,19 @@ type RequestRecord = {
   body: unknown;
 };
 
+const languageStorageKey = "home_ktv_language_v2";
+
+beforeEach(() => {
+  try {
+    localStorage.removeItem(languageStorageKey);
+  } catch {}
+});
+
 afterEach(() => {
   cleanup();
+  try {
+    localStorage.removeItem?.(languageStorageKey);
+  } catch {}
   vi.unstubAllGlobals();
 });
 
@@ -21,12 +32,12 @@ describe("song catalog maintenance", () => {
     installFetchMock();
     render(<App />);
 
-    expect(await screen.findByRole("heading", { name: /import review workbench/i })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "导入审核工作台" })).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: "Songs" }));
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
 
-    expect(await screen.findByRole("heading", { name: "Song catalog" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Imports" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "歌曲目录" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "导入" })).toBeTruthy();
   });
 
   it("renders formal songs with resource maintenance fields", async () => {
@@ -34,9 +45,9 @@ describe("song catalog maintenance", () => {
     installFetchMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Songs" }));
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
 
-    const row = await screen.findByRole("button", { name: /七里香.+ready.+2 assets/u });
+    const row = await screen.findByRole("button", { name: /七里香.+ready.+2 个资源/u });
     expect(row).toBeTruthy();
     expect(screen.getAllByText(/周杰伦/u).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/mandarin/u).length).toBeGreaterThan(0);
@@ -46,7 +57,7 @@ describe("song catalog maintenance", () => {
     expect(screen.getAllByText("hard_sub").length).toBeGreaterThan(0);
     expect(screen.getAllByText("ready").length).toBeGreaterThan(0);
     expect(screen.getAllByDisplayValue("main").length).toBeGreaterThan(0);
-    expect(screen.getAllByText((_, element) => element?.textContent === "Switch quality: verified").length).toBeGreaterThan(0);
+    expect(screen.getAllByText((_, element) => element?.textContent === "切换质量: verified").length).toBeGreaterThan(0);
   });
 
   it("filters song status through /admin/catalog/songs?status=...", async () => {
@@ -54,9 +65,9 @@ describe("song catalog maintenance", () => {
     const { requests } = installFetchMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Songs" }));
-    await screen.findByRole("heading", { name: "Song catalog" });
-    await user.selectOptions(screen.getByLabelText("Song status"), "review_required");
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+    await screen.findByRole("heading", { name: "歌曲目录" });
+    await user.selectOptions(screen.getByLabelText("歌曲状态"), "review_required");
 
     await waitFor(() => {
       expect(
@@ -70,27 +81,27 @@ describe("song catalog maintenance", () => {
     const { requests } = installFetchMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Songs" }));
-    await screen.findByRole("heading", { name: "Song catalog" });
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+    await screen.findByRole("heading", { name: "歌曲目录" });
     await screen.findByRole("button", { name: /七里香/u });
-    const detail = screen.getByRole("region", { name: "Song resource detail" });
-    await user.clear(within(detail).getByLabelText("Title"));
-    await user.type(within(detail).getByLabelText("Title"), "七里香 Live");
-    await user.clear(within(detail).getByLabelText("Artist"));
-    await user.type(within(detail).getByLabelText("Artist"), "周杰伦 & Lara");
-    await user.selectOptions(within(detail).getByLabelText("Language"), "cantonese");
-    await user.clear(within(detail).getByLabelText("Genre"));
-    await user.type(within(detail).getByLabelText("Genre"), "pop, live");
-    await user.clear(within(detail).getByLabelText("Tags"));
-    await user.type(within(detail).getByLabelText("Tags"), "ktv, family");
-    await user.clear(within(detail).getByLabelText("Year"));
-    await user.type(within(detail).getByLabelText("Year"), "2005");
-    await user.clear(within(detail).getByLabelText("Aliases"));
-    await user.type(within(detail).getByLabelText("Aliases"), "Qi Li Xiang");
-    await user.clear(within(detail).getByLabelText("Search hints"));
-    await user.type(within(detail).getByLabelText("Search hints"), "qlx, jay");
-    await user.selectOptions(within(detail).getByLabelText("Catalog status"), "review_required");
-    await user.click(screen.getByRole("button", { name: "Save song metadata" }));
+    const detail = screen.getByRole("region", { name: "歌曲资源详情" });
+    await user.clear(within(detail).getByLabelText("歌名"));
+    await user.type(within(detail).getByLabelText("歌名"), "七里香 Live");
+    await user.clear(within(detail).getByLabelText("歌手"));
+    await user.type(within(detail).getByLabelText("歌手"), "周杰伦 & Lara");
+    await user.selectOptions(within(detail).getByLabelText("语言"), "cantonese");
+    await user.clear(within(detail).getByLabelText("流派"));
+    await user.type(within(detail).getByLabelText("流派"), "pop, live");
+    await user.clear(within(detail).getByLabelText("标签"));
+    await user.type(within(detail).getByLabelText("标签"), "ktv, family");
+    await user.clear(within(detail).getByLabelText("年份"));
+    await user.type(within(detail).getByLabelText("年份"), "2005");
+    await user.clear(within(detail).getByLabelText("别名"));
+    await user.type(within(detail).getByLabelText("别名"), "Qi Li Xiang");
+    await user.clear(within(detail).getByLabelText("搜索提示"));
+    await user.type(within(detail).getByLabelText("搜索提示"), "qlx, jay");
+    await user.selectOptions(within(detail).getByLabelText("目录状态"), "review_required");
+    await user.click(screen.getByRole("button", { name: "保存歌曲元数据" }));
 
     await screen.findByRole("heading", { name: /周杰伦 & Lara - 七里香 Live/u });
     const patchRequest = requests.find((request) => request.method === "PATCH" && request.url === "/admin/catalog/songs/song-1");
@@ -112,11 +123,11 @@ describe("song catalog maintenance", () => {
     const { requests } = installFetchMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Songs" }));
-    await screen.findByRole("heading", { name: "Song catalog" });
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+    await screen.findByRole("heading", { name: "歌曲目录" });
     await screen.findByRole("button", { name: /七里香/u });
-    await user.selectOptions(screen.getByLabelText("Default asset"), "asset-original");
-    await user.click(screen.getByRole("button", { name: "Set default asset" }));
+    await user.selectOptions(screen.getByLabelText("默认资源"), "asset-original");
+    await user.click(screen.getByRole("button", { name: "设为默认资源" }));
 
     await waitFor(() => {
       expect(
@@ -135,16 +146,16 @@ describe("song catalog maintenance", () => {
     const { requests } = installFetchMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Songs" }));
-    await screen.findByRole("heading", { name: "Song catalog" });
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+    await screen.findByRole("heading", { name: "歌曲目录" });
     await screen.findByRole("button", { name: /七里香/u });
-    await user.selectOptions(screen.getByLabelText("Status for asset-original"), "unavailable");
-    await user.click(screen.getByRole("button", { name: "Update asset-original" }));
+    await user.selectOptions(screen.getByLabelText("asset-original 的状态"), "unavailable");
+    await user.click(screen.getByRole("button", { name: "更新 asset-original" }));
 
     expect(requests.some((request) => request.method === "PATCH" && request.url === "/admin/catalog/assets/asset-original")).toBe(false);
 
-    const dialog = screen.getByRole("dialog", { name: "Confirm catalog change" });
-    await user.click(within(dialog).getByRole("button", { name: "Apply change" }));
+    const dialog = screen.getByRole("dialog", { name: "确认修改目录资源" });
+    await user.click(within(dialog).getByRole("button", { name: "应用修改" }));
 
     await waitFor(() => {
       expect(
@@ -163,11 +174,11 @@ describe("song catalog maintenance", () => {
     installFetchMock();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Songs" }));
-    await screen.findByRole("heading", { name: "Song catalog" });
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+    await screen.findByRole("heading", { name: "歌曲目录" });
     await screen.findByRole("button", { name: /七里香/u });
-    await user.click(screen.getByRole("button", { name: "Revalidate song" }));
-    await user.click(screen.getByRole("button", { name: "Validate song.json" }));
+    await user.click(screen.getByRole("button", { name: "重新校验歌曲" }));
+    await user.click(screen.getByRole("button", { name: "校验 song.json" }));
 
     expect((await screen.findAllByText(/duration-delta-over-300ms/u)).length).toBeGreaterThan(0);
     expect(await screen.findByText("SWITCH_PAIR_NOT_VERIFIED")).toBeTruthy();

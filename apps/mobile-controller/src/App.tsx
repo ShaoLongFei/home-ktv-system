@@ -1,43 +1,57 @@
+import { I18nProvider, LanguageSwitch, useI18n, vocalModeName } from "./i18n.js";
 import { supplementKey, useRoomController } from "./runtime/use-room-controller.js";
 
 export function App() {
+  return (
+    <I18nProvider defaultLanguage="zh">
+      <ControllerApp />
+    </I18nProvider>
+  );
+}
+
+function ControllerApp() {
+  const { t } = useI18n();
   const controller = useRoomController();
   const snapshot = controller.snapshot;
   const current = snapshot?.currentTarget;
+  const online = controller.songSearch?.online;
   const switchTarget = snapshot?.switchTarget;
-  const switchLabel = switchTarget?.vocalMode === "original" ? "切到原唱" : "切到伴唱";
-  const currentModeLabel = vocalModeLabel(current?.vocalMode ?? "unknown");
+  const switchLabel = switchTarget?.vocalMode === "original" ? t("button.switchToOriginal") : t("button.switchToInstrumental");
+  const currentModeLabel = vocalModeName(current?.vocalMode ?? "unknown", t);
 
   return (
-    <main className="app-shell" aria-label="Home KTV controller">
+    <main className="app-shell" aria-label={t("app.aria")}>
       <header className="top-bar">
         <div>
           <p className="eyebrow">{controller.roomSlug}</p>
-          <h1>点歌控制台</h1>
+          <h1>{t("header.title")}</h1>
         </div>
-        <span className={snapshot?.tvPresence.online ? "status-pill online" : "status-pill offline"}>
-          {snapshot?.tvPresence.online ? "电视在线" : "电视离线"}
-        </span>
+        <div className="top-actions">
+          <span className={snapshot?.tvPresence.online ? "status-pill online" : "status-pill offline"}>
+            {snapshot?.tvPresence.online ? t("status.tvOnline") : t("status.tvOffline")}
+          </span>
+          <LanguageSwitch />
+        </div>
       </header>
 
       {controller.connectionStatus === "reconnecting" ? (
-        <div className="offline-banner">连接中断，正在重连</div>
+        <div className="offline-banner">{t("status.reconnecting")}</div>
       ) : null}
 
       {controller.errorMessage ? <div className="error-banner">{controller.errorMessage}</div> : null}
 
-      <section className="panel current-panel" aria-label="Current playback">
+      <section className="panel current-panel" aria-label={t("current.aria")}>
         <div>
-          <p className="eyebrow">正在播放</p>
-          <h2>{current?.currentQueueEntryPreview.songTitle ?? "等待点歌"}</h2>
-          <p>{current?.currentQueueEntryPreview.artistName ?? "队列为空"}</p>
+          <p className="eyebrow">{t("current.eyebrow")}</p>
+          <h2>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</h2>
+          <p>{current?.currentQueueEntryPreview.artistName ?? t("current.emptyQueue")}</p>
         </div>
         <div className="current-meta">
-          <span>{snapshot?.state ?? "连接中"}</span>
+          <span>{snapshot?.state ?? t("current.connecting")}</span>
           <span>{currentModeLabel}</span>
         </div>
-        <div className="mode-summary" aria-label="current-vocal-mode">
-          <span className="mode-summary-label">当前模式</span>
+        <div className="mode-summary" aria-label={t("current.modeAria")}>
+          <span className="mode-summary-label">{t("current.currentMode")}</span>
           <span className={`mode-summary-value ${current?.vocalMode ?? "unknown"}`}>{currentModeLabel}</span>
         </div>
         <div className="command-row">
@@ -45,13 +59,13 @@ export function App() {
             {switchLabel}
           </button>
           <button type="button" disabled={!current} onClick={controller.requestSkip}>
-            切歌
+            {t("button.skip")}
           </button>
         </div>
       </section>
 
-      <section className="panel" aria-label="Queue">
-        <h2>播放队列</h2>
+      <section className="panel" aria-label={t("queue.aria")}>
+        <h2>{t("queue.title")}</h2>
         <div className="queue-list">
           {snapshot?.queue.length ? (
             snapshot.queue.map((entry) => {
@@ -63,18 +77,18 @@ export function App() {
                   <div>
                     <strong>{entry.songTitle}</strong>
                     <p>{entry.artistName}</p>
-                    {undoExpiresAt ? <small>可撤销至 {formatTime(undoExpiresAt)}</small> : null}
+                    {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
                   </div>
                   <div className="row-actions">
                     <button type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
-                      顶歌
+                      {t("button.promote")}
                     </button>
                     <button type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
-                      删除
+                      {t("button.delete")}
                     </button>
                     {undoExpiresAt ? (
                       <button type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
-                        撤销
+                        {t("button.undo")}
                       </button>
                     ) : null}
                   </div>
@@ -82,15 +96,15 @@ export function App() {
               );
             })
           ) : (
-            <p className="empty-state">暂无排队歌曲</p>
+            <p className="empty-state">{t("queue.empty")}</p>
           )}
         </div>
       </section>
 
-      <section className="panel search-panel" aria-label="Song search">
+      <section className="panel search-panel" aria-label={t("search.aria")}>
         <div className="panel-heading">
-          <h2>搜索歌曲</h2>
-          {controller.songSearchStatus === "loading" ? <span className="search-status">搜索中</span> : null}
+          <h2>{t("search.title")}</h2>
+          {controller.songSearchStatus === "loading" ? <span className="search-status">{t("search.loading")}</span> : null}
         </div>
         <form
           role="search"
@@ -101,19 +115,19 @@ export function App() {
           }}
         >
           <input
-            aria-label="搜索歌曲"
+            aria-label={t("search.inputAria")}
             className="search-input"
             value={controller.songSearchQuery}
             onChange={(event) => controller.setSongSearchQuery(event.currentTarget.value)}
-            placeholder="歌名 / 歌手 / 拼音 / 首字母"
+            placeholder={t("search.placeholder")}
           />
-          <button type="submit">搜索</button>
+          <button type="submit">{t("search.submit")}</button>
         </form>
 
         <div className="song-list">
           {controller.songSearch?.local.map((result) => {
             const isQueued = result.queueState === "queued";
-            const statusLabel = isQueued ? "已点 / 队列中" : "本地可播";
+            const statusLabel = isQueued ? t("search.queued") : t("search.localPlayable");
 
             return (
               <article className="song-row search-result-row" key={result.songId}>
@@ -122,7 +136,7 @@ export function App() {
                   <p>{result.artistName}</p>
                   <div className="result-meta">
                     <span className={isQueued ? "queued-badge" : "local-badge"}>{statusLabel}</span>
-                    <span>{result.versions.length} 个版本</span>
+                    <span>{t("search.versionCount", { count: result.versions.length })}</span>
                   </div>
                 </div>
 
@@ -138,7 +152,7 @@ export function App() {
                       )
                     }
                   >
-                    {isQueued ? "加点" : "点歌"}
+                    {isQueued ? t("button.addAgain") : t("button.add")}
                   </button>
                 ) : null}
 
@@ -150,7 +164,7 @@ export function App() {
                           <strong>{version.displayName}</strong>
                           <p>
                             {version.sourceLabel} · {formatDuration(version.durationMs)} · {version.qualityLabel}
-                            {version.isRecommended ? <span className="recommended-mark">推荐</span> : null}
+                            {version.isRecommended ? <span className="recommended-mark">{t("search.recommended")}</span> : null}
                           </p>
                         </div>
                         <button
@@ -159,7 +173,7 @@ export function App() {
                             controller.requestAddSongVersion(result.songId, version.assetId, result.title, result.queueState)
                           }
                         >
-                          点这个版本
+                          {t("button.addVersion")}
                         </button>
                       </div>
                     ))}
@@ -170,48 +184,55 @@ export function App() {
           })}
 
           {controller.songSearch && controller.songSearch.local.length === 0 ? (
-            <p className="empty-state local-empty">本地未找到</p>
+            <p className="empty-state local-empty">{t("search.localEmpty")}</p>
           ) : null}
 
-          {controller.songSearch?.online ? (
-            <section className="online-panel" aria-label="Online supplement">
+          {online ? (
+            <section className="online-panel" aria-label={t("online.aria")}>
               <div className="panel-heading">
-                <h3>在线补歌</h3>
-                <span className={`search-status ${controller.songSearch.online.status}`}>{controller.songSearch.online.message}</span>
+                <h3>{t("online.title")}</h3>
+                <span className={`search-status ${online.status}`}>{online.message}</span>
               </div>
 
-              <div className="online-candidate-list">
-                {controller.songSearch.online.candidates.map((candidate) => {
-                  const isPending = controller.pendingSupplementKeys.includes(
-                    supplementKey(candidate.provider, candidate.providerCandidateId)
-                  );
-                  const isReady = candidate.taskState === "ready";
+              {online.candidates.length > 0 ? (
+                <div className="online-candidate-list">
+                  {online.candidates.map((candidate) => {
+                    const isPending = controller.pendingSupplementKeys.includes(
+                      supplementKey(candidate.provider, candidate.providerCandidateId)
+                    );
+                    const isReady = candidate.taskState === "ready";
 
-                  return (
-                    <article className="song-row online-candidate-row" key={`${candidate.provider}:${candidate.providerCandidateId}`}>
-                      <div className="result-main">
-                        <strong>{candidate.title}</strong>
-                        <p>{candidate.artistName}</p>
-                        <div className="result-meta">
-                          <span className="online-source">{candidate.sourceLabel}</span>
-                          <span>{formatDuration(candidate.durationMs ?? 0)}</span>
-                          <span>{candidate.candidateType}</span>
-                          <span>{candidate.reliabilityLabel}</span>
-                          <span>{candidate.riskLabel}</span>
-                          <span>{candidate.taskState}</span>
+                    return (
+                      <article className="song-row online-candidate-row" key={`${candidate.provider}:${candidate.providerCandidateId}`}>
+                        <div className="result-main">
+                          <strong>{candidate.title}</strong>
+                          <p>{candidate.artistName}</p>
+                          <div className="result-meta">
+                            <span className="online-source">{candidate.sourceLabel}</span>
+                            <span>{formatDuration(candidate.durationMs ?? 0)}</span>
+                            <span>{candidate.candidateType}</span>
+                            <span>{candidate.reliabilityLabel}</span>
+                            <span>{candidate.riskLabel}</span>
+                            <span>{candidate.taskState}</span>
+                          </div>
                         </div>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={isPending || isReady}
-                        onClick={() => void controller.requestSupplement(candidate.provider, candidate.providerCandidateId)}
-                      >
-                        {isPending ? "提交中" : isReady ? "已准备" : "请求补歌"}
-                      </button>
-                    </article>
-                  );
-                })}
-              </div>
+                        <button
+                          type="button"
+                          disabled={isPending || isReady}
+                          onClick={() => void controller.requestSupplement(candidate.provider, candidate.providerCandidateId)}
+                        >
+                          {isPending ? t("button.submitting") : isReady ? t("button.ready") : t("button.requestSupplement")}
+                        </button>
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : online.requestSupplement?.visible ? (
+                <div className="online-placeholder">
+                  <strong>{t("online.emptyTitle")}</strong>
+                  <p>{t("online.emptyBody")}</p>
+                </div>
+              ) : null}
             </section>
           ) : null}
         </div>
@@ -220,14 +241,14 @@ export function App() {
       {controller.skipConfirmOpen ? (
         <div className="modal-backdrop">
           <section className="modal" role="dialog" aria-modal="true" aria-labelledby="skip-title">
-            <h2 id="skip-title">确认切歌</h2>
-            <p>{current?.currentQueueEntryPreview.songTitle ?? "当前歌曲"} 将结束播放。</p>
+            <h2 id="skip-title">{t("dialog.skipTitle")}</h2>
+            <p>{t("dialog.skipBody", { title: current?.currentQueueEntryPreview.songTitle ?? t("current.eyebrow") })}</p>
             <div className="command-row">
               <button type="button" onClick={controller.cancelSkip}>
-                取消
+                {t("button.cancel")}
               </button>
               <button type="button" onClick={() => void controller.confirmSkip()}>
-                确认
+                {t("button.confirm")}
               </button>
             </div>
           </section>
@@ -237,14 +258,14 @@ export function App() {
       {controller.duplicateConfirm ? (
         <div className="modal-backdrop">
           <section className="modal" role="dialog" aria-modal="true" aria-labelledby="duplicate-title">
-            <h2 id="duplicate-title">重复点歌</h2>
-            <p>{controller.duplicateConfirm.title} 已在队列中，仍要再点一次吗？</p>
+            <h2 id="duplicate-title">{t("dialog.duplicateTitle")}</h2>
+            <p>{t("dialog.duplicateBody", { title: controller.duplicateConfirm.title })}</p>
             <div className="command-row">
               <button type="button" onClick={controller.cancelDuplicateAdd}>
-                取消
+                {t("button.cancel")}
               </button>
               <button type="button" onClick={() => void controller.confirmDuplicateAdd()}>
-                确认加点
+                {t("button.confirmAddAgain")}
               </button>
             </div>
           </section>
@@ -267,20 +288,4 @@ function formatDuration(durationMs: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-}
-
-function vocalModeLabel(mode: string): string {
-  if (mode === "original") {
-    return "原唱";
-  }
-
-  if (mode === "instrumental") {
-    return "伴唱";
-  }
-
-  if (mode === "dual") {
-    return "双轨";
-  }
-
-  return "unknown";
 }

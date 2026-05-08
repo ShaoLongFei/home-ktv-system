@@ -1,3 +1,5 @@
+import { useI18n } from "../i18n.js";
+
 interface ConfirmActionDialogProps {
   title: string;
   message: string;
@@ -15,6 +17,7 @@ export function ConfirmActionDialog({
   onCancel,
   onConfirm
 }: ConfirmActionDialogProps) {
+  const { t } = useI18n();
   return (
     <div className="dialog-backdrop">
       <section aria-label={title} aria-modal="true" className="confirm-dialog" role="dialog">
@@ -22,7 +25,7 @@ export function ConfirmActionDialog({
         <p>{message}</p>
         <div className="dialog-actions">
           <button className="secondary-button" type="button" onClick={onCancel}>
-            Cancel
+            {t("common.cancel")}
           </button>
           <button className={tone === "danger" ? "danger-button" : "primary-button"} type="button" onClick={onConfirm}>
             {confirmLabel}
