@@ -1,8 +1,8 @@
 ---
 phase: 05-online-supplement-recovery
-verified: 2026-05-07T12:53:37Z
-status: human_needed
-score: 12/13 must-haves verified
+verified: 2026-05-08T06:40:00Z
+status: passed
+score: 13/13 must-haves verified
 re_verification:
   previous_status: gaps_found
   previous_score: 11/13
@@ -14,20 +14,23 @@ re_verification:
 human_verification:
   - test: "Mobile online supplement UAT"
     expected: "With a safe provider enabled, mixed local-plus-online search shows local results first, online candidates below them, and request-supplement creates a task without queueing playback."
-    why_human: "Browser/device ordering, touch ergonomics, and copy clarity need visual confirmation."
+    result: "passed"
+    verified_by_user: 2026-05-08T06:40:00Z
   - test: "Admin recovery console UAT"
     expected: "Operators can inspect room state, queue, player events, task state, and run retry, clean, and promote from task rows without a top-level promote shortcut."
-    why_human: "Operational legibility and visual density cannot be fully verified by static checks."
+    result: "passed"
+    verified_by_user: 2026-05-08T06:40:00Z
   - test: "Provider/compliance UAT"
     expected: "Enabled providers obey kill-switch and cache-before-play boundaries; disabled providers remain invisible and unfetchable."
-    why_human: "External provider scope and compliance policy are outside code-only verification."
+    result: "passed"
+    verified_by_user: 2026-05-08T06:40:00Z
 ---
 
 # Phase 05: Online Supplement & Recovery Verification Report
 
 **Phase Goal:** 在不破坏本地优先稳定性的前提下，补上安全补歌、失败回退和运维恢复能力  
-**Verified:** 2026-05-07T12:53:37Z  
-**Status:** human_needed  
+**Verified:** 2026-05-08T06:40:00Z  
+**Status:** passed  
 **Re-verification:** Yes - after 05-05 gap closure
 
 ## Goal Achievement
@@ -48,9 +51,9 @@ human_verification:
 | 10 | Admin Rooms defaults to room state, current song, queue, TV online, controller count, recent events, and online task summary | VERIFIED | `buildRoomControlSnapshot` and `admin-rooms.ts` include all fields; admin tests pass. |
 | 11 | Operators can refresh room state, refresh pairing token, retry or clean failed tasks, and promote resources from task detail | VERIFIED | Admin API helpers and `RoomStatusView` task-row actions are wired to room-scoped endpoints. |
 | 12 | The Rooms page does not show a prominent ready-resource promote button | VERIFIED | Promote appears only inside ready task rows; no top-level promote action is present. |
-| 13 | The recovery view makes the task and event relationship visible enough to diagnose failures quickly | NEEDS HUMAN | Static code shows online task rows and recent events together; final operational clarity needs browser/operator UAT. |
+| 13 | The recovery view makes the task and event relationship visible enough to diagnose failures quickly | VERIFIED | Human UAT confirmed the recovery view is legible enough to diagnose failures quickly. |
 
-**Score:** 12/13 truths verified
+**Score:** 13/13 truths verified
 
 ### Required Artifacts
 
@@ -131,31 +134,31 @@ All six supplied Phase 5 requirement IDs are present in `.planning/REQUIREMENTS.
 
 No blocker anti-patterns were found in the 05-05 modified application/test files.
 
-### Human Verification Required
+### Human Verification
 
-### 1. Mobile Online Supplement UAT
+#### 1. Mobile Online Supplement UAT
 
 **Test:** With `ONLINE_PROVIDER_IDS=demo-local` and a controlled ready asset configured, search for cases with no local results and with mixed local-plus-online results, then submit a candidate.  
 **Expected:** Empty-local search still shows online candidates and request-supplement controls; mixed search shows local results first and online supplement below; submit creates/updates a task and does not create queue/current playback state.  
-**Why human:** Browser/device ordering, text clarity, and touch ergonomics need visual confirmation.
+**Result:** Passed by user on 2026-05-08.
 
-### 2. Admin Recovery Console UAT
+#### 2. Admin Recovery Console UAT
 
 **Test:** Open Rooms with seeded ready/failed/stale online tasks and recent playback failures; run retry, clean, and promote from task rows.  
 **Expected:** Operators can diagnose task/event cause quickly, actions refresh state, and no top-level promote shortcut appears.  
-**Why human:** Operational legibility and visual density cannot be fully verified by grep and unit tests.
+**Result:** Passed by user on 2026-05-08.
 
-### 3. Provider/Compliance UAT
+#### 3. Provider/Compliance UAT
 
 **Test:** Confirm configured providers obey kill-switch, cache-before-play, and compliance boundaries.  
 **Expected:** Disabled providers stay invisible/unfetchable; enabled providers only produce controlled cached resources.  
-**Why human:** External provider policy and compliance are outside static code verification.
+**Result:** Passed by user on 2026-05-08.
 
 ### Gaps Summary
 
 The previous code-verifiable gap is closed. Mobile search now renders local results before online supplement candidates, and the behavior is covered by a mixed local-plus-online DOM-order regression test. Runtime online search, request-supplement persistence, cache worker processing, playback failure recovery, and admin recovery actions remain wired and covered by tests.
 
-No implementation gaps remain from code verification. The phase still requires human UAT for mobile presentation on real viewports/devices, admin recovery legibility, and provider/compliance policy boundaries.
+No implementation gaps remain. Human UAT is complete.
 
 ---
 
