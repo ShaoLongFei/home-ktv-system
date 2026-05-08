@@ -25,6 +25,16 @@ Milestone archives:
 - `.planning/milestones/v1.0-REQUIREMENTS.md`
 - `.planning/milestones/v1.0-MILESTONE-AUDIT.md`
 
+## Current Milestone: v1.1 Polish
+
+**Goal:** 打磨 TV 播放体验、产品化 UI 和代码结构，让 v1.0 的可唱闭环从“能用”提升到“稳定、清楚、顺手、可维护”。
+
+**Target features:**
+
+- TV 播放体验打磨：优化播放/空闲/异常/首次播放引导、状态展示、进度时间、切换反馈和真实电视视距下的可读性。
+- 产品化 UI 打磨：统一 Admin、Mobile、TV 的中文文案、空状态、错误提示、按钮状态、视觉密度和交互反馈。
+- 代码结构与逻辑整理：梳理跨端状态流、API 客户端、播放控制、在线任务和 UI 组件边界，补充回归测试，降低后续开发成本。
+
 ## Requirements
 
 ### Validated
@@ -37,7 +47,9 @@ Milestone archives:
 
 ### Active
 
-No active milestone requirements. Run `$gsd-new-milestone` to define the next milestone.
+- [ ] TV 端播放界面在空闲、播放中、加载中、失败、冲突和首次播放受限时都能给出清楚、稳定、适合远距离观看的反馈。
+- [ ] Admin、Mobile、TV 三端的中文文案、状态提示、空状态和关键操作反馈统一且产品化。
+- [ ] 播放控制、房间状态、在线任务和 UI 状态逻辑有更清晰的模块边界和回归测试。
 
 ### Out of Scope
 
@@ -52,13 +64,11 @@ No active milestone requirements. Run `$gsd-new-milestone` to define the next mi
 
 项目现在是一个 TypeScript monorepo，包含 Fastify API、React Admin、React Mobile Controller、React TV Player，以及共享 domain/protocol/player-contract packages。v1.0 的主线目标已经完成：家庭单房间场景可以从本地歌库出发完成导入、搜索、扫码、点歌、播放、切换、失败恢复和在线补歌任务闭环。
 
-下一阶段应该重新定义 milestone 范围。候选方向包括：
+v1.1 聚焦体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。候选方向包括：
 
-- 部署与运维硬化：家庭服务器/LXC/NAS 拓扑、环境变量、日志、备份、启动恢复。
-- 真实歌库规模化导入：批量元数据修正、冲突处理、可观测性、导入失败恢复。
 - TV 播放体验优化：首次播放用户手势引导、进度展示、播放异常提示和真实电视兼容性。
-- 在线 provider 合规接入：真实 provider 边界、kill switch、缓存策略、审计记录。
 - 产品化打磨：管理员/手机端 i18n 完整性、视觉密度、空状态和操作反馈。
+- 代码结构打磨：跨端状态流、命令调用、错误处理、组件边界和测试组织。
 
 ## Constraints
 
@@ -100,4 +110,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-08 after v1.0 milestone*
+*Last updated: 2026-05-08 after v1.1 milestone start*
