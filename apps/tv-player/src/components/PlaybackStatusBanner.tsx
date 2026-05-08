@@ -1,29 +1,43 @@
-import type { PlaybackNotice, PlaybackNoticeKind } from "@home-ktv/player-contracts";
+import type { PlaybackNotice } from "@home-ktv/player-contracts";
 import type { CSSProperties } from "react";
-
-export const playbackStatusCopy: Record<PlaybackNoticeKind, string> = {
-  loading: "Loading the next song.",
-  recovering: "Reconnecting playback and restoring the song.",
-  switch_failed_reverted: "Switch failed. Playback returned to the previous vocal mode.",
-  playback_failed_skipped: "Playback failed. Skipped to the next song.",
-  recovery_fallback_start_over: "Playback reconnected, but this song restarted from the beginning."
-};
+import { firstPlayPromptCopy, noticeCopyFor } from "../screens/tv-display-model.js";
 
 export interface PlaybackStatusBannerProps {
   notice: PlaybackNotice | null;
 }
 
 export function PlaybackStatusBanner({ notice }: PlaybackStatusBannerProps) {
-  if (!notice) {
+  const copy = noticeCopyFor(notice);
+  if (!notice || !copy || (notice.kind === "loading" && copy === firstPlayPromptCopy.heading)) {
     return null;
   }
 
   return (
     <aside role="status" style={styles.banner}>
-      <span style={styles.pill}>{notice.kind.replaceAll("_", " ")}</span>
-      <span>{notice.message || playbackStatusCopy[notice.kind]}</span>
+      <span style={styles.pill}>{noticeLabelFor(notice)}</span>
+      <span style={styles.message}>{copy}</span>
     </aside>
   );
+}
+
+function noticeLabelFor(notice: PlaybackNotice): string {
+  if (notice.kind === "loading") {
+    return "准备中";
+  }
+
+  if (notice.kind === "switch_failed_reverted") {
+    return "已回退";
+  }
+
+  if (notice.kind === "playback_failed_skipped") {
+    return "已跳过";
+  }
+
+  if (notice.kind === "recovery_fallback_start_over") {
+    return "已恢复";
+  }
+
+  return "提示";
 }
 
 const styles = {
@@ -38,6 +52,8 @@ const styles = {
     fontSize: 20,
     fontWeight: 800,
     gap: 18,
+    maxWidth: "min(760px, 100%)",
+    minWidth: 0,
     padding: "14px 22px"
   },
   pill: {
@@ -47,6 +63,12 @@ const styles = {
     fontSize: 14,
     fontWeight: 900,
     padding: "8px 12px",
-    textTransform: "uppercase"
+    whiteSpace: "nowrap"
+  },
+  message: {
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
   }
 } satisfies Record<string, CSSProperties>;

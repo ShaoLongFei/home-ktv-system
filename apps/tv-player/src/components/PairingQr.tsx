@@ -30,7 +30,7 @@ export function PairingQr({ pairing, variant }: PairingQrProps) {
         ))}
       </div>
       <figcaption style={isLarge ? styles.largeCaption : styles.cornerCaption}>
-        {isLarge ? "Scan with your phone to pick songs" : pairing.roomSlug}
+        {isLarge ? "手机扫码点歌" : pairing.roomSlug}
       </figcaption>
     </figure>
   );
@@ -115,6 +115,6 @@ const styles = {
     fontSize: 16,
     fontWeight: 800,
     letterSpacing: 0.4,
-    textTransform: "uppercase"
+    textTransform: "none"
   }
 } satisfies Record<string, CSSProperties>;
