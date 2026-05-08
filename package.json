@@ -8,6 +8,7 @@
     "dev:local": "bash scripts/dev-local.sh",
     "db:migrate": "pnpm -F @home-ktv/api migrate",
     "seed:demo-song": "node scripts/seed-demo-song.mjs",
+    "tv:visual-check": "node scripts/tv-visual-check.mjs",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
