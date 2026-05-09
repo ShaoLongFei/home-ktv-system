@@ -6,3 +6,5 @@ coverage/
 .env.local
 logs/
 home-ktv-media/
+.worktrees/
+worktrees/
