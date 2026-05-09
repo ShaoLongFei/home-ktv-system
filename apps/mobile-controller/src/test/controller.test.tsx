@@ -618,6 +618,65 @@ describe("mobile controller runtime", () => {
     expect(localIndex).toBeLessThan(onlineIndex);
   });
 
+  it("keeps request supplement disabled while submission is pending and then shows ready state", async () => {
+    const user = userEvent.setup();
+    const supplement = deferred<Response>();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      commandResponses: {
+        "/rooms/living-room/commands/request-supplement": supplement.promise
+      },
+      songSearchResponse: (query) => ({
+        query,
+        local: [],
+        online: {
+          status: "available",
+          message: "找到在线补歌候选",
+          requestSupplement: { visible: true, label: "请求补歌" },
+          candidates: [
+            {
+              provider: "demo-provider",
+              providerCandidateId: "remote-qilixiang",
+              title: "七里香",
+              artistName: "周杰伦",
+              sourceLabel: "Demo Provider",
+              durationMs: 180000,
+              candidateType: "mv",
+              reliabilityLabel: "high",
+              riskLabel: "normal",
+              taskState: "discovered",
+              taskId: "task-1"
+            }
+          ]
+        }
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("七里香", { selector: "strong" });
+    const requestButton = screen.getByRole("button", { name: "请求补歌" }) as HTMLButtonElement;
+    expect(requestButton.disabled).toBe(false);
+    await user.click(requestButton);
+
+    const pendingButton = await screen.findByRole("button", { name: "提交中" });
+    expect((pendingButton as HTMLButtonElement).disabled).toBe(true);
+
+    supplement.resolve(
+      json({
+        status: "accepted",
+        commandId: "mobile-command-test",
+        sessionVersion: 2,
+        task: readySupplementTask()
+      })
+    );
+    await flush();
+
+    expect(screen.getAllByText("已准备").length).toBeGreaterThan(0);
+    expect((screen.getByRole("button", { name: "已准备" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
   it("requests supplement explicitly from an online candidate without auto-enqueueing", async () => {
     const user = userEvent.setup();
     const { requests } = installControllerFetchMock({
@@ -731,7 +790,7 @@ async function flush() {
 function installControllerFetchMock(options: {
   restoreResponses?: Response[];
   createResponses?: Response[];
-  commandResponses?: Record<string, Response>;
+  commandResponses?: Record<string, Response | Promise<Response>>;
   songSearchResponse?: (query: string) => unknown;
 } = {}) {
   const requests: RequestRecord[] = [];
@@ -922,6 +981,48 @@ function emptySongSearchResponse(query: string) {
       candidates: []
     }
   };
+}
+
+function readySupplementTask() {
+  return {
+    id: "task-1",
+    roomId: "living-room",
+    provider: "demo-provider",
+    providerCandidateId: "remote-qilixiang",
+    title: "七里香",
+    artistName: "周杰伦",
+    sourceLabel: "Demo Provider",
+    durationMs: 180000,
+    candidateType: "mv",
+    reliabilityLabel: "high",
+    riskLabel: "normal",
+    status: "ready",
+    failureReason: null,
+    recentEvent: { type: "ready" },
+    providerPayload: {},
+    readyAssetId: "asset-ready-online",
+    createdAt: "2026-05-04T10:00:00.000Z",
+    updatedAt: "2026-05-04T10:00:01.000Z",
+    selectedAt: "2026-05-04T10:00:00.500Z",
+    reviewRequiredAt: null,
+    fetchingAt: "2026-05-04T10:00:00.600Z",
+    fetchedAt: "2026-05-04T10:00:00.700Z",
+    readyAt: "2026-05-04T10:00:01.000Z",
+    failedAt: null,
+    staleAt: null,
+    promotedAt: null,
+    purgedAt: null
+  };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+  return { promise, resolve, reject };
 }
 
 function roomSnapshot(options: {

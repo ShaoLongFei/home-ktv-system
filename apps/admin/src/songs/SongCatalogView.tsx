@@ -129,6 +129,7 @@ export function SongCatalogView() {
               </select>
             </label>
           </div>
+          {query.isError ? <p className="queue-error-text">歌曲加载失败，请稍后重试。</p> : null}
           {query.isLoading ? <p className="queue-empty-text">{t("songs.loading")}</p> : null}
           <div className="song-list">
             {songs.map((song) => (

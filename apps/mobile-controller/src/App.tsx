@@ -58,7 +58,7 @@ function ControllerApp() {
           <p>{current?.currentQueueEntryPreview.artistName ?? t("current.emptyQueue")}</p>
         </div>
         <div className="current-meta">
-          <span>{playbackLabel}</span>
+          <span className="playback-state-chip">{playbackLabel}</span>
           <span>{currentModeLabel}</span>
         </div>
         <div className="mode-summary" aria-label={t("current.modeAria")}>
@@ -220,11 +220,11 @@ function ControllerApp() {
                           <p>{candidate.artistName}</p>
                           <div className="result-meta">
                             <span className="online-source">{candidate.sourceLabel}</span>
-                            <span>{formatDuration(candidate.durationMs ?? 0)}</span>
-                            <span>{candidateTypeName(candidate.candidateType, t)}</span>
-                            <span>{reliabilityName(candidate.reliabilityLabel, t)}</span>
-                            <span>{riskName(candidate.riskLabel, t)}</span>
-                            <span>{onlineTaskStateName(candidate.taskState, t)}</span>
+                            <span className="metadata-chip">{formatDuration(candidate.durationMs ?? 0)}</span>
+                            <span className="metadata-chip">{candidateTypeName(candidate.candidateType, t)}</span>
+                            <span className="metadata-chip">{reliabilityName(candidate.reliabilityLabel, t)}</span>
+                            <span className="metadata-chip">{riskName(candidate.riskLabel, t)}</span>
+                            <span className="metadata-chip">{onlineTaskStateName(candidate.taskState, t)}</span>
                           </div>
                         </div>
                         <button

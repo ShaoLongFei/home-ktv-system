@@ -33,6 +33,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.primary-button:disabled,
+.secondary-button:disabled,
+.danger-button:disabled,
+.compact-button:disabled {
+  opacity: 0.58;
+  box-shadow: none;
+}
+
 .admin-app-frame {
   min-height: 100vh;
 }
@@ -113,6 +121,7 @@ button:disabled {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+  min-width: 0;
 }
 
 .admin-title h1 {
@@ -159,6 +168,7 @@ button:disabled {
   gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 16px;
+  min-width: 0;
 }
 
 .status-chip {
@@ -208,6 +218,14 @@ button:disabled {
   margin: 0;
 }
 
+.queue-error-text {
+  color: #8a1d2b;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+
 .candidate-list {
   display: grid;
   gap: 8px;
@@ -223,6 +241,7 @@ button:disabled {
   gap: 8px;
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: 62px;
+  min-width: 0;
   padding: 9px 10px;
   text-align: left;
 }
@@ -300,9 +319,11 @@ button:disabled {
 .room-section-header {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   justify-content: space-between;
   margin-bottom: 10px;
+  min-width: 0;
 }
 
 .room-section-header h2 {
@@ -361,6 +382,7 @@ button:disabled {
   gap: 12px;
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: 58px;
+  min-width: 0;
   padding: 9px 0;
 }
 
@@ -379,6 +401,7 @@ button:disabled {
 .room-event-list span,
 .room-event-list small {
   overflow: hidden;
+  overflow-wrap: anywhere;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -400,6 +423,7 @@ button:disabled {
   flex-wrap: wrap;
   gap: 6px;
   justify-content: flex-end;
+  min-width: 0;
 }
 
 .state-chip {
@@ -811,6 +835,7 @@ button:disabled {
   gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 14px;
+  min-width: 0;
 }
 
 .catalog-filters label {
@@ -845,6 +870,7 @@ button:disabled {
   gap: 8px;
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: 62px;
+  min-width: 0;
   padding: 9px 10px;
   text-align: left;
 }

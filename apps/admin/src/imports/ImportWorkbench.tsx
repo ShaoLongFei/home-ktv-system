@@ -45,6 +45,7 @@ export function ImportWorkbench() {
   }, [queueQueries]);
 
   const queueReady = queueQueries.every((query) => query.isSuccess || query.isError);
+  const queueHasError = queueQueries.some((query) => query.isError);
 
   const selectedCandidate = useMemo(
     () => STATUS_FILTERS.flatMap(({ status }) => candidatesByStatus[status]).find((candidate) => candidate.id === selectedCandidateId) ?? null,
@@ -146,7 +147,7 @@ export function ImportWorkbench() {
           <p>{t("imports.description")}</p>
         </div>
         <button className="primary-button" disabled={scanMutation.isPending} type="button" onClick={() => scanMutation.mutate()}>
-          {t("imports.scan")}
+          {scanMutation.isPending ? "扫描中..." : t("imports.scan")}
         </button>
       </header>
 
@@ -165,6 +166,7 @@ export function ImportWorkbench() {
               </button>
             ))}
           </div>
+          {queueHasError ? <p className="queue-error-text">候选加载失败，请稍后重试。</p> : null}
           {queueReady ? (
             <div className="queue-groups">
               {STATUS_FILTERS.map(({ status }) => (

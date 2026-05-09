@@ -122,6 +122,61 @@ describe("room status view", () => {
     await waitFor(() => expect(screen.queryByText("稻香")).toBeNull());
   });
 
+  it("shows promote busy feedback and updates online tasks without browser reload", async () => {
+    const user = userEvent.setup();
+    const promoteResponse = deferred<Response>();
+    const { requests } = installFetchMock({ taskActionResponse: promoteResponse.promise });
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "房间" }));
+    await screen.findByRole("button", { name: "入库任务 task-ready" });
+
+    await user.click(screen.getByRole("button", { name: "入库任务 task-ready" }));
+
+    const promoteButton = await screen.findByRole("button", { name: "入库任务 task-ready" });
+    expect((promoteButton as HTMLButtonElement).disabled).toBe(true);
+    expect(promoteButton.textContent).toBe("入库中...");
+
+    promoteResponse.resolve(
+      json({
+        task: {
+          id: "task-ready",
+          roomId: "living-room",
+          status: "promoted",
+          provider: "fixture-provider",
+          providerCandidateId: "fixture",
+          title: "稻香",
+          artistName: "周杰伦",
+          sourceLabel: "Fixture Provider",
+          durationMs: 210000,
+          candidateType: "karaoke",
+          reliabilityLabel: "high",
+          riskLabel: "normal",
+          failureReason: null,
+          recentEvent: {},
+          providerPayload: {},
+          readyAssetId: "asset-online-ready",
+          createdAt: "2026-05-04T10:00:00.000Z",
+          updatedAt: "2026-05-04T10:02:00.000Z",
+          selectedAt: null,
+          reviewRequiredAt: null,
+          fetchingAt: null,
+          fetchedAt: null,
+          readyAt: null,
+          failedAt: null,
+          staleAt: null,
+          promotedAt: "2026-05-04T10:02:30.000Z",
+          purgedAt: null
+        }
+      })
+    );
+
+    await waitFor(() => expect(screen.queryByText("稻香")).toBeNull());
+    expect(requests.some((request) => request.method === "POST" && request.url === "/admin/rooms/living-room/online-tasks/task-ready/promote")).toBe(true);
+    // Verifies the promoted task result becomes visible without browser reload.
+    expect(requests.filter((request) => request.method === "GET" && request.url === "/admin/rooms/living-room").length).toBeGreaterThanOrEqual(2);
+  });
+
   it("updates room status from realtime snapshot messages", async () => {
     const user = userEvent.setup();
     installFetchMock();
@@ -149,7 +204,7 @@ describe("room status view", () => {
   });
 });
 
-function installFetchMock() {
+function installFetchMock(options: { taskActionResponse?: Response | Promise<Response> } = {}) {
   const requests: RequestRecord[] = [];
   let refreshed = false;
   let promoted = false;
@@ -181,6 +236,10 @@ function installFetchMock() {
       if (method === "POST" && requestUrl.pathname.includes("/online-tasks/")) {
         if (requestUrl.pathname.endsWith("/promote")) {
           promoted = true;
+        }
+
+        if (options.taskActionResponse) {
+          return options.taskActionResponse;
         }
 
         return json({
@@ -221,6 +280,16 @@ function installFetchMock() {
   );
 
   return { requests };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+  return { promise, resolve, reject };
 }
 
 function roomStatus(tokenExpiresAt: string, promoted = false) {

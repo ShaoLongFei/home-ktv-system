@@ -308,6 +308,8 @@ export function useRoomController(): RoomControllerState {
         if (response?.task) {
           setSongSearch((current) => applySupplementTask(current, response.task));
         }
+      } catch (error) {
+        setErrorMessage(errorMessageFrom(error, "请求补歌失败"));
       } finally {
         setPendingSupplementKeys((keys) => keys.filter((item) => item !== key));
       }

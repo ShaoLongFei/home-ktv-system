@@ -246,7 +246,7 @@ export function RoomStatusView() {
                         type="button"
                         onClick={() => void handleTaskAction(task, "retry")}
                       >
-                        {t("rooms.retry")}
+                        {busyTaskAction === `retry:${task.taskId}` ? "重试中..." : t("rooms.retry")}
                       </button>
                     ) : null}
                     {canCleanTask(task) ? (
@@ -257,7 +257,7 @@ export function RoomStatusView() {
                         type="button"
                         onClick={() => void handleTaskAction(task, "clean")}
                       >
-                        {t("rooms.clean")}
+                        {busyTaskAction === `clean:${task.taskId}` ? "清理中..." : t("rooms.clean")}
                       </button>
                     ) : null}
                     {task.status === "ready" ? (
@@ -268,7 +268,7 @@ export function RoomStatusView() {
                         type="button"
                         onClick={() => void handleTaskAction(task, "promote")}
                       >
-                        {t("rooms.promote")}
+                        {busyTaskAction === `promote:${task.taskId}` ? "入库中..." : t("rooms.promote")}
                       </button>
                     ) : null}
                   </div>

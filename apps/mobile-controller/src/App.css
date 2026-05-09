@@ -45,6 +45,7 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
 }
 
 .top-actions {
@@ -54,6 +55,7 @@ button:disabled {
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  min-width: 0;
 }
 
 .language-switch {
@@ -134,6 +136,7 @@ button:disabled {
   border-radius: 8px;
   padding: 16px;
   background: #ffffff;
+  min-width: 0;
 }
 
 .panel-heading {
@@ -146,6 +149,7 @@ button:disabled {
 .current-panel {
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .current-panel h2 {
@@ -167,6 +171,12 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
+}
+
+.command-row > button,
+.row-actions > button {
+  min-width: 0;
 }
 
 .current-meta span {
@@ -255,6 +265,23 @@ button:disabled {
   align-items: center;
   border-top: 1px solid #e7e5e4;
   padding-top: 10px;
+  min-width: 0;
+}
+
+.queue-row strong,
+.queue-row p,
+.queue-row small,
+.song-row strong,
+.song-row p,
+.version-row strong,
+.version-row p,
+.result-meta span {
+  overflow-wrap: anywhere;
+}
+
+.song-row > button,
+.version-row > button {
+  min-width: 0;
 }
 
 .search-panel {
@@ -314,10 +341,13 @@ button:disabled {
 .recommended-mark {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 28px;
   border-radius: 999px;
   padding: 4px 9px;
   background: #eef2ff;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .local-badge {
@@ -346,6 +376,7 @@ button:disabled {
   border-radius: 8px;
   padding: 10px;
   background: #f8fafc;
+  min-width: 0;
 }
 
 .version-row p {
@@ -367,6 +398,20 @@ button:disabled {
   padding: 12px;
   color: #475569;
   background: #f8fafc;
+}
+
+.online-candidate-list {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.online-candidate-row {
+  min-width: 0;
+}
+
+.online-source {
+  max-width: 100%;
 }
 
 .online-placeholder p {
@@ -412,9 +457,12 @@ button:disabled {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .command-row,
   .row-actions,
   .song-row > button,
-  .version-row > button {
+  .version-row > button,
+  .online-candidate-row > button,
+  .search-form > button {
     width: 100%;
   }
 }

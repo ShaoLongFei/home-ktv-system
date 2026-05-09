@@ -141,6 +141,32 @@ describe("song catalog maintenance", () => {
     });
   });
 
+  it("disables catalog actions while default asset update is pending and shows load errors", async () => {
+    const user = userEvent.setup();
+    const defaultAssetResponse = deferred<Response>();
+    installFetchMock({ defaultAssetResponse });
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+    await screen.findByRole("heading", { name: "歌曲目录" });
+    await screen.findByRole("button", { name: /七里香/u });
+    await user.selectOptions(screen.getByLabelText("默认资源"), "asset-original");
+    await user.click(screen.getByRole("button", { name: "设为默认资源" }));
+
+    expect((screen.getByRole("button", { name: "设为默认资源" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "重新校验歌曲" }) as HTMLButtonElement).disabled).toBe(true);
+
+    defaultAssetResponse.resolve(json({ song: createSongs()[0], evaluation: { status: "verified" } }));
+    await waitFor(() => expect((screen.getByRole("button", { name: "设为默认资源" }) as HTMLButtonElement).disabled).toBe(false));
+
+    cleanup();
+    installFetchMock({ catalogStatus: 500 });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+
+    expect(await screen.findByText("歌曲加载失败，请稍后重试。")).toBeTruthy();
+  });
+
   it("confirms dangerous asset changes before sending the asset PATCH request", async () => {
     const user = userEvent.setup();
     const { requests } = installFetchMock();
@@ -186,7 +212,7 @@ describe("song catalog maintenance", () => {
   });
 });
 
-function installFetchMock() {
+function installFetchMock(options: { defaultAssetResponse?: { promise: Promise<Response> }; catalogStatus?: number } = {}) {
   const requests: RequestRecord[] = [];
   const songs = createSongs();
 
@@ -204,6 +230,9 @@ function installFetchMock() {
       }
 
       if (method === "GET" && requestUrl.pathname === "/admin/catalog/songs") {
+        if (options.catalogStatus && options.catalogStatus >= 400) {
+          return json({ error: "CATALOG_SONGS_FAILED" }, options.catalogStatus);
+        }
         const status = requestUrl.searchParams.get("status");
         return json({ songs: status ? songs.filter((song) => song.status === status) : songs });
       }
@@ -220,6 +249,9 @@ function installFetchMock() {
 
       const defaultAssetMatch = requestUrl.pathname.match(/^\/admin\/catalog\/songs\/([^/]+)\/default-asset$/u);
       if (method === "PATCH" && defaultAssetMatch?.[1] && isRecord(body) && typeof body.assetId === "string") {
+        if (options.defaultAssetResponse) {
+          return options.defaultAssetResponse.promise;
+        }
         const song = findSong(songs, defaultAssetMatch[1]);
         if (!song) {
           return json({ error: "FORMAL_SONG_NOT_FOUND" }, 404);
@@ -281,6 +313,16 @@ function installFetchMock() {
   );
 
   return { requests };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+  return { promise, resolve, reject };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

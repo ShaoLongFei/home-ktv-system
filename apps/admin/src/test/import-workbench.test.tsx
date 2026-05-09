@@ -98,6 +98,29 @@ describe("import review workbench", () => {
     expect(candidate).toBeTruthy();
   });
 
+  it("disables scan imports while pending and shows queue load errors", async () => {
+    const user = userEvent.setup();
+    const scanResponse = deferred<Response>();
+    installFetchMock({ scanResponse });
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: "导入审核工作台" })).toBeTruthy();
+    const scanButton = screen.getByRole("button", { name: "扫描导入目录" }) as HTMLButtonElement;
+    await user.click(scanButton);
+
+    const pendingButton = await screen.findByRole("button", { name: "扫描中..." });
+    expect((pendingButton as HTMLButtonElement).disabled).toBe(true);
+
+    scanResponse.resolve(json({ accepted: true, scope: "imports" }, 202));
+    await waitFor(() => expect((screen.getByRole("button", { name: "扫描导入目录" }) as HTMLButtonElement).disabled).toBe(false));
+
+    cleanup();
+    installFetchMock({ candidateListStatus: 500 });
+    render(<App />);
+
+    expect(await screen.findByText("候选加载失败，请稍后重试。")).toBeTruthy();
+  });
+
   it("expanding a candidate shows original files, proposed roles, root kind, path, probe status, and duration", async () => {
     const user = userEvent.setup();
     installFetchMock();
@@ -240,7 +263,7 @@ describe("import review workbench", () => {
   });
 });
 
-function installFetchMock() {
+function installFetchMock(options: { scanResponse?: { promise: Promise<Response> }; candidateListStatus?: number } = {}) {
   const requests: RequestRecord[] = [];
   const candidates = createCandidates();
 
@@ -253,6 +276,9 @@ function installFetchMock() {
       requests.push({ url: `${requestUrl.pathname}${requestUrl.search}`, method, body });
 
       if (method === "GET" && requestUrl.pathname === "/admin/import-candidates") {
+        if (options.candidateListStatus && options.candidateListStatus >= 400) {
+          return json({ error: "IMPORT_CANDIDATES_FAILED" }, options.candidateListStatus);
+        }
         const status = requestUrl.searchParams.get("status") as CandidateStatus | null;
         return json({ candidates: candidates.filter((candidate) => !status || candidate.status === status) });
       }
@@ -268,6 +294,9 @@ function installFetchMock() {
       }
 
       if (method === "POST" && requestUrl.pathname === "/admin/imports/scan") {
+        if (options.scanResponse) {
+          return options.scanResponse.promise;
+        }
         return json({ accepted: true, scope: "imports" }, 202);
       }
 
@@ -281,6 +310,16 @@ function installFetchMock() {
   );
 
   return { requests };
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+  return { promise, resolve, reject };
 }
 
 function json(value: unknown, status = 200): Response {
