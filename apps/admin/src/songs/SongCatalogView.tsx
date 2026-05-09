@@ -1,99 +1,29 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
-import {
-  fetchCatalogSongs,
-  revalidateCatalogSong,
-  updateCatalogAsset,
-  updateCatalogDefaultAsset,
-  updateCatalogSong,
-  validateCatalogSong
-} from "../api/client.js";
 import { languageName, statusText, useI18n, vocalModeName } from "../i18n.js";
 import { SongDetailEditor } from "./SongDetailEditor.js";
-import type {
-  AdminCatalogAsset,
-  AdminCatalogSong,
-  CatalogAssetPatch,
-  CatalogEvaluation,
-  CatalogValidationResult,
-  Language,
-  SongMetadataPatch,
-  SongStatus
-} from "./types.js";
-
-const songStatusOptions: Array<SongStatus | ""> = ["", "ready", "review_required", "unavailable"];
-const languageOptions: Array<Language | ""> = ["", "mandarin", "cantonese", "other"];
+import { languageOptions, songStatusOptions, useSongCatalogRuntime } from "./use-song-catalog-runtime.js";
+import type { AdminCatalogAsset, AdminCatalogSong, Language, SongStatus } from "./types.js";
 
 export function SongCatalogView() {
   const { t } = useI18n();
-  const queryClient = useQueryClient();
-  const [status, setStatus] = useState<SongStatus | "">("");
-  const [language, setLanguage] = useState<Language | "">("");
-  const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
-  const [evaluation, setEvaluation] = useState<CatalogEvaluation | null>(null);
-  const [validation, setValidation] = useState<CatalogValidationResult | null>(null);
-  const query = useQuery({
-    queryKey: ["catalog-songs", status, language],
-    queryFn: () =>
-      fetchCatalogSongs({
-        ...(status ? { status } : {}),
-        ...(language ? { language } : {})
-      }),
-    retry: false
-  });
-  const songs = query.data ?? [];
-
-  useEffect(() => {
-    if (songs.length === 0) {
-      setSelectedSongId(null);
-      return;
-    }
-    if (!selectedSongId || !songs.some((song) => song.id === selectedSongId)) {
-      setSelectedSongId(songs[0]?.id ?? null);
-    }
-  }, [selectedSongId, songs]);
-
-  const selectedSong = useMemo(
-    () => songs.find((song) => song.id === selectedSongId) ?? songs[0] ?? null,
-    [selectedSongId, songs]
-  );
-
-  const saveMetadataMutation = useMutation({
-    mutationFn: ({ songId, input }: { songId: string; input: SongMetadataPatch }) => updateCatalogSong(songId, input),
-    onSuccess: (result) => cacheSong(queryClient, result.song)
-  });
-  const defaultAssetMutation = useMutation({
-    mutationFn: ({ songId, assetId }: { songId: string; assetId: string }) => updateCatalogDefaultAsset(songId, assetId),
-    onSuccess: (result) => {
-      setEvaluation(result.evaluation ?? null);
-      cacheSong(queryClient, result.song);
-    }
-  });
-  const assetMutation = useMutation({
-    mutationFn: ({ assetId, patch }: { assetId: string; patch: CatalogAssetPatch }) => updateCatalogAsset(assetId, patch),
-    onSuccess: (result) => {
-      setEvaluation(result.evaluation ?? null);
-      cacheSong(queryClient, result.song);
-    }
-  });
-  const revalidateMutation = useMutation({
-    mutationFn: (songId: string) => revalidateCatalogSong(songId),
-    onSuccess: (result) => {
-      setEvaluation(result.evaluation);
-      cacheSong(queryClient, result.song);
-    }
-  });
-  const validateMutation = useMutation({
-    mutationFn: (songId: string) => validateCatalogSong(songId),
-    onSuccess: (result) => setValidation(result)
-  });
-
-  const isBusy =
-    saveMetadataMutation.isPending ||
-    defaultAssetMutation.isPending ||
-    assetMutation.isPending ||
-    revalidateMutation.isPending ||
-    validateMutation.isPending;
+  const {
+    status,
+    setStatus,
+    language,
+    setLanguage,
+    songs,
+    selectedSong,
+    setSelectedSongId,
+    evaluation,
+    validation,
+    queryIsError,
+    queryIsLoading,
+    isBusy,
+    revalidateSong,
+    saveMetadata,
+    setDefaultAsset,
+    updateAsset,
+    validateSong
+  } = useSongCatalogRuntime();
 
   return (
     <main className="admin-shell">
@@ -129,8 +59,8 @@ export function SongCatalogView() {
               </select>
             </label>
           </div>
-          {query.isError ? <p className="queue-error-text">歌曲加载失败，请稍后重试。</p> : null}
-          {query.isLoading ? <p className="queue-empty-text">{t("songs.loading")}</p> : null}
+          {queryIsError ? <p className="queue-error-text">歌曲加载失败，请稍后重试。</p> : null}
+          {queryIsLoading ? <p className="queue-empty-text">{t("songs.loading")}</p> : null}
           <div className="song-list">
             {songs.map((song) => (
               <button
@@ -160,19 +90,19 @@ export function SongCatalogView() {
               song={selectedSong}
               validation={validation}
               onRevalidate={async (songId) => {
-                await revalidateMutation.mutateAsync(songId);
+                await revalidateSong(songId);
               }}
               onSaveMetadata={async (songId, input) => {
-                await saveMetadataMutation.mutateAsync({ songId, input });
+                await saveMetadata(songId, input);
               }}
               onSetDefaultAsset={async (songId, assetId) => {
-                await defaultAssetMutation.mutateAsync({ songId, assetId });
+                await setDefaultAsset(songId, assetId);
               }}
               onUpdateAsset={async (assetId, patch) => {
-                await assetMutation.mutateAsync({ assetId, patch });
+                await updateAsset(assetId, patch);
               }}
               onValidate={async (songId) => {
-                await validateMutation.mutateAsync(songId);
+                await validateSong(songId);
               }}
             />
           ) : (
@@ -246,11 +176,5 @@ function EmptySongDetail() {
       <h2>{t("songs.emptyTitle")}</h2>
       <p>{t("songs.emptyBody")}</p>
     </div>
-  );
-}
-
-function cacheSong(queryClient: ReturnType<typeof useQueryClient>, song: AdminCatalogSong) {
-  queryClient.setQueriesData<AdminCatalogSong[]>({ queryKey: ["catalog-songs"] }, (current) =>
-    current?.map((item) => (item.id === song.id ? song : item))
   );
 }
