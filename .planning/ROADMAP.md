@@ -106,7 +106,10 @@ Plans:
   2. The script or UAT docs clearly describe how the pairing token/session is obtained for visual validation.
   3. Mobile visual coverage still captures the existing phone-width viewports and fails clearly when services are unavailable.
   4. Regression tests or script help checks cover the paired-state behavior without requiring manual guesswork.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 10-01: Make Mobile visual check capture paired controller state
 **UI hint**: yes
 
 ### Phase 11: Admin Runtime Boundary Completion
