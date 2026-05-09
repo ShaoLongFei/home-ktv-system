@@ -90,7 +90,10 @@ Plans:
   3. Phase 8 has `08-VERIFICATION.md` with requirement-by-requirement evidence for QUAL-02 through QUAL-04 plus cross-reference to Phase 11 for QUAL-01 boundary completion.
   4. `08-SUMMARY.md` has valid YAML frontmatter with `requirements-completed` that GSD summary extraction can read.
   5. `.planning/REQUIREMENTS.md` checkboxes and traceability statuses reflect verified completion or pending gap-closure phases accurately.
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 09-01: Close verification reports, summary frontmatter, and requirements traceability
 **UI hint**: no
 
 ### Phase 10: Paired Mobile Visual Verification
