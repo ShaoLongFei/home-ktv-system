@@ -10,6 +10,7 @@ const DEFAULT_ADMIN_URL = "http://127.0.0.1:5174/";
 const DEFAULT_API_URL = "http://127.0.0.1:4000";
 const DEFAULT_CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const DEFAULT_ROOM_SLUG = "living-room";
+const CHROME_CAPTURE_TIMEOUT_MS = 20_000;
 
 const screenshots = [
   {
@@ -172,6 +173,9 @@ async function captureScreenshot({ chromeBin, outputFile, url, windowSize }) {
   const profileDir = mkdtempSync(path.join(LOG_DIR, ".chrome-ui-check-"));
   try {
     await new Promise((resolve, reject) => {
+      let timedOut = false;
+      let timeout;
+      let forceKillTimeout;
       const child = spawn(
         chromeBin,
         [
@@ -189,6 +193,7 @@ async function captureScreenshot({ chromeBin, outputFile, url, windowSize }) {
           url
         ],
         {
+          detached: true,
           stdio: ["ignore", "ignore", "pipe"],
           windowsHide: true
         }
@@ -200,18 +205,39 @@ async function captureScreenshot({ chromeBin, outputFile, url, windowSize }) {
         stderr += chunk;
       });
 
+      timeout = setTimeout(() => {
+        timedOut = true;
+        terminateChrome(child, "SIGTERM");
+        forceKillTimeout = setTimeout(() => {
+          terminateChrome(child, "SIGKILL");
+        }, 1000);
+      }, CHROME_CAPTURE_TIMEOUT_MS);
+
       child.on("error", (error) => {
+        clearTimeout(timeout);
+        clearTimeout(forceKillTimeout);
         reject(new Error(`Unable to launch Chrome at ${chromeBin}: ${error.message}`));
       });
 
       child.on("close", (code) => {
+        clearTimeout(timeout);
+        clearTimeout(forceKillTimeout);
+        if (timedOut && hasNonEmptyFile(outputFile)) {
+          resolve();
+          return;
+        }
+
         if (code === 0) {
           resolve();
           return;
         }
 
         reject(
-          new Error(`Chrome exited with code ${code} for ${outputFile}${stderr ? `:\n${stderr.trim()}` : ""}`)
+          new Error(
+            `Chrome ${
+              timedOut ? `timed out after ${CHROME_CAPTURE_TIMEOUT_MS}ms` : `exited with code ${code}`
+            } for ${outputFile}${stderr ? `:\n${stderr.trim()}` : ""}`
+          )
         );
       });
     });
@@ -223,10 +249,33 @@ async function captureScreenshot({ chromeBin, outputFile, url, windowSize }) {
 }
 
 function verifyScreenshot(file) {
-  const stats = statSync(file);
-  if (!stats.isFile() || stats.size <= 0) {
+  if (!hasNonEmptyFile(file)) {
     throw new Error(`Screenshot missing or empty: ${file}`);
   }
+}
+
+function hasNonEmptyFile(file) {
+  try {
+    const stats = statSync(file);
+    return stats.isFile() && stats.size > 0;
+  } catch {
+    return false;
+  }
+}
+
+function terminateChrome(child, signal) {
+  if (!child.pid) {
+    return;
+  }
+
+  try {
+    process.kill(-child.pid, signal);
+    return;
+  } catch {}
+
+  try {
+    child.kill(signal);
+  } catch {}
 }
 
 async function readResponseText(response) {
