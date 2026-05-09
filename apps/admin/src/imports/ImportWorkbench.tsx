@@ -1,143 +1,28 @@
-import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
-import { fetchAdmin } from "../api/client.js";
 import { statusText, useI18n } from "../i18n.js";
 import { CandidateEditor } from "./CandidateEditor.js";
-import type {
-  ConflictResolution,
-  ImportCandidate,
-  ImportCandidateDetailResponse,
-  ImportCandidateListResponse,
-  ImportCandidateStatus,
-  MetadataUpdateInput
-} from "./types.js";
-
-const STATUS_FILTERS: Array<{ status: ImportCandidateStatus }> = [
-  { status: "pending" },
-  { status: "held" },
-  { status: "review_required" },
-  { status: "conflict" }
-];
+import type { ImportCandidate, ImportCandidateStatus } from "./types.js";
+import { importCandidateStatusFilters, useImportWorkbenchRuntime } from "./use-import-workbench-runtime.js";
 
 export function ImportWorkbench() {
   const { t } = useI18n();
-  const queryClient = useQueryClient();
-  const [activeStatus, setActiveStatus] = useState<ImportCandidateStatus>("pending");
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
-
-  const queueQueries = useQueries({
-    queries: STATUS_FILTERS.map(({ status }) => ({
-      queryKey: ["import-candidates", status],
-      queryFn: async () =>
-        (await fetchAdmin<ImportCandidateListResponse>(`/admin/import-candidates?status=${status}`)).candidates,
-      retry: false
-    }))
-  });
-
-  const candidatesByStatus = useMemo(() => {
-    return STATUS_FILTERS.reduce<Record<ImportCandidateStatus, ImportCandidate[]>>(
-      (groups, { status }, index) => ({
-        ...groups,
-        [status]: queueQueries[index]?.data ?? []
-      }),
-      { pending: [], held: [], review_required: [], conflict: [] }
-    );
-  }, [queueQueries]);
-
-  const queueReady = queueQueries.every((query) => query.isSuccess || query.isError);
-  const queueHasError = queueQueries.some((query) => query.isError);
-
-  const selectedCandidate = useMemo(
-    () => STATUS_FILTERS.flatMap(({ status }) => candidatesByStatus[status]).find((candidate) => candidate.id === selectedCandidateId) ?? null,
-    [candidatesByStatus, selectedCandidateId]
-  );
-
-  useEffect(() => {
-    if (selectedCandidateId) {
-      return;
-    }
-
-    const firstActiveCandidate = candidatesByStatus[activeStatus][0];
-    if (firstActiveCandidate) {
-      setSelectedCandidateId(firstActiveCandidate.id);
-    }
-  }, [activeStatus, candidatesByStatus, selectedCandidateId]);
-
-  const detailQuery = useQuery({
-    enabled: selectedCandidateId !== null,
-    queryKey: ["import-candidate", selectedCandidateId],
-    queryFn: async () =>
-      (await fetchAdmin<ImportCandidateDetailResponse>(`/admin/import-candidates/${selectedCandidateId}`)).candidate,
-    retry: false
-  });
-
-  const selectedDetail = detailQuery.data ?? selectedCandidate;
-
-  const scanMutation = useMutation({
-    mutationFn: async () =>
-      fetchAdmin<{ accepted: boolean; scope: string }>("/admin/imports/scan", {
-        method: "POST",
-        body: JSON.stringify({ scope: "imports" })
-      }),
-    onSuccess: () => void invalidateQueues(queryClient)
-  });
-
-  const saveMutation = useMutation({
-    mutationFn: async ({ candidateId, input }: { candidateId: string; input: MetadataUpdateInput }) =>
-      // PATCH /admin/import-candidates/:candidateId is the canonical D-07 update route.
-      fetchAdmin<ImportCandidateDetailResponse>(`/admin/import-candidates/${candidateId}`, {
-        method: "PATCH",
-        body: JSON.stringify(input)
-      }),
-    onSuccess: (result) => {
-      cacheCandidate(queryClient, result.candidate);
-    }
-  });
-
-  const holdMutation = useMutation({
-    mutationFn: async (candidateId: string) =>
-      fetchAdmin<ImportCandidateDetailResponse>(`/admin/import-candidates/${candidateId}/hold`, { method: "POST" }),
-    onSuccess: (result) => {
-      cacheCandidate(queryClient, result.candidate);
-    }
-  });
-
-  const approveMutation = useMutation({
-    mutationFn: async (candidateId: string) =>
-      fetchAdmin<ImportCandidateDetailResponse>(`/admin/import-candidates/${candidateId}/approve`, { method: "POST" }),
-    onSuccess: (result) => {
-      cacheCandidate(queryClient, result.candidate);
-    }
-  });
-
-  const rejectDeleteMutation = useMutation({
-    mutationFn: async (candidateId: string) =>
-      fetchAdmin<ImportCandidateDetailResponse>(`/admin/import-candidates/${candidateId}/reject-delete`, {
-        method: "POST",
-        body: JSON.stringify({ confirmDelete: true })
-      }),
-    onSuccess: (result) => {
-      cacheCandidate(queryClient, result.candidate);
-    }
-  });
-
-  const resolveConflictMutation = useMutation({
-    mutationFn: async ({ candidateId, input }: { candidateId: string; input: ConflictResolution }) =>
-      fetchAdmin<ImportCandidateDetailResponse>(`/admin/import-candidates/${candidateId}/resolve-conflict`, {
-        method: "POST",
-        body: JSON.stringify(input)
-      }),
-    onSuccess: (result) => {
-      cacheCandidate(queryClient, result.candidate);
-    }
-  });
-
-  const isBusy =
-    saveMutation.isPending ||
-    holdMutation.isPending ||
-    approveMutation.isPending ||
-    rejectDeleteMutation.isPending ||
-    resolveConflictMutation.isPending;
+  const {
+    activeStatus,
+    setActiveStatus,
+    selectedCandidateId,
+    setSelectedCandidateId,
+    candidatesByStatus,
+    queueReady,
+    queueHasError,
+    selectedDetail,
+    isScanning,
+    scanImports,
+    saveMetadata,
+    holdCandidate,
+    approveCandidate,
+    rejectDeleteCandidate,
+    resolveConflict,
+    isBusy
+  } = useImportWorkbenchRuntime();
 
   return (
     <main className="admin-shell">
@@ -146,8 +31,8 @@ export function ImportWorkbench() {
           <h1>{t("imports.title")}</h1>
           <p>{t("imports.description")}</p>
         </div>
-        <button className="primary-button" disabled={scanMutation.isPending} type="button" onClick={() => scanMutation.mutate()}>
-          {scanMutation.isPending ? "扫描中..." : t("imports.scan")}
+        <button className="primary-button" disabled={isScanning} type="button" onClick={() => void scanImports()}>
+          {isScanning ? "扫描中..." : t("imports.scan")}
         </button>
       </header>
 
@@ -155,7 +40,7 @@ export function ImportWorkbench() {
         <aside className="queue-pane" aria-label={t("imports.queueAria")}>
           <p className="pane-title">{t("imports.queueTitle")}</p>
           <div className="status-strip" aria-label={t("imports.statusFiltersAria")}>
-            {STATUS_FILTERS.map(({ status }) => (
+            {importCandidateStatusFilters.map(({ status }) => (
               <button
                 className={status === activeStatus ? "status-chip active" : "status-chip"}
                 key={status}
@@ -169,7 +54,7 @@ export function ImportWorkbench() {
           {queueHasError ? <p className="queue-error-text">候选加载失败，请稍后重试。</p> : null}
           {queueReady ? (
             <div className="queue-groups">
-              {STATUS_FILTERS.map(({ status }) => (
+              {importCandidateStatusFilters.map(({ status }) => (
                 <CandidateGroup
                   activeStatus={activeStatus}
                   candidates={candidatesByStatus[status]}
@@ -191,19 +76,19 @@ export function ImportWorkbench() {
             candidate={selectedDetail}
             isBusy={isBusy}
             onApprove={async (candidateId) => {
-              await approveMutation.mutateAsync(candidateId);
+              await approveCandidate(candidateId);
             }}
             onHold={async (candidateId) => {
-              await holdMutation.mutateAsync(candidateId);
+              await holdCandidate(candidateId);
             }}
             onRejectDelete={async (candidateId) => {
-              await rejectDeleteMutation.mutateAsync(candidateId);
+              await rejectDeleteCandidate(candidateId);
             }}
             onResolveConflict={async (candidateId, input) => {
-              await resolveConflictMutation.mutateAsync({ candidateId, input });
+              await resolveConflict(candidateId, input);
             }}
             onSaveMetadata={async (candidateId, input) => {
-              await saveMutation.mutateAsync({ candidateId, input });
+              await saveMetadata(candidateId, input);
             }}
           />
         </section>
@@ -259,25 +144,6 @@ function CandidateGroup({
       )}
     </section>
   );
-}
-
-async function invalidateQueues(queryClient: ReturnType<typeof useQueryClient>) {
-  await Promise.all(
-    STATUS_FILTERS.map(({ status }) => queryClient.invalidateQueries({ queryKey: ["import-candidates", status] }))
-  );
-}
-
-function cacheCandidate(queryClient: ReturnType<typeof useQueryClient>, candidate: ImportCandidate | null) {
-  if (!candidate) {
-    return;
-  }
-
-  queryClient.setQueryData(["import-candidate", candidate.id], candidate);
-  for (const { status } of STATUS_FILTERS) {
-    queryClient.setQueryData<ImportCandidate[] | undefined>(["import-candidates", status], (current) =>
-      current?.map((item) => (item.id === candidate.id ? candidate : item))
-    );
-  }
 }
 
 function probeSummary(candidate: ImportCandidate, t: ReturnType<typeof useI18n>["t"]): string {

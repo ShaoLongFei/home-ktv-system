@@ -159,7 +159,8 @@ function installFetchMock(options: { scanResponse?: { promise: Promise<Response>
 
       if (method === "PATCH" && detailMatch?.[1]) {
         const candidateIndex = candidates.findIndex((candidate) => candidate.id === detailMatch[1]);
-        const candidate = candidateIndex >= 0 ? patchedCandidate(candidates[candidateIndex], body) : null;
+        const existingCandidate = candidateIndex >= 0 ? candidates[candidateIndex] : undefined;
+        const candidate = existingCandidate ? patchedCandidate(existingCandidate, body) : null;
         if (candidate) {
           candidates[candidateIndex] = candidate;
         }
