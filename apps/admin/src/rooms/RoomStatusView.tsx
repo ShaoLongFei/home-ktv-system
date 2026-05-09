@@ -1,156 +1,20 @@
-import { useEffect, useState } from "react";
-import {
-  cleanFailedOnlineTask,
-  getOrCreateAdminDeviceId,
-  promoteOnlineTaskResource,
-  refreshPairingToken,
-  refreshRoomStatus,
-  retryFailedOnlineTask,
-  roomRealtimeUrl
-} from "../api/client.js";
 import { eventTypeText, roomStateText, taskStateText, useI18n, vocalModeName } from "../i18n.js";
-import type { RoomControlSnapshotMessage, RoomControlSnapshotPayload, RoomOnlineTaskSummaryRow, RoomStatusResponse } from "./types.js";
-
-const realtimeFallbackPollingMs = 5000;
+import type { RoomOnlineTaskSummaryRow } from "./types.js";
+import { useRoomStatus } from "./use-room-status.js";
 
 export function RoomStatusView() {
   const { t } = useI18n();
   const roomSlug = "living-room";
-  const [roomStatus, setRoomStatus] = useState<RoomStatusResponse | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isRefreshingRoom, setIsRefreshingRoom] = useState(false);
-  const [isRefreshingPairing, setIsRefreshingPairing] = useState(false);
-  const [busyTaskAction, setBusyTaskAction] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    let websocket: WebSocket | null = null;
-    let fallbackTimer: ReturnType<typeof setInterval> | null = null;
-
-    const loadRoomStatus = async () => {
-      try {
-        const status = await refreshRoomStatus(roomSlug);
-        if (!cancelled) {
-          setRoomStatus(status);
-          setErrorMessage(null);
-        }
-      } catch (error: unknown) {
-        if (!cancelled) {
-          setErrorMessage(error instanceof Error ? error.message : t("rooms.loadFailed"));
-        }
-      }
-    };
-
-    const stopFallbackPolling = () => {
-      if (fallbackTimer) {
-        clearInterval(fallbackTimer);
-        fallbackTimer = null;
-      }
-    };
-
-    const startFallbackPolling = () => {
-      if (cancelled || fallbackTimer) {
-        return;
-      }
-
-      fallbackTimer = setInterval(() => {
-        void loadRoomStatus();
-      }, realtimeFallbackPollingMs);
-    };
-
-    const openRealtime = () => {
-      if (cancelled || typeof WebSocket === "undefined") {
-        startFallbackPolling();
-        return;
-      }
-
-      websocket = new WebSocket(roomRealtimeUrl({ roomSlug, deviceId: getOrCreateAdminDeviceId() }));
-      websocket.onopen = stopFallbackPolling;
-      websocket.onmessage = (event) => {
-        if (cancelled) {
-          return;
-        }
-
-        const message = parseRealtimeMessage(event.data);
-        if (message?.payload.roomSlug !== roomSlug) {
-          return;
-        }
-
-        setRoomStatus((current) => roomStatusFromSnapshot(message.payload, current));
-        setErrorMessage(null);
-      };
-      websocket.onclose = startFallbackPolling;
-      websocket.onerror = startFallbackPolling;
-    };
-
-    void loadRoomStatus().then(openRealtime);
-
-    return () => {
-      cancelled = true;
-      stopFallbackPolling();
-      websocket?.close();
-    };
-  }, []);
-
-  const handleRefresh = async () => {
-    setIsRefreshingRoom(true);
-    try {
-      const status = await refreshRoomStatus(roomSlug);
-      setRoomStatus(status);
-      setErrorMessage(null);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : t("rooms.refreshStateFailed"));
-    } finally {
-      setIsRefreshingRoom(false);
-    }
-  };
-
-  const handlePairingRefresh = async () => {
-    setIsRefreshingPairing(true);
-    try {
-      const refreshed = await refreshPairingToken(roomSlug);
-      setRoomStatus((current) =>
-        current
-          ? {
-              ...current,
-              pairing: {
-                tokenExpiresAt: refreshed.pairing.tokenExpiresAt,
-                controllerUrl: refreshed.pairing.controllerUrl,
-                qrPayload: refreshed.pairing.qrPayload
-              }
-            }
-          : current
-      );
-      setErrorMessage(null);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : t("rooms.refreshTokenFailed"));
-    } finally {
-      setIsRefreshingPairing(false);
-    }
-  };
-
-  const handleTaskAction = async (task: RoomOnlineTaskSummaryRow, action: "retry" | "clean" | "promote") => {
-    const busyKey = `${action}:${task.taskId}`;
-    setBusyTaskAction(busyKey);
-    try {
-      if (action === "retry") {
-        await retryFailedOnlineTask(roomSlug, task.taskId);
-      } else if (action === "clean") {
-        await cleanFailedOnlineTask(roomSlug, task.taskId);
-      } else {
-        await promoteOnlineTaskResource(roomSlug, task.taskId);
-      }
-
-      const refreshed = await refreshRoomStatus(roomSlug);
-      setRoomStatus(refreshed);
-      setErrorMessage(null);
-    } catch (error) {
-      const actionLabel = action === "retry" ? t("rooms.retry") : action === "clean" ? t("rooms.clean") : t("rooms.promote");
-      setErrorMessage(error instanceof Error ? error.message : t("rooms.taskActionFailed", { action: actionLabel }));
-    } finally {
-      setBusyTaskAction(null);
-    }
-  };
+  const {
+    busyTaskAction,
+    errorMessage,
+    isRefreshingPairing,
+    isRefreshingRoom,
+    refreshPairingToken,
+    refreshRoomStatus,
+    roomStatus,
+    runTaskAction
+  } = useRoomStatus(roomSlug, t);
 
   return (
     <main className="admin-shell">
@@ -160,11 +24,11 @@ export function RoomStatusView() {
           <p>{t("rooms.description")}</p>
         </div>
         <div className="admin-header-actions">
-          <button className="secondary-button" type="button" onClick={handleRefresh} disabled={isRefreshingRoom}>
+          <button className="secondary-button" type="button" onClick={() => void refreshRoomStatus()} disabled={isRefreshingRoom}>
             {isRefreshingRoom ? t("common.refreshing") : t("rooms.refreshState")}
           </button>
-          <button className="primary-button" type="button" onClick={handlePairingRefresh} disabled={!roomStatus || isRefreshingPairing}>
-          {isRefreshingPairing ? t("common.refreshing") : t("rooms.refreshToken")}
+          <button className="primary-button" type="button" onClick={() => void refreshPairingToken()} disabled={!roomStatus || isRefreshingPairing}>
+            {isRefreshingPairing ? t("common.refreshing") : t("rooms.refreshToken")}
           </button>
         </div>
       </header>
@@ -244,7 +108,7 @@ export function RoomStatusView() {
                         className="secondary-button compact-button"
                         disabled={busyTaskAction !== null}
                         type="button"
-                        onClick={() => void handleTaskAction(task, "retry")}
+                        onClick={() => void runTaskAction(task, "retry")}
                       >
                         {busyTaskAction === `retry:${task.taskId}` ? "重试中..." : t("rooms.retry")}
                       </button>
@@ -255,7 +119,7 @@ export function RoomStatusView() {
                         className="danger-button compact-button"
                         disabled={busyTaskAction !== null}
                         type="button"
-                        onClick={() => void handleTaskAction(task, "clean")}
+                        onClick={() => void runTaskAction(task, "clean")}
                       >
                         {busyTaskAction === `clean:${task.taskId}` ? "清理中..." : t("rooms.clean")}
                       </button>
@@ -266,7 +130,7 @@ export function RoomStatusView() {
                         className="secondary-button compact-button"
                         disabled={busyTaskAction !== null}
                         type="button"
-                        onClick={() => void handleTaskAction(task, "promote")}
+                        onClick={() => void runTaskAction(task, "promote")}
                       >
                         {busyTaskAction === `promote:${task.taskId}` ? "入库中..." : t("rooms.promote")}
                       </button>
@@ -307,21 +171,6 @@ function formatTime(iso: string): string {
   return `${date.getFullYear()}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-function parseRealtimeMessage(data: unknown): RoomControlSnapshotMessage | null {
-  if (typeof data !== "string") {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(data) as Partial<RoomControlSnapshotMessage>;
-    if (parsed.type === "room.control.snapshot.updated" && isSnapshotPayload(parsed.payload)) {
-      return parsed as RoomControlSnapshotMessage;
-    }
-  } catch {}
-
-  return null;
-}
-
 function formatTaskCounts(counts: Record<string, number> | undefined, t: ReturnType<typeof useI18n>["t"]): string {
   if (!counts) {
     return `${taskStateText("total", t)} 0`;
@@ -343,37 +192,4 @@ function formatPayload(payload: Record<string, unknown>, t: ReturnType<typeof us
   const reason = typeof payload.reason === "string" ? payload.reason : null;
   const recovery = typeof payload.recovery === "string" ? payload.recovery : null;
   return [reason, recovery].filter(Boolean).join(" / ") || t("common.noPayload");
-}
-
-function isSnapshotPayload(value: unknown): value is RoomControlSnapshotPayload {
-  return typeof value === "object" && value !== null && "roomSlug" in value && "sessionVersion" in value && "queue" in value;
-}
-
-function roomStatusFromSnapshot(snapshot: RoomControlSnapshotPayload, current: RoomStatusResponse | null): RoomStatusResponse {
-  return {
-    room: current?.room ?? {
-      roomId: snapshot.roomId,
-      roomSlug: snapshot.roomSlug,
-      status: "active"
-    },
-    pairing: {
-      tokenExpiresAt: snapshot.pairing.tokenExpiresAt,
-      controllerUrl: snapshot.pairing.controllerUrl,
-      qrPayload: snapshot.pairing.qrPayload
-    },
-    tvPresence: snapshot.tvPresence,
-    controllers: snapshot.controllers,
-    sessionVersion: snapshot.sessionVersion,
-    current: snapshot.currentTarget
-      ? {
-          queueEntryId: snapshot.currentTarget.queueEntryId,
-          songTitle: snapshot.currentTarget.currentQueueEntryPreview.songTitle,
-          artistName: snapshot.currentTarget.currentQueueEntryPreview.artistName,
-          vocalMode: snapshot.currentTarget.vocalMode
-        }
-      : null,
-    queue: snapshot.queue.map((entry) => ({ ...entry })),
-    recentEvents: snapshot.recentEvents ?? current?.recentEvents ?? [],
-    onlineTasks: snapshot.onlineTasks ?? current?.onlineTasks ?? { counts: { total: 0 }, tasks: [] }
-  };
 }
