@@ -126,7 +126,7 @@ Plans:
 
 Plans:
 - [ ] 11-01: Extract Import Workbench runtime boundary
-- [ ] 11-02: Extract Song Catalog runtime boundary
+- [x] 11-02: Extract Song Catalog runtime boundary
 - [ ] 11-03: Close Admin runtime boundary verification evidence
 **UI hint**: no
 
@@ -142,4 +142,4 @@ Phases execute in numeric order: 6 → 7 → 8 → 9 → 10 → 11
 | 8. Code Structure & Logic Hardening | 3/3 | Complete | 2026-05-09 |
 | 9. Verification & Traceability Closure | 0/TBD | Complete    | 2026-05-09 |
 | 10. Paired Mobile Visual Verification | 1/1 | Complete   | 2026-05-09 |
-| 11. Admin Runtime Boundary Completion | 0/TBD | Not started | - |
+| 11. Admin Runtime Boundary Completion | 1/3 | In Progress|  |
