@@ -19,6 +19,8 @@ v1.0 MVP 已于 2026-05-08 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口，当前状态是准备进行 milestone archive。
+
 Milestone archives:
 
 - `.planning/milestones/v1.0-ROADMAP.md`
@@ -44,12 +46,13 @@ Milestone archives:
 - v1.0 validated QR entry, control-session restore, realtime room-state fanout, queue commands, current-song controls, and admin pairing-token refresh.
 - v1.0 validated Chinese-first song search by title, artist, pinyin, initials, aliases, and search hints, plus version-aware mobile song selection.
 - v1.0 validated local-first online supplement, cache-before-play boundaries, playback failure recovery, and admin recovery operations.
+- v1.1 validated TV playback state readability, progress time display, first-play guidance, switch feedback, and responsive TV layout.
+- v1.1 validated Chinese-first product polish across Admin, Mobile, and TV, including empty/error/loading states and key action feedback.
+- v1.1 validated clearer runtime boundaries for Mobile, Admin, and TV, including Phase 11 Admin Import/Songs runtime hooks for `QUAL-01`.
 
 ### Active
 
-- [ ] TV 端播放界面在空闲、播放中、加载中、失败、冲突和首次播放受限时都能给出清楚、稳定、适合远距离观看的反馈。
-- [ ] Admin、Mobile、TV 三端的中文文案、状态提示、空状态和关键操作反馈统一且产品化。
-- [ ] 播放控制、房间状态、在线任务和 UI 状态逻辑有更清晰的模块边界和回归测试。
+- None for v1.1; next active requirements should be defined when the next milestone starts.
 
 ### Out of Scope
 
@@ -110,4 +113,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-08 after v1.1 milestone start*
+*Last updated: 2026-05-10 after Phase 11 completion*
