@@ -1,3 +1,45 @@
+---
+phase: 08-code-structure-hardening
+plan: 00
+subsystem: quality
+tags: [runtime-boundaries, verification, traceability, audit]
+requires:
+  - phase: 07-productized-ui-polish
+    provides: Chinese-first UI and behavior baseline
+provides:
+  - Admin room status runtime hook
+  - Mobile controller runtime hook
+  - TV playback runtime hook
+affects: [admin, mobile-controller, tv-player, phase-09, phase-11]
+tech-stack:
+  added: []
+  patterns:
+    - App-local runtime hooks instead of cross-app shared package
+    - Page components remain render-focused while runtime hooks own orchestration
+key-files:
+  created:
+    - apps/admin/src/rooms/use-room-status.ts
+    - apps/mobile-controller/src/runtime/use-room-controller-runtime.ts
+    - apps/tv-player/src/runtime/use-tv-playback-runtime.ts
+  modified:
+    - apps/admin/src/rooms/RoomStatusView.tsx
+    - apps/mobile-controller/src/runtime/use-room-controller.ts
+    - apps/tv-player/src/App.tsx
+key-decisions:
+  - "Keep runtime extraction app-local until duplication or cross-app coupling justifies a shared package."
+  - "Do not broaden product behavior while moving runtime orchestration behind hooks."
+patterns-established:
+  - "Admin room refresh, realtime, fallback polling, pairing-token refresh, and online-task actions live behind useRoomStatus()."
+  - "Mobile controller runtime orchestration lives behind useRoomControllerRuntime() while useRoomController() remains the stable facade."
+  - "TV playback synchronization, first-play retry, heartbeat, recovery, keyboard switching, notices, and clock updates live behind useTvPlaybackRuntime()."
+requirements-completed:
+  - QUAL-02
+  - QUAL-03
+  - QUAL-04
+duration: 0min
+completed: 2026-05-09
+---
+
 # Phase 08 Summary: Code Structure & Logic Hardening
 
 **Status**: Complete  
