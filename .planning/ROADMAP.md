@@ -3,22 +3,25 @@
 ## Milestones
 
 - [x] **v1.0 MVP** — 单房间家庭 KTV 可唱闭环，Phases 1-5，shipped 2026-05-08. Archive: `.planning/milestones/v1.0-ROADMAP.md`
-- [ ] **v1.1 Polish** — TV 播放体验、产品化 UI、代码结构与逻辑打磨，Phases 6-8
+- [ ] **v1.1 Polish** — TV 播放体验、产品化 UI、代码结构与逻辑打磨，Phases 6-11
 
 ## Overview
 
-v1.1 不扩大产品边界，重点把 v1.0 已经跑通的家庭 KTV 闭环打磨到更适合长期使用。执行顺序先修 TV 播放体验，因为电视是家庭唱歌时最显眼的界面；随后统一三端 UI 与中文产品体验；最后整理代码结构、状态逻辑和测试，降低后续里程碑继续扩展时的维护成本。
+v1.1 不扩大产品边界，重点把 v1.0 已经跑通的家庭 KTV 闭环打磨到更适合长期使用。执行顺序先修 TV 播放体验，因为电视是家庭唱歌时最显眼的界面；随后统一三端 UI 与中文产品体验；再整理代码结构、状态逻辑和测试；最后用 Phase 9-11 关闭里程碑审计发现的 verification、visual check、Admin runtime boundary 缺口。
 
 ## Phases
 
 **Phase Numbering:**
 - v1.0 completed Phases 1-5.
-- v1.1 continues with Phases 6-8.
+- v1.1 continues with Phases 6-11.
 - Decimal phases remain reserved for urgent insertions.
 
 - [x] **Phase 6: TV Playback Experience Polish** - 打磨 TV 播放、空闲、异常、首次播放和远距离观看体验
 - [x] **Phase 7: Productized UI Polish** - 统一 Admin、Mobile、TV 的中文文案、状态反馈、视觉层级和关键交互
 - [x] **Phase 8: Code Structure & Logic Hardening** - 整理跨端状态流、播放/任务逻辑、组件边界和回归测试
+- [ ] **Phase 9: Verification & Traceability Closure** - 补齐 Phase 6-8 verification、summary frontmatter 和 requirements traceability
+- [ ] **Phase 10: Paired Mobile Visual Verification** - 让 Mobile visual check 覆盖已配对控制台状态
+- [ ] **Phase 11: Admin Runtime Boundary Completion** - 收敛 Admin Import/Songs 页面剩余运行时边界
 
 ## Phase Details
 
@@ -76,13 +79,56 @@ Plans:
 - [x] 08-03: 清理遗留代码、补齐回归测试并执行全量质量门禁
 **UI hint**: no
 
+### Phase 9: Verification & Traceability Closure
+**Goal**: 关闭 v1.1 milestone audit 中的 phase-level verification 和 requirements 三源对齐缺口，让 Phase 6-8 的验收证据可被 GSD 审计可靠读取。
+**Depends on**: Phase 6, Phase 7, Phase 8, `.planning/v1.1-MILESTONE-AUDIT.md`
+**Requirements**: TVUX-01, TVUX-02, TVUX-03, TVUX-04, TVUX-05, PROD-01, PROD-02, PROD-04, QUAL-02, QUAL-03, QUAL-04
+**Gap Closure**: Closes audit gaps for missing `06-VERIFICATION.md`, `07-VERIFICATION.md`, `08-VERIFICATION.md`, missing `08-SUMMARY.md` requirements frontmatter, and stale requirements traceability.
+**Success Criteria** (what must be TRUE):
+  1. Phase 6 has `06-VERIFICATION.md` with requirement-by-requirement evidence for TVUX-01 through TVUX-05.
+  2. Phase 7 has `07-VERIFICATION.md` with requirement-by-requirement evidence for PROD-01, PROD-02, and PROD-04 plus cross-references to Phase 10 for PROD-03/PROD-05 visual coverage.
+  3. Phase 8 has `08-VERIFICATION.md` with requirement-by-requirement evidence for QUAL-02 through QUAL-04 plus cross-reference to Phase 11 for QUAL-01 boundary completion.
+  4. `08-SUMMARY.md` has valid YAML frontmatter with `requirements-completed` that GSD summary extraction can read.
+  5. `.planning/REQUIREMENTS.md` checkboxes and traceability statuses reflect verified completion or pending gap-closure phases accurately.
+**Plans**: TBD
+**UI hint**: no
+
+### Phase 10: Paired Mobile Visual Verification
+**Goal**: Fix the Phase 7 visual-check gap so Mobile screenshots exercise the paired controller state rather than only the unpaired/error state.
+**Depends on**: Phase 7, Phase 9, local dev launcher, control-session/pairing flow
+**Requirements**: PROD-03, PROD-05
+**Gap Closure**: Closes audit integration gap `G-1` and flow gap `visual-check-mobile-paired-state`.
+**Success Criteria** (what must be TRUE):
+  1. `scripts/ui-visual-check.mjs` can capture a paired Mobile controller state in a deterministic local run.
+  2. The script or UAT docs clearly describe how the pairing token/session is obtained for visual validation.
+  3. Mobile visual coverage still captures the existing phone-width viewports and fails clearly when services are unavailable.
+  4. Regression tests or script help checks cover the paired-state behavior without requiring manual guesswork.
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 11: Admin Runtime Boundary Completion
+**Goal**: Close the remaining QUAL-01 structure gap by extracting Admin Import/Songs runtime query and mutation orchestration out of page components.
+**Depends on**: Phase 8, Phase 9
+**Requirements**: QUAL-01
+**Gap Closure**: Closes audit tech-debt item for `ImportWorkbench.tsx` and `SongCatalogView.tsx` carrying too much runtime logic.
+**Success Criteria** (what must be TRUE):
+  1. Import workbench scan/list/load-error/pending behavior is behind a focused Admin hook or runtime module.
+  2. Song catalog list/detail/default-asset/load-error behavior is behind a focused Admin hook or runtime module.
+  3. Existing Admin UI labels, layout, and busy/error behavior stay unchanged.
+  4. Admin tests and typecheck continue passing, and Phase 8 runtime-boundary intent is reflected in verification evidence.
+**Plans**: TBD
+**UI hint**: no
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 6 → 7 → 8
+Phases execute in numeric order: 6 → 7 → 8 → 9 → 10 → 11
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 6. TV Playback Experience Polish | 3/3 | Complete | 2026-05-08 |
 | 7. Productized UI Polish | 3/3 | Complete | 2026-05-09 |
 | 8. Code Structure & Logic Hardening | 3/3 | Complete | 2026-05-09 |
+| 9. Verification & Traceability Closure | 0/TBD | Not started | - |
+| 10. Paired Mobile Visual Verification | 0/TBD | Not started | - |
+| 11. Admin Runtime Boundary Completion | 0/TBD | Not started | - |

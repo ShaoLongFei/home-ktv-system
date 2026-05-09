@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: polish
 status: executing
-stopped_at: Phase 8 complete; ready for v1.1 milestone audit and completion
-last_updated: "2026-05-09T14:46:53+08:00"
+stopped_at: v1.1 gap closure phases 9-11 created; ready for phase 9 planning
+last_updated: "2026-05-09T16:20:00+08:00"
 last_activity: 2026-05-09
 progress:
-  total_phases: 3
+  total_phases: 6
   completed_phases: 3
   total_plans: 9
   completed_plans: 9
-  percent: 100
+  percent: 50
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-08)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 08 complete; ready for v1.1 milestone audit and completion
+**Current focus:** v1.1 audit gaps planned; ready for Phase 09 planning
 
 ## Current Position
 
-Phase: 08 (code-structure-hardening) — COMPLETE
-Plan: 3 of 3
-Status: Complete
+Phase: 09 (verification-traceability-closure) — READY TO PLAN
+Plan: TBD
+Status: Planned from milestone audit gaps
 Last activity: 2026-05-09
 
-Progress: [██████████] 100%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -62,6 +62,8 @@ Progress: [██████████] 100%
 - [Phase 06] The first-play loading banner stays suppressed so the central prompt is not duplicated.
 - [Phase 08] Admin, Mobile, and TV runtime orchestration now lives behind app-local hooks instead of page components.
 - [Phase 08] No shared runtime package was introduced; boundaries stay local until duplication or cross-app coupling justifies extraction.
+- [Milestone audit] v1.1 runtime integration is wired, but GSD audit requires Phase 6-8 verification docs and additional gap closure before archive.
+- [Gap planning] Phase 9 closes verification/traceability gaps, Phase 10 closes paired Mobile visual-check coverage, Phase 11 closes remaining Admin runtime boundary debt.
 
 ### Pending Todos
 
@@ -73,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-09T14:46:53+08:00
-Stopped at: Phase 8 complete; ready for v1.1 milestone audit and completion
+Last session: 2026-05-09T16:20:00+08:00
+Stopped at: v1.1 gap closure phases 9-11 created; ready for phase 9 planning
 Resume file: .planning/ROADMAP.md
