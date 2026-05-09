@@ -122,7 +122,12 @@ Plans:
   2. Song catalog list/detail/default-asset/load-error behavior is behind a focused Admin hook or runtime module.
   3. Existing Admin UI labels, layout, and busy/error behavior stay unchanged.
   4. Admin tests and typecheck continue passing, and Phase 8 runtime-boundary intent is reflected in verification evidence.
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 11-01: Extract Import Workbench runtime boundary
+- [ ] 11-02: Extract Song Catalog runtime boundary
+- [ ] 11-03: Close Admin runtime boundary verification evidence
 **UI hint**: no
 
 ## Progress
