@@ -9,6 +9,7 @@
     "db:migrate": "pnpm -F @home-ktv/api migrate",
     "seed:demo-song": "node scripts/seed-demo-song.mjs",
     "ui:visual-check": "node scripts/ui-visual-check.mjs",
+    "ui:visual-check:test": "node --test scripts/ui-visual-check.test.mjs",
     "tv:visual-check": "node scripts/tv-visual-check.mjs",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
