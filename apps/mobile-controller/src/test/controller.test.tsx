@@ -399,6 +399,67 @@ describe("mobile controller runtime", () => {
     expect(screen.queryByRole("dialog", { name: "确认切歌" })).toBeNull();
   });
 
+  it("shows the switch-to-instrumental control when the current track is original", async () => {
+    const user = userEvent.setup();
+    const baseSnapshot = roomSnapshot();
+    const currentTarget = baseSnapshot.currentTarget!;
+    const switchTarget = baseSnapshot.switchTarget!;
+    const originalSnapshot: RoomControlSnapshot = {
+      ...baseSnapshot,
+      currentTarget: {
+        currentQueueEntryPreview: currentTarget.currentQueueEntryPreview,
+        nextQueueEntryPreview: currentTarget.nextQueueEntryPreview,
+        queueEntryId: currentTarget.queueEntryId,
+        resumePositionMs: currentTarget.resumePositionMs,
+        roomId: currentTarget.roomId,
+        sessionVersion: currentTarget.sessionVersion,
+        assetId: "asset-original",
+        playbackUrl: "http://ktv.local/media/asset-original",
+        switchFamily: currentTarget.switchFamily,
+        vocalMode: "original"
+      },
+      switchTarget: {
+        playbackUrl: "http://ktv.local/media/asset-instrumental",
+        queueEntryId: switchTarget.queueEntryId,
+        resumePositionMs: switchTarget.resumePositionMs,
+        rollbackAssetId: "asset-original",
+        roomId: switchTarget.roomId,
+        sessionVersion: switchTarget.sessionVersion,
+        switchFamily: switchTarget.switchFamily,
+        fromAssetId: "asset-original",
+        toAssetId: "asset-instrumental",
+        vocalMode: "instrumental"
+      }
+    };
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(originalSnapshot))],
+      commandResponses: {
+        "/rooms/living-room/commands/switch-vocal-mode": json({
+          status: "accepted",
+          snapshot: {
+            ...originalSnapshot,
+            sessionVersion: 2
+          }
+        })
+      }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("电视在线");
+    expect(screen.getByRole("button", { name: "切到伴唱" })).toBeTruthy();
+    expect(screen.getByLabelText("current-vocal-mode").textContent).toContain("原唱");
+
+    await user.click(screen.getByRole("button", { name: "切到伴唱" }));
+    await flush();
+
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/switch-vocal-mode")).toBe(true);
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/switch-vocal-mode")?.body).toMatchObject({
+      playbackPositionMs: 1234
+    });
+  });
+
   it("shows the current vocal mode clearly in the playback panel", async () => {
     const { requests } = installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))]
