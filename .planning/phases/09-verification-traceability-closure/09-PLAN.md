@@ -4,6 +4,7 @@ plan: 01
 type: execute
 wave: 1
 depends_on: ["08-code-structure-hardening"]
+gap_closure: true
 files_modified:
   - .planning/phases/06-tv-playback-experience-polish/06-VERIFICATION.md
   - .planning/phases/07-productized-ui-polish/07-VERIFICATION.md
