@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "hot-songs.source-manifest.v1",
+  "sources": [
+    {
+      "id": "qq-kge-toplist",
+      "name": "QQ Music K歌金曲榜",
+      "provider": "qq_music",
+      "sourceType": "ktv_first",
+      "sourceKind": "public_chart",
+      "adapter": "qq_toplist",
+      "weight": 100,
+      "url": "https://y.qq.com/n/ryqq/toplist/36",
+      "expectedMinRows": 20,
+      "staleAfterDays": 14
+    },
+    {
+      "id": "cavca-golden-mic-manual",
+      "name": "CAVCA 金麦榜 manual snapshot",
+      "provider": "cavca",
+      "sourceType": "ktv_first",
+      "sourceKind": "manual_snapshot",
+      "adapter": "manual_json",
+      "weight": 110,
+      "file": "packages/hot-songs/fixtures/manual-snapshots/cavca-golden-mic.fixture.json",
+      "required": false,
+      "expectedMinRows": 3,
+      "staleAfterDays": 45,
+      "usableWhenStale": true
+    }
+  ]
+}
