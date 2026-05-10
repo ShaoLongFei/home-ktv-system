@@ -11,6 +11,8 @@
     "ui:visual-check": "node scripts/ui-visual-check.mjs",
     "ui:visual-check:test": "node --test scripts/ui-visual-check.test.mjs",
     "tv:visual-check": "node scripts/tv-visual-check.mjs",
+    "hot-songs:sources": "pnpm -F @home-ktv/hot-songs collect-sources",
+    "hot-songs:sources:test": "pnpm -F @home-ktv/hot-songs test",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
