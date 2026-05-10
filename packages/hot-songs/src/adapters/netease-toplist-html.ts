@@ -1,7 +1,7 @@
 import { load } from "cheerio";
 
 import type { SourceDefinition, SourceRow } from "../contracts.js";
-import { fetchText } from "../fetch/http.js";
+import { buildSourceFetchHeaders, fetchText } from "../fetch/http.js";
 import type { CollectContext } from "../runner.js";
 
 export async function collectNeteaseToplistHtmlSource(
@@ -12,7 +12,11 @@ export async function collectNeteaseToplistHtmlSource(
     throw new Error(`Source ${source.id} is missing a NetEase toplist URL`);
   }
 
-  const html = await fetchText(source.url, context.timeoutMs ?? 10000);
+  const html = await fetchText(
+    source.url,
+    context.timeoutMs ?? 10000,
+    buildSourceFetchHeaders(source)
+  );
   return parseNeteaseToplistHtmlRows(
     source,
     html,

@@ -1,7 +1,7 @@
 import { load } from "cheerio";
 
 import type { SourceDefinition, SourceRow } from "../contracts.js";
-import { fetchText } from "../fetch/http.js";
+import { buildSourceFetchHeaders, fetchText } from "../fetch/http.js";
 import type { CollectContext } from "../runner.js";
 
 export async function collectQqToplistSource(
@@ -12,12 +12,50 @@ export async function collectQqToplistSource(
     throw new Error(`Source ${source.id} is missing a QQ toplist URL`);
   }
 
-  const html = await fetchText(source.url, context.timeoutMs ?? 10000);
-  return parseQqToplistRows(
-    source,
-    html,
-    context.generatedAt ?? new Date().toISOString()
+  const collectedAt = context.generatedAt ?? new Date().toISOString();
+  const topId = source.topId ?? parseTopIdFromUrl(source.url);
+  if (topId !== null) {
+    const jsonText = await fetchText(
+      buildQqToplistApiUrl(topId),
+      context.timeoutMs ?? 10000,
+      {
+        referer: "https://y.qq.com/",
+        ...buildSourceFetchHeaders(source)
+      }
+    );
+    return parseQqToplistJsonRows(source, JSON.parse(jsonText) as unknown, collectedAt);
+  }
+
+  const html = await fetchText(
+    source.url,
+    context.timeoutMs ?? 10000,
+    buildSourceFetchHeaders(source)
   );
+  return parseQqToplistRows(source, html, collectedAt);
+}
+
+export function parseQqToplistJsonRows(
+  source: SourceDefinition,
+  data: unknown,
+  collectedAt = new Date().toISOString()
+): SourceRow[] {
+  if (!isRecord(data)) {
+    throw new Error("QQ toplist JSON data not found");
+  }
+
+  const sourcePublishedAt = findDateString(data);
+  const songList = Array.isArray(data.songlist) ? data.songlist : [];
+  const rows = songList
+    .map((item, index) =>
+      parseSongRow(source, item, index + 1, sourcePublishedAt, collectedAt)
+    )
+    .filter((row): row is SourceRow => row !== null);
+
+  if (rows.length === 0) {
+    throw new Error("QQ toplist JSON data not found");
+  }
+
+  return rows;
 }
 
 export function parseQqToplistRows(
@@ -153,7 +191,10 @@ function parseSongRow(
     return null;
   }
 
-  const songInfo = getRecord(item, "songInfo") ?? getRecord(item, "song");
+  const songInfo =
+    getRecord(item, "songInfo") ??
+    getRecord(item, "song") ??
+    getRecord(item, "data");
   const rawTitle =
     getString(songInfo, ["name", "title", "songName", "songname"]) ??
     getString(item, ["name", "title", "songName", "songname"]);
@@ -172,7 +213,9 @@ function parseSongRow(
     sourceId: source.id,
     sourceType: source.sourceType,
     provider: source.provider,
-    rank: getNumber(item, ["rank", "rankValue", "index"]) ?? fallbackRank,
+    rank:
+      getNumber(item, ["rank", "rankValue", "Franking_value", "index"]) ??
+      fallbackRank,
     rawTitle,
     rawArtists,
     sourceUrl: source.url ?? null,
@@ -212,7 +255,10 @@ function extractArtistNames(
     item.singers,
     item.artist,
     item.artists,
-    item.singerName
+    item.singerName,
+    getRecord(item, "data")?.singer,
+    getRecord(item, "data")?.singers,
+    getRecord(item, "data")?.singerName
   ];
 
   return [...new Set(artistValues.flatMap(normalizeArtistValue))];
@@ -333,4 +379,25 @@ function getNumber(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseTopIdFromUrl(url: string): number | null {
+  const match = url.match(/\/toplist\/(\d+)/u);
+  return match === null ? null : Number.parseInt(match[1] ?? "", 10);
+}
+
+function buildQqToplistApiUrl(topId: number): string {
+  const params = new URLSearchParams({
+    topid: String(topId),
+    format: "json",
+    inCharset: "utf8",
+    outCharset: "utf-8",
+    notice: "0",
+    platform: "yqq",
+    needNewCode: "1",
+    page: "detail",
+    type: "top"
+  });
+
+  return `https://c.y.qq.com/v8/fcg-bin/fcg_v8_toplist_cp.fcg?${params.toString()}`;
 }
