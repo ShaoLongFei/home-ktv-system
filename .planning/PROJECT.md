@@ -10,7 +10,7 @@
 
 ## Current State
 
-v1.0 MVP 已于 2026-05-08 shipped。系统已经具备：
+v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 
 - TV Player 绑定、全屏播放、播放遥测、重连恢复、播放器冲突保护和原唱/伴唱切换。
 - 本地歌库扫描、导入审核、正式歌库准入、`song.json` 校验和后台歌库维护。
@@ -19,23 +19,20 @@ v1.0 MVP 已于 2026-05-08 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口，当前状态是准备进行 milestone archive。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口，当前状态是准备定义下一个 milestone。
 
 Milestone archives:
 
 - `.planning/milestones/v1.0-ROADMAP.md`
 - `.planning/milestones/v1.0-REQUIREMENTS.md`
 - `.planning/milestones/v1.0-MILESTONE-AUDIT.md`
+- `.planning/milestones/v1.1-ROADMAP.md`
+- `.planning/milestones/v1.1-REQUIREMENTS.md`
+- `.planning/milestones/v1.1-MILESTONE-AUDIT.md`
 
-## Current Milestone: v1.1 Polish
+## Next Milestone
 
-**Goal:** 打磨 TV 播放体验、产品化 UI 和代码结构，让 v1.0 的可唱闭环从“能用”提升到“稳定、清楚、顺手、可维护”。
-
-**Target features:**
-
-- TV 播放体验打磨：优化播放/空闲/异常/首次播放引导、状态展示、进度时间、切换反馈和真实电视视距下的可读性。
-- 产品化 UI 打磨：统一 Admin、Mobile、TV 的中文文案、空状态、错误提示、按钮状态、视觉密度和交互反馈。
-- 代码结构与逻辑整理：梳理跨端状态流、API 客户端、播放控制、在线任务和 UI 组件边界，补充回归测试，降低后续开发成本。
+Not started. Run `$gsd-new-milestone` to define the next goal, requirements, and roadmap.
 
 ## Requirements
 
@@ -67,7 +64,7 @@ Milestone archives:
 
 项目现在是一个 TypeScript monorepo，包含 Fastify API、React Admin、React Mobile Controller、React TV Player，以及共享 domain/protocol/player-contract packages。v1.0 的主线目标已经完成：家庭单房间场景可以从本地歌库出发完成导入、搜索、扫码、点歌、播放、切换、失败恢复和在线补歌任务闭环。
 
-v1.1 聚焦体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。候选方向包括：
+v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。下一轮候选方向包括：
 
 - TV 播放体验优化：首次播放用户手势引导、进度展示、播放异常提示和真实电视兼容性。
 - 产品化打磨：管理员/手机端 i18n 完整性、视觉密度、空状态和操作反馈。
@@ -99,6 +96,10 @@ v1.1 聚焦体验和质量打磨，不引入多房间、账号体系、评分、
 | 软件不做实时麦克风 DSP | 避免延迟与复杂度，把音频效果交给硬件链路 | Good |
 | 第一版优先使用受控静态资源 URL | 不让电视端直接依赖复杂在线解析流程 | Good |
 | TypeScript monorepo | TV、Mobile、API、Worker 共享协议与类型 | Good |
+| v1.1 优先打磨体验和结构，不扩大产品边界 | 让 v1.0 可唱闭环从“能用”提升到“稳定、清楚、顺手、可维护” | Good |
+| 保持 app-local runtime hook，不急于抽共享状态包 | 当前跨端重复还不足以抵消 shared package 的抽象和维护成本 | Good |
+| Mobile visual check 默认走配对 URL | 临时 Chrome profile 无法依赖已有 cookie，必须用 tokenized controller URL 验证真实控制台状态 | Good |
+| Admin Import/Songs 运行时逻辑收敛到 feature-local hooks | 关闭 QUAL-01 审计缺口，同时避免引入产品行为变化 | Good |
 
 ## Evolution
 
@@ -113,4 +114,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-10 after Phase 11 completion*
+*Last updated: 2026-05-10 after v1.1 milestone archive*

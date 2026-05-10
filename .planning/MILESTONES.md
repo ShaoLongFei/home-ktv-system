@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.1 Polish (Shipped: 2026-05-10)
+
+**Phases completed:** 6 phases, 12 plans, 29 tasks
+
+**Key accomplishments:**
+
+- TV playback screens now have clearer Chinese states, first-play guidance, switch/recovery feedback, and stable `mm:ss / mm:ss` time display for couch-distance viewing.
+- Admin, Mobile, and TV now share more consistent Chinese-first product copy, empty/error/loading states, button feedback, and visual verification coverage.
+- Mobile visual checks now capture a paired controller state by default through pairing-token refresh, with test coverage and Chinese UAT instructions.
+- Runtime orchestration was moved behind app-local hooks for Mobile, TV, Admin Rooms, Admin Import Workbench, and Admin Song Catalog where required by the audit.
+- Phase-level verification, requirements traceability, and milestone audit evidence now close the v1.1 documentation and quality gates.
+- `pnpm test`, `pnpm typecheck`, Admin tests/typecheck, visual helper tests, and key-link checks passed during milestone closeout.
+
+---
+
 ## v1.0 MVP (Shipped: 2026-05-08)
 
 **Phases completed:** 5 phases, 25 plans, 51 tasks

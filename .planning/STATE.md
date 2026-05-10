@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Polish
-status: complete
-stopped_at: Completed 11-admin-runtime-boundary-completion-03-PLAN.md
-last_updated: "2026-05-09T16:48:35Z"
-last_activity: 2026-05-09
+status: milestone_complete
+stopped_at: v1.1 milestone archived
+last_updated: "2026-05-10T01:28:53Z"
+last_activity: 2026-05-10
 progress:
   total_phases: 6
   completed_phases: 6
@@ -18,17 +18,18 @@ progress:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-08)
+See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 11 — admin-runtime-boundary-completion
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 11 (admin-runtime-boundary-completion) — COMPLETE
-Plan: 3 of 3
-Status: Phase 11 complete; ready for milestone verification/archive
-Last activity: 2026-05-09 -- Completed Phase 11 verification
+Milestone: v1.1 Polish — ARCHIVED
+Phase: Not started
+Plan: Not started
+Status: v1.1 milestone complete; ready for `$gsd-new-milestone`
+Last activity: 2026-05-10 -- Archived v1.1 milestone
 
 Progress: [██████████] 100%
 
@@ -66,7 +67,7 @@ Progress: [██████████] 100%
 - [Phase 06] The first-play loading banner stays suppressed so the central prompt is not duplicated.
 - [Phase 08] Admin, Mobile, and TV runtime orchestration now lives behind app-local hooks instead of page components.
 - [Phase 08] No shared runtime package was introduced; boundaries stay local until duplication or cross-app coupling justifies extraction.
-- [Milestone audit] v1.1 runtime integration is wired, but GSD audit requires Phase 6-8 verification docs and additional gap closure before archive.
+- [Milestone audit] v1.1 audit passed after Phase 9 verification closure, Phase 10 paired Mobile visual coverage, and Phase 11 Admin runtime boundary completion.
 - [Gap planning] Phase 9 closes verification/traceability gaps, Phase 10 closes paired Mobile visual-check coverage, Phase 11 closes remaining Admin runtime boundary debt.
 - [Phase 10-paired-mobile-visual-verification]: Default paired Mobile capture now resolves a fresh controller URL through POST /admin/rooms/:room/pairing-token/refresh.
 - [Phase 10-paired-mobile-visual-verification]: MOBILE_VISUAL_URL remains a full override and bypasses pairing refresh when explicitly set.
@@ -77,6 +78,7 @@ Progress: [██████████] 100%
 - [Phase 11-admin-runtime-boundary-completion]: ImportWorkbench.tsx now renders returned state and callbacks while TanStack Query orchestration stays inside the runtime hook.
 - [Phase 11-admin-runtime-boundary-completion]: QUAL-01 closure is scoped to the audited Admin Import/Songs runtime boundary and does not add product capability.
 - [Phase 11-admin-runtime-boundary-completion]: Final evidence combines runtime hook tests, page behavior tests, structure grep checks, Admin typecheck, and workspace typecheck.
+- [Milestone v1.1]: TV playback polish, productized Chinese UI, paired Mobile visual coverage, runtime boundaries, and traceability audit are archived.
 
 ### Pending Todos
 
@@ -88,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-09T16:40:53.294Z
-Stopped at: Completed 11-admin-runtime-boundary-completion-03-PLAN.md
+Last session: 2026-05-10T01:28:53Z
+Stopped at: v1.1 milestone archived
 Resume file: None
