@@ -37,7 +37,14 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
   2. User can see whether a real MV file is ingestable, playable, review-required, or unsupported, with explicit reasons when it is not queueable.
   3. Source media facts are preserved with provenance for container, duration, video codec, audio tracks, file size, and metadata source.
   4. Catalog and player payloads expose platform-neutral playback profile and audio-track fields that the current TV player and a future Android TV player can both reuse.
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 12-01-PLAN.md - Shared real-MV domain contract types
+- [ ] 12-02-PLAN.md - Durable schema and repository mapping
+- [ ] 12-03-PLAN.md - Probe summary, MIME, and compatibility evaluator
+- [ ] 12-04-PLAN.md - PlaybackTarget profile and selected track ref
+- [ ] 12-05-PLAN.md - Controlled playback-risk spike harness
+- [ ] 12-06-PLAN.md - User real-sample playback-risk evidence
 
 ### Phase 13: MediaInfo Probe, Scanner, and Sidecars
 **Goal**: User can drop real MV files, covers, and sidecar metadata under `MEDIA_ROOT` and get stable, reviewable candidates.
