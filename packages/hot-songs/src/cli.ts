@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 
 import { collectManualJsonSource } from "./adapters/manual-json.js";
+import { collectQqToplistSource } from "./adapters/qq-toplist.js";
 import type { SourceRow } from "./contracts.js";
 import { loadSourceManifest, resolveRunPath, validateManifestPath } from "./manifest.js";
 import { buildSourceHealthReport, writeSourceReport } from "./report/source-health.js";
@@ -71,7 +72,8 @@ export async function runCollectSourcesCli(argv: string[]): Promise<number> {
       const result = await collectSources(manifest, {
         adapters: buildAdapters(),
         sourceIds: args.sourceIds,
-        runRoot
+        runRoot,
+        timeoutMs: args.timeoutMs
       });
       await writeRunArtifacts(outDir, result);
 
@@ -114,7 +116,7 @@ function buildAdapters(): CollectContext["adapters"] {
 
   return {
     manual_json: collectManualJsonSource,
-    qq_toplist: notImplementedAdapter,
+    qq_toplist: collectQqToplistSource,
     kugou_rank_html: notImplementedAdapter,
     netease_toplist_html: notImplementedAdapter
   };

@@ -21,6 +21,7 @@ export type CollectContext = {
   sourceIds?: readonly string[];
   generatedAt?: string;
   runRoot?: string;
+  timeoutMs?: number;
 };
 
 export type SourceAdapter = (
