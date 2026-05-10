@@ -7,7 +7,10 @@ import { z } from "zod";
 
 import { SourceRowSchema, SourceStatusSchema } from "./contracts.js";
 import { resolveRunPath } from "./manifest.js";
-import { buildCandidateSnapshot } from "./normalize/candidates.js";
+import {
+  buildCandidateSnapshot,
+  type BuildCandidateSnapshotInput
+} from "./normalize/candidates.js";
 
 export const HOT_SONGS_NORMALIZE_HELP =
   "Usage: pnpm hot-songs:normalize -- --source-rows <path> --out <dir> [--source-report <path>]";
@@ -19,19 +22,33 @@ export type NormalizeSourcesArgs = {
   help: boolean;
 };
 
-const SourceRowsFileSchema = z.union([
-  SourceRowSchema.array(),
-  z.object({
-    rows: SourceRowSchema.array()
-  })
-]);
+const SourceRowsFileSchema = z
+  .union([
+    SourceRowSchema.array(),
+    z.object({
+      generatedAt: z.string().datetime().optional(),
+      rows: SourceRowSchema.array()
+    })
+  ])
+  .transform((parsed) =>
+    Array.isArray(parsed)
+      ? { rows: parsed, generatedAt: undefined as string | undefined }
+      : { rows: parsed.rows, generatedAt: parsed.generatedAt }
+  );
 
-const SourceReportFileSchema = z.union([
-  SourceStatusSchema.array(),
-  z.object({
-    sources: SourceStatusSchema.array()
-  })
-]);
+const SourceReportFileSchema = z
+  .union([
+    SourceStatusSchema.array(),
+    z.object({
+      generatedAt: z.string().datetime().optional(),
+      sources: SourceStatusSchema.array()
+    })
+  ])
+  .transform((parsed) =>
+    Array.isArray(parsed)
+      ? { sources: parsed, generatedAt: undefined as string | undefined }
+      : { sources: parsed.sources, generatedAt: parsed.generatedAt }
+  );
 
 export function parseNormalizeSourcesArgs(
   argv: string[]
@@ -77,14 +94,25 @@ export async function runNormalizeSourcesCli(argv: string[]): Promise<number> {
         ? undefined
         : resolveRunPath(args.sourceReportPath, runRoot);
 
-    const rows = await readSourceRows(sourceRowsPath);
-    const sourceStatuses =
+    const sourceRowsFile = await readSourceRowsFile(sourceRowsPath);
+    const sourceReportFile =
       sourceReportPath === undefined
         ? undefined
-        : await readSourceStatuses(sourceReportPath);
-    const snapshot = buildCandidateSnapshot(
-      sourceStatuses === undefined ? { rows } : { rows, sourceStatuses }
-    );
+        : await readSourceReportFile(sourceReportPath);
+    const snapshotInput: BuildCandidateSnapshotInput = {
+      rows: sourceRowsFile.rows
+    };
+    if (sourceReportFile !== undefined) {
+      snapshotInput.sourceStatuses = sourceReportFile.sources;
+    }
+
+    const generatedAt =
+      sourceReportFile?.generatedAt ?? sourceRowsFile.generatedAt;
+    if (generatedAt !== undefined) {
+      snapshotInput.generatedAt = generatedAt;
+    }
+
+    const snapshot = buildCandidateSnapshot(snapshotInput);
 
     await mkdir(outDir, { recursive: true });
     await writeFile(
@@ -120,14 +148,12 @@ async function readJsonFile(filePath: string): Promise<unknown> {
   return JSON.parse(fileContent) as unknown;
 }
 
-async function readSourceRows(filePath: string) {
-  const parsed = SourceRowsFileSchema.parse(await readJsonFile(filePath));
-  return Array.isArray(parsed) ? parsed : parsed.rows;
+async function readSourceRowsFile(filePath: string) {
+  return SourceRowsFileSchema.parse(await readJsonFile(filePath));
 }
 
-async function readSourceStatuses(filePath: string) {
-  const parsed = SourceReportFileSchema.parse(await readJsonFile(filePath));
-  return Array.isArray(parsed) ? parsed : parsed.sources;
+async function readSourceReportFile(filePath: string) {
+  return SourceReportFileSchema.parse(await readJsonFile(filePath));
 }
 
 function isDirectRun(): boolean {

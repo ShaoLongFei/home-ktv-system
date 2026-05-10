@@ -81,6 +81,7 @@ describe("runNormalizeSourcesCli", () => {
         await readFile(join(outDir, "candidate-snapshot.json"), "utf8")
       ) as {
         schemaVersion: string;
+        generatedAt: string;
         sourceRowCount: number;
         candidateCount: number;
         candidates: Array<{
@@ -102,6 +103,7 @@ describe("runNormalizeSourcesCli", () => {
 
       expect(exitCode).toBe(0);
       expect(snapshot.schemaVersion).toBe("hot-songs.candidate-snapshot.v1");
+      expect(snapshot.generatedAt).toBe("2026-05-10T06:26:28.264Z");
       expect(snapshot.sourceRowCount).toBe(15);
       expect(snapshot.candidateCount).toBe(6);
       expect(snapshot.sourceStatuses).toHaveLength(5);
