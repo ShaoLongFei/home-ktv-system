@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
 status: ready_to_plan
-stopped_at: v1.2 roadmap created
-last_updated: "2026-05-10T13:01:05+08:00"
+stopped_at: Phase 12 context gathered
+last_updated: "2026-05-10T16:02:11.626Z"
 last_activity: 2026-05-10
 progress:
   total_phases: 5
@@ -29,7 +29,7 @@ Milestone: v1.2 真实 MV 歌库
 Phase: 12 of 16 (1 of 5 in v1.2) - Contract, Schema, and Playback-Risk Spike
 Plan: Not planned yet
 Status: Ready to plan
-Last activity: 2026-05-10 -- v1.2 roadmap created and requirements mapped to Phases 12-16
+Last activity: 2026-05-10 -- Phase 12 context gathered; ready to plan
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -93,6 +93,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-10T13:01:05+08:00
-Stopped at: v1.2 roadmap created
-Resume file: None
+Last session: 2026-05-10T16:02:11.622Z
+Stopped at: Phase 12 context gathered
+Resume file: .planning/phases/12-contract-schema-and-playback-risk-spike/12-CONTEXT.md
