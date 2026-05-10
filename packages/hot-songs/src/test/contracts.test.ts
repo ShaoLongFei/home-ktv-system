@@ -21,8 +21,26 @@ describe("SourceDefinitionSchema", () => {
     expect(source.enabled).toBe(true);
     expect(source.required).toBe(false);
     expect(source.expectedMinRows).toBe(1);
+    expect(source.targetRows).toBe(500);
+    expect(source.minRows).toBeUndefined();
     expect(source.staleAfterDays).toBe(14);
     expect(source.usableWhenStale).toBe(false);
+  });
+
+  it("accepts optional cookie env names without storing cookie values", () => {
+    const source = SourceDefinitionSchema.parse({
+      id: "qq-hot-toplist",
+      name: "QQ Music 热歌榜",
+      provider: "qq_music",
+      sourceType: "support",
+      sourceKind: "public_chart",
+      adapter: "qq_toplist",
+      weight: 45,
+      url: "https://y.qq.com/n/ryqq/toplist/26",
+      authCookieEnv: "QQ_MUSIC_COOKIE"
+    });
+
+    expect(source.authCookieEnv).toBe("QQ_MUSIC_COOKIE");
   });
 
   it("accepts CAVCA manual snapshot source", () => {
@@ -84,7 +102,7 @@ describe("SourceDefinitionSchema", () => {
         adapter: "kugou_rank_html",
         weight: 40
       })
-    ).toThrow(/url is required/);
+    ).toThrow(/url or urls is required/);
 
     expect(() =>
       SourceDefinitionSchema.parse({
@@ -101,9 +119,11 @@ describe("SourceDefinitionSchema", () => {
 });
 
 describe("SourceStatusValueSchema", () => {
-  it("uses the exact Phase 12 status vocabulary", () => {
+  it("uses the exact full-chart coverage status vocabulary", () => {
     expect(SourceStatusValueSchema.options).toEqual([
       "succeeded",
+      "platform_cap",
+      "failed_below_min_rows",
       "failed",
       "stale",
       "skipped"

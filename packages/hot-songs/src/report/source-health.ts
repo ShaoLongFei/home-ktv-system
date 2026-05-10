@@ -1,7 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { SourceRow, SourceStatus, SourceStatusValue } from "../contracts.js";
+import {
+  SourceStatusValueSchema,
+  type SourceRow,
+  type SourceStatus,
+  type SourceStatusValue
+} from "../contracts.js";
 
 export type SourceHealthReport = {
   schemaVersion: "hot-songs.source-report.v1";
@@ -26,12 +31,12 @@ export function buildSourceHealthReport(
     generatedAt: input.generatedAt,
     totalRows: input.rows.length,
     usableSourceCount: input.statuses.filter((status) => status.usable).length,
-    statusCounts: {
-      succeeded: countStatus(input.statuses, "succeeded"),
-      failed: countStatus(input.statuses, "failed"),
-      stale: countStatus(input.statuses, "stale"),
-      skipped: countStatus(input.statuses, "skipped")
-    },
+    statusCounts: Object.fromEntries(
+      SourceStatusValueSchema.options.map((statusValue) => [
+        statusValue,
+        countStatus(input.statuses, statusValue)
+      ])
+    ) as Record<SourceStatusValue, number>,
     sources: input.statuses
   };
 }

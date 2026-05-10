@@ -42,6 +42,7 @@ function source(
     enabled: sourceOverrides.enabled ?? true,
     required: sourceOverrides.required ?? false,
     file: sourceOverrides.file ?? "unused.json",
+    targetRows: sourceOverrides.targetRows ?? 500,
     expectedMinRows: sourceOverrides.expectedMinRows ?? 1,
     staleAfterDays: sourceOverrides.staleAfterDays ?? 14,
     usableWhenStale: sourceOverrides.usableWhenStale ?? false,
@@ -73,6 +74,16 @@ function row(
     warnings: [],
     ...overrides
   };
+}
+
+function rows(sourceDefinition: SourceDefinition, count: number): SourceRow[] {
+  return Array.from({ length: count }, (_, index) =>
+    row(sourceDefinition, {
+      rank: index + 1,
+      rawTitle: `Song ${index + 1}`,
+      rawArtists: [`Artist ${index + 1}`]
+    })
+  );
 }
 
 function status(
@@ -197,6 +208,77 @@ describe("collectSources", () => {
     ]);
   });
 
+  it("marks below-minimum sources with known caps as usable platform caps", async () => {
+    const cappedSource = source({
+      id: "qq-hot-toplist",
+      provider: "qq_music",
+      sourceKind: "public_chart",
+      adapter: "qq_toplist",
+      url: "https://y.qq.com/n/ryqq/toplist/26",
+      targetRows: 500,
+      minRows: 400,
+      platformCapRows: 300
+    });
+
+    const result = await collectSources(
+      manifest([cappedSource]),
+      context({
+        qq_toplist: async (sourceDefinition) => rows(sourceDefinition, 300)
+      })
+    );
+
+    expect(result.statuses).toEqual([
+      expect.objectContaining({
+        sourceId: "qq-hot-toplist",
+        status: "platform_cap",
+        usable: true,
+        rowCount: 300,
+        targetRows: 500,
+        minRows: 400,
+        platformCapRows: 300,
+        warnings: expect.arrayContaining(["row-count-below-minimum"])
+      })
+    ]);
+  });
+
+  it("marks uncapped below-minimum sources as unusable failures", async () => {
+    const belowMinimumSource = source({
+      id: "qq-unknown-toplist",
+      provider: "qq_music",
+      sourceKind: "public_chart",
+      adapter: "qq_toplist",
+      url: "https://y.qq.com/n/ryqq/toplist/999",
+      targetRows: 500,
+      minRows: 400
+    });
+    const fallbackSource = source({ id: "manual-good" });
+
+    const result = await collectSources(
+      manifest([belowMinimumSource, fallbackSource]),
+      context({
+        qq_toplist: async (sourceDefinition) => rows(sourceDefinition, 100),
+        manual_json: successAdapter()
+      })
+    );
+
+    expect(result.statuses).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceId: "qq-unknown-toplist",
+          status: "failed_below_min_rows",
+          usable: false,
+          rowCount: 100,
+          warnings: expect.arrayContaining(["row-count-below-minimum"])
+        }),
+        expect.objectContaining({
+          sourceId: "manual-good",
+          status: "succeeded",
+          usable: true
+        })
+      ])
+    );
+  });
+
   it("fails when no usable hot-song source remains", async () => {
     await expect(
       collectSources(
@@ -208,7 +290,7 @@ describe("collectSources", () => {
         })
       )
     ).rejects.toThrow(
-      "No usable hot-song sources remain. Check source-report.json for failed, stale, and skipped sources."
+      "No usable hot-song sources remain. Check source-report.json for failed, failed_below_min_rows, stale, and skipped sources."
     );
   });
 
@@ -218,6 +300,8 @@ describe("collectSources", () => {
       rows: [row(source({ id: "manual-good" }))],
       statuses: [
         status("manual-good", "succeeded", 1),
+        status("manual-platform-cap", "platform_cap", 100),
+        status("manual-below-minimum", "failed_below_min_rows", 100),
         status("manual-failure", "failed"),
         status("manual-stale", "stale", 1),
         status("manual-skipped", "skipped")
@@ -227,6 +311,8 @@ describe("collectSources", () => {
     expect(report.schemaVersion).toBe("hot-songs.source-report.v1");
     expect(report.statusCounts).toEqual({
       succeeded: 1,
+      platform_cap: 1,
+      failed_below_min_rows: 1,
       failed: 1,
       stale: 1,
       skipped: 1

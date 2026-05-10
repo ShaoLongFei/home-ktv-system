@@ -37,7 +37,7 @@ export class CollectSourcesError extends Error {
 }
 
 const NO_USABLE_SOURCE_MESSAGE =
-  "No usable hot-song sources remain. Check source-report.json for failed, stale, and skipped sources.";
+  "No usable hot-song sources remain. Check source-report.json for failed, failed_below_min_rows, stale, and skipped sources.";
 
 const dayInMs = 24 * 60 * 60 * 1000;
 
@@ -98,10 +98,8 @@ export async function collectOneSource(
 
   try {
     const rows = await adapter(source, context);
-    const warnings =
-      rows.length < source.expectedMinRows
-        ? ["row-count-below-expected"]
-        : [];
+    const minRows = effectiveMinRows(source);
+    const warnings = buildRowCountWarnings(source, rows.length, minRows);
 
     if (rows.length === 0) {
       return {
@@ -112,6 +110,38 @@ export async function collectOneSource(
           rowCount: rows.length,
           warnings,
           error: "No rows returned",
+          startedAt,
+          finishedAt: generatedAt
+        })
+      };
+    }
+
+    if (rows.length < minRows) {
+      if (
+        source.platformCapRows !== undefined &&
+        rows.length <= source.platformCapRows
+      ) {
+        return {
+          rows,
+          status: buildStatus(source, {
+            status: "platform_cap",
+            usable: true,
+            rowCount: rows.length,
+            warnings,
+            startedAt,
+            finishedAt: generatedAt
+          })
+        };
+      }
+
+      return {
+        rows,
+        status: buildStatus(source, {
+          status: "failed_below_min_rows",
+          usable: false,
+          rowCount: rows.length,
+          warnings,
+          error: `Row count ${rows.length} is below minimum ${minRows}`,
           startedAt,
           finishedAt: generatedAt
         })
@@ -192,8 +222,46 @@ function buildStatus(
 ): SourceStatus {
   return {
     sourceId: source.id,
+    targetRows: source.targetRows,
+    minRows: effectiveMinRows(source),
+    platformCapRows: source.platformCapRows,
+    authCookieEnv: source.authCookieEnv,
+    authUsed:
+      source.authCookieEnv === undefined
+        ? undefined
+        : (process.env[source.authCookieEnv]?.length ?? 0) > 0,
     ...status
   };
+}
+
+function effectiveMinRows(source: SourceDefinition): number {
+  return source.minRows ?? source.expectedMinRows;
+}
+
+function buildRowCountWarnings(
+  source: SourceDefinition,
+  rowCount: number,
+  minRows: number
+): string[] {
+  const warnings: string[] = [];
+
+  if (rowCount < minRows) {
+    warnings.push("row-count-below-minimum");
+  }
+
+  if (rowCount < source.expectedMinRows) {
+    warnings.push("row-count-below-expected");
+  }
+
+  if (
+    source.platformCapRows !== undefined &&
+    rowCount <= source.platformCapRows &&
+    rowCount < minRows
+  ) {
+    warnings.push("row-count-limited-by-platform-cap");
+  }
+
+  return [...new Set(warnings)];
 }
 
 function isStaleSource(

@@ -13,10 +13,13 @@ export const AdapterSchema = z.enum([
   "qq_toplist",
   "kugou_rank_html",
   "netease_toplist_html",
+  "tencent_music_yobang",
   "manual_json"
 ]);
 export const SourceStatusValueSchema = z.enum([
   "succeeded",
+  "platform_cap",
+  "failed_below_min_rows",
   "failed",
   "stale",
   "skipped"
@@ -41,7 +44,16 @@ export const SourceDefinitionSchema = z
     enabled: z.boolean().default(true),
     required: z.boolean().default(false),
     url: z.string().url().optional(),
+    urls: z.array(z.string().url()).min(1).optional(),
     file: z.string().min(1).optional(),
+    topId: z.number().int().min(1).optional(),
+    targetRows: z.number().int().min(1).default(500),
+    minRows: z.number().int().min(1).optional(),
+    platformCapRows: z.number().int().min(1).optional(),
+    authCookieEnv: z
+      .string()
+      .regex(/^[A-Z][A-Z0-9_]*$/u)
+      .optional(),
     expectedMinRows: z.number().int().min(1).default(1),
     staleAfterDays: z.number().int().min(1).default(14),
     usableWhenStale: z.boolean().default(false),
@@ -60,11 +72,15 @@ export const SourceDefinitionSchema = z
       }
     }
 
-    if (source.sourceKind === "public_chart" && source.url === undefined) {
+    if (
+      source.sourceKind === "public_chart" &&
+      source.url === undefined &&
+      source.urls === undefined
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["url"],
-        message: "url is required for public_chart sources"
+        message: "url or urls is required for public_chart sources"
       });
     }
 
@@ -118,6 +134,11 @@ export const SourceStatusSchema = z.object({
   status: SourceStatusValueSchema,
   usable: z.boolean(),
   rowCount: z.number().int().min(0),
+  targetRows: z.number().int().min(1).optional(),
+  minRows: z.number().int().min(1).optional(),
+  platformCapRows: z.number().int().min(1).optional(),
+  authCookieEnv: z.string().optional(),
+  authUsed: z.boolean().optional(),
   warnings: z.array(z.string()),
   error: z.string().optional(),
   startedAt: z.string().datetime(),
