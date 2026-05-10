@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.2
-milestone_name: 真实 MV 歌库
-status: ready_to_plan
-stopped_at: v1.2 roadmap created
-last_updated: "2026-05-10T13:01:05+08:00"
+milestone_name: 热门歌曲候选名单
+status: ready_to_execute
+stopped_at: phase_12_planned_ready_to_execute
+last_updated: "2026-05-10T13:34:56+08:00"
 last_activity: 2026-05-10
 progress:
-  total_phases: 5
+  total_phases: 3
   completed_phases: 0
-  total_plans: 0
+  total_plans: 5
   completed_plans: 0
   percent: 0
 ---
@@ -21,15 +21,15 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 12 - Contract, Schema, and Playback-Risk Spike
+**Current focus:** v1.2 热门歌曲候选名单
 
 ## Current Position
 
-Milestone: v1.2 真实 MV 歌库
-Phase: 12 of 16 (1 of 5 in v1.2) - Contract, Schema, and Playback-Risk Spike
-Plan: Not planned yet
-Status: Ready to plan
-Last activity: 2026-05-10 -- v1.2 roadmap created and requirements mapped to Phases 12-16
+Milestone: v1.2 热门歌曲候选名单
+Phase: 12 of 14 (Source Contracts and Fetch Harness)
+Plan: 12-01 ready to execute
+Status: Ready to execute
+Last activity: 2026-05-10 -- Phase 12 planned and verified with 5 execution plans
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -47,6 +47,7 @@ Progress: [░░░░░░░░░░] 0%
 |-------|-------|-------|----------|
 | v1.0 Phases 1-5 | 25 | archived | archived |
 | v1.1 Phases 6-11 | 12 | archived | archived |
+| v1.2 Phases 12-14 | 0/5 | pending | pending |
 
 **Recent Trend:**
 
@@ -59,28 +60,14 @@ Progress: [░░░░░░░░░░] 0%
 
 ### Decisions
 
-- [Milestone v1.2]: Real MV library work uses one MKV/MPG/MPEG file as one song, with optional sibling cover image and `song.json` metadata.
-- [Milestone v1.2]: MediaInfo is the primary metadata source; filename and sibling `song.json` fill gaps before Admin review.
-- [Milestone v1.2]: v1.2 preserves Android TV playback boundaries but does not build a native Android TV app.
-- [Milestone v1.2]: Review-first admission remains the default; auto-admit is only a reserved capability.
-- [Milestone v1.2]: Unsupported or uncertain files must be marked clearly and kept out of normal queueable user flows.
-- [Phase 06] TV display copy, first-play prompt, and fallback notice text are centralized in `tv-display-model.ts`.
-- [Phase 06] First-play autoplay block is tracked in local TV state and cleared on successful playback.
-- [Phase 06] The first-play loading banner stays suppressed so the central prompt is not duplicated.
-- [Phase 08] Admin, Mobile, and TV runtime orchestration now lives behind app-local hooks instead of page components.
-- [Phase 08] No shared runtime package was introduced; boundaries stay local until duplication or cross-app coupling justifies extraction.
-- [Milestone audit] v1.1 audit passed after Phase 9 verification closure, Phase 10 paired Mobile visual coverage, and Phase 11 Admin runtime boundary completion.
-- [Gap planning] Phase 9 closes verification/traceability gaps, Phase 10 closes paired Mobile visual-check coverage, Phase 11 closes remaining Admin runtime boundary debt.
-- [Phase 10-paired-mobile-visual-verification]: Default paired Mobile capture now resolves a fresh controller URL through POST /admin/rooms/:room/pairing-token/refresh.
-- [Phase 10-paired-mobile-visual-verification]: MOBILE_VISUAL_URL remains a full override and bypasses pairing refresh when explicitly set.
-- [Phase 10-paired-mobile-visual-verification]: Chrome capture is time-bounded so visual checks complete deterministically even if headless Chrome lingers after writing a screenshot.
-- [Phase 11-admin-runtime-boundary-completion]: Song Catalog runtime orchestration stays app-local in apps/admin/src/songs/use-song-catalog-runtime.ts.
-- [Phase 11-admin-runtime-boundary-completion]: SongCatalogView.tsx remains responsible for rendering existing markup, labels, and editor wiring only.
-- [Phase 11-admin-runtime-boundary-completion]: Import Workbench runtime orchestration stays app-local in apps/admin/src/imports/use-import-workbench-runtime.ts.
-- [Phase 11-admin-runtime-boundary-completion]: ImportWorkbench.tsx now renders returned state and callbacks while TanStack Query orchestration stays inside the runtime hook.
-- [Phase 11-admin-runtime-boundary-completion]: QUAL-01 closure is scoped to the audited Admin Import/Songs runtime boundary and does not add product capability.
-- [Phase 11-admin-runtime-boundary-completion]: Final evidence combines runtime hook tests, page behavior tests, structure grep checks, Admin typecheck, and workspace typecheck.
-- [Milestone v1.1]: TV playback polish, productized Chinese UI, paired Mobile visual coverage, runtime boundaries, and traceability audit are archived.
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- [Milestone v1.2]: Scope is a single-run hot-song candidate list generator.
+- [Milestone v1.2]: No OpenList matching, automatic downloads, scheduler, weekly comparison/history diff, Admin UI, OCR, database/catalog mutation, or private/login scraping.
+- [Milestone v1.2]: KTV-first sources such as QQ 音乐 `K歌金曲榜` and manual CAVCA 金麦榜 rows should outrank generic streaming evidence.
+- [Milestone v1.2]: Outputs are review artifacts: Markdown, CSV, and JSON snapshot files.
+- [Phase 12]: Source collection planning is split into five execution plans: package/contracts, manifest/manual snapshots, runner/health CLI, QQ K歌 adapter, and Kugou/NetEase fixture support.
 
 ### Pending Todos
 
@@ -88,11 +75,10 @@ None.
 
 ### Blockers/Concerns
 
-- Browser playback and audio-track switching support must be verified before exposing real MV switching as available.
-- v1.2 does not transcode or remux unsupported files; users preprocess those files outside the system.
+None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-10T13:01:05+08:00
-Stopped at: v1.2 roadmap created
+Last session: 2026-05-10T13:34:56+08:00
+Stopped at: Phase 12 planned and verified; next action is `$gsd-execute-phase 12`
 Resume file: None

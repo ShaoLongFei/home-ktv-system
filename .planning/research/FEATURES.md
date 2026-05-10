@@ -1,75 +1,82 @@
-# Feature Research: v1.2 真实 MV 歌库
+# Feature Research: v1.2 热门歌曲候选名单
 
 **Researched:** 2026-05-10
-**Scope:** Product behavior for real MKV/MPG MV ingestion
-**Confidence:** High for product scope, medium for web playback support until real media testing
+**Scope:** Single-run ranked recommendation artifact only.
 
 ## Product Shape
 
-v1.2 should extend the existing scan -> review -> formal catalog -> search/queue -> TV playback path. It should not introduce a separate file browser or one-off import tool. A real MV file becomes useful only after it passes the same trust boundary as the existing formal song catalog.
+The user runs one command and receives a ranked, explainable list answering: **哪些歌值得我之后下载/补入歌库？** The output is a review checklist, not an acquisition workflow.
 
 ## Table Stakes
 
-### File Discovery
+### Source Ingestion
 
-- User can place `.mkv`, `.mpg`, or `.mpeg` files under the media root.
-- Each media file is treated as one song candidate.
-- Sibling cover image and `song.json` files are associated with the media file by same-stem naming.
-- Partial or unstable files are not probed until stable.
+- Source manifest lists source id, name, class, URL/file path, parser, weight, freshness policy, and expected row counts.
+- Manual snapshot support covers image-heavy or app-only KTV sources such as CAVCA 金麦榜 and possible 汽水 exports.
+- Public adapters parse high-value sources such as QQ `K歌金曲榜` and selected QQ/酷狗/网易云 support charts.
+- Source health report shows parsed/failed/stale/skipped sources with row counts and warnings.
 
-### Metadata Prefill
+### Normalization And Dedupe
 
-- Candidate title, artist, duration, language, codecs, and stream facts are prefilled from MediaInfo where available.
-- Filename parsing fills gaps when MediaInfo lacks usable title/artist.
-- Sibling `song.json` can supply or override user-facing song metadata, but conflicts remain visible.
-- Admin can edit all user-facing metadata before admission.
+- Preserve raw source title/artist, display title/artist, canonical keys, and source evidence.
+- Merge only obvious same-song rows by title + artist identity.
+- Same-title different-artist songs stay separate.
+- Variant markers such as Live, DJ, Remix, 伴奏, 翻唱, 片段, 女声版, 男声版 become warnings/penalties.
+- Candidate IDs and canonical keys remain stable for future weekly diffing and OpenList matching.
 
-### Track Mapping
+### Scoring And Ranking
 
-- Candidates show all detected audio tracks with index, language, label, codec, channel count, and confidence.
-- Admin maps detected tracks to original vocal and accompaniment roles.
-- The system preserves raw source-track facts separately from reviewed KTV roles.
-- One admitted song can produce two logical assets over the same physical file.
+Use deterministic scoring:
 
-### Review And Admission
+```text
+score =
+  ktvIntent(0-40)
+  + crossSourceConsensus(0-25)
+  + freshnessTrend(0-15)
+  + metadataConfidence(0-10)
+  - penalties(0-30)
+```
 
-- Review-first import is the default.
-- Unsupported or uncertain files remain candidates with clear reasons and do not enter search/queue.
-- Approved candidates write a formal catalog entry and durable `song.json`.
-- Auto-admit is only a reserved policy seam, not default behavior.
+KTV/K歌 evidence should outrank streaming-only heat. Consensus counts source classes, not duplicate rows from one provider. Output should expose the score breakdown and rank into `A-优先补歌`, `B-可考虑`, `C-观察`, and `D-不建议/排除`.
 
-### Playback Use
+### Exports And CLI
 
-- Verified real MV songs appear in mobile search and can be queued.
-- Queue defaults to accompaniment when available.
-- TV receives explicit playback target information, including profile and audio track.
-- Original/accompaniment switching is shown only when the current runtime reports capability.
-- Playback failures surface actionable unsupported/preprocess messages.
+Default output directory:
 
-## Useful Differentiators
+```text
+.planning/reports/hot-songs/<YYYY-MM-DD-HHmm>/
+```
 
-- Cover preview in Admin review.
-- Track-role confidence labels.
-- Batch approval for clean candidates.
-- Duplicate detection against existing formal catalog.
-- Clear "needs preprocessing" state for files that are ingestable but not playable.
+Default files:
+
+```text
+hot-song-candidates.md
+hot-song-candidates.csv
+hot-song-candidates.json
+source-report.json
+```
+
+CSV should be human-reviewable. JSON should preserve schema version, run metadata, source statuses, candidate IDs, canonical keys, score breakdowns, warnings, and all source evidence.
 
 ## Anti-Features
 
-- Silent auto-import of every file.
-- Treating MKV/MPG extension as enough to mark a song playable.
-- Hiding track role decisions in filename conventions only.
-- Requiring mandatory transcoding before the rest of the library flow can work.
-- Building Android TV native playback inside v1.2.
+- OpenList matching.
+- Downloads or download URLs.
+- Weekly comparison/history diff.
+- Background scheduler.
+- Admin UI review.
+- Login/private API scraping.
+- OCR automation.
+- Auto-import or DB mutation.
 
-## Deferred
+## Feature Dependencies
 
-- Android TV native player.
-- Automatic transcoding/remuxing.
-- Online file acquisition and OpenList matching.
-- OCR metadata extraction from covers or video frames.
-- Multi-room policies.
-
-## Requirements Implications
-
-Requirements should be grouped around media contracts, scan/probe/sidecars, admin review/admission, search/queue/playback, and hardening/future policy seams.
+```text
+Source manifest
+  -> Source adapters / manual snapshots
+    -> Source rows
+      -> Normalization
+        -> Dedupe groups
+          -> Score breakdown
+            -> Markdown / CSV / JSON exports
+```

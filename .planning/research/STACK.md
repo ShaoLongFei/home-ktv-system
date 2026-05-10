@@ -1,49 +1,45 @@
-# Stack Research: v1.2 真实 MV 歌库
+# Stack Research: v1.2 热门歌曲候选名单
 
 **Researched:** 2026-05-10
-**Scope:** MKV/MPG real MV ingestion for the existing Home KTV system
-**Confidence:** Medium-high
+**Scope:** Single-run metadata-only generator for ranked KTV song candidates.
 
 ## Recommendation
 
-Keep the existing TypeScript monorepo, Fastify API, PostgreSQL catalog, React Admin/Mobile/TV apps, shared domain/player-contract packages, and controlled asset gateway. v1.2 should add media probing, sidecar discovery, compatibility marking, and explicit audio-track contracts. It should not add transcoding workers, online providers, Android TV native code, or a parallel media pipeline.
+Build a root-level TypeScript CLI, not an API/worker feature. The tool fetches public chart/list metadata or reads manual snapshot files, normalizes rows, deduplicates candidates, scores them, and writes Markdown/CSV/JSON review artifacts. It must not touch the DB, OpenList, media files, import scanner, scheduler, or playback runtime.
 
-## Stack Additions
+## Stack
 
-| Area | Recommendation | Why |
-|------|----------------|-----|
-| Media probing | Add a MediaInfo CLI wrapper and keep existing ffprobe behavior as fallback/cross-check | MediaInfo exposes container, stream, codec, language, duration, and track metadata that Admin needs for review |
-| File formats | Extend scanner recognition to `.mkv`, `.mpg`, and `.mpeg` | User's real MV library uses these formats |
-| Sidecars | Add deterministic sibling `song.json` and cover resolver | Single-file-per-song stays simple while allowing rich preview and manual metadata |
-| Compatibility | Store direct-play compatibility status and unsupported reasons | File extension alone does not prove browser playback |
-| Player contract | Add `playbackProfile`, `audioTrackIndex`, source track facts, and capability flags | The TV player and future Android TV need explicit instructions instead of implicit URL tricks |
-| Gateway | Ensure MKV/MPG MIME and byte-range behavior are preserved | Large real MV files need seek/resume and browser media loading support |
-| Test fixtures | Add representative two-track MKV and unsupported/uncertain MPG fixtures | Requirements must be verified against real media characteristics, not demo MP4 assumptions |
+- Use Node built-in `fetch`, `node:util.parseArgs`, and `node:fs/promises`.
+- Add root `tsx` so the script can run as TypeScript.
+- Add `cheerio` for public HTML chart pages.
+- Add `csv-stringify` for safe CSV output.
+- Add `zod` for source manifest and adapter output validation.
+- Reuse or mirror existing Chinese text normalization ideas from catalog search; do not use pinyin/initials as duplicate proof.
 
-## What Not To Add
+## Source Candidates
 
-- Mandatory transcoding/remuxing.
-- Android TV native app or Media3 integration.
-- Online MV discovery, OpenList matching, provider downloads, or chart scraping.
-- New background worker architecture unless the existing scanner/probe flow proves insufficient.
-- Auto-admit enabled by default.
-- AI vocal separation, OCR, scoring, DSP, or multi-room expansion.
+| Priority | Source | Access | Notes |
+|----------|--------|--------|-------|
+| P1 | QQ 音乐 `K歌金曲榜` | Public QQ chart page/API data | Strong automated K歌 signal. |
+| P1 | CAVCA `金麦榜` | Official article + manual snapshot rows | Strongest KTV-industry signal, but rows are image-based; avoid OCR in v1.2. |
+| P2 | QQ 热歌/流行指数/新歌/抖音热歌 | Public chart page/API data | General support signal. |
+| P2 | 酷狗 TOP500/飙升/抖音热歌/粤语金曲 | Public HTML pages | Useful streaming and short-video support. |
+| P3 | 网易云热歌/飙升/KTV唛榜 | Public HTML when accessible | Use as support; public API reliability varies. |
+| P3 | 唱吧/51VV/KTVSky | Public pages/manual snapshots | KTV-adjacent, lower weight due metadata/freshness issues. |
+| Deferred | 汽水音乐 | Manual export only unless official public chart URL is provided | No stable anonymous public web chart found. |
 
-## Integration Points
+## Explicit Non-Goals
 
-- `packages/domain`: media profile, asset kind, track metadata, compatibility status, provenance fields.
-- `packages/player-contracts`: playback target profile and selected audio track.
-- `apps/api`: scanner, candidate builder, MediaInfo probe, sidecar resolver, catalog admission, asset gateway MIME/range serving.
-- `apps/admin`: import review UI for metadata provenance, cover preview, compatibility, and track-role mapping.
-- `apps/tv-player`: direct-play smoke, load/seek checks, and capability-gated audio-track switching.
-
-## Open Technical Risk
-
-Browser support for MKV/MPG playback and `HTMLMediaElement.audioTracks` is inconsistent. v1.2 must test capability on the actual web TV runtime and store results explicitly. Android Media3 is a good future target, but v1.2 should only reserve platform-neutral fields.
+- No login cookies, private APIs, CAPTCHA bypass, mobile reverse engineering, or media download URLs.
+- No OpenList matching, automatic downloads, weekly comparison, scheduler, OCR, Admin UI, DB writes, or catalog mutation.
 
 ## Sources
 
-- MediaInfo official site: https://mediaarea.net/en/MediaInfo
-- MDN `canPlayType()`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType
-- MDN `audioTracks`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/audioTracks
-- Android Media3 supported formats: https://developer.android.com/media/media3/exoplayer/supported-formats
+- CAVCA 金麦榜 index: https://www.cavca.org/news/49
+- QQ 音乐 K歌金曲榜: https://y.qq.com/n/ryqq/toplist/36
+- QQ 音乐榜单: https://y.qq.com/n/ryqq/toplist
+- 酷狗排行榜: https://www.kugou.com/yy/rank/home
+- 网易云榜单: https://music.163.com/discover/toplist
+- 唱吧全国榜: https://changba.com/now/show/rank.php
+- 51VV KTV 点唱榜: https://www.51vv.com/music/music_list_song.htm?curPage=1&songMenuID=277
+- KTVSky 榜单: https://www.ktvsky.com/rank

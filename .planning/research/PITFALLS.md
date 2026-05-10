@@ -1,70 +1,41 @@
-# Pitfalls Research: v1.2 真实 MV 歌库
+# Pitfalls Research: v1.2 热门歌曲候选名单
 
 **Researched:** 2026-05-10
-**Scope:** Risks when adding real MKV/MPG MV ingestion
-**Confidence:** High for risk categories, medium for actual file-library conventions
+**Scope:** Public chart/list metadata in, ranked review artifacts out.
 
-## Critical Pitfalls
+## Guardrails
 
-### Treating Extension As Playback Proof
+- Metadata only.
+- No media downloads, private accounts, cookies, CAPTCHA bypasses, OpenList matching, scheduler, or historical comparison.
+- The generated list is a review artifact, not proof that media exists locally or can be played.
 
-**Risk:** MKV/MPG files can be scanned but still fail in the browser TV runtime because of container, codec, MIME, byte-range, seek, or device limitations.
+## Risks And Mitigations
 
-**Prevention:** Store separate ingest, compatibility, and queueability states. Validate MIME/range serving. Add representative playback smoke tests before marking assets playable.
+| Risk | Phase | Mitigation |
+|------|-------|------------|
+| Public chart pages change or return partial/login/app-gated content | Phase 12 | Use source manifest, schema validation, expected row counts, timeouts, and source health report. |
+| A failed source silently biases the list | Phase 12 | Per-source status must show `ok/degraded/failed/skipped`, row count, warnings, and failure reason. |
+| Tool crosses public-access boundary | Phase 12 | Reject cookies/auth headers/private-token configs in v1.2 defaults. Mark auth-only sources deferred. |
+| Chinese title normalization creates false duplicates | Phase 13 | Preserve raw/display/canonical fields; keep version tags and bracket descriptors visible. |
+| Same-title different-artist songs collapse | Phase 13 | Require title + artist identity for high-confidence merges; emit merge confidence. |
+| Pinyin/initials are used as duplicate proof | Phase 13 | Use pinyin only as auxiliary review/search signal, never as sole identity key. |
+| Live/DJ/remix/cover/伴奏 versions pollute top recommendations | Phase 13/14 | Detect variant markers and apply warnings or penalties. |
+| Streaming charts dominate KTV-specific demand | Phase 14 | Cap per-source contribution and score KTV intent separately from generic popularity. |
+| Equal-score rows reorder between runs | Phase 14 | Use integer scoring and explicit deterministic tie-breakers. |
+| Output looks authoritative without enough evidence | Phase 14 | Include score breakdown, source summary, warnings, and source health in Markdown/CSV/JSON. |
 
-### Assuming Browser Track Switching Works
+## Required Test Fixtures
 
-**Risk:** `HTMLMediaElement.audioTracks` is not consistently available across browsers, so in-file original/accompaniment switching may not work on the web TV.
+- Simplified/traditional variants such as `後來` / `后来`.
+- Full-width/half-width and punctuation variants.
+- Mixed titles such as `Run Wild（向风而野）`.
+- OST descriptors such as `等你的季节 《步步惊心》电视剧插曲`.
+- Variant titles such as `同手同脚 (Live)` and `若不是因为你 (深情版)`.
+- Multi-artist separators such as `A/B`, `A、B`, `A feat. B`.
+- Same title with different artists.
 
-**Prevention:** Treat audio-track switching as a runtime capability. Hide switch controls or show a clear unsupported state when the TV runtime cannot switch tracks. Keep dual logical assets in the data model so Android TV can later implement this cleanly.
+## Phase Gates
 
-### Confusing Track Index With Vocal Role
-
-**Risk:** Track 0/1 order, language, and labels vary by source. Automatically assuming "track 0 original, track 1 accompaniment" can admit wrong songs.
-
-**Prevention:** Preserve raw track facts and require Admin confirmation for role mapping unless confidence is explicit and reviewable.
-
-### Sidecar Conflict
-
-**Risk:** MediaInfo, filename, sibling `song.json`, and Admin edits can disagree.
-
-**Prevention:** Define precedence and provenance. Show conflicts in Admin review. Make Admin-confirmed fields the formal catalog truth.
-
-### Partial Copy And Heavy Scan
-
-**Risk:** Large MV files may be copied into the media root while the scanner is watching, causing failed or expensive probes.
-
-**Prevention:** Require file stability before probing, cache probe output by file identity, cap probe concurrency/timeouts, and keep manual rescan/reconcile available.
-
-### False Android Readiness
-
-**Risk:** Adding track and media profile fields may be mistaken for Android TV support.
-
-**Prevention:** Store Android compatibility as unknown/candidate only. Keep Android TV native playback explicitly out of v1.2.
-
-## Phase Implications
-
-| Phase | Pitfall To Address | Acceptance Signal |
-|-------|--------------------|-------------------|
-| Contract/schema spike | Browser playback and track switching uncertainty | Fixtures prove load/seek and clearly mark unsupported switching |
-| Scan/probe/sidecars | Partial files, sidecar misattachment, MediaInfo ambiguity | Candidate provenance and stability checks are visible |
-| Admin review/admission | Wrong title/artist/track-role admission | Admin can correct and confirm before catalog entry |
-| Playback integration | Controls shown without capability | Mobile/TV only expose switching when supported |
-| Hardening | Auto-admit and Android assumptions leak into scope | Policies default to review-first and Android remains reserved |
-
-## Looks Done But Is Not
-
-- Files appear in the candidate list but cannot be played or seeked.
-- TV can play a file once but cannot switch or recover after skip.
-- Admin shows two tracks but does not preserve which source track maps to which KTV role.
-- Search exposes unsupported files.
-- `song.json` writes a pretty title but loses technical metadata needed to reproduce admission.
-- Auto-admit imports files without review by default.
-
-## Sources
-
-- MDN `audioTracks`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/audioTracks
-- MDN `canPlayType()`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType
-- Node.js `fs.watch`: https://nodejs.org/api/fs.html
-- MediaInfo: https://mediaarea.net/en/MediaInfo
-- Android Media3 supported formats: https://developer.android.com/media/media3/exoplayer/supported-formats
+- Phase 12 must make source failures visible before scoring exists.
+- Phase 13 must prove conservative dedupe before ranking exists.
+- Phase 14 must prove deterministic exports and no mutation of KTV runtime state before the milestone can be accepted.

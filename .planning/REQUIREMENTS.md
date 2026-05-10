@@ -1,78 +1,70 @@
-# Requirements: 家庭包厢式 KTV 系统 v1.2 真实 MV 歌库
+# Requirements: 家庭包厢式 KTV 系统 v1.2 热门歌曲候选名单
 
 **Defined:** 2026-05-10
 **Core Value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
 
 ## v1.2 Requirements
 
-### Media Contracts
+### Source Ingestion
 
-- [ ] **MEDIA-01**: User can store one MKV/MPG/MPEG MV file as one song candidate, without creating duplicate song records for the same physical file.
-- [ ] **MEDIA-02**: User can see whether a real MV file is ingestable, playable, review-required, or unsupported, with explicit reasons when it is not queueable.
-- [ ] **MEDIA-03**: User can preserve source media facts including container, duration, video codec, audio tracks, file size, and metadata provenance.
-- [ ] **MEDIA-04**: Future Android TV playback can reuse platform-neutral catalog/player fields without v1.2 implementing an Android TV app.
+- [ ] **SRC-01**: User can run one command that loads a configured source manifest for public chart/list sources and manual snapshot files.
+- [ ] **SRC-02**: User can include KTV-first sources, including QQ 音乐 `K歌金曲榜` and manual CAVCA 金麦榜 rows, before general streaming charts.
+- [ ] **SRC-03**: User can include support sources such as QQ/酷狗/网易云 public charts when available, with each source classified by source type and weight.
+- [ ] **SRC-04**: User receives a source health report that shows which sources succeeded, failed, were stale, or were skipped, including row counts and warnings.
+- [ ] **SRC-05**: The command handles partial source failures without hiding them; it fails only when no usable source remains or required configuration is invalid.
 
-### Scan And Metadata
+### Normalization And Deduplication
 
-- [ ] **SCAN-01**: User can place `.mkv`, `.mpg`, or `.mpeg` files under `MEDIA_ROOT` and trigger existing scan flows to produce review candidates.
-- [ ] **SCAN-02**: User can place same-stem cover images beside a media file and have the candidate show that cover for preview.
-- [ ] **SCAN-03**: User can place same-stem `song.json` beside a media file and have its metadata used as a review input.
-- [ ] **SCAN-04**: Candidate metadata is prefilled from MediaInfo first, then filename and sibling `song.json` fallback where fields are missing.
-- [ ] **SCAN-05**: Scanner avoids probing partial or unstable large files and can retry/reconcile candidates after files become stable.
+- [ ] **NORM-01**: User can review output that preserves raw source title/artist values, readable display values, canonical keys, and all contributing source evidence.
+- [ ] **NORM-02**: Same-song rows from multiple sources are merged conservatively using normalized title and artist identity, while same-title different-artist songs remain separate.
+- [ ] **NORM-03**: Variant markers such as Live, DJ, Remix, 伴奏, 翻唱, 片段, 女声版, 男声版, and similar descriptors are detected and surfaced as warnings or penalties instead of being silently discarded.
+- [ ] **NORM-04**: The generator produces stable candidate IDs and canonical song keys suitable for later weekly comparison or OpenList matching, without implementing those workflows.
 
-### Admin Review And Admission
+### Scoring And Ranking
 
-- [ ] **REVIEW-01**: Admin can review title, artist, language, cover, MediaInfo facts, filename-derived fields, sidecar fields, and conflicts before admission.
-- [ ] **REVIEW-02**: Admin can map detected audio tracks to original vocal and accompaniment roles, with raw track facts still preserved.
-- [ ] **REVIEW-03**: Admin can approve a real MV candidate into the formal catalog as one song with logical original/accompaniment assets over the same physical file.
-- [ ] **REVIEW-04**: Approved real MV songs write and validate formal `song.json` including media path, cover path, assets, track indexes, codecs, and compatibility status.
-- [ ] **REVIEW-05**: Unsupported or incomplete candidates remain visible with repair/preprocess guidance and do not block other candidates from admission.
+- [ ] **RANK-01**: User receives a deterministic 0-100 score for each candidate, with the same inputs producing the same ordering and scores.
+- [ ] **RANK-02**: KTV/K歌 evidence contributes more than generic streaming heat, so KTV-specific rows can outrank streaming-only hits.
+- [ ] **RANK-03**: Cross-source consensus, freshness, metadata confidence, and variant/noise penalties are visible in each candidate's score breakdown.
+- [ ] **RANK-04**: Candidates are grouped into review tiers such as `A-优先补歌`, `B-可考虑`, `C-观察`, and `D-不建议/排除`.
 
-### Search Queue Playback
+### Exports And CLI
 
-- [ ] **PLAY-01**: User can search and queue approved real MV songs from the mobile controller using the existing Chinese-first search behavior.
-- [ ] **PLAY-02**: Queueing a dual-track real MV defaults to accompaniment when an accompaniment track is confirmed.
-- [ ] **PLAY-03**: TV receives an explicit playback profile and selected audio-track information for real MV assets.
-- [ ] **PLAY-04**: User can switch original/accompaniment during playback only when the TV runtime has verified track-switch capability.
-- [ ] **PLAY-05**: User sees a clear unsupported or needs-preprocessing state when a real MV cannot load, seek, resume, or switch as advertised.
-
-### Policy And Hardening
-
-- [ ] **HARD-01**: Review-first admission remains the default policy, while auto-admit eligibility is stored only as a reserved capability.
-- [ ] **HARD-02**: Real MV import, playback, and switch behavior is covered by fixtures or tests using representative two-track and unsupported media cases.
-- [ ] **HARD-03**: Existing demo/local songs, online supplement tasks, queue controls, and admin maintenance remain compatible after real MV schema changes.
+- [ ] **OUT-01**: User receives a Markdown report summarizing source health, top candidates, warnings, and manual review guidance.
+- [ ] **OUT-02**: User receives a CSV file suitable for spreadsheet review, with columns including rank, score, tier, title, artist, source summary, warnings, and recommended action.
+- [ ] **OUT-03**: User receives a JSON snapshot with schema version, run metadata, source statuses, candidates, score breakdowns, canonical keys, and source evidence.
+- [ ] **OUT-04**: User can run the generator in fixture/offline mode for repeatable verification without live network access.
+- [ ] **OUT-05**: Running the command does not modify the KTV database, media library, OpenList storage, import candidates, or playback state.
 
 ## Future Requirements
 
-### Android TV Native Playback
+### Weekly Comparison
 
-- **ATV-01**: User can install an Android TV player that binds to the room and plays catalog assets natively.
-- **ATV-02**: Android TV player can select and switch source audio tracks using native media APIs.
-- **ATV-03**: Android TV compatibility can be validated against device-specific container and codec support.
+- **TREND-01**: User can run the generator weekly and compare against a previous run to identify newly emerging songs.
+- **TREND-02**: User can retain historical snapshots and view added, removed, rising, and falling candidates.
 
-### Media Processing
+### OpenList Matching And Acquisition
 
-- **PROC-01**: User can manually or automatically transcode/remux unsupported real MV files into a supported playback profile.
-- **PROC-02**: User can batch-normalize media paths, covers, and sidecars before admission.
+- **DL-01**: User can match ranked candidates against OpenList/Baidu Netdisk files.
+- **DL-02**: User can select matched candidates and trigger downloads into the KTV import directory.
+- **DL-03**: User can view download progress, speed, failures, and completed local paths.
 
-### Acquisition
+### Review UI And Automation
 
-- **ACQ-01**: User can match missing songs against OpenList or online storage sources.
-- **ACQ-02**: User can download matched MV files into the import directory.
+- **UI-01**: User can review candidate lists in the Admin UI.
+- **OCR-01**: User can automatically extract rows from image-only KTV charts such as CAVCA 金麦榜 images.
 
 ## Out of Scope
 
-Explicitly excluded for v1.2.
-
 | Feature | Reason |
 |---------|--------|
-| Android TV native app | v1.2 focuses on media contracts and real MV library admission first. |
-| Mandatory transcoding/remuxing | User will preprocess unsupported files on the server side when needed. |
-| Auto-admit enabled by default | Real MV metadata and audio-track roles need review before trust. |
-| Online provider/OpenList acquisition | v1.2 is about using files already available under `MEDIA_ROOT`. |
-| Hot-song charts or recommendation generation | Not part of real media ingestion/playback readiness. |
-| OCR metadata extraction | Sidecar `song.json`, filename, MediaInfo, and Admin edits are enough for this milestone. |
-| AI vocal separation or software DSP | Audio processing remains outside the software playback path. |
+| OpenList file matching | v1.2 first validates source quality, ranking, and review artifacts. |
+| Automatic downloads | Download orchestration has separate reliability and compliance concerns. |
+| Weekly comparison/history diffing | User requested first step to support single-run only. |
+| Background scheduler/cron management | Scheduling depends on future history comparison semantics. |
+| Admin UI review surface | CLI output is enough to validate ranking quality first. |
+| OCR for image-only charts | Manual CAVCA snapshots are simpler and more reliable for the first milestone. |
+| Login scraping, copied cookies, private APIs, CAPTCHA bypass | Public metadata-only access keeps the tool maintainable and within scope. |
+| Catalog/database mutation or auto-import | The output is a planning artifact, not a media-library write operation. |
 
 ## Traceability
 
@@ -80,33 +72,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEDIA-01 | Phase 12 | Pending |
-| MEDIA-02 | Phase 12 | Pending |
-| MEDIA-03 | Phase 12 | Pending |
-| MEDIA-04 | Phase 12 | Pending |
-| SCAN-01 | Phase 13 | Pending |
-| SCAN-02 | Phase 13 | Pending |
-| SCAN-03 | Phase 13 | Pending |
-| SCAN-04 | Phase 13 | Pending |
-| SCAN-05 | Phase 13 | Pending |
-| REVIEW-01 | Phase 14 | Pending |
-| REVIEW-02 | Phase 14 | Pending |
-| REVIEW-03 | Phase 14 | Pending |
-| REVIEW-04 | Phase 14 | Pending |
-| REVIEW-05 | Phase 14 | Pending |
-| PLAY-01 | Phase 15 | Pending |
-| PLAY-02 | Phase 15 | Pending |
-| PLAY-03 | Phase 15 | Pending |
-| PLAY-04 | Phase 15 | Pending |
-| PLAY-05 | Phase 15 | Pending |
-| HARD-01 | Phase 16 | Pending |
-| HARD-02 | Phase 16 | Pending |
-| HARD-03 | Phase 16 | Pending |
+| SRC-01 | Phase 12 | Pending |
+| SRC-02 | Phase 12 | Pending |
+| SRC-03 | Phase 12 | Pending |
+| SRC-04 | Phase 12 | Pending |
+| SRC-05 | Phase 12 | Pending |
+| NORM-01 | Phase 13 | Pending |
+| NORM-02 | Phase 13 | Pending |
+| NORM-03 | Phase 13 | Pending |
+| NORM-04 | Phase 13 | Pending |
+| RANK-01 | Phase 14 | Pending |
+| RANK-02 | Phase 14 | Pending |
+| RANK-03 | Phase 14 | Pending |
+| RANK-04 | Phase 14 | Pending |
+| OUT-01 | Phase 14 | Pending |
+| OUT-02 | Phase 14 | Pending |
+| OUT-03 | Phase 14 | Pending |
+| OUT-04 | Phase 14 | Pending |
+| OUT-05 | Phase 14 | Pending |
 
 **Coverage:**
 
-- v1.2 requirements: 22 total
-- Mapped to phases: 22
+- v1.2 requirements: 18 total
+- Mapped to phases: 18
 - Unmapped: 0
 
 ---

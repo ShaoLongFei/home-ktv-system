@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 将从演示歌库走向真实 MKV/MPG MV 歌库接入。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 聚焦先生成热门歌曲候选名单，用于后续决定哪些网盘歌曲值得下载补入歌库。
 
 Milestone archives:
 
@@ -30,18 +30,18 @@ Milestone archives:
 - `.planning/milestones/v1.1-REQUIREMENTS.md`
 - `.planning/milestones/v1.1-MILESTONE-AUDIT.md`
 
-## Current Milestone: v1.2 真实 MV 歌库
+## Current Milestone: v1.2 热门歌曲候选名单
 
-**Goal:** 让系统能接入已有的真实 MKV/MPG MV 文件，并从文件、MediaInfo、旁边的 `song.json` 和封面图生成可审核、可播放、可切换原声/伴奏的正式歌库。
+**Goal:** 单次运行脚本，从音乐平台和可用 KTV 榜单来源拉取歌曲名单，生成一份可排序的热门 KTV 候选歌曲列表。
 
 **Target features:**
 
-- 单个 MKV/MPG MV 文件就是一首歌，文件旁边可放封面图和对应 `song.json`。
-- MediaInfo 优先读取标题、歌手、时长、编码、音轨等信息；缺失时用文件名和旁边 `song.json` 兜底，后台允许编辑确认。
-- 默认扫描后审核入库，同时预留可信目录或自动入库能力。
-- 保留一个 MV 文件，通过音轨索引识别并切换原声/伴奏。
-- 不在 v1.2 内强制转码；系统直接播放可播资源，不能播的文件由用户在服务端提前处理成支持格式。
-- Android TV 原生端不纳入 v1.2，只预留播放合同和媒体信息边界，作为后续 milestone 候选。
+- 支持单次运行，不做历史比较、不生成新增差异报告。
+- 优先接入 KTV 更相关的榜单来源；如果公开来源不足，再补 QQ 音乐、网易云、酷狗等流媒体榜单/歌单。
+- 合并同名同歌手歌曲，按来源类型、榜单排名、多平台出现次数生成分数。
+- 输出 Markdown、CSV、JSON 排名列表，包含 `rank`、`title`、`artist`、`score`、`sources`、`sourceRanks` 等 review 信息。
+- 为后续每周运行、增量比较和 OpenList 匹配预留稳定候选 ID 与结构化 source evidence，但不在第一步实现这些工作流。
+- 暂不接 OpenList 文件匹配，也不自动下载。
 
 ## Requirements
 
@@ -58,11 +58,11 @@ Milestone archives:
 
 ### Active
 
-- [ ] 真实 MKV/MPG MV 文件可以被扫描为待审核导入候选。
-- [ ] 候选可以结合 MediaInfo、文件名、旁边 `song.json` 和封面图生成可确认的歌曲信息。
-- [ ] 后台可以审核、编辑、预览并将真实 MV 候选纳入正式歌库。
-- [ ] 正式歌库中的真实 MV 可以被搜索、点歌、播放，并通过音轨索引切换原声/伴奏。
-- [ ] 不可直接播放或媒体信息不完整的文件会被清楚标记，不阻塞其它可用歌曲入库。
+- [ ] 单次运行脚本可以从配置的公开榜单/歌单来源和手工快照文件收集歌曲元数据。
+- [ ] KTV/K歌相关来源优先于普通流媒体热榜，QQ 音乐 `K歌金曲榜` 和手工 CAVCA 金麦榜可作为高权重来源。
+- [ ] 歌曲候选可以保留原始来源证据，并进行保守的中文标题、歌手、版本标记归一化与去重。
+- [ ] 候选歌曲可以按 KTV 相关性、多来源共识、榜单新鲜度、元数据可信度和噪音惩罚生成确定性分数。
+- [ ] 输出 Markdown、CSV、JSON 和 source health report，作为后续人工下载/补歌决策依据。
 
 ### Out of Scope
 
@@ -77,9 +77,9 @@ Milestone archives:
 
 项目现在是一个 TypeScript monorepo，包含 Fastify API、React Admin、React Mobile Controller、React TV Player，以及共享 domain/protocol/player-contract packages。v1.0 的主线目标已经完成：家庭单房间场景可以从本地歌库出发完成导入、搜索、扫码、点歌、播放、切换、失败恢复和在线补歌任务闭环。
 
-v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。v1.2 的重点是让真实 MV 文件进入既有“扫描 -> 审核 -> 正式歌库 -> 搜索点歌 -> TV 播放”链路。
+v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。v1.2 的重点是先回答“哪些歌曲值得补入本地 KTV 歌库”，再由后续 milestone 连接 OpenList 文件匹配、下载任务和每周增量比较。
 
-用户可以提供 MKV、MPG 格式的 MV 文件。每个 MV 文件代表一首歌，文件内通常包含两条音轨，分别用于原声和伴奏。歌曲信息优先从 MediaInfo 读取；文件旁边可以放封面图和 `song.json`，用于预览、补充和修正元数据。播放兼容性不通过系统强制转码解决：系统直接播放可播资源，不能播的文件由用户在服务端提前处理成浏览器或未来 Android TV 可支持的格式。
+用户已经能通过 OpenList 看到百度网盘中的大量歌曲资源，但十几万首里只有少部分会被家庭 KTV 场景实际使用。v1.2 需要优先利用 KTV 点唱/唱歌相关榜单；当公开 KTV 来源不足时，再用 QQ 音乐、网易云音乐、酷狗音乐等平台榜单作为补充信号。第一步只要求单次运行生成 review artifacts，不做历史比较、调度、OpenList 匹配或自动下载。
 
 ## Constraints
 
@@ -111,7 +111,7 @@ v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分
 | 保持 app-local runtime hook，不急于抽共享状态包 | 当前跨端重复还不足以抵消 shared package 的抽象和维护成本 | Good |
 | Mobile visual check 默认走配对 URL | 临时 Chrome profile 无法依赖已有 cookie，必须用 tokenized controller URL 验证真实控制台状态 | Good |
 | Admin Import/Songs 运行时逻辑收敛到 feature-local hooks | 关闭 QUAL-01 审计缺口，同时避免引入产品行为变化 | Good |
-| v1.2 优先做真实 MV 歌库，不做 Android TV 原生端 | 先稳定媒体合同、扫描审核和播放链路，Android TV 下个版本再接入会更可控 | Pending |
+| v1.2 先做单次热门歌曲候选名单，不做增量比较和自动下载 | 先验证来源、去重和评分质量，再把名单接入 OpenList 下载链路 | Pending |
 
 ## Evolution
 
@@ -134,4 +134,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-10 after starting v1.2 milestone*
+*Last updated: 2026-05-10 after creating v1.2 热门歌曲候选名单 roadmap*

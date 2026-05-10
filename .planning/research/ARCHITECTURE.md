@@ -1,65 +1,68 @@
-# Architecture Research: v1.2 真实 MV 歌库
+# Architecture Research: v1.2 热门歌曲候选名单
 
 **Researched:** 2026-05-10
-**Scope:** Integrating real MKV/MPG MV files into the existing Home KTV architecture
-**Confidence:** Medium-high
+**Scope:** Single-run metadata-only candidate-list generator.
 
-## Recommended Model
+## Recommendation
 
-Represent one physical MV file as one formal `Song`. When original and accompaniment tracks are confirmed, create two logical `Asset` rows that share the same file path and differ by `vocalMode` and `audioTrackIndex`. This keeps the user-facing song model simple while preserving the existing asset-based queue/playback contract.
+Implement v1.2 as a root-level TypeScript CLI plus pure modules under `scripts/hot-song-candidates/`. Keep it outside the API runtime and do not modify the KTV database, media library, OpenList storage, import candidates, or playback state.
+
+## File Layout
+
+```text
+scripts/generate-hot-song-candidates.ts
+scripts/hot-song-candidates/config.ts
+scripts/hot-song-candidates/types.ts
+scripts/hot-song-candidates/sources.ts
+scripts/hot-song-candidates/source-adapters/*.ts
+scripts/hot-song-candidates/normalize.ts
+scripts/hot-song-candidates/dedupe.ts
+scripts/hot-song-candidates/scoring.ts
+scripts/hot-song-candidates/exporters.ts
+scripts/hot-song-candidates/fixtures/
+scripts/hot-song-candidates/*.test.ts
+.planning/hot-song-sources.example.json
+```
 
 ## Data Flow
 
-1. Scanner finds `.mkv`, `.mpg`, and `.mpeg` files under the media root.
-2. Sidecar resolver attaches same-stem `song.json` and cover image if present.
-3. MediaInfo probe extracts container, duration, video stream, audio tracks, language/labels, codec, and raw payload.
-4. Candidate builder creates one review candidate per physical file, including metadata provenance and compatibility facts.
-5. Admin review resolves title/artist/cover and maps audio tracks to original/accompaniment.
-6. Catalog admission writes one `Song`, logical `Asset` rows, source records, and formal `song.json`.
-7. Search and queue expose only verified real MV assets.
-8. TV playback receives an explicit playback target with `playbackProfile` and selected track information.
+1. CLI parses config path, output directory, top count, source filters, and fixture/offline mode.
+2. Config loader validates the source manifest.
+3. Source adapters emit `SourceRow[]` and `SourceStatus`.
+4. Normalizer produces raw/display/canonical fields and version warnings.
+5. Dedupe groups rows conservatively into candidate identities.
+6. Scoring computes deterministic 0-100 scores and tiers.
+7. Exporters atomically write Markdown, CSV, JSON, and source report artifacts.
 
-## New Or Modified Components
+## Core Contracts
 
-| Component | Change |
-|-----------|--------|
-| Scanner | Recognize MKV/MPG/MPEG and wait for file stability before probing |
-| MediaInfoProbe | New adapter around MediaInfo output with normalized stream summary |
-| SidecarResolver | New helper for same-stem cover and `song.json` association |
-| CandidateBuilder | Merge MediaInfo, filename, sidecar, and provenance into review candidate |
-| Import Review API | Expose track facts, compatibility, cover, and conflict warnings |
-| CatalogAdmissionService | Promote one file into one song plus logical assets |
-| Song JSON validator | Support real MV media profile, cover path, track indexes, and compatibility |
-| Asset gateway | Serve MKV/MPG/MPEG with correct content type and byte ranges |
-| Player contracts | Add `playbackProfile`, track selection, and capability/unsupported fields |
-| TV Player | Capability-gated track selection and actionable failure reporting |
+```ts
+export interface SourceRow {
+  sourceId: string;
+  sourceName: string;
+  sourceClass: "ktv_order" | "karaoke_app" | "streaming_chart" | "short_video_proxy" | "manual_seed";
+  sourceUrl: string;
+  period: string | null;
+  fetchedAt: string;
+  rank: number | null;
+  title: string;
+  artistName: string | null;
+  rawTitle: string;
+  rawArtistName: string | null;
+  confidence: "high" | "medium" | "low";
+}
+```
 
-## Contract Fields
-
-Candidate and catalog records need:
-
-- `mediaProfile`: e.g. `dual_track_video`.
-- `container`, `videoCodec`, `durationMs`, `sizeBytes`.
-- `audioTracks`: raw source facts with stable identifiers where available.
-- `audioTrackIndex` / `audioTrackId` on logical assets.
-- `vocalMode`: original or accompaniment.
-- `compatibilityStatus`: playable, review_required, unsupported, unknown.
-- `unsupportedReasons`: codec/container/track/range/seek/switch issues.
-- `metadataProvenance`: MediaInfo, filename, sidecar, admin edit.
-- `coverPath` and sidecar path.
-- Future `androidCompatibility`: unknown/candidate, not ready.
+JSON output should include `schemaVersion`, `runId`, source statuses, candidate ids, canonical keys, score breakdown, warnings, and all contributing source rows.
 
 ## Build Order
 
-1. Contract, schema, and playback-risk spike.
-2. MediaInfo probe, scanner, and sidecars.
-3. Admin review and catalog admission.
-4. Search, queue, playback, and switching.
-5. Policy seam, Android reservation, and hardening.
+1. Source contracts, config validation, CLI shell, manual snapshot adapter, and fixture harness.
+2. Initial public adapters for QQ `K歌金曲榜` and selected support charts.
+3. Normalization and conservative dedupe.
+4. Deterministic scoring and tiering.
+5. Markdown/CSV/JSON/source-report exporters and single-run documentation.
 
-## Architectural Boundaries
+## Boundaries
 
-- Keep review-first admission as the trust boundary.
-- Keep direct playback separate from "ingestable" status.
-- Keep raw track facts separate from reviewed KTV roles.
-- Keep Android TV contract fields platform-neutral until the native player is built.
+No API routes, DB migrations, import scanner changes, online supplement task integration, Admin UI, OpenList matching, downloads, scheduler, weekly comparison, private/login scraping, or OCR in v1.2.
