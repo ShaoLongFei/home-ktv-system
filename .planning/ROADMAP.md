@@ -50,7 +50,7 @@ Completed phases:
 ## Phases
 
 - [x] **Phase 12: Source Contracts and Fetch Harness** - Load configured public/manual sources, classify them, and report source health for a single run.
-- [ ] **Phase 13: Normalization and Dedupe** - Preserve source evidence while producing stable, conservative candidate identities.
+- [x] **Phase 13: Normalization and Dedupe** - Preserve source evidence while producing stable, conservative candidate identities.
 - [ ] **Phase 14: Scoring, Exports, and CLI Verification** - Rank candidates deterministically and write review artifacts without mutating the KTV system.
 
 ## Phase Details
@@ -86,9 +86,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 13-01: Add candidate contracts, normalization, and variant detection
-- [ ] 13-02: Build conservative candidate grouping and stable identities
-- [ ] 13-03: Wire normalization CLI and fixture candidate snapshot
+- [x] 13-01: Add candidate contracts, normalization, and variant detection
+- [x] 13-02: Build conservative candidate grouping and stable identities
+- [x] 13-03: Wire normalization CLI and fixture candidate snapshot
 
 ### Phase 14: Scoring, Exports, and CLI Verification
 **Goal**: User can run the single-run generator live or offline and receive deterministic ranked artifacts without changing the KTV runtime, catalog, or storage state.
@@ -132,5 +132,5 @@ Coverage: 18/18 v1.2 requirements mapped exactly once.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 12. Source Contracts and Fetch Harness | v1.2 | 5/5 | Complete | 2026-05-10 |
-| 13. Normalization and Dedupe | v1.2 | 0/3 | Ready to execute | - |
-| 14. Scoring, Exports, and CLI Verification | v1.2 | 0/TBD | Not started | - |
+| 13. Normalization and Dedupe | v1.2 | 3/3 | Complete | 2026-05-10 |
+| 14. Scoring, Exports, and CLI Verification | v1.2 | 0/TBD | Ready to plan | - |

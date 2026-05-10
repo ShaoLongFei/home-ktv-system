@@ -15,10 +15,10 @@
 
 ### Normalization And Deduplication
 
-- [ ] **NORM-01**: User can review output that preserves raw source title/artist values, readable display values, canonical keys, and all contributing source evidence.
-- [ ] **NORM-02**: Same-song rows from multiple sources are merged conservatively using normalized title and artist identity, while same-title different-artist songs remain separate.
-- [ ] **NORM-03**: Variant markers such as Live, DJ, Remix, 伴奏, 翻唱, 片段, 女声版, 男声版, and similar descriptors are detected and surfaced as warnings or penalties instead of being silently discarded.
-- [ ] **NORM-04**: The generator produces stable candidate IDs and canonical song keys suitable for later weekly comparison or OpenList matching, without implementing those workflows.
+- [x] **NORM-01**: User can review output that preserves raw source title/artist values, readable display values, canonical keys, and all contributing source evidence.
+- [x] **NORM-02**: Same-song rows from multiple sources are merged conservatively using normalized title and artist identity, while same-title different-artist songs remain separate.
+- [x] **NORM-03**: Variant markers such as Live, DJ, Remix, 伴奏, 翻唱, 片段, 女声版, 男声版, and similar descriptors are detected and surfaced as warnings or penalties instead of being silently discarded.
+- [x] **NORM-04**: The generator produces stable candidate IDs and canonical song keys suitable for later weekly comparison or OpenList matching, without implementing those workflows.
 
 ### Scoring And Ranking
 
@@ -77,10 +77,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRC-03 | Phase 12 | Complete |
 | SRC-04 | Phase 12 | Complete |
 | SRC-05 | Phase 12 | Complete |
-| NORM-01 | Phase 13 | Pending |
-| NORM-02 | Phase 13 | Pending |
-| NORM-03 | Phase 13 | Pending |
-| NORM-04 | Phase 13 | Pending |
+| NORM-01 | Phase 13 | Complete |
+| NORM-02 | Phase 13 | Complete |
+| NORM-03 | Phase 13 | Complete |
+| NORM-04 | Phase 13 | Complete |
 | RANK-01 | Phase 14 | Pending |
 | RANK-02 | Phase 14 | Pending |
 | RANK-03 | Phase 14 | Pending |
@@ -99,4 +99,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-05-10*
-*Last updated: 2026-05-10 after Phase 12 completion*
+*Last updated: 2026-05-10 after Phase 13 completion*

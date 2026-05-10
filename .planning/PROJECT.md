@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 聚焦先生成热门歌曲候选名单，用于后续决定哪些网盘歌曲值得下载补入歌库。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成来源采集和保守归一化/去重身份层；下一步是对候选歌曲评分、排序并输出 Markdown/CSV/JSON review artifacts，用于后续决定哪些网盘歌曲值得下载补入歌库。
 
 Milestone archives:
 
@@ -55,12 +55,12 @@ Milestone archives:
 - v1.1 validated TV playback state readability, progress time display, first-play guidance, switch feedback, and responsive TV layout.
 - v1.1 validated Chinese-first product polish across Admin, Mobile, and TV, including empty/error/loading states and key action feedback.
 - v1.1 validated clearer runtime boundaries for Mobile, Admin, and TV, including Phase 11 Admin Import/Songs runtime hooks for `QUAL-01`.
+- v1.2 validated single-run public/manual hot-song source collection with source health reporting through `pnpm hot-songs:sources`.
+- v1.2 validated KTV-first/support source evidence preservation and conservative candidate normalization/deduplication through `pnpm hot-songs:normalize`.
+- v1.2 validated stable candidate IDs, canonical song keys, source evidence, source statuses, and variant warning surfacing in `candidate-snapshot.json`.
 
 ### Active
 
-- [ ] 单次运行脚本可以从配置的公开榜单/歌单来源和手工快照文件收集歌曲元数据。
-- [ ] KTV/K歌相关来源优先于普通流媒体热榜，QQ 音乐 `K歌金曲榜` 和手工 CAVCA 金麦榜可作为高权重来源。
-- [ ] 歌曲候选可以保留原始来源证据，并进行保守的中文标题、歌手、版本标记归一化与去重。
 - [ ] 候选歌曲可以按 KTV 相关性、多来源共识、榜单新鲜度、元数据可信度和噪音惩罚生成确定性分数。
 - [ ] 输出 Markdown、CSV、JSON 和 source health report，作为后续人工下载/补歌决策依据。
 
@@ -112,6 +112,7 @@ v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分
 | Mobile visual check 默认走配对 URL | 临时 Chrome profile 无法依赖已有 cookie，必须用 tokenized controller URL 验证真实控制台状态 | Good |
 | Admin Import/Songs 运行时逻辑收敛到 feature-local hooks | 关闭 QUAL-01 审计缺口，同时避免引入产品行为变化 | Good |
 | v1.2 先做单次热门歌曲候选名单，不做增量比较和自动下载 | 先验证来源、去重和评分质量，再把名单接入 OpenList 下载链路 | Pending |
+| Phase 13 normalization keeps identity conservative | 降低误合并风险，先保留证据、稳定 key/ID 和 variant warning，再把排序交给 Phase 14 | Good |
 
 ## Evolution
 
@@ -134,4 +135,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-10 after creating v1.2 热门歌曲候选名单 roadmap*
+*Last updated: 2026-05-10 after Phase 13 completion*
