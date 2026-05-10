@@ -6,7 +6,7 @@
 
 ## Recommended Model
 
-Represent one physical MV file as one formal `Song`. When original and accompaniment tracks are confirmed, create two logical `Asset` rows that share the same file path and differ by `vocalMode` and `audioTrackIndex`. This keeps the user-facing song model simple while preserving the existing asset-based queue/playback contract.
+Represent one physical MV file as one formal `Song` with one real-MV `Asset`. When original and accompaniment tracks are confirmed, store them as `trackRoles: { original: trackRef, instrumental: trackRef }` inside that asset metadata. The playback target selects a specific track through `selectedTrackRef`.
 
 ## Data Flow
 
@@ -15,7 +15,7 @@ Represent one physical MV file as one formal `Song`. When original and accompani
 3. MediaInfo probe extracts container, duration, video stream, audio tracks, language/labels, codec, and raw payload.
 4. Candidate builder creates one review candidate per physical file, including metadata provenance and compatibility facts.
 5. Admin review resolves title/artist/cover and maps audio tracks to original/accompaniment.
-6. Catalog admission writes one `Song`, logical `Asset` rows, source records, and formal `song.json`.
+6. Catalog admission writes one `Song`, one real-MV `Asset`, source records, track role refs, and formal `song.json`.
 7. Search and queue expose only verified real MV assets.
 8. TV playback receives an explicit playback target with `playbackProfile` and selected track information.
 
@@ -28,7 +28,7 @@ Represent one physical MV file as one formal `Song`. When original and accompani
 | SidecarResolver | New helper for same-stem cover and `song.json` association |
 | CandidateBuilder | Merge MediaInfo, filename, sidecar, and provenance into review candidate |
 | Import Review API | Expose track facts, compatibility, cover, and conflict warnings |
-| CatalogAdmissionService | Promote one file into one song plus logical assets |
+| CatalogAdmissionService | Promote one file into one song plus one real-MV asset with track role refs |
 | Song JSON validator | Support real MV media profile, cover path, track indexes, and compatibility |
 | Asset gateway | Serve MKV/MPG/MPEG with correct content type and byte ranges |
 | Player contracts | Add `playbackProfile`, track selection, and capability/unsupported fields |
@@ -41,7 +41,8 @@ Candidate and catalog records need:
 - `mediaProfile`: e.g. `dual_track_video`.
 - `container`, `videoCodec`, `durationMs`, `sizeBytes`.
 - `audioTracks`: raw source facts with stable identifiers where available.
-- `audioTrackIndex` / `audioTrackId` on logical assets.
+- `trackRoles`: `original` and `instrumental` refs containing index/id/label.
+- `selectedTrackRef` on playback targets.
 - `vocalMode`: original or accompaniment.
 - `compatibilityStatus`: playable, review_required, unsupported, unknown.
 - `unsupportedReasons`: codec/container/track/range/seek/switch issues.

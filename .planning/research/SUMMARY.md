@@ -9,7 +9,7 @@
 
 v1.2 should extend the existing scan -> review -> formal catalog -> search/queue -> TV playback flow. A real MKV/MPG file becomes one song candidate. Optional same-stem cover image and `song.json` enrich the candidate. MediaInfo supplies primary technical metadata, filename parsing fills gaps, and Admin review remains the default trust boundary.
 
-The recommended model is one physical MV file -> one formal `Song` -> two logical `Asset` rows over the same file path when original/accompaniment tracks are confirmed. Each logical asset carries `vocalMode` and explicit track information. Playback targets should gain a platform-neutral `playbackProfile` so the current web TV and future Android TV can both understand the intent.
+The selected model is one physical MV file -> one formal `Song` -> one real-MV `Asset` with `trackRoles` for original/accompaniment. Playback targets should gain a platform-neutral `playbackProfile` and `selectedTrackRef` so the current web TV and future Android TV can both understand the intent.
 
 The hard risks are playback compatibility and track semantics. MKV/MPG extension support does not guarantee browser playback, and browser audio-track switching is not reliable enough to assume. v1.2 should mark compatibility explicitly, keep unsupported files out of search/queue, and only show switching where runtime capability is verified.
 
@@ -28,7 +28,7 @@ The hard risks are playback compatibility and track semantics. MKV/MPG extension
 - Scan real MV files as reviewable candidates.
 - Preserve metadata provenance from MediaInfo, filename, sidecar, and Admin edits.
 - Show detected audio tracks and require reviewable original/accompaniment mapping.
-- Promote approved candidate into one song plus logical assets.
+- Promote approved candidate into one song plus one real-MV asset with reviewed track role refs.
 - Write/validate formal `song.json` with media, cover, track, and compatibility information.
 - Search, queue, play, and switch only verified/queueable real MV assets.
 - Mark unsupported or uncertain files clearly and keep them out of normal user flows.
@@ -42,7 +42,7 @@ Extend the existing architecture:
 3. MediaInfo probe extracts technical facts.
 4. Candidate builder merges metadata and provenance.
 5. Admin review confirms user-facing metadata and track roles.
-6. Catalog admission writes one song plus logical assets.
+6. Catalog admission writes one song plus one real-MV asset with track role refs.
 7. Search/queue selects verified assets.
 8. TV playback receives an explicit profile and track selection.
 
@@ -62,7 +62,7 @@ Extend the existing architecture:
 - MediaInfo-first metadata and track extraction.
 - Filename and sidecar fallback metadata.
 - Review-first import.
-- One physical MV represented as logical original/accompaniment assets.
+- One physical MV represented as one real-MV asset with original/accompaniment `trackRoles`.
 - Direct playback only with explicit compatibility marking.
 - Web TV contract updates and capability-gated track switching.
 - Android TV contract reservation only.

@@ -16,7 +16,7 @@
 
 **Risk:** `HTMLMediaElement.audioTracks` is not consistently available across browsers, so in-file original/accompaniment switching may not work on the web TV.
 
-**Prevention:** Treat audio-track switching as a runtime capability. Hide switch controls or show a clear unsupported state when the TV runtime cannot switch tracks. Keep dual logical assets in the data model so Android TV can later implement this cleanly.
+**Prevention:** Treat audio-track switching as a runtime capability. Hide switch controls or show a clear unsupported state when the TV runtime cannot switch tracks. Keep reviewed track role refs in the asset metadata so Android TV can later implement this cleanly.
 
 ### Confusing Track Index With Vocal Role
 

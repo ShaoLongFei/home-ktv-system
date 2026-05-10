@@ -22,7 +22,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 
 - [ ] **Phase 12: Contract, Schema, and Playback-Risk Spike** - Define real-MV catalog/player contracts, compatibility states, provenance, and platform-neutral playback boundaries
 - [ ] **Phase 13: MediaInfo Probe, Scanner, and Sidecars** - Scan stable MKV/MPG/MPEG files with MediaInfo facts, same-stem covers, and same-stem `song.json` metadata
-- [ ] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with logical assets
+- [ ] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with a single real-MV asset
 - [ ] **Phase 15: Search, Queue, Playback, and Switching** - Make approved real MV songs searchable, queueable, playable, and switchable only when runtime capability is verified
 - [ ] **Phase 16: Policy Seam, Android Reservation, and Hardening** - Preserve review-first policy, future Android boundaries, regression coverage, and compatibility with existing flows
 
@@ -58,8 +58,8 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 **Success Criteria** (what must be TRUE):
   1. Admin can review title, artist, language, cover, MediaInfo facts, filename-derived fields, sidecar fields, and conflicts before admission.
   2. Admin can map detected audio tracks to original vocal and accompaniment roles while raw track facts remain visible.
-  3. Approved real MV candidate becomes one formal song with logical original and accompaniment assets over the same physical file.
-  4. Approved real MV songs write and validate formal `song.json` with media path, cover path, assets, track indexes, codecs, and compatibility status.
+  3. Approved real MV candidate becomes one formal song with one real-MV asset that stores original/accompaniment `trackRoles`.
+  4. Approved real MV songs write and validate formal `song.json` with media path, cover path, one asset, track role refs, codecs, and compatibility status.
   5. Unsupported or incomplete candidates remain visible with repair or preprocessing guidance and do not block other candidates from admission.
 **Plans**: TBD
 **UI hint**: yes
@@ -71,7 +71,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 **Success Criteria** (what must be TRUE):
   1. User can search approved real MV songs with the existing Chinese-first behavior and queue them from the mobile controller.
   2. Queueing a dual-track real MV defaults to accompaniment when an accompaniment track is confirmed.
-  3. TV receives an explicit playback profile and selected audio-track information for real MV assets.
+  3. TV receives an explicit playback profile and `selectedTrackRef` for real MV assets.
   4. User can switch original/accompaniment during playback only when the TV runtime has verified track-switch capability.
   5. User sees a clear unsupported or needs-preprocessing state when a real MV cannot load, seek, resume, or switch as advertised.
 **Plans**: TBD

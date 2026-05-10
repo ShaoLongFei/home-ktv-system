@@ -16,7 +16,7 @@ Keep the existing TypeScript monorepo, Fastify API, PostgreSQL catalog, React Ad
 | File formats | Extend scanner recognition to `.mkv`, `.mpg`, and `.mpeg` | User's real MV library uses these formats |
 | Sidecars | Add deterministic sibling `song.json` and cover resolver | Single-file-per-song stays simple while allowing rich preview and manual metadata |
 | Compatibility | Store direct-play compatibility status and unsupported reasons | File extension alone does not prove browser playback |
-| Player contract | Add `playbackProfile`, `audioTrackIndex`, source track facts, and capability flags | The TV player and future Android TV need explicit instructions instead of implicit URL tricks |
+| Player contract | Add `playbackProfile`, `selectedTrackRef`, source track facts, and capability flags | The TV player and future Android TV need explicit instructions instead of implicit URL tricks |
 | Gateway | Ensure MKV/MPG MIME and byte-range behavior are preserved | Large real MV files need seek/resume and browser media loading support |
 | Test fixtures | Add representative two-track MKV and unsupported/uncertain MPG fixtures | Requirements must be verified against real media characteristics, not demo MP4 assumptions |
 

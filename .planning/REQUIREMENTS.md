@@ -24,7 +24,7 @@
 
 - [ ] **REVIEW-01**: Admin can review title, artist, language, cover, MediaInfo facts, filename-derived fields, sidecar fields, and conflicts before admission.
 - [ ] **REVIEW-02**: Admin can map detected audio tracks to original vocal and accompaniment roles, with raw track facts still preserved.
-- [ ] **REVIEW-03**: Admin can approve a real MV candidate into the formal catalog as one song with logical original/accompaniment assets over the same physical file.
+- [ ] **REVIEW-03**: Admin can approve a real MV candidate into the formal catalog as one song with one real-MV asset that stores original/accompaniment `trackRoles`.
 - [ ] **REVIEW-04**: Approved real MV songs write and validate formal `song.json` including media path, cover path, assets, track indexes, codecs, and compatibility status.
 - [ ] **REVIEW-05**: Unsupported or incomplete candidates remain visible with repair/preprocess guidance and do not block other candidates from admission.
 
@@ -32,7 +32,7 @@
 
 - [ ] **PLAY-01**: User can search and queue approved real MV songs from the mobile controller using the existing Chinese-first search behavior.
 - [ ] **PLAY-02**: Queueing a dual-track real MV defaults to accompaniment when an accompaniment track is confirmed.
-- [ ] **PLAY-03**: TV receives an explicit playback profile and selected audio-track information for real MV assets.
+- [ ] **PLAY-03**: TV receives an explicit playback profile and `selectedTrackRef` for real MV assets.
 - [ ] **PLAY-04**: User can switch original/accompaniment during playback only when the TV runtime has verified track-switch capability.
 - [ ] **PLAY-05**: User sees a clear unsupported or needs-preprocessing state when a real MV cannot load, seek, resume, or switch as advertised.
 

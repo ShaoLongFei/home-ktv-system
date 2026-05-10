@@ -29,7 +29,7 @@ v1.2 should extend the existing scan -> review -> formal catalog -> search/queue
 - Candidates show all detected audio tracks with index, language, label, codec, channel count, and confidence.
 - Admin maps detected tracks to original vocal and accompaniment roles.
 - The system preserves raw source-track facts separately from reviewed KTV roles.
-- One admitted song can produce two logical assets over the same physical file.
+- One admitted song can produce one real-MV asset with `trackRoles` for original and accompaniment over the same physical file.
 
 ### Review And Admission
 
