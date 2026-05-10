@@ -16,7 +16,11 @@ import {
   collectQqToplistSource,
   parseQqToplistRows
 } from "./adapters/qq-toplist.js";
-import type { SourceRow } from "./contracts.js";
+import {
+  collectTencentMusicYobangSource,
+  parseTencentMusicYobangRows
+} from "./adapters/tencent-music-yobang.js";
+import type { SourceDefinition, SourceRow, SourceStatus } from "./contracts.js";
 import { loadSourceManifest, resolveRunPath, validateManifestPath } from "./manifest.js";
 import { buildSourceHealthReport, writeSourceReport } from "./report/source-health.js";
 import {
@@ -128,22 +132,40 @@ function buildAdapters(options: {
     return {
       manual_json: collectManualJsonSource,
       qq_toplist: async (source, context) =>
-        parseQqToplistRows(
+        expandFixtureRows(
           source,
-          await readFixtureHtml(options.runRoot, fixtureFileForSource(source.id)),
-          context.generatedAt ?? new Date().toISOString()
+          parseQqToplistRows(
+            source,
+            await readFixtureHtml(options.runRoot, fixtureFileForSource(source.id)),
+            context.generatedAt ?? new Date().toISOString()
+          )
         ),
       kugou_rank_html: async (source, context) =>
-        parseKugouRankHtmlRows(
+        expandFixtureRows(
           source,
-          await readFixtureHtml(options.runRoot, "kugou-rank-home.fixture.html"),
-          context.generatedAt ?? new Date().toISOString()
+          parseKugouRankHtmlRows(
+            source,
+            await readFixtureHtml(options.runRoot, "kugou-rank-home.fixture.html"),
+            context.generatedAt ?? new Date().toISOString()
+          )
         ),
       netease_toplist_html: async (source, context) =>
-        parseNeteaseToplistHtmlRows(
+        expandFixtureRows(
           source,
-          await readFixtureHtml(options.runRoot, "netease-toplist.fixture.html"),
-          context.generatedAt ?? new Date().toISOString()
+          parseNeteaseToplistHtmlRows(
+            source,
+            await readFixtureHtml(options.runRoot, "netease-toplist.fixture.html"),
+            context.generatedAt ?? new Date().toISOString()
+          )
+        ),
+      tencent_music_yobang: async (source, context) =>
+        expandFixtureRows(
+          source,
+          parseTencentMusicYobangRows(
+            source,
+            buildTencentMusicFixtureHtml(),
+            context.generatedAt ?? new Date().toISOString()
+          )
         )
     };
   }
@@ -152,7 +174,8 @@ function buildAdapters(options: {
     manual_json: collectManualJsonSource,
     qq_toplist: collectQqToplistSource,
     kugou_rank_html: collectKugouRankHtmlSource,
-    netease_toplist_html: collectNeteaseToplistHtmlSource
+    netease_toplist_html: collectNeteaseToplistHtmlSource,
+    tencent_music_yobang: collectTencentMusicYobangSource
   };
 }
 
@@ -167,11 +190,52 @@ async function readFixtureHtml(
 }
 
 function fixtureFileForSource(sourceId: string): string {
-  if (sourceId === "qq-kge-toplist" || sourceId === "qq-hot-toplist") {
+  if (sourceId.startsWith("qq-")) {
     return "qq-kge-toplist.fixture.html";
   }
 
   throw new Error(`No fixture HTML configured for ${sourceId}`);
+}
+
+function expandFixtureRows(
+  source: SourceDefinition,
+  rows: SourceRow[]
+): SourceRow[] {
+  const targetRowCount = source.platformCapRows ?? source.targetRows;
+  if (rows.length === 0 || rows.length >= targetRowCount) {
+    return rows.slice(0, targetRowCount);
+  }
+
+  return Array.from({ length: targetRowCount }, (_, index) => {
+    const baseRow = rows[index % rows.length] as SourceRow;
+    const cycle = Math.floor(index / rows.length);
+
+    return {
+      ...baseRow,
+      sourceId: source.id,
+      sourceType: source.sourceType,
+      provider: source.provider,
+      rank: index + 1,
+      rawTitle:
+        cycle === 0 ? baseRow.rawTitle : `${baseRow.rawTitle} Fixture ${cycle + 1}`,
+      sourceUrl: source.url ?? source.urls?.[0] ?? baseRow.sourceUrl
+    };
+  });
+}
+
+function buildTencentMusicFixtureHtml(): string {
+  return `<script id="__NEXT_DATA__" type="application/json">${JSON.stringify({
+    props: {
+      pageProps: {
+        issueStart: "2026-05-11 00:00:00",
+        chartsList: [
+          { rank: 1, songName: "星昼", singerName: "周深" },
+          { rank: 2, songName: "后来", singerName: "刘若英" },
+          { rank: 3, songName: "Run Wild（向风而野）", singerName: "是晚星呀" }
+        ]
+      }
+    }
+  })}</script>`;
 }
 
 async function writeRunArtifacts(
@@ -180,12 +244,44 @@ async function writeRunArtifacts(
 ): Promise<void> {
   await mkdir(outDir, { recursive: true });
   await writeSourceRows(outDir, result.generatedAt, result.rows);
+  await writePerSourceRows(outDir, result.generatedAt, result.rows, result.statuses);
   await writeSourceReport(
     outDir,
     buildSourceHealthReport({
       generatedAt: result.generatedAt,
       rows: result.rows,
       statuses: result.statuses
+    })
+  );
+}
+
+async function writePerSourceRows(
+  outDir: string,
+  generatedAt: string,
+  rows: SourceRow[],
+  statuses: SourceStatus[]
+): Promise<void> {
+  const sourcesDir = join(outDir, "sources");
+  await mkdir(sourcesDir, { recursive: true });
+
+  await Promise.all(
+    statuses.map((status) => {
+      const sourceRows = rows.filter((row) => row.sourceId === status.sourceId);
+      return writeFile(
+        join(sourcesDir, `${status.sourceId}.json`),
+        `${JSON.stringify(
+          {
+            schemaVersion: "hot-songs.source-file.v1",
+            generatedAt,
+            sourceId: status.sourceId,
+            rowCount: sourceRows.length,
+            rows: sourceRows
+          },
+          null,
+          2
+        )}\n`,
+        "utf8"
+      );
     })
   );
 }

@@ -52,23 +52,34 @@ describe("source manifest loading", () => {
     ]);
   });
 
-  it("loads the example manifest with KTV-first sources", async () => {
+  it("loads the example manifest with requested full chart sources", async () => {
     const manifest = await loadSourceManifest(
       resolveRunPath("packages/hot-songs/config/sources.example.json", repoRoot)
     );
 
+    expect(manifest.sources).toHaveLength(22);
     expect(manifest.sources).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({ id: "kugou-top500", provider: "kugou" }),
+        expect.objectContaining({
+          id: "tencent-music-yobang",
+          provider: "qq_music"
+        }),
         expect.objectContaining({
           id: "qq-kge-toplist",
           sourceType: "ktv_first"
         }),
         expect.objectContaining({
-          id: "cavca-golden-mic-manual",
-          sourceType: "ktv_first"
+          id: "netease-hot-toplist",
+          provider: "netease"
         })
       ])
     );
+    expect(
+      manifest.sources.every(
+        (source) => source.targetRows === 500 && source.minRows === 400
+      )
+    ).toBe(true);
   });
 
   it("requires --manifest", () => {

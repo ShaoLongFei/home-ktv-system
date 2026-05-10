@@ -350,7 +350,7 @@ describe("runCollectSourcesCli", () => {
     try {
       const exitCode = await runCollectSourcesCli([
         "--manifest",
-        "packages/hot-songs/config/sources.example.json",
+        "packages/hot-songs/fixtures/manifests/default.fixture.json",
         "--out",
         outDir,
         "--source",
@@ -374,6 +374,16 @@ describe("runCollectSourcesCli", () => {
       ) as {
         rows: SourceRow[];
       };
+      const perSourceRows = JSON.parse(
+        await readFile(
+          join(absoluteOutDir, "sources", "cavca-golden-mic-manual.json"),
+          "utf8"
+        )
+      ) as {
+        schemaVersion: string;
+        sourceId: string;
+        rowCount: number;
+      };
 
       expect(report.schemaVersion).toBe("hot-songs.source-report.v1");
       expect(report.sources).toEqual(
@@ -385,6 +395,13 @@ describe("runCollectSourcesCli", () => {
         ])
       );
       expect(sourceRows.rows).toHaveLength(3);
+      expect(perSourceRows).toEqual(
+        expect.objectContaining({
+          schemaVersion: "hot-songs.source-file.v1",
+          sourceId: "cavca-golden-mic-manual",
+          rowCount: 3
+        })
+      );
     } finally {
       if (originalInitCwd === undefined) {
         delete process.env.INIT_CWD;

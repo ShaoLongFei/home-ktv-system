@@ -140,7 +140,58 @@ describe("parseQqToplistRows", () => {
 });
 
 describe("fixture mode source collection", () => {
-  it("collects all configured KTV-first and support sources offline", async () => {
+  it("configures the requested full chart sources independently", async () => {
+    const manifest = JSON.parse(
+      await readFile(
+        resolve(repoRoot, "packages/hot-songs/config/sources.example.json"),
+        "utf8"
+      )
+    ) as {
+      sources: Array<{
+        id: string;
+        provider: string;
+        targetRows: number;
+        minRows: number;
+      }>;
+    };
+
+    const sourceIds = manifest.sources.map((source) => source.id);
+    expect(sourceIds).toEqual([
+      "kugou-top500",
+      "kugou-soaring",
+      "kugou-hummingbird-pop",
+      "kugou-douyin-hot",
+      "kugou-kuaishou-hot",
+      "kugou-mainland",
+      "kugou-90s-hot",
+      "kugou-00s-hot",
+      "tencent-music-yobang",
+      "qq-trend-toplist",
+      "qq-soaring-toplist",
+      "qq-hot-toplist",
+      "qq-pop-index-toplist",
+      "qq-collect-popularity-toplist",
+      "qq-music-index-toplist",
+      "qq-kge-toplist",
+      "qq-mainland-toplist",
+      "qq-internet-song-toplist",
+      "qq-douyin-hot-toplist",
+      "netease-hot-toplist",
+      "netease-soaring-toplist",
+      "netease-vip-hot-toplist"
+    ]);
+
+    expect(manifest.sources.filter((source) => source.provider === "kugou")).toHaveLength(8);
+    expect(manifest.sources.filter((source) => source.provider === "qq_music")).toHaveLength(11);
+    expect(manifest.sources.filter((source) => source.provider === "netease")).toHaveLength(3);
+    expect(
+      manifest.sources.every(
+        (source) => source.targetRows === 500 && source.minRows === 400
+      )
+    ).toBe(true);
+  });
+
+  it("collects all configured chart sources offline and writes per-source artifacts", async () => {
     const outDir = `.planning/reports/hot-songs/adapters-fixture-${process.pid}-${Date.now()}`;
     const absoluteOutDir = resolve(repoRoot, outDir);
     const originalInitCwd = process.env.INIT_CWD;
@@ -164,29 +215,51 @@ describe("fixture mode source collection", () => {
 
       expect(exitCode).toBe(0);
       expect(logSpy).toHaveBeenCalledWith(
-        "Source collection complete: 15 rows from 5 usable sources"
+        "Source collection complete: 3047 rows from 22 usable sources"
       );
       expect(errorSpy).not.toHaveBeenCalled();
 
       const report = JSON.parse(
         await readFile(resolve(absoluteOutDir, "source-report.json"), "utf8")
       ) as {
-        sources: Array<{ sourceId: string; status: string }>;
+        sources: Array<{ sourceId: string; status: string; rowCount: number }>;
       };
 
-      for (const sourceId of [
-        "qq-kge-toplist",
-        "cavca-golden-mic-manual",
-        "qq-hot-toplist",
-        "kugou-rank-home",
-        "netease-toplist"
-      ]) {
-        expect(report.sources).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ sourceId, status: "succeeded" })
-          ])
-        );
-      }
+      expect(report.sources).toHaveLength(22);
+      expect(report.sources).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sourceId: "kugou-top500",
+            status: "succeeded",
+            rowCount: 500
+          }),
+          expect.objectContaining({
+            sourceId: "qq-hot-toplist",
+            status: "platform_cap",
+            rowCount: 300
+          }),
+          expect.objectContaining({
+            sourceId: "netease-vip-hot-toplist",
+            status: "platform_cap",
+            rowCount: 10
+          })
+        ])
+      );
+
+      const perSource = JSON.parse(
+        await readFile(
+          resolve(absoluteOutDir, "sources", "kugou-top500.json"),
+          "utf8"
+        )
+      ) as { schemaVersion: string; sourceId: string; rowCount: number };
+
+      expect(perSource).toEqual(
+        expect.objectContaining({
+          schemaVersion: "hot-songs.source-file.v1",
+          sourceId: "kugou-top500",
+          rowCount: 500
+        })
+      );
     } finally {
       if (originalInitCwd === undefined) {
         delete process.env.INIT_CWD;
