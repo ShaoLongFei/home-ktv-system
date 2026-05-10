@@ -1,0 +1,1432 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "qq-mainland-toplist",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Someone to Love",
+      "rawArtists": [
+        "严浩翔"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "人字拖",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "人造神",
+      "rawArtists": [
+        "丁程鑫"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "遗憾",
+      "rawArtists": [
+        "孙怡"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "今天的我们",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "信",
+      "rawArtists": [
+        "雾都L4WUDU",
+        "布瑞吉Bridge"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 39,
+      "rawTitle": "人生路漫漫",
+      "rawArtists": [
+        "岳云鹏"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "是晚星呀"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 2,
+      "rawTitle": "人生路漫漫",
+      "rawArtists": [
+        "白小白"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "星昼",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "壁上观",
+      "rawArtists": [
+        "刘宇"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 6,
+      "rawTitle": "孤独Person (你对我的了解 无声的告别)",
+      "rawArtists": [
+        "Herme4",
+        "WhyAce",
+        "Zy"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "JUMP",
+      "rawArtists": [
+        "刘宇宁",
+        "J Balvin"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "苏格拉·别提",
+      "rawArtists": [
+        "王赫野"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "爱情笨蛋",
+      "rawArtists": [
+        "无限王者团",
+        "王者荣耀"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "逝去的爱",
+      "rawArtists": [
+        "李安"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "两世洞天",
+      "rawArtists": [
+        "黄星"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Count To Seven (倒数七秒)",
+      "rawArtists": [
+        "无限王者团",
+        "王者荣耀"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 48,
+      "rawTitle": "排尾后巷 Paiwei Back Alley",
+      "rawArtists": [
+        "万妮达Vinida Weng"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 34,
+      "rawTitle": "不要在我寂寞的时候说爱我 (funky版)",
+      "rawArtists": [
+        "Bobo博official"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "为你我受冷风吹",
+      "rawArtists": [
+        "轻烟大叔"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 3,
+      "rawTitle": "我赖以生存的隐喻",
+      "rawArtists": [
+        "李昊"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "开败的花（浪也拍打着沙）",
+      "rawArtists": [
+        "在逃天才"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Champagne Drop",
+      "rawArtists": [
+        "Rosy赵露思"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "自生光",
+      "rawArtists": [
+        "袁一琦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 23,
+      "rawTitle": "童年纸飞机",
+      "rawArtists": [
+        "海来阿木"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "俩俩相忘 (烟嗓版)",
+      "rawArtists": [
+        "半吨兄弟",
+        "老A豆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "终章",
+      "rawArtists": [
+        "李权哲"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 9,
+      "rawTitle": "遗憾 (r&b版)",
+      "rawArtists": [
+        "赵乃吉"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 16,
+      "rawTitle": "别再说是谁的错 (R&B版)",
+      "rawArtists": [
+        "我期待的不是你",
+        "Sixteen",
+        "Dr.Phonk"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 44,
+      "rawTitle": "富士山下 (R&B版)",
+      "rawArtists": [
+        "阿布学长"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "人间共鸣",
+      "rawArtists": [
+        "李健"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 63,
+      "rawTitle": "春树（Bloom）",
+      "rawArtists": [
+        "银河快递 (Galaxy Express)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "西乌旗99号公路",
+      "rawArtists": [
+        "LunaLiu刘不语",
+        "张川海"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "我们很快乐",
+      "rawArtists": [
+        "黄子弘凡"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "光阴自有分寸",
+      "rawArtists": [
+        "张碧晨"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 5,
+      "rawTitle": "不如见一面2026",
+      "rawArtists": [
+        "海来阿木"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "邮差和信（海鸟和鱼）",
+      "rawArtists": [
+        "允上",
+        "兑离"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 21,
+      "rawTitle": "疑心病 (R&B氛围版)",
+      "rawArtists": [
+        "我期待的不是你",
+        "DreamSky"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Night Blade",
+      "rawArtists": [
+        "Yang.Lc"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "刺",
+      "rawArtists": [
+        "时代少年团"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "我和我",
+      "rawArtists": [
+        "小V"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 31,
+      "rawTitle": "真英雄 (烟嗓版)",
+      "rawArtists": [
+        "半吨兄弟",
+        "老A豆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 75,
+      "rawTitle": "醉清风 (R&B版)",
+      "rawArtists": [
+        "钱晨（单曲循环）"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 50,
+      "rawTitle": "爱情没有神话",
+      "rawArtists": [
+        "张靓颖"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "一个演员的自我修养",
+      "rawArtists": [
+        "张新成"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "逐光",
+      "rawArtists": [
+        "希林娜依高",
+        "张远"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "你的样子",
+      "rawArtists": [
+        "赵乃吉"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "老了又怎样",
+      "rawArtists": [
+        "将来山海"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "如果还能见一面",
+      "rawArtists": [
+        "烟嗓船长"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 4,
+      "rawTitle": "My Fondest",
+      "rawArtists": [
+        "郝熠然"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "够爱 (浴室氛围版)",
+      "rawArtists": [
+        "404Hz"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 5,
+      "rawTitle": "锁",
+      "rawArtists": [
+        "TF_ING张子墨"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 18,
+      "rawTitle": "爱我就跟我走",
+      "rawArtists": [
+        "半吨兄弟",
+        "老A豆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "幻听 (氛围版)",
+      "rawArtists": [
+        "晚月moon",
+        "班班BAN"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 40,
+      "rawTitle": "怎么才算忘记",
+      "rawArtists": [
+        "施颖婕"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "想你和我们的以后 (那天我经过一片花园）",
+      "rawArtists": [
+        "黄姿涵"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "花衬衫和油泼面",
+      "rawArtists": [
+        "王大治"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "今生和你做不了夫妻",
+      "rawArtists": [
+        "烟嗓兄弟"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 39,
+      "rawTitle": "是你没选我啊",
+      "rawArtists": [
+        "向思思"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "半点心 (R&B版)",
+      "rawArtists": [
+        "阿布学长"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 51,
+      "rawTitle": "一杯烈酒敬沧桑",
+      "rawArtists": [
+        "烟嗓兄弟"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "若不是因为你 (深情版)",
+      "rawArtists": [
+        "林栖"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "胆小鬼",
+      "rawArtists": [
+        "轻烟大叔"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 67,
+      "rawTitle": "Just Fine (一切安好)",
+      "rawArtists": [
+        "司司"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 106,
+      "rawTitle": "月亮代表我的心 (R&B版)",
+      "rawArtists": [
+        "阿布学长"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "过活 (邮差和信飞鸟和鱼)",
+      "rawArtists": [
+        "顾叮当"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "人生路漫漫",
+      "rawArtists": [
+        "小匆匆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "我爱的是爱我的你",
+      "rawArtists": [
+        "纯手动洗衣机"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "春日海海",
+      "rawArtists": [
+        "鹿先森乐队"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "摆脱地心引力",
+      "rawArtists": [
+        "时代少年团"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Moon over Jiangnan",
+      "rawArtists": [
+        "Yang.Lc"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "邮差和信 (海鸟和鱼)",
+      "rawArtists": [
+        "乐火火"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "爱要怎么说出口 (烟嗓版)",
+      "rawArtists": [
+        "M-SONG"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "渡尘寰",
+      "rawArtists": [
+        "胡夏"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "梦底",
+      "rawArtists": [
+        "海来阿木"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "当初的爱情匆匆走过 (带感高燃版)",
+      "rawArtists": [
+        "我期待的不是你"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "花的色彩学",
+      "rawArtists": [
+        "沈梦瑶"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 23,
+      "rawTitle": "春",
+      "rawArtists": [
+        "陈文非"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "配",
+      "rawArtists": [
+        "Rosy赵露思"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 3,
+      "rawTitle": "平凡的日子借一点光",
+      "rawArtists": [
+        "刘宇宁"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 87,
+      "rawTitle": "就让岁月开成一朵花",
+      "rawArtists": [
+        "阿云朵"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 2,
+      "rawTitle": "热烈盛开",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 8,
+      "rawTitle": "1424",
+      "rawArtists": [
+        "汪苏泷"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "当我想你的时候",
+      "rawArtists": [
+        "轻烟大叔"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "NEXT (超燃听感)",
+      "rawArtists": [
+        "Grimmmz"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 60,
+      "rawTitle": "春不晚",
+      "rawArtists": [
+        "浅影阿"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "我的心就像一滴滴眼泪",
+      "rawArtists": [
+        "洋澜一"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Pretty Much（半夏心动）",
+      "rawArtists": [
+        "是晚星呀"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "下雨天 (R&B氛围版)",
+      "rawArtists": [
+        "我期待的不是你",
+        "侯天乐Htl"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "走在冷风中",
+      "rawArtists": [
+        "王小草"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "春风难解我思念的痛",
+      "rawArtists": [
+        "杨小萌"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 6,
+      "rawTitle": "歌曲：快乐小马",
+      "rawArtists": [
+        "王安宇",
+        "黄子弘凡",
+        "范丞丞",
+        "胡先煦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "张三的歌 (我要带你到处去飞翔)",
+      "rawArtists": [
+        "轻烟大叔"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 81,
+      "rawTitle": "如果爱我就跟我走 (R&B版)",
+      "rawArtists": [
+        "Sixteen"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "墙角里的花",
+      "rawArtists": [
+        "断水流大师兄",
+        "林林森森"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "月亮代表我的心 (哼唱版)",
+      "rawArtists": [
+        "O椰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "宁愿相信我们前世有约 (氛围版)",
+      "rawArtists": [
+        "纯音乐",
+        "南征北战",
+        "DJ铁柱",
+        "我期待的不是你"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "不怕 (高音质3D版)",
+      "rawArtists": [
+        "QAQA"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "过活 (Edit)",
+      "rawArtists": [
+        "兑离"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/5",
+      "sourcePublishedAt": "2026-05-07",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

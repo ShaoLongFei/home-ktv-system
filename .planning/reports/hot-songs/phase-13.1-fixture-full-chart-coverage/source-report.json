@@ -1,0 +1,402 @@
+{
+  "schemaVersion": "hot-songs.source-report.v1",
+  "generatedAt": "2026-05-10T17:20:19.426Z",
+  "totalRows": 3047,
+  "usableSourceCount": 22,
+  "statusCounts": {
+    "succeeded": 2,
+    "platform_cap": 20,
+    "failed_below_min_rows": 0,
+    "failed": 0,
+    "stale": 0,
+    "skipped": 0
+  },
+  "sources": [
+    {
+      "sourceId": "kugou-top500",
+      "targetRows": 500,
+      "minRows": 400,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "succeeded",
+      "usable": true,
+      "rowCount": 500,
+      "warnings": [],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 32,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 32,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "kugou-kuaishou-hot",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "kugou-90s-hot",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "KUGOU_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "targetRows": 500,
+      "minRows": 400,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "succeeded",
+      "usable": true,
+      "rowCount": 500,
+      "warnings": [],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-hot-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 300,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 300,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-pop-index-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-collect-popularity-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 50,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 50,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-music-index-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-kge-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 55,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 55,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-mainland-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "qq-douyin-hot-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "QQ_MUSIC_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 200,
+      "authCookieEnv": "NETEASE_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 200,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "netease-soaring-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 100,
+      "authCookieEnv": "NETEASE_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 100,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "targetRows": 500,
+      "minRows": 400,
+      "platformCapRows": 10,
+      "authCookieEnv": "NETEASE_COOKIE",
+      "authUsed": false,
+      "status": "platform_cap",
+      "usable": true,
+      "rowCount": 10,
+      "warnings": [
+        "row-count-below-minimum",
+        "row-count-below-expected",
+        "row-count-limited-by-platform-cap"
+      ],
+      "startedAt": "2026-05-10T17:20:19.426Z",
+      "finishedAt": "2026-05-10T17:20:19.426Z"
+    }
+  ]
+}

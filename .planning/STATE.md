@@ -4,14 +4,14 @@ milestone: v1.2
 milestone_name: 热门歌曲候选名单
 status: ready_to_plan
 stopped_at: phase_14_ready_to_plan
-last_updated: "2026-05-10T14:54:24+08:00"
-last_activity: 2026-05-10
+last_updated: "2026-05-11T01:20:00+08:00"
+last_activity: 2026-05-11
 progress:
-  total_phases: 3
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 67
+  total_phases: 4
+  completed_phases: 3
+  total_plans: 9
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 Milestone: v1.2 热门歌曲候选名单
 Phase: 14 of 14 (Scoring, Exports, and CLI Verification)
 Plan: Phase 14 ready to plan
-Status: Phase 13 completed and verified; Phase 14 ready to plan
-Last activity: 2026-05-10 -- Phase 13 completed with 3/3 plans, verification passed, and fixture candidate snapshot generated
+Status: Phase 13.1 completed and verified; Phase 14 ready to plan
+Last activity: 2026-05-11 -- Phase 13.1 completed with 1/1 plan, expanded chart manifest, per-source artifacts, and live full-chart source report
 
-Progress: [███████░░░] 67%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -74,6 +74,8 @@ Recent decisions affecting current work:
 - [Phase 13]: Normalization planning is split into three execution plans: candidate contracts/text variants, conservative dedupe/stable identities, and normalization CLI fixture snapshot.
 - [Phase 13]: Normalization is executable via `pnpm hot-songs:normalize` and writes `.planning/reports/hot-songs/phase-13-fixture-candidates/candidate-snapshot.json`.
 - [Phase 13]: Candidate identity stays conservative: normalized title key, sorted artist key set, and variant signature are the merge identity; no scoring/ranking/export/OpenList/download workflows were added.
+- [Phase 13.1]: Source coverage was corrected from toy samples to 22 requested logical chart sources with targetRows 500, minRows 400, platform-cap reporting, and per-source JSON artifacts.
+- [Phase 13.1]: Live collection generated `.planning/reports/hot-songs/phase-13.1-live-full-chart-coverage/source-report.json` with 2557 rows, 21 usable sources, 1 succeeded source, 20 platform-cap sources, and 1 failed_below_min_rows source.
 
 ### Pending Todos
 
@@ -85,6 +87,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-10T14:54:24+08:00
-Stopped at: Phase 13 complete and verified; next action is `$gsd-plan-phase 14`
+Last session: 2026-05-11T01:20:00+08:00
+Stopped at: Phase 13.1 complete and verified; next action is `$gsd-plan-phase 14`
 Resume file: None

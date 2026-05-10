@@ -12,6 +12,7 @@
 - [x] **SRC-03**: User can include support sources such as QQ/酷狗/网易云 public charts when available, with each source classified by source type and weight.
 - [x] **SRC-04**: User receives a source health report that shows which sources succeeded, failed, were stale, or were skipped, including row counts and warnings.
 - [x] **SRC-05**: The command handles partial source failures without hiding them; it fails only when no usable source remains or required configuration is invalid.
+- [x] **SRC-06**: User can collect the requested Kugou, QQ/Tencent, and NetEase chart sources independently, with target/minimum row counts, platform-cap reporting, and per-source artifacts.
 
 ### Normalization And Deduplication
 
@@ -77,6 +78,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRC-03 | Phase 12 | Complete |
 | SRC-04 | Phase 12 | Complete |
 | SRC-05 | Phase 12 | Complete |
+| SRC-06 | Phase 13.1 | Complete |
 | NORM-01 | Phase 13 | Complete |
 | NORM-02 | Phase 13 | Complete |
 | NORM-03 | Phase 13 | Complete |
@@ -93,8 +95,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 **Coverage:**
 
-- v1.2 requirements: 18 total
-- Mapped to phases: 18
+- v1.2 requirements: 19 total
+- Mapped to phases: 19
 - Unmapped: 0
 
 ---

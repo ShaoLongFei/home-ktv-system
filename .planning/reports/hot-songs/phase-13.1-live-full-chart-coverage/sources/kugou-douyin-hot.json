@@ -1,0 +1,463 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "kugou-douyin-hot",
+  "rowCount": 32,
+  "rows": [
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 1,
+      "rawTitle": "人生路漫漫",
+      "rawArtists": [
+        "白小白"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 2,
+      "rawTitle": "恋人",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 3,
+      "rawTitle": "Apologize (氛围beat)",
+      "rawArtists": [
+        "PPR"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 4,
+      "rawTitle": "茶花开了",
+      "rawArtists": [
+        "王睿卓"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 5,
+      "rawTitle": "雨蝶",
+      "rawArtists": [
+        "烬歌"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 6,
+      "rawTitle": "零距离的思念",
+      "rawArtists": [
+        "TINY7"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 7,
+      "rawTitle": "你像风一样出现 (逆着风)",
+      "rawArtists": [
+        "玉芬"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 8,
+      "rawTitle": "读心术",
+      "rawArtists": [
+        "卓文萱"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 9,
+      "rawTitle": "失眠了",
+      "rawArtists": [
+        "吴琳珂Moske"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 10,
+      "rawTitle": "锁",
+      "rawArtists": [
+        "TF_ING张子墨"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 11,
+      "rawTitle": "到此为止",
+      "rawArtists": [
+        "徐佳莹"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 12,
+      "rawTitle": "幻痛药 Hurt And Hurt",
+      "rawArtists": [
+        "Tlatre特雷西",
+        "LSGCsikoriot"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 13,
+      "rawTitle": "左转灯 (1000 Times +1)",
+      "rawArtists": [
+        "派伟俊",
+        "mac ova seas"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 14,
+      "rawTitle": "朵朵 (墙角开了一朵小花)",
+      "rawArtists": [
+        "项睿娴"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 15,
+      "rawTitle": "最好的我 (破碎版)",
+      "rawArtists": [
+        "昨夜梦游"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 16,
+      "rawTitle": "此刻最好的都在身边 (R&B氛围版)",
+      "rawArtists": [
+        "丁祾"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 17,
+      "rawTitle": "Show Me Love",
+      "rawArtists": [
+        "WizTheMC",
+        "bees",
+        "honey"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 18,
+      "rawTitle": "时差 (On call)",
+      "rawArtists": [
+        "鹿晗"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 19,
+      "rawTitle": "你知道天空有多蓝",
+      "rawArtists": [
+        "椅子乐团 The Chairs"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 20,
+      "rawTitle": "枪火",
+      "rawArtists": [
+        "宝石Gem"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 21,
+      "rawTitle": "西厢寻他 (0.8x版)",
+      "rawArtists": [
+        "Slow_77"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 22,
+      "rawTitle": "天下第一好",
+      "rawArtists": [
+        "李小眼"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 23,
+      "rawTitle": "咏春 (春知晓梦不觉恰似你我那年)",
+      "rawArtists": [
+        "梨香JZH",
+        "口古口古"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 24,
+      "rawTitle": "Deadend (活该)",
+      "rawArtists": [
+        "Tyson Yoshi",
+        "王嘉尔"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 25,
+      "rawTitle": "心跳 (你又在哭泣我给不了安慰)",
+      "rawArtists": [
+        "DJ ZY"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 26,
+      "rawTitle": "Piu Piu Piu",
+      "rawArtists": [
+        "沙一汀EL"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 27,
+      "rawTitle": "爱的回归线 (R&B版)",
+      "rawArtists": [
+        "邪热搜索"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 28,
+      "rawTitle": "Stay with me (氛围beat)",
+      "rawArtists": [
+        "PPR"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 29,
+      "rawTitle": "氛围灯",
+      "rawArtists": [
+        "王一珩OneSD",
+        "Max李玄"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 30,
+      "rawTitle": "HOLDOUMEN",
+      "rawArtists": [
+        "何浩楠"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 31,
+      "rawTitle": "Lumière éteinte (月光散落)",
+      "rawArtists": [
+        "溯"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-douyin-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 32,
+      "rawTitle": "My Love",
+      "rawArtists": [
+        "DJ阿智"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-52144.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

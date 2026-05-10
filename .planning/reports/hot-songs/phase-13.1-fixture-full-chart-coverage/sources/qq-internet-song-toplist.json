@@ -1,0 +1,1408 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:19.426Z",
+  "sourceId": "qq-internet-song-toplist",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 2,
+      "rawTitle": "小幸运",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 3,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 4,
+      "rawTitle": "后来 Fixture 2",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 5,
+      "rawTitle": "小幸运 Fixture 2",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 6,
+      "rawTitle": "Run Wild（向风而野） Fixture 2",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 7,
+      "rawTitle": "后来 Fixture 3",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 8,
+      "rawTitle": "小幸运 Fixture 3",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 9,
+      "rawTitle": "Run Wild（向风而野） Fixture 3",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 10,
+      "rawTitle": "后来 Fixture 4",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 11,
+      "rawTitle": "小幸运 Fixture 4",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 12,
+      "rawTitle": "Run Wild（向风而野） Fixture 4",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 13,
+      "rawTitle": "后来 Fixture 5",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 14,
+      "rawTitle": "小幸运 Fixture 5",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 15,
+      "rawTitle": "Run Wild（向风而野） Fixture 5",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 16,
+      "rawTitle": "后来 Fixture 6",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 17,
+      "rawTitle": "小幸运 Fixture 6",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 18,
+      "rawTitle": "Run Wild（向风而野） Fixture 6",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 19,
+      "rawTitle": "后来 Fixture 7",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 20,
+      "rawTitle": "小幸运 Fixture 7",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 21,
+      "rawTitle": "Run Wild（向风而野） Fixture 7",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 22,
+      "rawTitle": "后来 Fixture 8",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 23,
+      "rawTitle": "小幸运 Fixture 8",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 24,
+      "rawTitle": "Run Wild（向风而野） Fixture 8",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 25,
+      "rawTitle": "后来 Fixture 9",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 26,
+      "rawTitle": "小幸运 Fixture 9",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 27,
+      "rawTitle": "Run Wild（向风而野） Fixture 9",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 28,
+      "rawTitle": "后来 Fixture 10",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 29,
+      "rawTitle": "小幸运 Fixture 10",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 30,
+      "rawTitle": "Run Wild（向风而野） Fixture 10",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 31,
+      "rawTitle": "后来 Fixture 11",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 32,
+      "rawTitle": "小幸运 Fixture 11",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 33,
+      "rawTitle": "Run Wild（向风而野） Fixture 11",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 34,
+      "rawTitle": "后来 Fixture 12",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 35,
+      "rawTitle": "小幸运 Fixture 12",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 36,
+      "rawTitle": "Run Wild（向风而野） Fixture 12",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 37,
+      "rawTitle": "后来 Fixture 13",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 38,
+      "rawTitle": "小幸运 Fixture 13",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 39,
+      "rawTitle": "Run Wild（向风而野） Fixture 13",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 40,
+      "rawTitle": "后来 Fixture 14",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 41,
+      "rawTitle": "小幸运 Fixture 14",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 42,
+      "rawTitle": "Run Wild（向风而野） Fixture 14",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 43,
+      "rawTitle": "后来 Fixture 15",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 44,
+      "rawTitle": "小幸运 Fixture 15",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 45,
+      "rawTitle": "Run Wild（向风而野） Fixture 15",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 46,
+      "rawTitle": "后来 Fixture 16",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 47,
+      "rawTitle": "小幸运 Fixture 16",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 48,
+      "rawTitle": "Run Wild（向风而野） Fixture 16",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 49,
+      "rawTitle": "后来 Fixture 17",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 50,
+      "rawTitle": "小幸运 Fixture 17",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 51,
+      "rawTitle": "Run Wild（向风而野） Fixture 17",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 52,
+      "rawTitle": "后来 Fixture 18",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 53,
+      "rawTitle": "小幸运 Fixture 18",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 54,
+      "rawTitle": "Run Wild（向风而野） Fixture 18",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 55,
+      "rawTitle": "后来 Fixture 19",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 56,
+      "rawTitle": "小幸运 Fixture 19",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 57,
+      "rawTitle": "Run Wild（向风而野） Fixture 19",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 58,
+      "rawTitle": "后来 Fixture 20",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 59,
+      "rawTitle": "小幸运 Fixture 20",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 60,
+      "rawTitle": "Run Wild（向风而野） Fixture 20",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 61,
+      "rawTitle": "后来 Fixture 21",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 62,
+      "rawTitle": "小幸运 Fixture 21",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 63,
+      "rawTitle": "Run Wild（向风而野） Fixture 21",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 64,
+      "rawTitle": "后来 Fixture 22",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 65,
+      "rawTitle": "小幸运 Fixture 22",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 66,
+      "rawTitle": "Run Wild（向风而野） Fixture 22",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 67,
+      "rawTitle": "后来 Fixture 23",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 68,
+      "rawTitle": "小幸运 Fixture 23",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 69,
+      "rawTitle": "Run Wild（向风而野） Fixture 23",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 70,
+      "rawTitle": "后来 Fixture 24",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 71,
+      "rawTitle": "小幸运 Fixture 24",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 72,
+      "rawTitle": "Run Wild（向风而野） Fixture 24",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 73,
+      "rawTitle": "后来 Fixture 25",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 74,
+      "rawTitle": "小幸运 Fixture 25",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 75,
+      "rawTitle": "Run Wild（向风而野） Fixture 25",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 76,
+      "rawTitle": "后来 Fixture 26",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 77,
+      "rawTitle": "小幸运 Fixture 26",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 78,
+      "rawTitle": "Run Wild（向风而野） Fixture 26",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 79,
+      "rawTitle": "后来 Fixture 27",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 80,
+      "rawTitle": "小幸运 Fixture 27",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 81,
+      "rawTitle": "Run Wild（向风而野） Fixture 27",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 82,
+      "rawTitle": "后来 Fixture 28",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 83,
+      "rawTitle": "小幸运 Fixture 28",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 84,
+      "rawTitle": "Run Wild（向风而野） Fixture 28",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 85,
+      "rawTitle": "后来 Fixture 29",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 86,
+      "rawTitle": "小幸运 Fixture 29",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 87,
+      "rawTitle": "Run Wild（向风而野） Fixture 29",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 88,
+      "rawTitle": "后来 Fixture 30",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 89,
+      "rawTitle": "小幸运 Fixture 30",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 90,
+      "rawTitle": "Run Wild（向风而野） Fixture 30",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 91,
+      "rawTitle": "后来 Fixture 31",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 92,
+      "rawTitle": "小幸运 Fixture 31",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 93,
+      "rawTitle": "Run Wild（向风而野） Fixture 31",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 94,
+      "rawTitle": "后来 Fixture 32",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 95,
+      "rawTitle": "小幸运 Fixture 32",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 96,
+      "rawTitle": "Run Wild（向风而野） Fixture 32",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 97,
+      "rawTitle": "后来 Fixture 33",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 98,
+      "rawTitle": "小幸运 Fixture 33",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 99,
+      "rawTitle": "Run Wild（向风而野） Fixture 33",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-internet-song-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 100,
+      "rawTitle": "后来 Fixture 34",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/28",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    }
+  ]
+}

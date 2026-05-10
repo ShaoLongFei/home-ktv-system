@@ -1,0 +1,1425 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "kugou-mainland",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 1,
+      "rawTitle": "JUMP",
+      "rawArtists": [
+        "刘宇宁",
+        "J Balvin"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 2,
+      "rawTitle": "主角",
+      "rawArtists": [
+        "王菲"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 3,
+      "rawTitle": "Someone to Love",
+      "rawArtists": [
+        "严浩翔"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 4,
+      "rawTitle": "Run Wild (向风而野)",
+      "rawArtists": [
+        "是晚星呀"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 5,
+      "rawTitle": "俩俩相忘 (烟嗓版)",
+      "rawArtists": [
+        "半吨兄弟",
+        "老A豆"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 6,
+      "rawTitle": "星昼",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 7,
+      "rawTitle": "逝去的爱",
+      "rawArtists": [
+        "李安"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 8,
+      "rawTitle": "渡尘寰",
+      "rawArtists": [
+        "胡夏"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 9,
+      "rawTitle": "Honey (福音R&B)",
+      "rawArtists": [
+        "齐德隆"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 10,
+      "rawTitle": "红颜旧 (R&B版)",
+      "rawArtists": [
+        "抒恒"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 11,
+      "rawTitle": "苏格拉·别提",
+      "rawArtists": [
+        "王赫野"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 12,
+      "rawTitle": "停顿的钟",
+      "rawArtists": [
+        "彦祖黄"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 13,
+      "rawTitle": "Pretty Much (半夏心动)",
+      "rawArtists": [
+        "是晚星呀"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 14,
+      "rawTitle": "我爱的是爱我的你",
+      "rawArtists": [
+        "纯手动洗衣机"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 15,
+      "rawTitle": "若不是因为你 (R&B男版)",
+      "rawArtists": [
+        "TommyZ音乐工厂"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 16,
+      "rawTitle": "绿色 (Live)",
+      "rawArtists": [
+        "刘雨昕",
+        "姚晓棠"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 17,
+      "rawTitle": "遗憾",
+      "rawArtists": [
+        "孙怡"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 18,
+      "rawTitle": "热恋星球",
+      "rawArtists": [
+        "音格概念",
+        "苏效音"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 19,
+      "rawTitle": "放不下你爱了又没结果 (对唱版)",
+      "rawArtists": [
+        "田园",
+        "刘书云"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 20,
+      "rawTitle": "The Light Within (内在之光)",
+      "rawArtists": [
+        "司司"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 21,
+      "rawTitle": "凌晨三点的人 (我是那个伤心难过的人)",
+      "rawArtists": [
+        "会飞的梦儿",
+        "YG星月"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 22,
+      "rawTitle": "和解",
+      "rawArtists": [
+        "小V"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 23,
+      "rawTitle": "人生路漫漫",
+      "rawArtists": [
+        "岳云鹏"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 24,
+      "rawTitle": "等你的季节 (吉时已到)",
+      "rawArtists": [
+        "小鱼会唱歌"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 25,
+      "rawTitle": "风吹散心头的思念",
+      "rawArtists": [
+        "烟嗓哥"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 26,
+      "rawTitle": "You Are Enough Today (今天的你很棒了)",
+      "rawArtists": [
+        "Umiii"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 27,
+      "rawTitle": "在凌晨看海 (女声哼唱版)",
+      "rawArtists": [
+        "Tz安竹",
+        "前任"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 28,
+      "rawTitle": "我正年少 (蒙古战歌)",
+      "rawArtists": [
+        "庄众",
+        "谭格维雅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 29,
+      "rawTitle": "我是不是该安静的走开 (R&B版)",
+      "rawArtists": [
+        "谈笑间"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 30,
+      "rawTitle": "不渡",
+      "rawArtists": [
+        "桑耶"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 31,
+      "rawTitle": "信仰之光，耀我中华",
+      "rawArtists": [
+        "官琼龙"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 32,
+      "rawTitle": "说谎的爱人",
+      "rawArtists": [
+        "晴婉"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 33,
+      "rawTitle": "末班车 (萨克斯R&B)",
+      "rawArtists": [
+        "吉时享Yue"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 34,
+      "rawTitle": "Faded Love (逝去的爱情)",
+      "rawArtists": [
+        "GFY1994",
+        "越心"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 35,
+      "rawTitle": "谁 (男女扎心合唱)",
+      "rawArtists": [
+        "梨子芥菜",
+        "戚悦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 36,
+      "rawTitle": "再没有一个家",
+      "rawArtists": [
+        "花姐"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 37,
+      "rawTitle": "当初的爱情匆匆走过 (dj funk太浪版)",
+      "rawArtists": [
+        "王太浪"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 38,
+      "rawTitle": "在凌晨看海",
+      "rawArtists": [
+        "前任"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 39,
+      "rawTitle": "哭砂 (R&B版)",
+      "rawArtists": [
+        "吉时享Yue"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 40,
+      "rawTitle": "Lone Bass Flow",
+      "rawArtists": [
+        "小丸子"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 41,
+      "rawTitle": "My Fondest",
+      "rawArtists": [
+        "郝熠然"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 42,
+      "rawTitle": "九百九十九朵玫瑰 (r&b)",
+      "rawArtists": [
+        "落日微醺"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 43,
+      "rawTitle": "叮咚 (烟嗓r&b)",
+      "rawArtists": [
+        "夜的第六章"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 44,
+      "rawTitle": "彩虹的微笑 (福音R&B)",
+      "rawArtists": [
+        "齐德隆"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 45,
+      "rawTitle": "天行九歌",
+      "rawArtists": [
+        "霍尊"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 46,
+      "rawTitle": "花鸦",
+      "rawArtists": [
+        "雾屿霓虹"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 47,
+      "rawTitle": "叮咚 (福音R&B)",
+      "rawArtists": [
+        "齐德隆"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 48,
+      "rawTitle": "所谓有求而不得人心欲壑 (吉他降调版)",
+      "rawArtists": [
+        "一颗香菜"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 49,
+      "rawTitle": "愚爱 (爱情它是种什么东西)",
+      "rawArtists": [
+        "励明"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 50,
+      "rawTitle": "Back To Me (回到我身边)",
+      "rawArtists": [
+        "Zoe (佐伊)"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 51,
+      "rawTitle": "几番风雨 (港风女声版)",
+      "rawArtists": [
+        "嘉欣"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 52,
+      "rawTitle": "怎么才算忘记",
+      "rawArtists": [
+        "施颖婕"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 53,
+      "rawTitle": "日落归山海",
+      "rawArtists": [
+        "Yang.Lc"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 54,
+      "rawTitle": "Bumola",
+      "rawArtists": [
+        "郎杰"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 55,
+      "rawTitle": "我和我",
+      "rawArtists": [
+        "小V"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 56,
+      "rawTitle": "FALL FOR U",
+      "rawArtists": [
+        "Agera"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 57,
+      "rawTitle": "你像风一样出现",
+      "rawArtists": [
+        "冯提莫"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 58,
+      "rawTitle": "Just Fine (一切安好)",
+      "rawArtists": [
+        "司司"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 59,
+      "rawTitle": "孤独Person (你对我的了解 无声的告别)",
+      "rawArtists": [
+        "Herme4",
+        "WhyAce",
+        "Zy"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 60,
+      "rawTitle": "路漫漫 情依依",
+      "rawArtists": [
+        "晚妹儿"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 61,
+      "rawTitle": "纷纷",
+      "rawArtists": [
+        "黄晞然"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 62,
+      "rawTitle": "风把秘密吹进星河",
+      "rawArtists": [
+        "苏回声"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 63,
+      "rawTitle": "夜夜夜夜 (你也不必牵强再说爱我)",
+      "rawArtists": [
+        "轻烟大叔"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 64,
+      "rawTitle": "最后的人 (对唱版)",
+      "rawArtists": [
+        "橘子妹",
+        "轻烟大叔"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 65,
+      "rawTitle": "相思风雨中 (港风女声版)",
+      "rawArtists": [
+        "嘉欣"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 66,
+      "rawTitle": "孤单北半球 (Live)",
+      "rawArtists": [
+        "王赫野",
+        "张星特"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 67,
+      "rawTitle": "我说我爱你 (烟嗓女声版)",
+      "rawArtists": [
+        "扫兴大师"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 68,
+      "rawTitle": "再见那年夏天",
+      "rawArtists": [
+        "Yang.Lc"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 69,
+      "rawTitle": "Please love yourself (请好好爱自己)",
+      "rawArtists": [
+        "Lia (莉亚)"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 70,
+      "rawTitle": "荒漠中的草",
+      "rawArtists": [
+        "贰婶子"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 71,
+      "rawTitle": "光阴的故事 (R&B版)",
+      "rawArtists": [
+        "摩卡mzd"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 72,
+      "rawTitle": "情感的禁区 (港风女声版)",
+      "rawArtists": [
+        "嘉欣"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 73,
+      "rawTitle": "I'm Just Your Type (命中偏爱)",
+      "rawArtists": [
+        "sienna Miller（希娜）"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 74,
+      "rawTitle": "紫荆花盛开",
+      "rawArtists": [
+        "洛诗诗",
+        "林希泽"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 75,
+      "rawTitle": "我向春风许下了愿",
+      "rawArtists": [
+        "烟嗓兄弟"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 76,
+      "rawTitle": "刺",
+      "rawArtists": [
+        "时代少年团"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 77,
+      "rawTitle": "拿什么记念这耗尽真心的几年",
+      "rawArtists": [
+        "邵金刚"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 78,
+      "rawTitle": "三千红尘",
+      "rawArtists": [
+        "火锅司令"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 79,
+      "rawTitle": "当初的爱情匆匆走过",
+      "rawArtists": [
+        "吕口口"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 80,
+      "rawTitle": "Moon over Jiangnan",
+      "rawArtists": [
+        "Yang.Lc"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 81,
+      "rawTitle": "夜色流转 (Slow the spinning night)",
+      "rawArtists": [
+        "不是玉芬"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 82,
+      "rawTitle": "听风的歌 (港风女声版)",
+      "rawArtists": [
+        "嘉欣"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 83,
+      "rawTitle": "入了心的人怎么放手",
+      "rawArtists": [
+        "烟嗓超哥"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 84,
+      "rawTitle": "童年 (雷鬼版)",
+      "rawArtists": [
+        "白兰的"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 85,
+      "rawTitle": "遗憾 (r&b版)",
+      "rawArtists": [
+        "赵乃吉"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 86,
+      "rawTitle": "红颜旧 (不忍却又别离)",
+      "rawArtists": [
+        "发呆想你时"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 87,
+      "rawTitle": "淋雨的人",
+      "rawArtists": [
+        "阿图表妹"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 88,
+      "rawTitle": "问情",
+      "rawArtists": [
+        "烬歌"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 89,
+      "rawTitle": "Turn The Light Off (PHONK超燃)",
+      "rawArtists": [
+        "Fanni",
+        "Katlxs"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 90,
+      "rawTitle": "三分清醒七分难过",
+      "rawArtists": [
+        "半个叔"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 91,
+      "rawTitle": "梦里梦外都是你 (治愈版)",
+      "rawArtists": [
+        "不吃全虾堡"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 92,
+      "rawTitle": "一眼万年 (r&b)",
+      "rawArtists": [
+        "落日微醺"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 93,
+      "rawTitle": "华夏始源",
+      "rawArtists": [
+        "官琼龙"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 94,
+      "rawTitle": "随缘 (港风女版)",
+      "rawArtists": [
+        "嘉欣"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 95,
+      "rawTitle": "你像风一样出现 (逆着风)",
+      "rawArtists": [
+        "玉芬"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 96,
+      "rawTitle": "平凡的日子借一点光",
+      "rawArtists": [
+        "刘宇宁"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 97,
+      "rawTitle": "宽容 (R&B想要找个避风的港湾)",
+      "rawArtists": [
+        "阿卷"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 98,
+      "rawTitle": "雨蝶",
+      "rawArtists": [
+        "烬歌"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 99,
+      "rawTitle": "删了她",
+      "rawArtists": [
+        "陈默默"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-mainland",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 100,
+      "rawTitle": "Spring Thing (春雨你)",
+      "rawArtists": [
+        "Kiriko",
+        "DJ缪斯"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-31308.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

@@ -51,6 +51,7 @@ Completed phases:
 
 - [x] **Phase 12: Source Contracts and Fetch Harness** - Load configured public/manual sources, classify them, and report source health for a single run.
 - [x] **Phase 13: Normalization and Dedupe** - Preserve source evidence while producing stable, conservative candidate identities.
+- [x] **Phase 13.1: Full Chart Coverage Correction** - Replace toy chart samples with requested per-chart sources, target/min row health, and per-source artifacts.
 - [ ] **Phase 14: Scoring, Exports, and CLI Verification** - Rank candidates deterministically and write review artifacts without mutating the KTV system.
 
 ## Phase Details
@@ -90,6 +91,21 @@ Plans:
 - [x] 13-02: Build conservative candidate grouping and stable identities
 - [x] 13-03: Wire normalization CLI and fixture candidate snapshot
 
+### Phase 13.1: Full Chart Coverage Correction
+**Goal**: User can collect the requested chart sources independently instead of relying on toy samples, with visible target/minimum row health and per-source files.
+**Depends on**: Phase 13
+**Requirements**: SRC-06
+**Success Criteria** (what must be TRUE):
+  1. The source manifest contains the requested 8 Kugou, 11 QQ/Tencent, and 3 NetEase logical chart sources.
+  2. Each requested chart has `targetRows=500` and `minRows=400`.
+  3. Runs write aggregate `source-rows.json`, aggregate `source-report.json`, and `sources/<sourceId>.json` for every configured source.
+  4. Kugou TOP500 reaches 500 rows in live collection.
+  5. Sources below 400 rows are marked `platform_cap` when a public cap is known, otherwise `failed_below_min_rows`.
+**Plans**: 1 plan
+
+Plans:
+- [x] 13.1-01: Add full chart coverage, per-source artifacts, and live verification
+
 ### Phase 14: Scoring, Exports, and CLI Verification
 **Goal**: User can run the single-run generator live or offline and receive deterministic ranked artifacts without changing the KTV runtime, catalog, or storage state.
 **Depends on**: Phase 13
@@ -111,6 +127,7 @@ Plans:
 | SRC-03 | Phase 12 |
 | SRC-04 | Phase 12 |
 | SRC-05 | Phase 12 |
+| SRC-06 | Phase 13.1 |
 | NORM-01 | Phase 13 |
 | NORM-02 | Phase 13 |
 | NORM-03 | Phase 13 |
@@ -125,7 +142,7 @@ Plans:
 | OUT-04 | Phase 14 |
 | OUT-05 | Phase 14 |
 
-Coverage: 18/18 v1.2 requirements mapped exactly once.
+Coverage: 19/19 v1.2 requirements mapped exactly once.
 
 ## Progress
 
@@ -133,4 +150,5 @@ Coverage: 18/18 v1.2 requirements mapped exactly once.
 |-------|-----------|----------------|--------|-----------|
 | 12. Source Contracts and Fetch Harness | v1.2 | 5/5 | Complete | 2026-05-10 |
 | 13. Normalization and Dedupe | v1.2 | 3/3 | Complete | 2026-05-10 |
+| 13.1. Full Chart Coverage Correction | v1.2 | 1/1 | Complete | 2026-05-11 |
 | 14. Scoring, Exports, and CLI Verification | v1.2 | 0/TBD | Ready to plan | - |

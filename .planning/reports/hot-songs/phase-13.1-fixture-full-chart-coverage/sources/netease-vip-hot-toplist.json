@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:19.426Z",
+  "sourceId": "netease-vip-hot-toplist",
+  "rowCount": 10,
+  "rows": [
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 2,
+      "rawTitle": "晴天",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 3,
+      "rawTitle": "小幸运",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 4,
+      "rawTitle": "后来 Fixture 2",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 5,
+      "rawTitle": "晴天 Fixture 2",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 6,
+      "rawTitle": "小幸运 Fixture 2",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 7,
+      "rawTitle": "后来 Fixture 3",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 8,
+      "rawTitle": "晴天 Fixture 3",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 9,
+      "rawTitle": "小幸运 Fixture 3",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 10,
+      "rawTitle": "后来 Fixture 4",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "tencent-music-yobang",
+  "rowCount": 10,
+  "rows": [
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "星昼",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 2,
+      "rawTitle": "Someone to Love",
+      "rawArtists": [
+        "严浩翔"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 3,
+      "rawTitle": "无人乐园",
+      "rawArtists": [
+        "王俊凯"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 4,
+      "rawTitle": "JUMP",
+      "rawArtists": [
+        "刘宇宁",
+        "J Balvin"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 5,
+      "rawTitle": "魁",
+      "rawArtists": [
+        "Ghost (王琳凯)"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 6,
+      "rawTitle": "不渝",
+      "rawArtists": [
+        "梓渝"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 7,
+      "rawTitle": "平凡的日子借一点光",
+      "rawArtists": [
+        "刘宇宁"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 8,
+      "rawTitle": "回家时 给她带一束花",
+      "rawArtists": [
+        "TF_ING邓佳鑫"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 9,
+      "rawTitle": "情深深雨濛濛",
+      "rawArtists": [
+        "梓渝"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "tencent-music-yobang",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 10,
+      "rawTitle": "人造神",
+      "rawArtists": [
+        "丁程鑫"
+      ],
+      "sourceUrl": "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+      "sourcePublishedAt": "2026-05-04",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}
