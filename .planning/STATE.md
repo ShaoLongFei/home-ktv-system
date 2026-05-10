@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 热门歌曲候选名单
-status: phase_12_complete
-stopped_at: phase_12_complete_ready_to_plan_phase_13
-last_updated: "2026-05-10T14:27:00+08:00"
+status: ready_to_execute
+stopped_at: phase_13_planned_ready_to_execute
+last_updated: "2026-05-10T14:35:07+08:00"
 last_activity: 2026-05-10
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 5
+  total_plans: 8
   completed_plans: 5
   percent: 33
 ---
@@ -27,9 +27,9 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 Milestone: v1.2 热门歌曲候选名单
 Phase: 13 of 14 (Normalization and Dedupe)
-Plan: Phase 13 ready to plan
-Status: Phase 12 complete; ready to plan Phase 13
-Last activity: 2026-05-10 -- Phase 12 executed and verified with 5/5 plans complete
+Plan: 13-01 ready to execute
+Status: Phase 13 planned and ready to execute
+Last activity: 2026-05-10 -- Phase 13 planned with 3 execution plans
 
 Progress: [███░░░░░░░] 33%
 
@@ -48,7 +48,8 @@ Progress: [███░░░░░░░] 33%
 | v1.0 Phases 1-5 | 25 | archived | archived |
 | v1.1 Phases 6-11 | 12 | archived | archived |
 | v1.2 Phase 12 | 5/5 | completed | see plan summaries |
-| v1.2 Phases 13-14 | 0/TBD | pending | pending |
+| v1.2 Phase 13 | 0/3 | pending | pending |
+| v1.2 Phase 14 | 0/TBD | pending | pending |
 
 **Recent Trend:**
 
@@ -70,6 +71,7 @@ Recent decisions affecting current work:
 - [Milestone v1.2]: Outputs are review artifacts: Markdown, CSV, and JSON snapshot files.
 - [Phase 12]: Source collection planning is split into five execution plans: package/contracts, manifest/manual snapshots, runner/health CLI, QQ K歌 adapter, and Kugou/NetEase fixture support.
 - [Phase 12]: Source collection is now executable via `pnpm hot-songs:sources`, supports fixture mode, and writes source health plus raw source rows for KTV-first/support sources.
+- [Phase 13]: Normalization planning is split into three execution plans: candidate contracts/text variants, conservative dedupe/stable identities, and normalization CLI fixture snapshot.
 
 ### Pending Todos
 
@@ -81,6 +83,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-10T14:27:00+08:00
-Stopped at: Phase 12 complete and verified; next action is `$gsd-plan-phase 13`
+Last session: 2026-05-10T14:35:07+08:00
+Stopped at: Phase 13 planned and verified; next action is `$gsd-execute-phase 13`
 Resume file: None

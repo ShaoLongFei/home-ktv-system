@@ -83,7 +83,12 @@ Plans:
   2. Same-song rows from multiple sources merge by normalized title and artist identity, while same-title different-artist songs remain separate.
   3. Variant markers such as Live, DJ, Remix, 伴奏, 翻唱, 片段, 女声版, 男声版, and similar descriptors surface as warnings or penalties instead of being silently discarded.
   4. The generator produces stable candidate IDs and canonical song keys suitable for future weekly comparison or OpenList matching without implementing those workflows.
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 13-01: Add candidate contracts, normalization, and variant detection
+- [ ] 13-02: Build conservative candidate grouping and stable identities
+- [ ] 13-03: Wire normalization CLI and fixture candidate snapshot
 
 ### Phase 14: Scoring, Exports, and CLI Verification
 **Goal**: User can run the single-run generator live or offline and receive deterministic ranked artifacts without changing the KTV runtime, catalog, or storage state.
@@ -127,5 +132,5 @@ Coverage: 18/18 v1.2 requirements mapped exactly once.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 12. Source Contracts and Fetch Harness | v1.2 | 5/5 | Complete | 2026-05-10 |
-| 13. Normalization and Dedupe | v1.2 | 0/TBD | Not started | - |
+| 13. Normalization and Dedupe | v1.2 | 0/3 | Ready to execute | - |
 | 14. Scoring, Exports, and CLI Verification | v1.2 | 0/TBD | Not started | - |
