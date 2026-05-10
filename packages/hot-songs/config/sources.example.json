@@ -26,6 +26,42 @@
       "expectedMinRows": 3,
       "staleAfterDays": 45,
       "usableWhenStale": true
+    },
+    {
+      "id": "qq-hot-toplist",
+      "name": "QQ Music 热歌榜",
+      "provider": "qq_music",
+      "sourceType": "support",
+      "sourceKind": "public_chart",
+      "adapter": "qq_toplist",
+      "weight": 45,
+      "url": "https://y.qq.com/n/ryqq/toplist/26",
+      "expectedMinRows": 3,
+      "staleAfterDays": 14
+    },
+    {
+      "id": "kugou-rank-home",
+      "name": "Kugou 排行榜",
+      "provider": "kugou",
+      "sourceType": "support",
+      "sourceKind": "public_chart",
+      "adapter": "kugou_rank_html",
+      "weight": 40,
+      "url": "https://www.kugou.com/yy/rank/home",
+      "expectedMinRows": 3,
+      "staleAfterDays": 14
+    },
+    {
+      "id": "netease-toplist",
+      "name": "NetEase 云音乐榜单",
+      "provider": "netease",
+      "sourceType": "support",
+      "sourceKind": "public_chart",
+      "adapter": "netease_toplist_html",
+      "weight": 35,
+      "url": "https://music.163.com/discover/toplist",
+      "expectedMinRows": 3,
+      "staleAfterDays": 14
     }
   ]
 }

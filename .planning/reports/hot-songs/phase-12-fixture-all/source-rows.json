@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "hot-songs.source-rows.v1",
+  "generatedAt": "2026-05-10T06:24:01.321Z",
+  "rows": [
+    {
+      "sourceId": "qq-kge-toplist",
+      "sourceType": "ktv_first",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-kge-toplist",
+      "sourceType": "ktv_first",
+      "provider": "qq_music",
+      "rank": 2,
+      "rawTitle": "小幸运",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-kge-toplist",
+      "sourceType": "ktv_first",
+      "provider": "qq_music",
+      "rank": 3,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "cavca-golden-mic-manual",
+      "sourceType": "ktv_first",
+      "provider": "cavca",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.cavca.org/news/49",
+      "sourcePublishedAt": "2026-05-01",
+      "collectedAt": "2026-05-10T00:00:00.000Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "cavca-golden-mic-manual",
+      "sourceType": "ktv_first",
+      "provider": "cavca",
+      "rank": 2,
+      "rawTitle": "同手同脚 (Live)",
+      "rawArtists": [
+        "温岚"
+      ],
+      "sourceUrl": "https://www.cavca.org/news/49",
+      "sourcePublishedAt": "2026-05-01",
+      "collectedAt": "2026-05-10T00:00:00.000Z",
+      "warnings": [
+        "Manual snapshot preserves Live variant descriptor"
+      ]
+    },
+    {
+      "sourceId": "cavca-golden-mic-manual",
+      "sourceType": "ktv_first",
+      "provider": "cavca",
+      "rank": 3,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.cavca.org/news/49",
+      "sourcePublishedAt": "2026-05-01",
+      "collectedAt": "2026-05-10T00:00:00.000Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-hot-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-hot-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 2,
+      "rawTitle": "小幸运",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-hot-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 3,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-rank-home",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-rank-home",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 2,
+      "rawTitle": "十年",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-rank-home",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 3,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 2,
+      "rawTitle": "晴天",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 3,
+      "rawTitle": "小幸运",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "warnings": []
+    }
+  ]
+}

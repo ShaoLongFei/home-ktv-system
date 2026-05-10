@@ -1,12 +1,13 @@
-import { readFile } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { parseKugouRankHtmlRows } from "../adapters/kugou-rank-html.js";
 import { parseNeteaseToplistHtmlRows } from "../adapters/netease-toplist-html.js";
 import { parseQqToplistRows } from "../adapters/qq-toplist.js";
+import { runCollectSourcesCli } from "../cli.js";
 import { SourceDefinitionSchema } from "../contracts.js";
 
 const repoRoot = resolve(
@@ -89,6 +90,68 @@ describe("parseQqToplistRows", () => {
     expect(() =>
       parseQqToplistRows(qqKgeSource, "<html></html>", "2026-05-10T00:00:00.000Z")
     ).toThrow("QQ toplist data not found");
+  });
+});
+
+describe("fixture mode source collection", () => {
+  it("collects all configured KTV-first and support sources offline", async () => {
+    const outDir = `.planning/reports/hot-songs/adapters-fixture-${process.pid}-${Date.now()}`;
+    const absoluteOutDir = resolve(repoRoot, outDir);
+    const originalInitCwd = process.env.INIT_CWD;
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    process.env.INIT_CWD = repoRoot;
+
+    try {
+      const exitCode = await runCollectSourcesCli([
+        "--fixture",
+        "--timeout-ms",
+        "1",
+        "--manifest",
+        "packages/hot-songs/config/sources.example.json",
+        "--out",
+        outDir
+      ]);
+
+      expect(exitCode).toBe(0);
+      expect(logSpy).toHaveBeenCalledWith(
+        "Source collection complete: 15 rows from 5 usable sources"
+      );
+      expect(errorSpy).not.toHaveBeenCalled();
+
+      const report = JSON.parse(
+        await readFile(resolve(absoluteOutDir, "source-report.json"), "utf8")
+      ) as {
+        sources: Array<{ sourceId: string; status: string }>;
+      };
+
+      for (const sourceId of [
+        "qq-kge-toplist",
+        "cavca-golden-mic-manual",
+        "qq-hot-toplist",
+        "kugou-rank-home",
+        "netease-toplist"
+      ]) {
+        expect(report.sources).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ sourceId, status: "succeeded" })
+          ])
+        );
+      }
+    } finally {
+      if (originalInitCwd === undefined) {
+        delete process.env.INIT_CWD;
+      } else {
+        process.env.INIT_CWD = originalInitCwd;
+      }
+
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+      await rm(absoluteOutDir, { recursive: true, force: true });
+    }
   });
 });
 

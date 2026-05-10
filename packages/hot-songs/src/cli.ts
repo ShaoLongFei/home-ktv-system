@@ -1,10 +1,21 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 
+import {
+  collectKugouRankHtmlSource,
+  parseKugouRankHtmlRows
+} from "./adapters/kugou-rank-html.js";
 import { collectManualJsonSource } from "./adapters/manual-json.js";
-import { collectQqToplistSource } from "./adapters/qq-toplist.js";
+import {
+  collectNeteaseToplistHtmlSource,
+  parseNeteaseToplistHtmlRows
+} from "./adapters/netease-toplist-html.js";
+import {
+  collectQqToplistSource,
+  parseQqToplistRows
+} from "./adapters/qq-toplist.js";
 import type { SourceRow } from "./contracts.js";
 import { loadSourceManifest, resolveRunPath, validateManifestPath } from "./manifest.js";
 import { buildSourceHealthReport, writeSourceReport } from "./report/source-health.js";
@@ -17,7 +28,7 @@ import {
 } from "./runner.js";
 
 export const HOT_SONGS_SOURCES_HELP =
-  "Usage: pnpm hot-songs:sources -- --manifest <path> --out <dir>";
+  "Usage: pnpm hot-songs:sources -- --manifest <path> --out <dir> [--fixture]";
 
 export type CollectSourcesArgs = {
   manifestPath: string | undefined;
@@ -70,7 +81,7 @@ export async function runCollectSourcesCli(argv: string[]): Promise<number> {
 
     try {
       const result = await collectSources(manifest, {
-        adapters: buildAdapters(),
+        adapters: buildAdapters({ fixture: args.fixture, runRoot }),
         sourceIds: args.sourceIds,
         runRoot,
         timeoutMs: args.timeoutMs
@@ -109,17 +120,58 @@ function validateOutDirPath(outDir: string | undefined): string {
   return outDir;
 }
 
-function buildAdapters(): CollectContext["adapters"] {
-  const notImplementedAdapter: SourceAdapter = async (source) => {
-    throw new Error(`Adapter ${source.adapter} is not implemented in this plan`);
-  };
+function buildAdapters(options: {
+  fixture: boolean;
+  runRoot: string;
+}): CollectContext["adapters"] {
+  if (options.fixture) {
+    return {
+      manual_json: collectManualJsonSource,
+      qq_toplist: async (source, context) =>
+        parseQqToplistRows(
+          source,
+          await readFixtureHtml(options.runRoot, fixtureFileForSource(source.id)),
+          context.generatedAt ?? new Date().toISOString()
+        ),
+      kugou_rank_html: async (source, context) =>
+        parseKugouRankHtmlRows(
+          source,
+          await readFixtureHtml(options.runRoot, "kugou-rank-home.fixture.html"),
+          context.generatedAt ?? new Date().toISOString()
+        ),
+      netease_toplist_html: async (source, context) =>
+        parseNeteaseToplistHtmlRows(
+          source,
+          await readFixtureHtml(options.runRoot, "netease-toplist.fixture.html"),
+          context.generatedAt ?? new Date().toISOString()
+        )
+    };
+  }
 
   return {
     manual_json: collectManualJsonSource,
     qq_toplist: collectQqToplistSource,
-    kugou_rank_html: notImplementedAdapter,
-    netease_toplist_html: notImplementedAdapter
+    kugou_rank_html: collectKugouRankHtmlSource,
+    netease_toplist_html: collectNeteaseToplistHtmlSource
   };
+}
+
+async function readFixtureHtml(
+  runRoot: string,
+  fixtureFile: string
+): Promise<string> {
+  return readFile(
+    resolveRunPath(`packages/hot-songs/fixtures/html/${fixtureFile}`, runRoot),
+    "utf8"
+  );
+}
+
+function fixtureFileForSource(sourceId: string): string {
+  if (sourceId === "qq-kge-toplist" || sourceId === "qq-hot-toplist") {
+    return "qq-kge-toplist.fixture.html";
+  }
+
+  throw new Error(`No fixture HTML configured for ${sourceId}`);
 }
 
 async function writeRunArtifacts(
