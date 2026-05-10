@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { parseKugouRankHtmlRows } from "../adapters/kugou-rank-html.js";
+import { parseNeteaseToplistHtmlRows } from "../adapters/netease-toplist-html.js";
 import { parseQqToplistRows } from "../adapters/qq-toplist.js";
 import { SourceDefinitionSchema } from "../contracts.js";
 
@@ -20,6 +22,32 @@ const qqKgeSource = SourceDefinitionSchema.parse({
   adapter: "qq_toplist",
   weight: 100,
   url: "https://y.qq.com/n/ryqq/toplist/36",
+  expectedMinRows: 3,
+  staleAfterDays: 14
+});
+
+const kugouRankSource = SourceDefinitionSchema.parse({
+  id: "kugou-rank-home",
+  name: "Kugou 排行榜",
+  provider: "kugou",
+  sourceType: "support",
+  sourceKind: "public_chart",
+  adapter: "kugou_rank_html",
+  weight: 40,
+  url: "https://www.kugou.com/yy/rank/home",
+  expectedMinRows: 3,
+  staleAfterDays: 14
+});
+
+const neteaseToplistSource = SourceDefinitionSchema.parse({
+  id: "netease-toplist",
+  name: "NetEase 云音乐榜单",
+  provider: "netease",
+  sourceType: "support",
+  sourceKind: "public_chart",
+  adapter: "netease_toplist_html",
+  weight: 35,
+  url: "https://music.163.com/discover/toplist",
   expectedMinRows: 3,
   staleAfterDays: 14
 });
@@ -61,5 +89,65 @@ describe("parseQqToplistRows", () => {
     expect(() =>
       parseQqToplistRows(qqKgeSource, "<html></html>", "2026-05-10T00:00:00.000Z")
     ).toThrow("QQ toplist data not found");
+  });
+});
+
+describe("support chart adapters", () => {
+  it("parses Kugou ranking fixture rows", async () => {
+    const html = await readFile(
+      resolve(
+        repoRoot,
+        "packages/hot-songs/fixtures/html/kugou-rank-home.fixture.html"
+      ),
+      "utf8"
+    );
+
+    const rows = parseKugouRankHtmlRows(
+      kugouRankSource,
+      html,
+      "2026-05-10T00:00:00.000Z"
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        sourceId: "kugou-rank-home",
+        sourceType: "support",
+        provider: "kugou",
+        rank: 1,
+        rawTitle: "后来",
+        rawArtists: ["刘若英"]
+      })
+    );
+    expect(rows.map((row) => row.rawTitle)).toContain("Run Wild（向风而野）");
+  });
+
+  it("parses NetEase toplist fixture rows", async () => {
+    const html = await readFile(
+      resolve(
+        repoRoot,
+        "packages/hot-songs/fixtures/html/netease-toplist.fixture.html"
+      ),
+      "utf8"
+    );
+
+    const rows = parseNeteaseToplistHtmlRows(
+      neteaseToplistSource,
+      html,
+      "2026-05-10T00:00:00.000Z"
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        sourceId: "netease-toplist",
+        sourceType: "support",
+        provider: "netease",
+        rank: 1,
+        rawTitle: "后来",
+        rawArtists: ["刘若英"]
+      })
+    );
+    expect(rows.map((row) => row.rawTitle)).toContain("小幸运");
   });
 });
