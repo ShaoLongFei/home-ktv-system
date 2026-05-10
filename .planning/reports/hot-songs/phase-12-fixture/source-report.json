@@ -1,6 +1,6 @@
 {
   "schemaVersion": "hot-songs.source-report.v1",
-  "generatedAt": "2026-05-10T06:14:37.705Z",
+  "generatedAt": "2026-05-10T06:15:32.630Z",
   "totalRows": 3,
   "usableSourceCount": 1,
   "statusCounts": {
@@ -18,8 +18,8 @@
       "warnings": [
         "source-filtered"
       ],
-      "startedAt": "2026-05-10T06:14:37.705Z",
-      "finishedAt": "2026-05-10T06:14:37.705Z"
+      "startedAt": "2026-05-10T06:15:32.630Z",
+      "finishedAt": "2026-05-10T06:15:32.630Z"
     },
     {
       "sourceId": "cavca-golden-mic-manual",
@@ -27,8 +27,8 @@
       "usable": true,
       "rowCount": 3,
       "warnings": [],
-      "startedAt": "2026-05-10T06:14:37.705Z",
-      "finishedAt": "2026-05-10T06:14:37.705Z"
+      "startedAt": "2026-05-10T06:15:32.630Z",
+      "finishedAt": "2026-05-10T06:15:32.630Z"
     }
   ]
 }
