@@ -1,6 +1,6 @@
 {
   "schemaVersion": "hot-songs.source-rows.v1",
-  "generatedAt": "2026-05-10T06:24:01.321Z",
+  "generatedAt": "2026-05-10T06:26:28.264Z",
   "rows": [
     {
       "sourceId": "qq-kge-toplist",
@@ -13,7 +13,7 @@
       ],
       "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
       "sourcePublishedAt": "2026-05-10",
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -27,7 +27,7 @@
       ],
       "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
       "sourcePublishedAt": "2026-05-10",
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -41,7 +41,7 @@
       ],
       "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
       "sourcePublishedAt": "2026-05-10",
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -99,7 +99,7 @@
       ],
       "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
       "sourcePublishedAt": "2026-05-10",
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -113,7 +113,7 @@
       ],
       "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
       "sourcePublishedAt": "2026-05-10",
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -127,7 +127,7 @@
       ],
       "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
       "sourcePublishedAt": "2026-05-10",
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -141,7 +141,7 @@
       ],
       "sourceUrl": "https://www.kugou.com/yy/rank/home",
       "sourcePublishedAt": null,
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -155,7 +155,7 @@
       ],
       "sourceUrl": "https://www.kugou.com/yy/rank/home",
       "sourcePublishedAt": null,
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -169,7 +169,7 @@
       ],
       "sourceUrl": "https://www.kugou.com/yy/rank/home",
       "sourcePublishedAt": null,
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -183,7 +183,7 @@
       ],
       "sourceUrl": "https://music.163.com/discover/toplist",
       "sourcePublishedAt": null,
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -197,7 +197,7 @@
       ],
       "sourceUrl": "https://music.163.com/discover/toplist",
       "sourcePublishedAt": null,
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     },
     {
@@ -211,7 +211,7 @@
       ],
       "sourceUrl": "https://music.163.com/discover/toplist",
       "sourcePublishedAt": null,
-      "collectedAt": "2026-05-10T06:24:01.321Z",
+      "collectedAt": "2026-05-10T06:26:28.264Z",
       "warnings": []
     }
   ]

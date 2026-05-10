@@ -49,7 +49,7 @@ Completed phases:
 
 ## Phases
 
-- [ ] **Phase 12: Source Contracts and Fetch Harness** - Load configured public/manual sources, classify them, and report source health for a single run.
+- [x] **Phase 12: Source Contracts and Fetch Harness** - Load configured public/manual sources, classify them, and report source health for a single run.
 - [ ] **Phase 13: Normalization and Dedupe** - Preserve source evidence while producing stable, conservative candidate identities.
 - [ ] **Phase 14: Scoring, Exports, and CLI Verification** - Rank candidates deterministically and write review artifacts without mutating the KTV system.
 
@@ -68,11 +68,11 @@ Completed phases:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 12-01: Add hot-songs package and source contracts
-- [ ] 12-02: Load manifests and manual CAVCA snapshots
-- [ ] 12-03: Wire runner, source health report, and manual-source CLI
-- [ ] 12-04: Add QQ Music K歌金曲榜 public adapter
-- [ ] 12-05: Add Kugou/NetEase support adapters and full fixture run
+- [x] 12-01: Add hot-songs package and source contracts
+- [x] 12-02: Load manifests and manual CAVCA snapshots
+- [x] 12-03: Wire runner, source health report, and manual-source CLI
+- [x] 12-04: Add QQ Music K歌金曲榜 public adapter
+- [x] 12-05: Add Kugou/NetEase support adapters and full fixture run
 
 ### Phase 13: Normalization and Dedupe
 **Goal**: User receives a conservative candidate identity layer that preserves source evidence, merges only same-song rows, flags noisy variants, and emits stable keys for later workflows.
@@ -126,6 +126,6 @@ Coverage: 18/18 v1.2 requirements mapped exactly once.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 12. Source Contracts and Fetch Harness | v1.2 | 0/5 | Ready to execute | - |
+| 12. Source Contracts and Fetch Harness | v1.2 | 5/5 | Complete | 2026-05-10 |
 | 13. Normalization and Dedupe | v1.2 | 0/TBD | Not started | - |
 | 14. Scoring, Exports, and CLI Verification | v1.2 | 0/TBD | Not started | - |

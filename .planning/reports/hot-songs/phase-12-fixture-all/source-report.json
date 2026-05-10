@@ -1,6 +1,6 @@
 {
   "schemaVersion": "hot-songs.source-report.v1",
-  "generatedAt": "2026-05-10T06:24:01.321Z",
+  "generatedAt": "2026-05-10T06:26:28.264Z",
   "totalRows": 15,
   "usableSourceCount": 5,
   "statusCounts": {
@@ -18,8 +18,8 @@
       "warnings": [
         "row-count-below-expected"
       ],
-      "startedAt": "2026-05-10T06:24:01.321Z",
-      "finishedAt": "2026-05-10T06:24:01.321Z"
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
     },
     {
       "sourceId": "cavca-golden-mic-manual",
@@ -27,8 +27,8 @@
       "usable": true,
       "rowCount": 3,
       "warnings": [],
-      "startedAt": "2026-05-10T06:24:01.321Z",
-      "finishedAt": "2026-05-10T06:24:01.321Z"
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
     },
     {
       "sourceId": "qq-hot-toplist",
@@ -36,8 +36,8 @@
       "usable": true,
       "rowCount": 3,
       "warnings": [],
-      "startedAt": "2026-05-10T06:24:01.321Z",
-      "finishedAt": "2026-05-10T06:24:01.321Z"
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
     },
     {
       "sourceId": "kugou-rank-home",
@@ -45,8 +45,8 @@
       "usable": true,
       "rowCount": 3,
       "warnings": [],
-      "startedAt": "2026-05-10T06:24:01.321Z",
-      "finishedAt": "2026-05-10T06:24:01.321Z"
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
     },
     {
       "sourceId": "netease-toplist",
@@ -54,8 +54,8 @@
       "usable": true,
       "rowCount": 3,
       "warnings": [],
-      "startedAt": "2026-05-10T06:24:01.321Z",
-      "finishedAt": "2026-05-10T06:24:01.321Z"
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
     }
   ]
 }

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 热门歌曲候选名单
-status: ready_to_execute
-stopped_at: phase_12_planned_ready_to_execute
-last_updated: "2026-05-10T13:34:56+08:00"
+status: phase_12_complete
+stopped_at: phase_12_complete_ready_to_plan_phase_13
+last_updated: "2026-05-10T14:27:00+08:00"
 last_activity: 2026-05-10
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 0
-  percent: 0
+  completed_plans: 5
+  percent: 33
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 ## Current Position
 
 Milestone: v1.2 热门歌曲候选名单
-Phase: 12 of 14 (Source Contracts and Fetch Harness)
-Plan: 12-01 ready to execute
-Status: Ready to execute
-Last activity: 2026-05-10 -- Phase 12 planned and verified with 5 execution plans
+Phase: 13 of 14 (Normalization and Dedupe)
+Plan: Phase 13 ready to plan
+Status: Phase 12 complete; ready to plan Phase 13
+Last activity: 2026-05-10 -- Phase 12 executed and verified with 5/5 plans complete
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 37
+- Total plans completed: 42
 - Average duration: See milestone archives
 - Total execution time: See milestone archives
 
@@ -47,7 +47,8 @@ Progress: [░░░░░░░░░░] 0%
 |-------|-------|-------|----------|
 | v1.0 Phases 1-5 | 25 | archived | archived |
 | v1.1 Phases 6-11 | 12 | archived | archived |
-| v1.2 Phases 12-14 | 0/5 | pending | pending |
+| v1.2 Phase 12 | 5/5 | completed | see plan summaries |
+| v1.2 Phases 13-14 | 0/TBD | pending | pending |
 
 **Recent Trend:**
 
@@ -68,6 +69,7 @@ Recent decisions affecting current work:
 - [Milestone v1.2]: KTV-first sources such as QQ 音乐 `K歌金曲榜` and manual CAVCA 金麦榜 rows should outrank generic streaming evidence.
 - [Milestone v1.2]: Outputs are review artifacts: Markdown, CSV, and JSON snapshot files.
 - [Phase 12]: Source collection planning is split into five execution plans: package/contracts, manifest/manual snapshots, runner/health CLI, QQ K歌 adapter, and Kugou/NetEase fixture support.
+- [Phase 12]: Source collection is now executable via `pnpm hot-songs:sources`, supports fixture mode, and writes source health plus raw source rows for KTV-first/support sources.
 
 ### Pending Todos
 
@@ -75,10 +77,10 @@ None.
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Session Continuity
 
-Last session: 2026-05-10T13:34:56+08:00
-Stopped at: Phase 12 planned and verified; next action is `$gsd-execute-phase 12`
+Last session: 2026-05-10T14:27:00+08:00
+Stopped at: Phase 12 complete and verified; next action is `$gsd-plan-phase 13`
 Resume file: None

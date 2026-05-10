@@ -7,11 +7,11 @@
 
 ### Source Ingestion
 
-- [ ] **SRC-01**: User can run one command that loads a configured source manifest for public chart/list sources and manual snapshot files.
-- [ ] **SRC-02**: User can include KTV-first sources, including QQ 音乐 `K歌金曲榜` and manual CAVCA 金麦榜 rows, before general streaming charts.
-- [ ] **SRC-03**: User can include support sources such as QQ/酷狗/网易云 public charts when available, with each source classified by source type and weight.
-- [ ] **SRC-04**: User receives a source health report that shows which sources succeeded, failed, were stale, or were skipped, including row counts and warnings.
-- [ ] **SRC-05**: The command handles partial source failures without hiding them; it fails only when no usable source remains or required configuration is invalid.
+- [x] **SRC-01**: User can run one command that loads a configured source manifest for public chart/list sources and manual snapshot files.
+- [x] **SRC-02**: User can include KTV-first sources, including QQ 音乐 `K歌金曲榜` and manual CAVCA 金麦榜 rows, before general streaming charts.
+- [x] **SRC-03**: User can include support sources such as QQ/酷狗/网易云 public charts when available, with each source classified by source type and weight.
+- [x] **SRC-04**: User receives a source health report that shows which sources succeeded, failed, were stale, or were skipped, including row counts and warnings.
+- [x] **SRC-05**: The command handles partial source failures without hiding them; it fails only when no usable source remains or required configuration is invalid.
 
 ### Normalization And Deduplication
 
@@ -72,11 +72,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SRC-01 | Phase 12 | Pending |
-| SRC-02 | Phase 12 | Pending |
-| SRC-03 | Phase 12 | Pending |
-| SRC-04 | Phase 12 | Pending |
-| SRC-05 | Phase 12 | Pending |
+| SRC-01 | Phase 12 | Complete |
+| SRC-02 | Phase 12 | Complete |
+| SRC-03 | Phase 12 | Complete |
+| SRC-04 | Phase 12 | Complete |
+| SRC-05 | Phase 12 | Complete |
 | NORM-01 | Phase 13 | Pending |
 | NORM-02 | Phase 13 | Pending |
 | NORM-03 | Phase 13 | Pending |
@@ -99,4 +99,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-05-10*
-*Last updated: 2026-05-10 after v1.2 roadmap creation*
+*Last updated: 2026-05-10 after Phase 12 completion*
