@@ -42,4 +42,19 @@ describe("parseCollectSourcesArgs", () => {
       "Usage: pnpm hot-songs:sources -- --manifest <path> --out <dir>"
     );
   });
+
+  it("accepts the pnpm script argument separator", () => {
+    const args = parseCollectSourcesArgs([
+      "--",
+      "--manifest",
+      "packages/hot-songs/config/sources.example.json",
+      "--out",
+      ".planning/reports/hot-songs/test-run"
+    ]);
+
+    expect(args.manifestPath).toBe(
+      "packages/hot-songs/config/sources.example.json"
+    );
+    expect(args.outDir).toBe(".planning/reports/hot-songs/test-run");
+  });
 });

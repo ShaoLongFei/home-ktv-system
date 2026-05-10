@@ -1,9 +1,11 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import { runCollectSourcesCli } from "../cli.js";
 import type {
   SourceDefinition,
   SourceManifest,
@@ -21,6 +23,9 @@ import {
 } from "../report/source-health.js";
 
 const generatedAt = "2026-05-10T00:00:00.000Z";
+const repoRoot = resolve(
+  fileURLToPath(new URL("../../../../", import.meta.url))
+);
 
 function source(
   overrides: Partial<SourceDefinition> & Pick<SourceDefinition, "id">
@@ -240,6 +245,70 @@ describe("collectSources", () => {
       expect(writtenReport.schemaVersion).toBe("hot-songs.source-report.v1");
     } finally {
       await rm(outDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("runCollectSourcesCli", () => {
+  it("runs root-relative manual source collection and writes artifacts", async () => {
+    const outDir = `.planning/reports/hot-songs/runner-cli-${process.pid}-${Date.now()}`;
+    const absoluteOutDir = resolve(repoRoot, outDir);
+    const originalInitCwd = process.env.INIT_CWD;
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    process.env.INIT_CWD = repoRoot;
+
+    try {
+      const exitCode = await runCollectSourcesCli([
+        "--manifest",
+        "packages/hot-songs/config/sources.example.json",
+        "--out",
+        outDir,
+        "--source",
+        "cavca-golden-mic-manual"
+      ]);
+
+      expect(exitCode).toBe(0);
+      expect(logSpy).toHaveBeenCalledWith(
+        "Source collection complete: 3 rows from 1 usable sources"
+      );
+      expect(errorSpy).not.toHaveBeenCalled();
+
+      const report = JSON.parse(
+        await readFile(join(absoluteOutDir, "source-report.json"), "utf8")
+      ) as {
+        schemaVersion: string;
+        sources: Array<{ sourceId: string; status: string }>;
+      };
+      const sourceRows = JSON.parse(
+        await readFile(join(absoluteOutDir, "source-rows.json"), "utf8")
+      ) as {
+        rows: SourceRow[];
+      };
+
+      expect(report.schemaVersion).toBe("hot-songs.source-report.v1");
+      expect(report.sources).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sourceId: "cavca-golden-mic-manual",
+            status: "succeeded"
+          })
+        ])
+      );
+      expect(sourceRows.rows).toHaveLength(3);
+    } finally {
+      if (originalInitCwd === undefined) {
+        delete process.env.INIT_CWD;
+      } else {
+        process.env.INIT_CWD = originalInitCwd;
+      }
+
+      logSpy.mockRestore();
+      errorSpy.mockRestore();
+      await rm(absoluteOutDir, { recursive: true, force: true });
     }
   });
 });
