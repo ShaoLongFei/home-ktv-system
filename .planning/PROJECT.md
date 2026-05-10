@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口，当前状态是准备定义下一个 milestone。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 将从演示歌库走向真实 MKV/MPG MV 歌库接入。
 
 Milestone archives:
 
@@ -30,9 +30,18 @@ Milestone archives:
 - `.planning/milestones/v1.1-REQUIREMENTS.md`
 - `.planning/milestones/v1.1-MILESTONE-AUDIT.md`
 
-## Next Milestone
+## Current Milestone: v1.2 真实 MV 歌库
 
-Not started. Run `$gsd-new-milestone` to define the next goal, requirements, and roadmap.
+**Goal:** 让系统能接入已有的真实 MKV/MPG MV 文件，并从文件、MediaInfo、旁边的 `song.json` 和封面图生成可审核、可播放、可切换原声/伴奏的正式歌库。
+
+**Target features:**
+
+- 单个 MKV/MPG MV 文件就是一首歌，文件旁边可放封面图和对应 `song.json`。
+- MediaInfo 优先读取标题、歌手、时长、编码、音轨等信息；缺失时用文件名和旁边 `song.json` 兜底，后台允许编辑确认。
+- 默认扫描后审核入库，同时预留可信目录或自动入库能力。
+- 保留一个 MV 文件，通过音轨索引识别并切换原声/伴奏。
+- 不在 v1.2 内强制转码；系统直接播放可播资源，不能播的文件由用户在服务端提前处理成支持格式。
+- Android TV 原生端不纳入 v1.2，只预留播放合同和媒体信息边界，作为后续 milestone 候选。
 
 ## Requirements
 
@@ -49,7 +58,11 @@ Not started. Run `$gsd-new-milestone` to define the next goal, requirements, and
 
 ### Active
 
-- None for v1.1; next active requirements should be defined when the next milestone starts.
+- [ ] 真实 MKV/MPG MV 文件可以被扫描为待审核导入候选。
+- [ ] 候选可以结合 MediaInfo、文件名、旁边 `song.json` 和封面图生成可确认的歌曲信息。
+- [ ] 后台可以审核、编辑、预览并将真实 MV 候选纳入正式歌库。
+- [ ] 正式歌库中的真实 MV 可以被搜索、点歌、播放，并通过音轨索引切换原声/伴奏。
+- [ ] 不可直接播放或媒体信息不完整的文件会被清楚标记，不阻塞其它可用歌曲入库。
 
 ### Out of Scope
 
@@ -64,11 +77,9 @@ Not started. Run `$gsd-new-milestone` to define the next goal, requirements, and
 
 项目现在是一个 TypeScript monorepo，包含 Fastify API、React Admin、React Mobile Controller、React TV Player，以及共享 domain/protocol/player-contract packages。v1.0 的主线目标已经完成：家庭单房间场景可以从本地歌库出发完成导入、搜索、扫码、点歌、播放、切换、失败恢复和在线补歌任务闭环。
 
-v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。下一轮候选方向包括：
+v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。v1.2 的重点是让真实 MV 文件进入既有“扫描 -> 审核 -> 正式歌库 -> 搜索点歌 -> TV 播放”链路。
 
-- TV 播放体验优化：首次播放用户手势引导、进度展示、播放异常提示和真实电视兼容性。
-- 产品化打磨：管理员/手机端 i18n 完整性、视觉密度、空状态和操作反馈。
-- 代码结构打磨：跨端状态流、命令调用、错误处理、组件边界和测试组织。
+用户可以提供 MKV、MPG 格式的 MV 文件。每个 MV 文件代表一首歌，文件内通常包含两条音轨，分别用于原声和伴奏。歌曲信息优先从 MediaInfo 读取；文件旁边可以放封面图和 `song.json`，用于预览、补充和修正元数据。播放兼容性不通过系统强制转码解决：系统直接播放可播资源，不能播的文件由用户在服务端提前处理成浏览器或未来 Android TV 可支持的格式。
 
 ## Constraints
 
@@ -100,10 +111,19 @@ v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分
 | 保持 app-local runtime hook，不急于抽共享状态包 | 当前跨端重复还不足以抵消 shared package 的抽象和维护成本 | Good |
 | Mobile visual check 默认走配对 URL | 临时 Chrome profile 无法依赖已有 cookie，必须用 tokenized controller URL 验证真实控制台状态 | Good |
 | Admin Import/Songs 运行时逻辑收敛到 feature-local hooks | 关闭 QUAL-01 审计缺口，同时避免引入产品行为变化 | Good |
+| v1.2 优先做真实 MV 歌库，不做 Android TV 原生端 | 先稳定媒体合同、扫描审核和播放链路，Android TV 下个版本再接入会更可控 | Pending |
 
 ## Evolution
 
-This document evolves at milestone boundaries.
+This document evolves at phase transitions and milestone boundaries.
+
+After each phase transition:
+
+1. Requirements invalidated? Move to Out of Scope with reason.
+2. Requirements validated? Move to Validated with phase reference.
+3. New requirements emerged? Add to Active.
+4. Decisions to log? Add to Key Decisions.
+5. "What This Is" still accurate? Update if drifted.
 
 After each milestone:
 
@@ -114,4 +134,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-10 after v1.1 milestone archive*
+*Last updated: 2026-05-10 after starting v1.2 milestone*

@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Polish
-status: milestone_complete
-stopped_at: v1.1 milestone archived
-last_updated: "2026-05-10T01:28:53Z"
+milestone: v1.2
+milestone_name: 真实 MV 歌库
+status: ready_to_plan
+stopped_at: v1.2 roadmap created
+last_updated: "2026-05-10T13:01:05+08:00"
 last_activity: 2026-05-10
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,47 +21,49 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Planning next milestone
+**Current focus:** Phase 12 - Contract, Schema, and Playback-Risk Spike
 
 ## Current Position
 
-Milestone: v1.1 Polish — ARCHIVED
-Phase: Not started
-Plan: Not started
-Status: v1.1 milestone complete; ready for `$gsd-new-milestone`
-Last activity: 2026-05-10 -- Archived v1.1 milestone
+Milestone: v1.2 真实 MV 歌库
+Phase: 12 of 16 (1 of 5 in v1.2) - Contract, Schema, and Playback-Risk Spike
+Plan: Not planned yet
+Status: Ready to plan
+Last activity: 2026-05-10 -- v1.2 roadmap created and requirements mapped to Phases 12-16
 
-Progress: [██████████] 100%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
-- Average duration per plan: 9.3 min
-- Total execution time: 0.5 hours
+- Total plans completed: 37
+- Average duration: See milestone archives
+- Total execution time: See milestone archives
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 06-tv-playback-experience-polish | 3 | 28 min | 9.3 min |
+| v1.0 Phases 1-5 | 25 | archived | archived |
+| v1.1 Phases 6-11 | 12 | archived | archived |
 
 **Recent Trend:**
 
-- Last 5 plans: [8 min, 11 min, 9 min]
+- Last 5 plans: See `.planning/milestones/v1.1-ROADMAP.md`
 - Trend: Stable
 
-| Phase 07 P01 | 12min | 3 tasks | 10 files |
-| Phase 10-paired-mobile-visual-verification P01 | 10m 3s | 3 tasks | 4 files |
-| Phase 11-admin-runtime-boundary-completion P02 | 4 min | 2 tasks | 3 files |
-| Phase 11-admin-runtime-boundary-completion P01 | 6m 19s | 2 tasks | 3 files |
-| Phase 11-admin-runtime-boundary-completion P03 | 4m | 2 tasks | 2 files |
+*Updated after each plan completion*
 
 ## Accumulated Context
 
 ### Decisions
 
+- [Milestone v1.2]: Real MV library work uses one MKV/MPG/MPEG file as one song, with optional sibling cover image and `song.json` metadata.
+- [Milestone v1.2]: MediaInfo is the primary metadata source; filename and sibling `song.json` fill gaps before Admin review.
+- [Milestone v1.2]: v1.2 preserves Android TV playback boundaries but does not build a native Android TV app.
+- [Milestone v1.2]: Review-first admission remains the default; auto-admit is only a reserved capability.
+- [Milestone v1.2]: Unsupported or uncertain files must be marked clearly and kept out of normal queueable user flows.
 - [Phase 06] TV display copy, first-play prompt, and fallback notice text are centralized in `tv-display-model.ts`.
 - [Phase 06] First-play autoplay block is tracked in local TV state and cleared on successful playback.
 - [Phase 06] The first-play loading banner stays suppressed so the central prompt is not duplicated.
@@ -86,10 +88,11 @@ None.
 
 ### Blockers/Concerns
 
-None yet.
+- Browser playback and audio-track switching support must be verified before exposing real MV switching as available.
+- v1.2 does not transcode or remux unsupported files; users preprocess those files outside the system.
 
 ## Session Continuity
 
-Last session: 2026-05-10T01:28:53Z
-Stopped at: v1.1 milestone archived
+Last session: 2026-05-10T13:01:05+08:00
+Stopped at: v1.2 roadmap created
 Resume file: None

@@ -1,167 +1,101 @@
 # Project Research Summary
 
 **Project:** 家庭包厢式 KTV 系统
-**Domain:** Single-room home living-room KTV system
-**Researched:** 2026-04-28
-**Confidence:** HIGH
+**Domain:** v1.2 真实 MKV/MPG MV 歌库接入
+**Researched:** 2026-05-10
+**Confidence:** Medium-high
 
 ## Executive Summary
 
-This project should be built as a local-first, single-room home KTV product whose primary job is to make the singing loop stable: join from a phone, find a song quickly, manage the queue, and keep the TV playing the right asset without drift. Research across current home karaoke products, self-hosted/open-source systems, and the project’s own architecture note all point to the same conclusion: the TV must stay playback-only, the phone must own the user interaction surface, and the server must own room/session truth.
+v1.2 should extend the existing scan -> review -> formal catalog -> search/queue -> TV playback flow. A real MKV/MPG file becomes one song candidate. Optional same-stem cover image and `song.json` enrich the candidate. MediaInfo supplies primary technical metadata, filename parsing fills gaps, and Admin review remains the default trust boundary.
 
-The recommended architecture is a modular monolith with explicit boundaries around `Session Engine`, `Catalog/Search`, `Media Pipeline`, `Asset Gateway`, and thin device clients. This structure is not about premature purity; it is the smallest shape that prevents the real failure modes in this domain: queue drift, dirty media entering the playable library, provider-specific playback bugs, and operational dead ends when imports or cache jobs fail.
+The recommended model is one physical MV file -> one formal `Song` -> two logical `Asset` rows over the same file path when original/accompaniment tracks are confirmed. Each logical asset carries `vocalMode` and explicit track information. Playback targets should gain a platform-neutral `playbackProfile` so the current web TV and future Android TV can both understand the intent.
 
-Research also reinforces the project’s existing scoping instincts. Local library management, Chinese-first search, queue operations, QR entry, TV playback reliability, and admin repair tools are core launch scope. Features often marketed as “complete karaoke” capabilities such as scoring, recording, runtime DSP, direct online playback, and multi-room support should be deferred until the baseline loop is boringly reliable.
+The hard risks are playback compatibility and track semantics. MKV/MPG extension support does not guarantee browser playback, and browser audio-track switching is not reliable enough to assume. v1.2 should mark compatibility explicitly, keep unsupported files out of search/queue, and only show switching where runtime capability is verified.
 
-## Key Findings
+## Stack Additions
 
-### Recommended Stack
+- MediaInfo probe wrapper for container, duration, codecs, and audio-track metadata.
+- Scanner support for `.mkv`, `.mpg`, and `.mpeg`.
+- Same-stem sidecar resolver for cover image and `song.json`.
+- Compatibility evaluator with explicit unsupported reasons.
+- Domain/catalog/player-contract fields for media profile, audio-track selection, provenance, cover path, and compatibility.
+- Asset gateway MIME/range handling for large real MV files.
+- Representative real-media fixtures and TV runtime smoke tests.
 
-The current best-fit stack stays close to the project’s draft technical direction, but the Phase 1 baseline should stay intentionally lean: Node.js + TypeScript across the backend and shared packages, React + Vite for TV/mobile/admin web fronts, Fastify for API and realtime ingress, PostgreSQL for durable domain state, NAS for controlled media storage, and FFmpeg/ffprobe for media validation. Redis, BullMQ, and a separate worker are optional follow-on infrastructure, not a Phase 1 prerequisite.
+## Table Stakes
 
-**Core technologies:**
-- Node.js 24.15.0 LTS: backend runtime for API and worker
-- React 19.2.5 + Vite 8.0.10: browser-first stack for TV, mobile, and admin
-- Fastify 5.8.5: HTTP/WebSocket entry point for commands, queries, pairing, and player telemetry
-- PostgreSQL 18.3: durable catalog/session/event store
-- NAS + FFmpeg/ffprobe: controlled asset storage plus probe/normalization tooling
-- Redis 8.6.2 + BullMQ 5.76.2: optional later when async jobs, pub/sub, or hot-state pressure is proven by real workload
+- Scan real MV files as reviewable candidates.
+- Preserve metadata provenance from MediaInfo, filename, sidecar, and Admin edits.
+- Show detected audio tracks and require reviewable original/accompaniment mapping.
+- Promote approved candidate into one song plus logical assets.
+- Write/validate formal `song.json` with media, cover, track, and compatibility information.
+- Search, queue, play, and switch only verified/queueable real MV assets.
+- Mark unsupported or uncertain files clearly and keep them out of normal user flows.
 
-### Expected Features
+## Architecture Approach
 
-Current market/product research and the supplied architecture note agree on the launch essentials: phone-first room entry and control, Chinese-first song discovery, authoritative queue management, stable TV playback with current/next/QR display, local-first song library management, and online supplementation only through a cache-before-play flow.
+Extend the existing architecture:
 
-**Must have (table stakes):**
-- 手机扫码入场与房间连接 — users expect to join and control the room from the phone
-- 中文优先搜索 — title, singer, pinyin, initials, aliases, and language filtering
-- 已点队列管理 — add, remove, top, skip, and clear visibility into current/next songs
-- TV 全屏播放与状态展示 — playback-only screen with join affordance and reconnect-safe rendering
-- 稳定播放与失败恢复 — preloading, reconnect recovery, and alternate-asset/next-song fallback
-- 本地歌库为主、在线补歌为辅 — online sources must resolve into managed assets before playback
+1. Scanner discovers real MV files.
+2. Sidecar resolver attaches cover and `song.json`.
+3. MediaInfo probe extracts technical facts.
+4. Candidate builder merges metadata and provenance.
+5. Admin review confirms user-facing metadata and track roles.
+6. Catalog admission writes one song plus logical assets.
+7. Search/queue selects verified assets.
+8. TV playback receives an explicit profile and track selection.
 
-**Should have (competitive but deferrable):**
-- Artist/language/hotlist shortcuts and history/favorites
-- Fair-queue or guest/admin control refinements
-- Visual atmosphere or party-mode embellishments
+## Key Risks
 
-**Defer (v2+):**
-- 评分、录音、Battle/派对玩法
-- 运行时升降调、双音轨优先方案、复杂歌词增强
-- 多房间、复杂权限或账号体系
-- 直连在线播放、软件 DSP、AI 人声处理
+- Extension is not playback proof.
+- Web TV may not expose usable audio-track switching.
+- Track index and vocal role can be confused.
+- Sidecar, filename, MediaInfo, and Admin edits can conflict.
+- Large file copy/scanning can race.
+- Android TV assumptions can leak into v1.2.
 
-### Architecture Approach
+## v1.2 Scope
 
-The architecture should separate the control loop from the media loop while keeping both anchored to one canonical domain model. `Session Engine` owns queue/playback truth, `Catalog/Search` owns discovery and dedupe, `Media Pipeline` owns ingest/cache/verification, and the TV player acts as an executor that pulls managed media and pushes telemetry.
+- MKV/MPG/MPEG discovery.
+- Optional sibling cover and `song.json`.
+- MediaInfo-first metadata and track extraction.
+- Filename and sidecar fallback metadata.
+- Review-first import.
+- One physical MV represented as logical original/accompaniment assets.
+- Direct playback only with explicit compatibility marking.
+- Web TV contract updates and capability-gated track switching.
+- Android TV contract reservation only.
 
-**Major components:**
-1. `API + Realtime Gateway` — pairing, command ingress, query endpoints, websocket fanout
-2. `Session Engine` — authoritative room state, versioned transitions, fallback decisions
-3. `Catalog/Search` — canonical `Song` model, aliases/pinyin, local-vs-online result grouping
-4. `Media Pipeline` — scans, probes, import review, and later online caching/asset verification; can begin inside the main backend and split only when needed
-5. `Asset Gateway` — controlled static playback URLs for local and cached media
-6. `TV Player` / `Mobile Controller` / `Admin UI` — thin clients with distinct responsibilities
+## Out Of Scope
 
-### Critical Pitfalls
+- Automatic transcoding/remuxing.
+- Android TV native player.
+- Auto-admit enabled by default.
+- Online provider/OpenList acquisition and downloads.
+- Hot-song charts or recommendation generation.
+- OCR, scoring, DSP, AI separation, and multi-room expansion.
 
-1. **Treating online songs as a primary playback path** — avoid by making local assets the main path and requiring cache-before-play for online additions
-2. **Skipping a canonical `Song` / `Asset` / `SourceRecord` model** — avoid by freezing the domain contract early
-3. **Allowing dirty media straight into the playable library** — avoid by separating raw import from approved catalog entry
-4. **Letting phones or the TV bypass one server-side session engine** — avoid by keeping queue/playback state versioned and authoritative on the server
-5. **Deferring admin/recovery tooling too far** — avoid by shipping minimal import, cache, device, and playback repair surfaces in the MVP roadmap
+## Roadmap Implications
 
-## Implications for Roadmap
-
-Based on research, suggested phase structure:
-
-### Phase 1: Media Contract & TV Runtime
-**Rationale:** The first hard problem is not “just scaffold the repo”, but freezing the playback contract: canonical `Song` / `Asset` / `Room` / `PlaybackSession` modeling, TV runtime truth flow, and in-song original/instrumental switching semantics that are future-safe for an Android TV shell.
-**Delivers:** Monorepo skeleton, shared domain/protocol packages, database schema baseline, asset gateway contract, TV player runtime contract, player telemetry, reconnect/conflict handling, and near-seamless switching strategy for verified asset pairs.
-**Addresses:** Canonical modeling, local-first boundaries, playback truth ownership, QR-on-TV runtime behavior, and no-runtime-DSP rule.
-**Avoids:** Rewrites caused by filename-centric modeling, playback/control drift, or treating original/instrumental switching as a later add-on.
-
-### Phase 2: Library Ingest & Catalog Admin
-**Rationale:** The local library is the formal content path; it must become trustworthy before users can rely on switching behavior.
-**Delivers:** Scan/import pipeline, metadata normalization, review-required states, song/asset maintenance surfaces, and strict original/instrumental pair admission rules.
-**Uses:** FFmpeg/ffprobe, PostgreSQL, NAS, and optional later background jobs when volume justifies them.
-**Implements:** Media pipeline, catalog write model, import review basics, and formal switch-pair qualification.
-
-### Phase 3: Room Sessions & Queue Control
-**Rationale:** Once the TV runtime contract exists, users need safe multi-controller access to the same room state.
-**Delivers:** QR entry, controller sessions, room session reducer, queue commands, multi-phone realtime sync, and mobile-triggered in-song switching control.
-**Addresses:** Server-authoritative queue/playback truth, `pairingToken` lifecycle, and single active TV ownership with multiple mobile controllers.
-**Avoids:** Mobile/TV drift, stale session confusion, and silent player conflicts.
-
-### Phase 4: Search & Song Selection
-**Rationale:** Search quality should layer onto a trusted catalog and working room loop, not compensate for weak modeling.
-**Delivers:** Chinese-first search, alias/pinyin/initial indexing, version-aware song selection before queueing, and clean separation between “select version before queue” and “switch during playback”.
-**Uses:** Search read model, shared protocol contracts, TanStack Query/Router or equivalent.
-**Implements:** Fast and predictable song-finding flow without polluting the playback contract.
-
-### Phase 5: Online Supplement & Recovery
-**Rationale:** Online support and ops tooling should layer onto a proven local-first core, not define it.
-**Delivers:** Online candidate search, cache-before-play jobs, provider kill-switches, failure handling, richer admin repair/observability.
-**Addresses:** Missing-song recovery without compromising playback stability.
-**Avoids:** Direct online playback and unmaintainable provider coupling.
-
-### Phase Ordering Rationale
-
-- The domain contract must precede ingest, and ingest must precede dependable search.
-- Local library trust must precede online supplementation, otherwise the system optimizes the least stable content path first.
-- The TV runtime and switching contract must stabilize before queue-control UX expands, because queue/search polish cannot compensate for room-state drift or bad switching semantics.
-- Admin repair tooling must be present before the project depends on messy real-world media and online providers.
-
-### Research Flags
-
-Phases likely needing deeper research during planning:
-- **Phase 1:** TV runtime/autoplay constraints on the actual deployment target, progress-preserving switch strategy, and reconnect semantics
-- **Phase 2:** Media normalization policy, switch-pair qualification, `song.json` evolution, duplicate merge rules
-- **Phase 5:** Provider compliance boundaries, cache lifecycle, and alternate-asset ranking
-
-Phases with standard patterns (lower research burden):
-- **Phase 3:** Mobile command/query flows on top of an already-defined protocol surface
-- **Phase 4:** Chinese search read-model construction on top of an already-ingested catalog
-
-## Confidence Assessment
-
-| Area | Confidence | Notes |
-|------|------------|-------|
-| Stack | HIGH | Versions verified from current package metadata and official release sources |
-| Features | HIGH | Strong agreement between official product docs and the supplied architecture note |
-| Architecture | MEDIUM | Boundary choices are opinionated, but they align with the product constraints and common system shapes |
-| Pitfalls | MEDIUM | Domain-specific failure modes are clear, though exact operational pain will depend on real media/provider behavior |
-
-**Overall confidence:** HIGH
-
-### Gaps to Address
-
-- Exact TV runtime profile still needs confirmation on the real target device/browser stack
-- Final codec/container normalization policy should be locked before large-scale ingest
-- Online provider scope and compliance rules need explicit implementation-time review
+1. Contract, schema, and playback-risk spike.
+2. MediaInfo probe, scanner, and sidecars.
+3. Admin review and catalog admission.
+4. Search, queue, playback, and switching.
+5. Policy seam, Android reservation, and hardening.
 
 ## Sources
 
-### Primary (HIGH confidence)
 - [PROJECT.md](../PROJECT.md)
-- [KTV-ARCHITECTURE.md](../../docs/KTV-ARCHITECTURE.md)
 - [STACK.md](./STACK.md)
 - [FEATURES.md](./FEATURES.md)
 - [ARCHITECTURE.md](./ARCHITECTURE.md)
 - [PITFALLS.md](./PITFALLS.md)
-- Official Node distribution index
-- Official PostgreSQL docs: https://www.postgresql.org/docs/current/
-- Official Caddy releases: https://github.com/caddyserver/caddy/releases
-
-### Secondary (MEDIUM confidence)
-- KaraFun features and remote-control docs: https://www.karafun.com/features/ , https://www.karafun.com/help/general-questions-iphone_454.html
-- Singing Machine support docs: https://support.singingmachine.com/
-- Duochang K88 manual: https://help.duochang.cc/Application/Admin/View/Instruction/product/K88.html
-- PiKaraoke repository: https://github.com/vicwomg/pikaraoke
-- Karaoke Eternal repository: https://github.com/bhj/KaraokeEternal
-
-### Tertiary (LOW confidence)
-- None used for roadmap-critical recommendations
+- MediaInfo: https://mediaarea.net/en/MediaInfo
+- MDN `canPlayType()`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType
+- MDN `audioTracks`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/audioTracks
+- Android Media3 supported formats: https://developer.android.com/media/media3/exoplayer/supported-formats
 
 ---
-*Research completed: 2026-04-28*
-*Ready for roadmap: yes*
+*Research completed: 2026-05-10*
+*Ready for requirements: yes*
