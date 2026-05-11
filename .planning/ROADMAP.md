@@ -39,7 +39,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
   4. Catalog and player payloads expose platform-neutral playback profile and audio-track fields that the current TV player and a future Android TV player can both reuse.
 **Plans**: 6 plans
 Plans:
-- [ ] 12-01-PLAN.md - Shared real-MV domain contract types
+- [x] 12-01-PLAN.md - Shared real-MV domain contract types
 - [ ] 12-02-PLAN.md - Durable schema and repository mapping
 - [ ] 12-03-PLAN.md - Probe summary, MIME, and compatibility evaluator
 - [ ] 12-04-PLAN.md - PlaybackTarget profile and selected track ref
@@ -102,7 +102,7 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Contract, Schema, and Playback-Risk Spike | 0/TBD | Not started | - |
+| 12. Contract, Schema, and Playback-Risk Spike | 1/6 | Executing | - |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 0/TBD | Not started | - |
 | 14. Admin Review and Catalog Admission | 0/TBD | Not started | - |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |

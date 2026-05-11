@@ -25,6 +25,10 @@ export type AssetKind = "video" | "audio+lyrics" | "dual-track-video";
 export type PlayerState = "idle" | "preparing" | "loading" | "playing" | "paused" | "recovering" | "error";
 export type DeviceType = "tv" | "mobile";
 export type SwitchQualityStatus = "verified" | "review_required" | "rejected" | "unknown";
+export const compatibilityStatuses = ["unknown", "review_required", "playable", "unsupported"] as const;
+export type CompatibilityStatus = (typeof compatibilityStatuses)[number];
+export type CompatibilityReasonSeverity = "warning" | "error";
+export type CompatibilityReasonSource = "probe" | "runtime_spike" | "review" | "scanner";
 export type RoomStatus = "active" | "inactive" | "maintenance";
 export type QueueEntryStatus =
   | "queued"
@@ -107,6 +111,59 @@ export interface Song {
   updatedAt: string;
 }
 
+export interface CompatibilityReason {
+  code: string;
+  severity: CompatibilityReasonSeverity;
+  message: string;
+  source: CompatibilityReasonSource;
+}
+
+export interface TrackRef {
+  index: number;
+  id: string;
+  label: string;
+}
+
+export interface TrackRoles {
+  original: TrackRef | null;
+  instrumental: TrackRef | null;
+}
+
+export interface VideoResolution {
+  width: number;
+  height: number;
+}
+
+export interface AudioTrackSummary extends TrackRef {
+  language: string | null;
+  codec: string | null;
+  channels: number | null;
+}
+
+export interface MediaInfoSummary {
+  container: string | null;
+  durationMs: number | null;
+  videoCodec: string | null;
+  resolution: VideoResolution | null;
+  fileSizeBytes: number;
+  audioTracks: readonly AudioTrackSummary[];
+}
+
+export interface MediaInfoProvenance {
+  source: "ffprobe" | "mediainfo" | "manual" | "unknown";
+  sourceVersion: string | null;
+  probedAt: string | null;
+  importedFrom: string | null;
+}
+
+export interface PlaybackProfile {
+  kind: "separate_asset_pair" | "single_file_audio_tracks";
+  container: string | null;
+  videoCodec: string | null;
+  audioCodecs: readonly string[];
+  requiresAudioTrackSelection: boolean;
+}
+
 export interface Asset {
   id: AssetId;
   songId: SongId;
@@ -120,6 +177,12 @@ export interface Asset {
   status: AssetStatus;
   switchFamily: SwitchFamily | null;
   switchQualityStatus: SwitchQualityStatus;
+  compatibilityStatus?: CompatibilityStatus;
+  compatibilityReasons?: readonly CompatibilityReason[];
+  mediaInfoSummary?: MediaInfoSummary | null;
+  mediaInfoProvenance?: MediaInfoProvenance | null;
+  trackRoles?: TrackRoles;
+  playbackProfile?: PlaybackProfile;
   createdAt: string;
   updatedAt: string;
 }
@@ -377,6 +440,12 @@ export interface ImportCandidateFile {
   roleConfidence: number | null;
   probeDurationMs: number | null;
   probeSummary: Record<string, unknown>;
+  compatibilityStatus?: CompatibilityStatus;
+  compatibilityReasons?: readonly CompatibilityReason[];
+  mediaInfoSummary?: MediaInfoSummary | null;
+  mediaInfoProvenance?: MediaInfoProvenance | null;
+  trackRoles?: TrackRoles;
+  playbackProfile?: PlaybackProfile;
   createdAt: string;
   updatedAt: string;
 }
