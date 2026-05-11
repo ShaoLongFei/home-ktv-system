@@ -1,0 +1,2848 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "netease-hot-toplist",
+  "rowCount": 200,
+  "rows": [
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 1,
+      "rawTitle": "海屿你",
+      "rawArtists": [
+        "马也_Crabbit"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 2,
+      "rawTitle": "恋人",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 3,
+      "rawTitle": "罗生门（Follow）",
+      "rawArtists": [
+        "梨冻紧",
+        "Wiz_H张子豪"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 4,
+      "rawTitle": "一半一半",
+      "rawArtists": [
+        "Top Barry",
+        "INDEcompany"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 5,
+      "rawTitle": "雨过后的风景",
+      "rawArtists": [
+        "Dizzy Dizzo (蔡诗芸)"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 6,
+      "rawTitle": "嗜好",
+      "rawArtists": [
+        "颜人中"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 7,
+      "rawTitle": "颜色",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 8,
+      "rawTitle": "如果呢",
+      "rawArtists": [
+        "郑润泽"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 9,
+      "rawTitle": "于是",
+      "rawArtists": [
+        "郑润泽"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 10,
+      "rawTitle": "12.31",
+      "rawArtists": [
+        "郑润泽"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 11,
+      "rawTitle": "两 难",
+      "rawArtists": [
+        "加木"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 12,
+      "rawTitle": "唯一",
+      "rawArtists": [
+        "G.E.M.邓紫棋"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 13,
+      "rawTitle": "小半",
+      "rawArtists": [
+        "陈粒"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 14,
+      "rawTitle": "答案",
+      "rawArtists": [
+        "冒海飞",
+        "徐丽东"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 15,
+      "rawTitle": "苦茶子",
+      "rawArtists": [
+        "Starling8",
+        "DRODUMANA",
+        "FIVESTAR"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 16,
+      "rawTitle": "Beauty And A Beat",
+      "rawArtists": [
+        "Justin Bieber",
+        "Nicki Minaj"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 17,
+      "rawTitle": "失眠",
+      "rawArtists": [
+        "Suki刘舒妤"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 18,
+      "rawTitle": "还是会想你",
+      "rawArtists": [
+        "林达浪",
+        "h3R3"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 19,
+      "rawTitle": "孤独Person",
+      "rawArtists": [
+        "Herme4",
+        "WhyAce",
+        "Zy"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 20,
+      "rawTitle": "碎碎念",
+      "rawArtists": [
+        "队长"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 21,
+      "rawTitle": "幻痛药 Hurt And Hurt Ft.LSGCsikoriot四口",
+      "rawArtists": [
+        "Tlatre特雷西",
+        "LSGCsikoriot"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 22,
+      "rawTitle": "雨爱",
+      "rawArtists": [
+        "杨丞琳"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 23,
+      "rawTitle": "我怀念的",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 24,
+      "rawTitle": "想你和我们的以后",
+      "rawArtists": [
+        "苏运莹"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 25,
+      "rawTitle": "忘不掉的你",
+      "rawArtists": [
+        "h3R3"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 26,
+      "rawTitle": "晚安",
+      "rawArtists": [
+        "颜人中"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 27,
+      "rawTitle": "把回忆拼好给你",
+      "rawArtists": [
+        "王贰浪"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 28,
+      "rawTitle": "小胡同",
+      "rawArtists": [
+        "郑润泽"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 29,
+      "rawTitle": "爱情讯息",
+      "rawArtists": [
+        "郭静"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 30,
+      "rawTitle": "Star Crossing Night (feat. GALI)",
+      "rawArtists": [
+        "徐明浩",
+        "GALI"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 31,
+      "rawTitle": "知我",
+      "rawArtists": [
+        "国风堂",
+        "哦漏"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 32,
+      "rawTitle": "Dear D (亲爱的告诉你)",
+      "rawArtists": [
+        "项睿娴"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 33,
+      "rawTitle": "遐想",
+      "rawArtists": [
+        "郑润泽"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 34,
+      "rawTitle": "左转灯 (1000 Times +1)",
+      "rawArtists": [
+        "派伟俊",
+        "mac ova seas"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 35,
+      "rawTitle": "特别的人",
+      "rawArtists": [
+        "方大同"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 36,
+      "rawTitle": "该怎么办",
+      "rawArtists": [
+        "TC"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 37,
+      "rawTitle": "熄灭",
+      "rawArtists": [
+        "TC"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 38,
+      "rawTitle": "春",
+      "rawArtists": [
+        "陈文非"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 39,
+      "rawTitle": "有些",
+      "rawArtists": [
+        "颜人中"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 40,
+      "rawTitle": "出现又离开 (Live)",
+      "rawArtists": [
+        "梁博"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 41,
+      "rawTitle": "红",
+      "rawArtists": [
+        "罗言"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 42,
+      "rawTitle": "离开我的依赖",
+      "rawArtists": [
+        "王艳薇"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 43,
+      "rawTitle": "我本将心向明月",
+      "rawArtists": [
+        "王朝1982",
+        "朱旭BooBoo"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 44,
+      "rawTitle": "主角",
+      "rawArtists": [
+        "王菲"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 45,
+      "rawTitle": "予你",
+      "rawArtists": [
+        "队长"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 46,
+      "rawTitle": "心似烟火",
+      "rawArtists": [
+        "陈壹千"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 47,
+      "rawTitle": "你",
+      "rawArtists": [
+        "郑润泽"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 48,
+      "rawTitle": "到时说爱我",
+      "rawArtists": [
+        "茜拉"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 49,
+      "rawTitle": "锈 (我们两个都拉过勾)",
+      "rawArtists": [
+        "江辰"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 50,
+      "rawTitle": "等你的季节",
+      "rawArtists": [
+        "刘诗诗"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 51,
+      "rawTitle": "愿与愁",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 52,
+      "rawTitle": "去北极忘记你",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 53,
+      "rawTitle": "夏夜最后的烟火",
+      "rawArtists": [
+        "颜人中"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 54,
+      "rawTitle": "我只能离开",
+      "rawArtists": [
+        "颜人中"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 55,
+      "rawTitle": "Always Online",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 56,
+      "rawTitle": "再等冬天(Memories)",
+      "rawArtists": [
+        "h3R3"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 57,
+      "rawTitle": "失眠了",
+      "rawArtists": [
+        "吴琳珂Moske"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 58,
+      "rawTitle": "零距离的思念",
+      "rawArtists": [
+        "TINY7"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 59,
+      "rawTitle": "寂寞寂寞不好",
+      "rawArtists": [
+        "曹格"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 60,
+      "rawTitle": "如果爱忘了 (live)",
+      "rawArtists": [
+        "汪苏泷",
+        "单依纯"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 61,
+      "rawTitle": "一样的月光",
+      "rawArtists": [
+        "徐佳莹"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 62,
+      "rawTitle": "别怕变老",
+      "rawArtists": [
+        "王以太",
+        "艾热 AIR"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 63,
+      "rawTitle": "爱你但说不出口",
+      "rawArtists": [
+        "Karencici"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 64,
+      "rawTitle": "My love",
+      "rawArtists": [
+        "颜人中"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 65,
+      "rawTitle": "浆果",
+      "rawArtists": [
+        "TINY7"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 66,
+      "rawTitle": "Come Back To Me",
+      "rawArtists": [
+        "宇多田ヒカル"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 67,
+      "rawTitle": "你要的全拿走",
+      "rawArtists": [
+        "胡彦斌"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 68,
+      "rawTitle": "这叫爱",
+      "rawArtists": [
+        "By2"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 69,
+      "rawTitle": "有我呢",
+      "rawArtists": [
+        "郭一凡"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 70,
+      "rawTitle": "红色高跟鞋",
+      "rawArtists": [
+        "蔡健雅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 71,
+      "rawTitle": "读心术",
+      "rawArtists": [
+        "卓文萱"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 72,
+      "rawTitle": "演员",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 73,
+      "rawTitle": "富士山下",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 74,
+      "rawTitle": "其实",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 75,
+      "rawTitle": "第三人称",
+      "rawArtists": [
+        "买辣椒也用券"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 76,
+      "rawTitle": "坠落",
+      "rawArtists": [
+        "蔡健雅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 77,
+      "rawTitle": "太聪明",
+      "rawArtists": [
+        "陈绮贞"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 78,
+      "rawTitle": "我想念",
+      "rawArtists": [
+        "汪苏泷"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 79,
+      "rawTitle": "小孩",
+      "rawArtists": [
+        "罗森涛"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 80,
+      "rawTitle": "我记得",
+      "rawArtists": [
+        "赵雷"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 81,
+      "rawTitle": "麦恩莉",
+      "rawArtists": [
+        "方大同"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 82,
+      "rawTitle": "开始懂了",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 83,
+      "rawTitle": "曾经是情侣 (Live)",
+      "rawArtists": [
+        "梁博"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 84,
+      "rawTitle": "如果可以",
+      "rawArtists": [
+        "韦礼安"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 85,
+      "rawTitle": "遇上你之前的我",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 86,
+      "rawTitle": "最佳损友",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 87,
+      "rawTitle": "我爱你但是我要回家",
+      "rawArtists": [
+        "ET",
+        "Happer",
+        "无面小生",
+        "口古口古"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 88,
+      "rawTitle": "一个人想着一个人",
+      "rawArtists": [
+        "曾沛慈"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 89,
+      "rawTitle": "精卫",
+      "rawArtists": [
+        "30年前，50年后"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 90,
+      "rawTitle": "一程山路",
+      "rawArtists": [
+        "毛不易"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 91,
+      "rawTitle": "与我无关",
+      "rawArtists": [
+        "阿冗"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 92,
+      "rawTitle": "幻听",
+      "rawArtists": [
+        "许嵩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 93,
+      "rawTitle": "素颜",
+      "rawArtists": [
+        "许嵩",
+        "何曼婷"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 94,
+      "rawTitle": "虚拟",
+      "rawArtists": [
+        "陈粒"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 95,
+      "rawTitle": "是我不够好",
+      "rawArtists": [
+        "李毓芬"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 96,
+      "rawTitle": "句号",
+      "rawArtists": [
+        "G.E.M.邓紫棋"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 97,
+      "rawTitle": "坏女孩",
+      "rawArtists": [
+        "徐良",
+        "小凌"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 98,
+      "rawTitle": "沉溺 (你让我的心不再结冰）",
+      "rawArtists": [
+        "邹沛沛",
+        "Pank"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 99,
+      "rawTitle": "多远都要在一起",
+      "rawArtists": [
+        "G.E.M.邓紫棋"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 100,
+      "rawTitle": "那时雨",
+      "rawArtists": [
+        "徐良"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 101,
+      "rawTitle": "天赋",
+      "rawArtists": [
+        "唐嫣",
+        "罗晋"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 102,
+      "rawTitle": "最后一页",
+      "rawArtists": [
+        "江语晨"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 103,
+      "rawTitle": "Angel",
+      "rawArtists": [
+        "尹美莱",
+        "Tiger JK",
+        "비지 (Bizzy)"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 104,
+      "rawTitle": "我不难过",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 105,
+      "rawTitle": "天龙八部之宿敌",
+      "rawArtists": [
+        "许嵩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 106,
+      "rawTitle": "可不可以",
+      "rawArtists": [
+        "张紫豪"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 107,
+      "rawTitle": "Forget it （feat. Mac Ova Seas）",
+      "rawArtists": [
+        "SETI",
+        "mac ova seas"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 108,
+      "rawTitle": "SpringThing",
+      "rawArtists": [
+        "Veda"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 109,
+      "rawTitle": "阳光下的星星",
+      "rawArtists": [
+        "金海心"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 110,
+      "rawTitle": "Creepin' up on You",
+      "rawArtists": [
+        "Darren Hayes"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 111,
+      "rawTitle": "Lonely",
+      "rawArtists": [
+        "Nana"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 112,
+      "rawTitle": "不将就",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 113,
+      "rawTitle": "可我在十六岁遇到了你",
+      "rawArtists": [
+        "First—Top"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 114,
+      "rawTitle": "再次爱上你",
+      "rawArtists": [
+        "金润吉"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 115,
+      "rawTitle": "咏春",
+      "rawArtists": [
+        "七朵组合"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 116,
+      "rawTitle": "爱我还是他",
+      "rawArtists": [
+        "陶喆"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 117,
+      "rawTitle": "迷人的危险",
+      "rawArtists": [
+        "Dance Flow"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 118,
+      "rawTitle": "沦陷",
+      "rawArtists": [
+        "JuggShots"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 119,
+      "rawTitle": "time machine (feat. aren park)",
+      "rawArtists": [
+        "mj apanay",
+        "aren park"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 120,
+      "rawTitle": "孤独患者",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 121,
+      "rawTitle": "猜不透",
+      "rawArtists": [
+        "丁当"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 122,
+      "rawTitle": "我知道",
+      "rawArtists": [
+        "By2"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 123,
+      "rawTitle": "枪火",
+      "rawArtists": [
+        "宝石Gem"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 124,
+      "rawTitle": "哪里都是你",
+      "rawArtists": [
+        "队长"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 125,
+      "rawTitle": "Letting Go",
+      "rawArtists": [
+        "蔡健雅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 126,
+      "rawTitle": "天外来物",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 127,
+      "rawTitle": "普通女孩",
+      "rawArtists": [
+        "沙一汀EL"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 128,
+      "rawTitle": "才二十三",
+      "rawArtists": [
+        "方大同"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 129,
+      "rawTitle": "和你",
+      "rawArtists": [
+        "余佳运"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 130,
+      "rawTitle": "他只是经过",
+      "rawArtists": [
+        "h3R3",
+        "高旭"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 131,
+      "rawTitle": "情歌",
+      "rawArtists": [
+        "梁静茹"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 132,
+      "rawTitle": "无名的人",
+      "rawArtists": [
+        "毛不易"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 133,
+      "rawTitle": "指纹",
+      "rawArtists": [
+        "杜宣达"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 134,
+      "rawTitle": "沉沦与遐想",
+      "rawArtists": [
+        "C.HØPE"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 135,
+      "rawTitle": "不说 (原来是不说)",
+      "rawArtists": [
+        "周公"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 136,
+      "rawTitle": "悬溺",
+      "rawArtists": [
+        "葛东琪"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 137,
+      "rawTitle": "孤雏",
+      "rawArtists": [
+        "AGA"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 138,
+      "rawTitle": "Marry",
+      "rawArtists": [
+        "Top Barry",
+        "INDEcompany"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 139,
+      "rawTitle": "想你的夜",
+      "rawArtists": [
+        "关喆"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 140,
+      "rawTitle": "起风了",
+      "rawArtists": [
+        "买辣椒也用券"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 141,
+      "rawTitle": "夏天的风",
+      "rawArtists": [
+        "火羊瞌睡了"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 142,
+      "rawTitle": "紧急联络人",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 143,
+      "rawTitle": "还是分开",
+      "rawArtists": [
+        "张叶蕾"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 144,
+      "rawTitle": "Coco Elva Tia",
+      "rawArtists": [
+        "马思唯",
+        "JZlee"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 145,
+      "rawTitle": "诀别书",
+      "rawArtists": [
+        "邓垚"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 146,
+      "rawTitle": "同花顺",
+      "rawArtists": [
+        "林倛玉"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 147,
+      "rawTitle": "表态 (Live)",
+      "rawArtists": [
+        "梁博"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 148,
+      "rawTitle": "NO BATIDÃO",
+      "rawArtists": [
+        "PROPHECY",
+        "棍圣"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 149,
+      "rawTitle": "紫荆花盛开",
+      "rawArtists": [
+        "李荣浩",
+        "梁咏琪"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 150,
+      "rawTitle": "勋章",
+      "rawArtists": [
+        "鹿晗"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 151,
+      "rawTitle": "下一个天亮",
+      "rawArtists": [
+        "郭静"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 152,
+      "rawTitle": "十面埋伏",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 153,
+      "rawTitle": "给你呀（又名：for ya）",
+      "rawArtists": [
+        "蒋小呢"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 154,
+      "rawTitle": "唯一",
+      "rawArtists": [
+        "告五人"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 155,
+      "rawTitle": "茶花开了",
+      "rawArtists": [
+        "王睿卓"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 156,
+      "rawTitle": "水星记",
+      "rawArtists": [
+        "郭顶"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 157,
+      "rawTitle": "绝对占有 相对自由",
+      "rawArtists": [
+        "陈粒"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 158,
+      "rawTitle": "人生路漫漫",
+      "rawArtists": [
+        "白小白"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 159,
+      "rawTitle": "Montagem pitty",
+      "rawArtists": [
+        "见过夏天P",
+        "洛天依"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 160,
+      "rawTitle": "勇气",
+      "rawArtists": [
+        "梁静茹"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 161,
+      "rawTitle": "死疙瘩",
+      "rawArtists": [
+        "绵阳STAR",
+        "Copy"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 162,
+      "rawTitle": "在你的身边",
+      "rawArtists": [
+        "盛哲"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 163,
+      "rawTitle": "Fever Pitch",
+      "rawArtists": [
+        "Richz"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 164,
+      "rawTitle": "偏爱",
+      "rawArtists": [
+        "张芸京"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 165,
+      "rawTitle": "慢冷 (Live)",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 166,
+      "rawTitle": "Una Mattina",
+      "rawArtists": [
+        "Papa Tin"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 167,
+      "rawTitle": "江南",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 168,
+      "rawTitle": "故意没接",
+      "rawArtists": [
+        "Double SR"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 169,
+      "rawTitle": "茫",
+      "rawArtists": [
+        "李润祺"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 170,
+      "rawTitle": "半句再见",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 171,
+      "rawTitle": "淘汰",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 172,
+      "rawTitle": "戒烟",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 173,
+      "rawTitle": "STAY",
+      "rawArtists": [
+        "The Kid LAROI",
+        "Justin Bieber"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 174,
+      "rawTitle": "至少还有你",
+      "rawArtists": [
+        "林忆莲"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 175,
+      "rawTitle": "牵丝戏",
+      "rawArtists": [
+        "银临",
+        "Aki阿杰"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 176,
+      "rawTitle": "unhappy",
+      "rawArtists": [
+        "s0rrow"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 177,
+      "rawTitle": "Call You Tonight",
+      "rawArtists": [
+        "Whitney Houston"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 178,
+      "rawTitle": "We Don't Talk Anymore (Mr. Collipark Remix)",
+      "rawArtists": [
+        "Charlie Puth",
+        "Selena Gomez",
+        "Mr. Collipark"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 179,
+      "rawTitle": "秘密beat",
+      "rawArtists": [
+        "苏宝"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 180,
+      "rawTitle": "新地球",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 181,
+      "rawTitle": "拉过勾的",
+      "rawArtists": [
+        "陆虎"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 182,
+      "rawTitle": "失落沙洲",
+      "rawArtists": [
+        "徐佳莹"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 183,
+      "rawTitle": "讴歌",
+      "rawArtists": [
+        "Vansdaddy"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 184,
+      "rawTitle": "Alive",
+      "rawArtists": [
+        "Blue"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 185,
+      "rawTitle": "带我走",
+      "rawArtists": [
+        "杨丞琳"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 186,
+      "rawTitle": "琵琶曲",
+      "rawArtists": [
+        "郑浩Z-Hao",
+        "冰洁"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 187,
+      "rawTitle": "无人知晓的我",
+      "rawArtists": [
+        "黄丽玲"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 188,
+      "rawTitle": "爱情转移",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 189,
+      "rawTitle": "武家坡2021",
+      "rawArtists": [
+        "龍猛寺寬度"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 190,
+      "rawTitle": "第57次取消发送",
+      "rawArtists": [
+        "菲菲公主（陆绮菲）"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 191,
+      "rawTitle": "刻在我心底的名字",
+      "rawArtists": [
+        "卢广仲"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 192,
+      "rawTitle": "正当生意",
+      "rawArtists": [
+        "CHILLSENONE"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 193,
+      "rawTitle": "遗失的心跳",
+      "rawArtists": [
+        "萧亚轩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 194,
+      "rawTitle": "用背脊唱情歌",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 195,
+      "rawTitle": "Deadman",
+      "rawArtists": [
+        "蔡徐坤"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 196,
+      "rawTitle": "I Love You So",
+      "rawArtists": [
+        "The Walters"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 197,
+      "rawTitle": "祝你爱我到天荒地老",
+      "rawArtists": [
+        "颜人中",
+        "VaVa娃娃"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 198,
+      "rawTitle": "可惜没如果",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 199,
+      "rawTitle": "Leave Me Alone（寂寞作伴）",
+      "rawArtists": [
+        "TC"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 200,
+      "rawTitle": "会呼吸的痛",
+      "rawArtists": [
+        "梁静茹"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

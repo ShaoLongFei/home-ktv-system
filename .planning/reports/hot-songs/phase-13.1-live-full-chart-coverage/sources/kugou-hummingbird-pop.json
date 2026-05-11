@@ -1,0 +1,1433 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "kugou-hummingbird-pop",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 1,
+      "rawTitle": "춤 (CHOOM)",
+      "rawArtists": [
+        "BABYMONSTER"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 2,
+      "rawTitle": "It's Me",
+      "rawArtists": [
+        "ILLIT"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 3,
+      "rawTitle": "Beauty And A Beat",
+      "rawArtists": [
+        "Justin Bieber",
+        "Nicki Minaj"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 4,
+      "rawTitle": "Be Yourself",
+      "rawArtists": [
+        "TF家族-陈奕恒"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 5,
+      "rawTitle": "REDRED",
+      "rawArtists": [
+        "CORTIS"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 6,
+      "rawTitle": "Come Back To Me",
+      "rawArtists": [
+        "宇多田ヒカル"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 7,
+      "rawTitle": "这叫爱",
+      "rawArtists": [
+        "BY2"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 8,
+      "rawTitle": "春",
+      "rawArtists": [
+        "陈文非"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 9,
+      "rawTitle": "颜色",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 10,
+      "rawTitle": "Jealousy (Extended Version)",
+      "rawArtists": [
+        "3Rd Coast"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 11,
+      "rawTitle": "Écoute Chérie (聆听爱人)",
+      "rawArtists": [
+        "Vendredi sur mer"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 12,
+      "rawTitle": "バカみたいに (Like an Idiot)",
+      "rawArtists": [
+        "柿崎ユウタ"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 13,
+      "rawTitle": "Creepin' up on You",
+      "rawArtists": [
+        "Darren Hayes"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 14,
+      "rawTitle": "等你的季节",
+      "rawArtists": [
+        "刘诗诗"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 15,
+      "rawTitle": "T.F.D",
+      "rawArtists": [
+        "Rico"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 16,
+      "rawTitle": "캐치 캐치",
+      "rawArtists": [
+        "YENA"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 17,
+      "rawTitle": "读心术",
+      "rawArtists": [
+        "卓文萱"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 18,
+      "rawTitle": "我爱你",
+      "rawArtists": [
+        "王菲"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 19,
+      "rawTitle": "Who is she",
+      "rawArtists": [
+        "KISS OF LIFE"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 20,
+      "rawTitle": "Angel",
+      "rawArtists": [
+        "尹美莱",
+        "Tiger JK",
+        "Bizzy"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 21,
+      "rawTitle": "失眠",
+      "rawArtists": [
+        "Suki刘舒妤"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 22,
+      "rawTitle": "We Don't Talk Anymore (Mr...",
+      "rawArtists": [
+        "Charlie Puth",
+        "Selena Gomez"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 23,
+      "rawTitle": "夏天的风",
+      "rawArtists": [
+        "温岚"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 24,
+      "rawTitle": "雨过后的风景",
+      "rawArtists": [
+        "Dizzy Dizzo (蔡诗芸)"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 25,
+      "rawTitle": "Bad Boy",
+      "rawArtists": [
+        "BIGBANG"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 26,
+      "rawTitle": "TNT",
+      "rawArtists": [
+        "CORTIS"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 27,
+      "rawTitle": "冷夜",
+      "rawArtists": [
+        "陈默之"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 28,
+      "rawTitle": "Una Mattina",
+      "rawArtists": [
+        "Papa Tin"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 29,
+      "rawTitle": "讨厌",
+      "rawArtists": [
+        "芮恩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 30,
+      "rawTitle": "Echoes (往日回响)",
+      "rawArtists": [
+        "林冻"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 31,
+      "rawTitle": "Run Wild (向风而野)",
+      "rawArtists": [
+        "是晚星呀"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 32,
+      "rawTitle": "Alive",
+      "rawArtists": [
+        "Blue"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 33,
+      "rawTitle": "时差 (On call)",
+      "rawArtists": [
+        "鹿晗"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 34,
+      "rawTitle": "Attention",
+      "rawArtists": [
+        "Charlie Puth"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 35,
+      "rawTitle": "Star Crossing Night (feat. GALI)",
+      "rawArtists": [
+        "徐明浩",
+        "GALI"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 36,
+      "rawTitle": "Luxurious",
+      "rawArtists": [
+        "Gwen Stefani"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 37,
+      "rawTitle": "爱你但说不出口",
+      "rawArtists": [
+        "Karencici"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 38,
+      "rawTitle": "太聪明",
+      "rawArtists": [
+        "陈绮贞"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 39,
+      "rawTitle": "你来自哪颗星",
+      "rawArtists": [
+        "陈柏宇"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 40,
+      "rawTitle": "Sweet Boy (Explicit)",
+      "rawArtists": [
+        "Malcolm Todd"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 41,
+      "rawTitle": "那时雨",
+      "rawArtists": [
+        "徐良"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 42,
+      "rawTitle": "RUDE!",
+      "rawArtists": [
+        "Hearts2Hearts"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 43,
+      "rawTitle": "late night lover (午夜恋人)",
+      "rawArtists": [
+        "三棱镜"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 44,
+      "rawTitle": "爱我不要丢下我",
+      "rawArtists": [
+        "王思思"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 45,
+      "rawTitle": "我不难过",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 46,
+      "rawTitle": "Lonely",
+      "rawArtists": [
+        "Nana"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 47,
+      "rawTitle": "Mr. \"Broken Heart\"",
+      "rawArtists": [
+        "松下優也"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 48,
+      "rawTitle": "我们俩",
+      "rawArtists": [
+        "郭顶"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 49,
+      "rawTitle": "坏女孩",
+      "rawArtists": [
+        "徐良",
+        "小凌"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 50,
+      "rawTitle": "别错过",
+      "rawArtists": [
+        "程佳佳"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 51,
+      "rawTitle": "Execution Clap",
+      "rawArtists": [
+        "TRAP CHICK",
+        "重音テト"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 52,
+      "rawTitle": "想你和我们的以后",
+      "rawArtists": [
+        "苏运莹"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 53,
+      "rawTitle": "사랑 하지 마 (不要爱)",
+      "rawArtists": [
+        "孝琳"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 54,
+      "rawTitle": "假心话",
+      "rawArtists": [
+        "M3mo"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 55,
+      "rawTitle": "내일은 없어 (没有明天)",
+      "rawArtists": [
+        "Trouble Maker"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 56,
+      "rawTitle": "琵琶行",
+      "rawArtists": [
+        "奇然",
+        "沈谧仁"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 57,
+      "rawTitle": "恋人",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 58,
+      "rawTitle": "Baby",
+      "rawArtists": [
+        "Justin Bieber",
+        "Ludacris"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 59,
+      "rawTitle": "time machine (feat. aren park)(Origi...",
+      "rawArtists": [
+        "mj apanay",
+        "aren park"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 60,
+      "rawTitle": "Pretty Much (半夏心动)",
+      "rawArtists": [
+        "是晚星呀"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 61,
+      "rawTitle": "I Love You So",
+      "rawArtists": [
+        "The Walters"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 62,
+      "rawTitle": "答案",
+      "rawArtists": [
+        "冒海飞",
+        "徐丽东"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 63,
+      "rawTitle": "Sinos De Natal",
+      "rawArtists": [
+        "MGD",
+        "MXZHPHXNK"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 64,
+      "rawTitle": "Boyfriend",
+      "rawArtists": [
+        "Justin Bieber"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 65,
+      "rawTitle": "worry (Slowed)",
+      "rawArtists": [
+        "LONOWN",
+        "Riserayss"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 66,
+      "rawTitle": "仰望",
+      "rawArtists": [
+        "杨丞琳"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 67,
+      "rawTitle": "锈",
+      "rawArtists": [
+        "江辰"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 68,
+      "rawTitle": "Prelude",
+      "rawArtists": [
+        "Andria Rose"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 69,
+      "rawTitle": "是我不够好",
+      "rawArtists": [
+        "李毓芬"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 70,
+      "rawTitle": "幻痛药 Hurt And Hurt",
+      "rawArtists": [
+        "Tlatre特雷西",
+        "LSGCsikoriot"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 71,
+      "rawTitle": "짧은 치마 (MINISKIRT)",
+      "rawArtists": [
+        "AOA"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 72,
+      "rawTitle": "MOON",
+      "rawArtists": [
+        "BABYMONSTER"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 73,
+      "rawTitle": "沦陷",
+      "rawArtists": [
+        "JuggShots"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 74,
+      "rawTitle": "Careless Whisper",
+      "rawArtists": [
+        "Tamia"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 75,
+      "rawTitle": "4 Walls (Korean Ver.)",
+      "rawArtists": [
+        "f(x)"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 76,
+      "rawTitle": "Promise",
+      "rawArtists": [
+        "HARIKIRI",
+        "马思唯",
+        "朴宰范"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 77,
+      "rawTitle": "中间人",
+      "rawArtists": [
+        "Ice Paper"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 78,
+      "rawTitle": "孤雏",
+      "rawArtists": [
+        "AGA"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 79,
+      "rawTitle": "I NEED YOU",
+      "rawArtists": [
+        "에일리 (AILEE)"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 80,
+      "rawTitle": "The Other Side Of Paradise (Explicit)",
+      "rawArtists": [
+        "Glass Animals"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 81,
+      "rawTitle": "Gotta Have You",
+      "rawArtists": [
+        "The Weepies",
+        "Deb Talan",
+        "Steve Tannen"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 82,
+      "rawTitle": "Come Around Me",
+      "rawArtists": [
+        "Justin Bieber"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 83,
+      "rawTitle": "Shut up My Moms Calling",
+      "rawArtists": [
+        "Hotel Ugly"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 84,
+      "rawTitle": "Someone to Love",
+      "rawArtists": [
+        "严浩翔"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 85,
+      "rawTitle": "孤独Person (你对我的了解 无声的告别)",
+      "rawArtists": [
+        "Herme4",
+        "WhyAce",
+        "Zy"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 86,
+      "rawTitle": "月が綺麗ねと言われたい！",
+      "rawArtists": [
+        "カササギ"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 87,
+      "rawTitle": "ぼくらは肉でできている (We Are Made of Meat)",
+      "rawArtists": [
+        "内田温"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 88,
+      "rawTitle": "だ・し・て (feat. 初音ミク &...",
+      "rawArtists": [
+        "はろける",
+        "初音ミク",
+        "重音テト"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 89,
+      "rawTitle": "Come Back To Me",
+      "rawArtists": [
+        "Utada"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 90,
+      "rawTitle": "Blue Lips ​",
+      "rawArtists": [
+        "CORTIS"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 91,
+      "rawTitle": "MY LOVE (FEAT.스윙스)",
+      "rawArtists": [
+        "에일리 (AILEE)",
+        "Swings"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 92,
+      "rawTitle": "ミスターブロークンハート",
+      "rawArtists": [
+        "松下優也"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 93,
+      "rawTitle": "I LIKE IT",
+      "rawArtists": [
+        "BABYMONSTER"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 94,
+      "rawTitle": "去北极忘记你",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 95,
+      "rawTitle": "雨爱",
+      "rawArtists": [
+        "杨丞琳"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 96,
+      "rawTitle": "그걸로도 충분해요 (Just stay with me)(...",
+      "rawArtists": [
+        "San E (산이)",
+        "SWAN"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 97,
+      "rawTitle": "雀跃",
+      "rawArtists": [
+        "任然",
+        "小来"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 98,
+      "rawTitle": "The Cure",
+      "rawArtists": [
+        "Lady Gaga"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 99,
+      "rawTitle": "迷人的危险",
+      "rawArtists": [
+        "Dance Flow"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-hummingbird-pop",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 100,
+      "rawTitle": "无声电影",
+      "rawArtists": [
+        "鹭卓"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-59703.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

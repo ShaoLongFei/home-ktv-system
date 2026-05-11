@@ -1,0 +1,1408 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:19.426Z",
+  "sourceId": "kugou-soaring",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 2,
+      "rawTitle": "十年",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 3,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 4,
+      "rawTitle": "后来 Fixture 2",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 5,
+      "rawTitle": "十年 Fixture 2",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 6,
+      "rawTitle": "Run Wild（向风而野） Fixture 2",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 7,
+      "rawTitle": "后来 Fixture 3",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 8,
+      "rawTitle": "十年 Fixture 3",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 9,
+      "rawTitle": "Run Wild（向风而野） Fixture 3",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 10,
+      "rawTitle": "后来 Fixture 4",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 11,
+      "rawTitle": "十年 Fixture 4",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 12,
+      "rawTitle": "Run Wild（向风而野） Fixture 4",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 13,
+      "rawTitle": "后来 Fixture 5",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 14,
+      "rawTitle": "十年 Fixture 5",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 15,
+      "rawTitle": "Run Wild（向风而野） Fixture 5",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 16,
+      "rawTitle": "后来 Fixture 6",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 17,
+      "rawTitle": "十年 Fixture 6",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 18,
+      "rawTitle": "Run Wild（向风而野） Fixture 6",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 19,
+      "rawTitle": "后来 Fixture 7",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 20,
+      "rawTitle": "十年 Fixture 7",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 21,
+      "rawTitle": "Run Wild（向风而野） Fixture 7",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 22,
+      "rawTitle": "后来 Fixture 8",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 23,
+      "rawTitle": "十年 Fixture 8",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 24,
+      "rawTitle": "Run Wild（向风而野） Fixture 8",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 25,
+      "rawTitle": "后来 Fixture 9",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 26,
+      "rawTitle": "十年 Fixture 9",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 27,
+      "rawTitle": "Run Wild（向风而野） Fixture 9",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 28,
+      "rawTitle": "后来 Fixture 10",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 29,
+      "rawTitle": "十年 Fixture 10",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 30,
+      "rawTitle": "Run Wild（向风而野） Fixture 10",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 31,
+      "rawTitle": "后来 Fixture 11",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 32,
+      "rawTitle": "十年 Fixture 11",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 33,
+      "rawTitle": "Run Wild（向风而野） Fixture 11",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 34,
+      "rawTitle": "后来 Fixture 12",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 35,
+      "rawTitle": "十年 Fixture 12",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 36,
+      "rawTitle": "Run Wild（向风而野） Fixture 12",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 37,
+      "rawTitle": "后来 Fixture 13",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 38,
+      "rawTitle": "十年 Fixture 13",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 39,
+      "rawTitle": "Run Wild（向风而野） Fixture 13",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 40,
+      "rawTitle": "后来 Fixture 14",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 41,
+      "rawTitle": "十年 Fixture 14",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 42,
+      "rawTitle": "Run Wild（向风而野） Fixture 14",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 43,
+      "rawTitle": "后来 Fixture 15",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 44,
+      "rawTitle": "十年 Fixture 15",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 45,
+      "rawTitle": "Run Wild（向风而野） Fixture 15",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 46,
+      "rawTitle": "后来 Fixture 16",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 47,
+      "rawTitle": "十年 Fixture 16",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 48,
+      "rawTitle": "Run Wild（向风而野） Fixture 16",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 49,
+      "rawTitle": "后来 Fixture 17",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 50,
+      "rawTitle": "十年 Fixture 17",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 51,
+      "rawTitle": "Run Wild（向风而野） Fixture 17",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 52,
+      "rawTitle": "后来 Fixture 18",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 53,
+      "rawTitle": "十年 Fixture 18",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 54,
+      "rawTitle": "Run Wild（向风而野） Fixture 18",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 55,
+      "rawTitle": "后来 Fixture 19",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 56,
+      "rawTitle": "十年 Fixture 19",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 57,
+      "rawTitle": "Run Wild（向风而野） Fixture 19",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 58,
+      "rawTitle": "后来 Fixture 20",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 59,
+      "rawTitle": "十年 Fixture 20",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 60,
+      "rawTitle": "Run Wild（向风而野） Fixture 20",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 61,
+      "rawTitle": "后来 Fixture 21",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 62,
+      "rawTitle": "十年 Fixture 21",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 63,
+      "rawTitle": "Run Wild（向风而野） Fixture 21",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 64,
+      "rawTitle": "后来 Fixture 22",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 65,
+      "rawTitle": "十年 Fixture 22",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 66,
+      "rawTitle": "Run Wild（向风而野） Fixture 22",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 67,
+      "rawTitle": "后来 Fixture 23",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 68,
+      "rawTitle": "十年 Fixture 23",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 69,
+      "rawTitle": "Run Wild（向风而野） Fixture 23",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 70,
+      "rawTitle": "后来 Fixture 24",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 71,
+      "rawTitle": "十年 Fixture 24",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 72,
+      "rawTitle": "Run Wild（向风而野） Fixture 24",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 73,
+      "rawTitle": "后来 Fixture 25",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 74,
+      "rawTitle": "十年 Fixture 25",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 75,
+      "rawTitle": "Run Wild（向风而野） Fixture 25",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 76,
+      "rawTitle": "后来 Fixture 26",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 77,
+      "rawTitle": "十年 Fixture 26",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 78,
+      "rawTitle": "Run Wild（向风而野） Fixture 26",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 79,
+      "rawTitle": "后来 Fixture 27",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 80,
+      "rawTitle": "十年 Fixture 27",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 81,
+      "rawTitle": "Run Wild（向风而野） Fixture 27",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 82,
+      "rawTitle": "后来 Fixture 28",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 83,
+      "rawTitle": "十年 Fixture 28",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 84,
+      "rawTitle": "Run Wild（向风而野） Fixture 28",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 85,
+      "rawTitle": "后来 Fixture 29",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 86,
+      "rawTitle": "十年 Fixture 29",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 87,
+      "rawTitle": "Run Wild（向风而野） Fixture 29",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 88,
+      "rawTitle": "后来 Fixture 30",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 89,
+      "rawTitle": "十年 Fixture 30",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 90,
+      "rawTitle": "Run Wild（向风而野） Fixture 30",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 91,
+      "rawTitle": "后来 Fixture 31",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 92,
+      "rawTitle": "十年 Fixture 31",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 93,
+      "rawTitle": "Run Wild（向风而野） Fixture 31",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 94,
+      "rawTitle": "后来 Fixture 32",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 95,
+      "rawTitle": "十年 Fixture 32",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 96,
+      "rawTitle": "Run Wild（向风而野） Fixture 32",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 97,
+      "rawTitle": "后来 Fixture 33",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 98,
+      "rawTitle": "十年 Fixture 33",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 99,
+      "rawTitle": "Run Wild（向风而野） Fixture 33",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-soaring",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 100,
+      "rawTitle": "后来 Fixture 34",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-6666.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    }
+  ]
+}

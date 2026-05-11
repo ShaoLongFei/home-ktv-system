@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "netease-vip-hot-toplist",
+  "rowCount": 10,
+  "rows": [
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 1,
+      "rawTitle": "恋人",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 2,
+      "rawTitle": "雨过后的风景",
+      "rawArtists": [
+        "Dizzy Dizzo (蔡诗芸)"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 3,
+      "rawTitle": "小半",
+      "rawArtists": [
+        "陈粒"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 4,
+      "rawTitle": "雨爱",
+      "rawArtists": [
+        "杨丞琳"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 5,
+      "rawTitle": "颜色",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 6,
+      "rawTitle": "唯一",
+      "rawArtists": [
+        "G.E.M.邓紫棋"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 7,
+      "rawTitle": "我怀念的",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 8,
+      "rawTitle": "失眠",
+      "rawArtists": [
+        "Suki刘舒妤"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 9,
+      "rawTitle": "Beauty And A Beat",
+      "rawArtists": [
+        "Justin Bieber",
+        "Nicki Minaj"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-vip-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 10,
+      "rawTitle": "特别的人",
+      "rawArtists": [
+        "方大同"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=7785066739",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

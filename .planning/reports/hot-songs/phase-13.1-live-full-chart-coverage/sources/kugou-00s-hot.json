@@ -1,0 +1,1424 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "kugou-00s-hot",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 1,
+      "rawTitle": "一千一万朵",
+      "rawArtists": [
+        "马嘉祺"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 2,
+      "rawTitle": "小尖尖",
+      "rawArtists": [
+        "韩红",
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 3,
+      "rawTitle": "摆脱地心引力",
+      "rawArtists": [
+        "时代少年团"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 4,
+      "rawTitle": "失眠了",
+      "rawArtists": [
+        "吴琳珂Moske"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 5,
+      "rawTitle": "巴拉莱卡 (The Rod)",
+      "rawArtists": [
+        "门尼"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 6,
+      "rawTitle": "刺",
+      "rawArtists": [
+        "时代少年团"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 7,
+      "rawTitle": "勋章",
+      "rawArtists": [
+        "鹿晗"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 8,
+      "rawTitle": "锈",
+      "rawArtists": [
+        "江辰"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 9,
+      "rawTitle": "这叫爱",
+      "rawArtists": [
+        "BY2"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 10,
+      "rawTitle": "孤独Person (你对我的了解 无声的告别)",
+      "rawArtists": [
+        "Herme4",
+        "WhyAce",
+        "Zy"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 11,
+      "rawTitle": "Dear D (亲爱的告诉你)",
+      "rawArtists": [
+        "项睿娴"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 12,
+      "rawTitle": "不苦",
+      "rawArtists": [
+        "鞠婧祎"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 13,
+      "rawTitle": "雨过后的风景",
+      "rawArtists": [
+        "Dizzy Dizzo (蔡诗芸)"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 14,
+      "rawTitle": "失眠",
+      "rawArtists": [
+        "Suki刘舒妤"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 15,
+      "rawTitle": "来不及爱你",
+      "rawArtists": [
+        "h3R3"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 16,
+      "rawTitle": "碎碎念",
+      "rawArtists": [
+        "队长"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 17,
+      "rawTitle": "顽疾",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 18,
+      "rawTitle": "慢冷 (Live)",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 19,
+      "rawTitle": "远航星的告别",
+      "rawArtists": [
+        "鸣潮先约电台",
+        "jixwang",
+        "Tarokiki",
+        "Emi Evans"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 20,
+      "rawTitle": "租购",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 21,
+      "rawTitle": "读心术",
+      "rawArtists": [
+        "卓文萱"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 22,
+      "rawTitle": "枪火",
+      "rawArtists": [
+        "宝石Gem"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/1-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 23,
+      "rawTitle": "不苦",
+      "rawArtists": [
+        "田嘉瑞"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 24,
+      "rawTitle": "动物世界",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 25,
+      "rawTitle": "颜色",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 26,
+      "rawTitle": "明日坐标",
+      "rawArtists": [
+        "林俊杰",
+        "王者荣耀"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 27,
+      "rawTitle": "我恨明月不照我",
+      "rawArtists": [
+        "阿YueYue"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 28,
+      "rawTitle": "方圆几里",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 29,
+      "rawTitle": "等你的季节",
+      "rawArtists": [
+        "刘诗诗"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 30,
+      "rawTitle": "一程山路",
+      "rawArtists": [
+        "毛不易"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 31,
+      "rawTitle": "平庸 (Live)",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 32,
+      "rawTitle": "座位",
+      "rawArtists": [
+        "于冬然"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 33,
+      "rawTitle": "迟迟",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 34,
+      "rawTitle": "刚刚好",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 35,
+      "rawTitle": "陪你看星星",
+      "rawArtists": [
+        "陈子晴"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 36,
+      "rawTitle": "一样的月光",
+      "rawArtists": [
+        "徐佳莹"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 37,
+      "rawTitle": "别怕变老",
+      "rawArtists": [
+        "王以太",
+        "艾热AIR"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 38,
+      "rawTitle": "昔涟",
+      "rawArtists": [
+        "张韶涵",
+        "HOYO-MiX"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 39,
+      "rawTitle": "我不难过",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 40,
+      "rawTitle": "冷夜",
+      "rawArtists": [
+        "陈默之"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 41,
+      "rawTitle": "最佳损友",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 42,
+      "rawTitle": "那是你离开了北京的生活",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 43,
+      "rawTitle": "关键词",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 44,
+      "rawTitle": "一个人想着一个人 (说唱版)",
+      "rawArtists": [
+        "艾比利"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/2-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 45,
+      "rawTitle": "天外来物",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 46,
+      "rawTitle": "多远都要在一起",
+      "rawArtists": [
+        "G.E.M. 邓紫棋"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 47,
+      "rawTitle": "落空",
+      "rawArtists": [
+        "印子月"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 48,
+      "rawTitle": "离开我的依赖",
+      "rawArtists": [
+        "王艳薇"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 49,
+      "rawTitle": "像风一样",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 50,
+      "rawTitle": "锁 (R&B版)",
+      "rawArtists": [
+        "呆小帅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 51,
+      "rawTitle": "雀跃",
+      "rawArtists": [
+        "任然",
+        "小来"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 52,
+      "rawTitle": "茶花开了，该回家了",
+      "rawArtists": [
+        "王睿卓",
+        "加木"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 53,
+      "rawTitle": "野心",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 54,
+      "rawTitle": "小半",
+      "rawArtists": [
+        "陈粒"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 55,
+      "rawTitle": "第57次取消发送",
+      "rawArtists": [
+        "菲菲公主（陆绮菲）"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 56,
+      "rawTitle": "明明就",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 57,
+      "rawTitle": "怪咖",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 58,
+      "rawTitle": "蒲公英的约定",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 59,
+      "rawTitle": "陪你去流浪",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 60,
+      "rawTitle": "还是分开",
+      "rawArtists": [
+        "张叶蕾"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 61,
+      "rawTitle": "珊瑚海",
+      "rawArtists": [
+        "周杰伦",
+        "Lara梁心颐"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 62,
+      "rawTitle": "够钟",
+      "rawArtists": [
+        "周柏豪"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 63,
+      "rawTitle": "춤 (CHOOM)",
+      "rawArtists": [
+        "BABYMONSTER"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 64,
+      "rawTitle": "单车",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 65,
+      "rawTitle": "等我回家",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 66,
+      "rawTitle": "拂晓 Proi Proi",
+      "rawArtists": [
+        "HOYO-MiX",
+        "NIDA"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/3-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 67,
+      "rawTitle": "不遗憾",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 68,
+      "rawTitle": "失落沙洲",
+      "rawArtists": [
+        "徐佳莹"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 69,
+      "rawTitle": "退后",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 70,
+      "rawTitle": "倒数",
+      "rawArtists": [
+        "G.E.M. 邓紫棋"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 71,
+      "rawTitle": "岸边客",
+      "rawArtists": [
+        "夏子航（2603）"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 72,
+      "rawTitle": "走走",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 73,
+      "rawTitle": "十面埋伏",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 74,
+      "rawTitle": "下完这场雨",
+      "rawArtists": [
+        "后弦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 75,
+      "rawTitle": "那年",
+      "rawArtists": [
+        "任然"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 76,
+      "rawTitle": "年少有为",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 77,
+      "rawTitle": "绅士",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 78,
+      "rawTitle": "我好像在哪见过你",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 79,
+      "rawTitle": "我们俩",
+      "rawArtists": [
+        "郭顶"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 80,
+      "rawTitle": "侧脸",
+      "rawArtists": [
+        "于果"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 81,
+      "rawTitle": "下辈子还要和你成个家",
+      "rawArtists": [
+        "彤大王"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 82,
+      "rawTitle": "意外",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 83,
+      "rawTitle": "着魔",
+      "rawArtists": [
+        "张杰"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 84,
+      "rawTitle": "我不配",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 85,
+      "rawTitle": "我落泪情绪零碎",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 86,
+      "rawTitle": "老街",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 87,
+      "rawTitle": "阳光下的星星",
+      "rawArtists": [
+        "金海心"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 88,
+      "rawTitle": "送你一朵小红花",
+      "rawArtists": [
+        "赵英俊"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/4-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 89,
+      "rawTitle": "幻痛药 Hurt And Hurt",
+      "rawArtists": [
+        "Tlatre特雷西",
+        "LSGCsikoriot"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 90,
+      "rawTitle": "恋人",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 91,
+      "rawTitle": "你听得到",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 92,
+      "rawTitle": "几分之几",
+      "rawArtists": [
+        "卢广仲"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 93,
+      "rawTitle": "葡萄成熟时",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 94,
+      "rawTitle": "Angel",
+      "rawArtists": [
+        "尹美莱",
+        "Tiger JK",
+        "Bizzy"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 95,
+      "rawTitle": "爱你没差",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 96,
+      "rawTitle": "还给你一些孤单",
+      "rawArtists": [
+        "汪苏泷"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 97,
+      "rawTitle": "有我呢",
+      "rawArtists": [
+        "郭一凡"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 98,
+      "rawTitle": "半句再见",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 99,
+      "rawTitle": "搁浅",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "kugou-00s-hot",
+      "sourceType": "support",
+      "provider": "kugou",
+      "rank": 100,
+      "rawTitle": "句号",
+      "rawArtists": [
+        "G.E.M. 邓紫棋"
+      ],
+      "sourceUrl": "https://www.kugou.com/yy/rank/home/5-49224.html?from=rank",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

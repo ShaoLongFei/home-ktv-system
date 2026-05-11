@@ -1,0 +1,2808 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:19.426Z",
+  "sourceId": "netease-hot-toplist",
+  "rowCount": 200,
+  "rows": [
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 2,
+      "rawTitle": "晴天",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 3,
+      "rawTitle": "小幸运",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 4,
+      "rawTitle": "后来 Fixture 2",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 5,
+      "rawTitle": "晴天 Fixture 2",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 6,
+      "rawTitle": "小幸运 Fixture 2",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 7,
+      "rawTitle": "后来 Fixture 3",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 8,
+      "rawTitle": "晴天 Fixture 3",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 9,
+      "rawTitle": "小幸运 Fixture 3",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 10,
+      "rawTitle": "后来 Fixture 4",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 11,
+      "rawTitle": "晴天 Fixture 4",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 12,
+      "rawTitle": "小幸运 Fixture 4",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 13,
+      "rawTitle": "后来 Fixture 5",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 14,
+      "rawTitle": "晴天 Fixture 5",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 15,
+      "rawTitle": "小幸运 Fixture 5",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 16,
+      "rawTitle": "后来 Fixture 6",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 17,
+      "rawTitle": "晴天 Fixture 6",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 18,
+      "rawTitle": "小幸运 Fixture 6",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 19,
+      "rawTitle": "后来 Fixture 7",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 20,
+      "rawTitle": "晴天 Fixture 7",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 21,
+      "rawTitle": "小幸运 Fixture 7",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 22,
+      "rawTitle": "后来 Fixture 8",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 23,
+      "rawTitle": "晴天 Fixture 8",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 24,
+      "rawTitle": "小幸运 Fixture 8",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 25,
+      "rawTitle": "后来 Fixture 9",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 26,
+      "rawTitle": "晴天 Fixture 9",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 27,
+      "rawTitle": "小幸运 Fixture 9",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 28,
+      "rawTitle": "后来 Fixture 10",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 29,
+      "rawTitle": "晴天 Fixture 10",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 30,
+      "rawTitle": "小幸运 Fixture 10",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 31,
+      "rawTitle": "后来 Fixture 11",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 32,
+      "rawTitle": "晴天 Fixture 11",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 33,
+      "rawTitle": "小幸运 Fixture 11",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 34,
+      "rawTitle": "后来 Fixture 12",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 35,
+      "rawTitle": "晴天 Fixture 12",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 36,
+      "rawTitle": "小幸运 Fixture 12",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 37,
+      "rawTitle": "后来 Fixture 13",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 38,
+      "rawTitle": "晴天 Fixture 13",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 39,
+      "rawTitle": "小幸运 Fixture 13",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 40,
+      "rawTitle": "后来 Fixture 14",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 41,
+      "rawTitle": "晴天 Fixture 14",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 42,
+      "rawTitle": "小幸运 Fixture 14",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 43,
+      "rawTitle": "后来 Fixture 15",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 44,
+      "rawTitle": "晴天 Fixture 15",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 45,
+      "rawTitle": "小幸运 Fixture 15",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 46,
+      "rawTitle": "后来 Fixture 16",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 47,
+      "rawTitle": "晴天 Fixture 16",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 48,
+      "rawTitle": "小幸运 Fixture 16",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 49,
+      "rawTitle": "后来 Fixture 17",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 50,
+      "rawTitle": "晴天 Fixture 17",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 51,
+      "rawTitle": "小幸运 Fixture 17",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 52,
+      "rawTitle": "后来 Fixture 18",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 53,
+      "rawTitle": "晴天 Fixture 18",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 54,
+      "rawTitle": "小幸运 Fixture 18",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 55,
+      "rawTitle": "后来 Fixture 19",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 56,
+      "rawTitle": "晴天 Fixture 19",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 57,
+      "rawTitle": "小幸运 Fixture 19",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 58,
+      "rawTitle": "后来 Fixture 20",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 59,
+      "rawTitle": "晴天 Fixture 20",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 60,
+      "rawTitle": "小幸运 Fixture 20",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 61,
+      "rawTitle": "后来 Fixture 21",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 62,
+      "rawTitle": "晴天 Fixture 21",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 63,
+      "rawTitle": "小幸运 Fixture 21",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 64,
+      "rawTitle": "后来 Fixture 22",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 65,
+      "rawTitle": "晴天 Fixture 22",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 66,
+      "rawTitle": "小幸运 Fixture 22",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 67,
+      "rawTitle": "后来 Fixture 23",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 68,
+      "rawTitle": "晴天 Fixture 23",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 69,
+      "rawTitle": "小幸运 Fixture 23",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 70,
+      "rawTitle": "后来 Fixture 24",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 71,
+      "rawTitle": "晴天 Fixture 24",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 72,
+      "rawTitle": "小幸运 Fixture 24",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 73,
+      "rawTitle": "后来 Fixture 25",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 74,
+      "rawTitle": "晴天 Fixture 25",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 75,
+      "rawTitle": "小幸运 Fixture 25",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 76,
+      "rawTitle": "后来 Fixture 26",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 77,
+      "rawTitle": "晴天 Fixture 26",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 78,
+      "rawTitle": "小幸运 Fixture 26",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 79,
+      "rawTitle": "后来 Fixture 27",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 80,
+      "rawTitle": "晴天 Fixture 27",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 81,
+      "rawTitle": "小幸运 Fixture 27",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 82,
+      "rawTitle": "后来 Fixture 28",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 83,
+      "rawTitle": "晴天 Fixture 28",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 84,
+      "rawTitle": "小幸运 Fixture 28",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 85,
+      "rawTitle": "后来 Fixture 29",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 86,
+      "rawTitle": "晴天 Fixture 29",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 87,
+      "rawTitle": "小幸运 Fixture 29",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 88,
+      "rawTitle": "后来 Fixture 30",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 89,
+      "rawTitle": "晴天 Fixture 30",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 90,
+      "rawTitle": "小幸运 Fixture 30",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 91,
+      "rawTitle": "后来 Fixture 31",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 92,
+      "rawTitle": "晴天 Fixture 31",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 93,
+      "rawTitle": "小幸运 Fixture 31",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 94,
+      "rawTitle": "后来 Fixture 32",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 95,
+      "rawTitle": "晴天 Fixture 32",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 96,
+      "rawTitle": "小幸运 Fixture 32",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 97,
+      "rawTitle": "后来 Fixture 33",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 98,
+      "rawTitle": "晴天 Fixture 33",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 99,
+      "rawTitle": "小幸运 Fixture 33",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 100,
+      "rawTitle": "后来 Fixture 34",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 101,
+      "rawTitle": "晴天 Fixture 34",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 102,
+      "rawTitle": "小幸运 Fixture 34",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 103,
+      "rawTitle": "后来 Fixture 35",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 104,
+      "rawTitle": "晴天 Fixture 35",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 105,
+      "rawTitle": "小幸运 Fixture 35",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 106,
+      "rawTitle": "后来 Fixture 36",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 107,
+      "rawTitle": "晴天 Fixture 36",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 108,
+      "rawTitle": "小幸运 Fixture 36",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 109,
+      "rawTitle": "后来 Fixture 37",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 110,
+      "rawTitle": "晴天 Fixture 37",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 111,
+      "rawTitle": "小幸运 Fixture 37",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 112,
+      "rawTitle": "后来 Fixture 38",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 113,
+      "rawTitle": "晴天 Fixture 38",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 114,
+      "rawTitle": "小幸运 Fixture 38",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 115,
+      "rawTitle": "后来 Fixture 39",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 116,
+      "rawTitle": "晴天 Fixture 39",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 117,
+      "rawTitle": "小幸运 Fixture 39",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 118,
+      "rawTitle": "后来 Fixture 40",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 119,
+      "rawTitle": "晴天 Fixture 40",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 120,
+      "rawTitle": "小幸运 Fixture 40",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 121,
+      "rawTitle": "后来 Fixture 41",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 122,
+      "rawTitle": "晴天 Fixture 41",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 123,
+      "rawTitle": "小幸运 Fixture 41",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 124,
+      "rawTitle": "后来 Fixture 42",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 125,
+      "rawTitle": "晴天 Fixture 42",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 126,
+      "rawTitle": "小幸运 Fixture 42",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 127,
+      "rawTitle": "后来 Fixture 43",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 128,
+      "rawTitle": "晴天 Fixture 43",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 129,
+      "rawTitle": "小幸运 Fixture 43",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 130,
+      "rawTitle": "后来 Fixture 44",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 131,
+      "rawTitle": "晴天 Fixture 44",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 132,
+      "rawTitle": "小幸运 Fixture 44",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 133,
+      "rawTitle": "后来 Fixture 45",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 134,
+      "rawTitle": "晴天 Fixture 45",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 135,
+      "rawTitle": "小幸运 Fixture 45",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 136,
+      "rawTitle": "后来 Fixture 46",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 137,
+      "rawTitle": "晴天 Fixture 46",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 138,
+      "rawTitle": "小幸运 Fixture 46",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 139,
+      "rawTitle": "后来 Fixture 47",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 140,
+      "rawTitle": "晴天 Fixture 47",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 141,
+      "rawTitle": "小幸运 Fixture 47",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 142,
+      "rawTitle": "后来 Fixture 48",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 143,
+      "rawTitle": "晴天 Fixture 48",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 144,
+      "rawTitle": "小幸运 Fixture 48",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 145,
+      "rawTitle": "后来 Fixture 49",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 146,
+      "rawTitle": "晴天 Fixture 49",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 147,
+      "rawTitle": "小幸运 Fixture 49",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 148,
+      "rawTitle": "后来 Fixture 50",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 149,
+      "rawTitle": "晴天 Fixture 50",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 150,
+      "rawTitle": "小幸运 Fixture 50",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 151,
+      "rawTitle": "后来 Fixture 51",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 152,
+      "rawTitle": "晴天 Fixture 51",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 153,
+      "rawTitle": "小幸运 Fixture 51",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 154,
+      "rawTitle": "后来 Fixture 52",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 155,
+      "rawTitle": "晴天 Fixture 52",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 156,
+      "rawTitle": "小幸运 Fixture 52",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 157,
+      "rawTitle": "后来 Fixture 53",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 158,
+      "rawTitle": "晴天 Fixture 53",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 159,
+      "rawTitle": "小幸运 Fixture 53",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 160,
+      "rawTitle": "后来 Fixture 54",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 161,
+      "rawTitle": "晴天 Fixture 54",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 162,
+      "rawTitle": "小幸运 Fixture 54",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 163,
+      "rawTitle": "后来 Fixture 55",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 164,
+      "rawTitle": "晴天 Fixture 55",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 165,
+      "rawTitle": "小幸运 Fixture 55",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 166,
+      "rawTitle": "后来 Fixture 56",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 167,
+      "rawTitle": "晴天 Fixture 56",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 168,
+      "rawTitle": "小幸运 Fixture 56",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 169,
+      "rawTitle": "后来 Fixture 57",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 170,
+      "rawTitle": "晴天 Fixture 57",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 171,
+      "rawTitle": "小幸运 Fixture 57",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 172,
+      "rawTitle": "后来 Fixture 58",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 173,
+      "rawTitle": "晴天 Fixture 58",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 174,
+      "rawTitle": "小幸运 Fixture 58",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 175,
+      "rawTitle": "后来 Fixture 59",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 176,
+      "rawTitle": "晴天 Fixture 59",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 177,
+      "rawTitle": "小幸运 Fixture 59",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 178,
+      "rawTitle": "后来 Fixture 60",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 179,
+      "rawTitle": "晴天 Fixture 60",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 180,
+      "rawTitle": "小幸运 Fixture 60",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 181,
+      "rawTitle": "后来 Fixture 61",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 182,
+      "rawTitle": "晴天 Fixture 61",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 183,
+      "rawTitle": "小幸运 Fixture 61",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 184,
+      "rawTitle": "后来 Fixture 62",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 185,
+      "rawTitle": "晴天 Fixture 62",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 186,
+      "rawTitle": "小幸运 Fixture 62",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 187,
+      "rawTitle": "后来 Fixture 63",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 188,
+      "rawTitle": "晴天 Fixture 63",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 189,
+      "rawTitle": "小幸运 Fixture 63",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 190,
+      "rawTitle": "后来 Fixture 64",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 191,
+      "rawTitle": "晴天 Fixture 64",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 192,
+      "rawTitle": "小幸运 Fixture 64",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 193,
+      "rawTitle": "后来 Fixture 65",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 194,
+      "rawTitle": "晴天 Fixture 65",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 195,
+      "rawTitle": "小幸运 Fixture 65",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 196,
+      "rawTitle": "后来 Fixture 66",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 197,
+      "rawTitle": "晴天 Fixture 66",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 198,
+      "rawTitle": "小幸运 Fixture 66",
+      "rawArtists": [
+        "田馥甄"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 199,
+      "rawTitle": "后来 Fixture 67",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "netease-hot-toplist",
+      "sourceType": "support",
+      "provider": "netease",
+      "rank": 200,
+      "rawTitle": "晴天 Fixture 67",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://music.163.com/discover/toplist?id=3778678",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:19.426Z",
+      "warnings": []
+    }
+  ]
+}

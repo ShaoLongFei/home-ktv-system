@@ -1,0 +1,1632 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "qq-trend-toplist",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "解药 (新版)",
+      "rawArtists": [
+        "来一碗老于"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "骁",
+      "rawArtists": [
+        "井胧",
+        "井迪儿"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "最后的人",
+      "rawArtists": [
+        "杨小壮"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "STAY (Clean)",
+      "rawArtists": [
+        "The Kid LAROI",
+        "Justin Bieber"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "生活总该迎着光亮",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "不如",
+      "rawArtists": [
+        "秦海清"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "落日与晚风",
+      "rawArtists": [
+        "IN-K",
+        "王忻辰",
+        "苏星婕"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "半生雪",
+      "rawArtists": [
+        "七叔（叶泽浩）"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "时光背面的我",
+      "rawArtists": [
+        "刘至佳",
+        "韩瞳"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "你能不能不要离开我 (莫叫语版)",
+      "rawArtists": [
+        "莫叫姐姐"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "晴天",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "青花瓷",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "放空",
+      "rawArtists": [
+        "A1 TRIP",
+        "大籽",
+        "Lil E"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "STAY (Explicit)",
+      "rawArtists": [
+        "The Kid LAROI",
+        "Justin Bieber"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "踏山河",
+      "rawArtists": [
+        "七叔（叶泽浩）"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "热爱105℃的你",
+      "rawArtists": [
+        "阿肆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "生而为赢",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "花海",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "怎叹",
+      "rawArtists": [
+        "郑鱼"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "七里香",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "给我一首歌的时间",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "善变",
+      "rawArtists": [
+        "王靖雯"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "沦陷",
+      "rawArtists": [
+        "王靖雯"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "秋殇别恋",
+      "rawArtists": [
+        "马跃展"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "怨苍天变了心 (吉他版)",
+      "rawArtists": [
+        "王小帅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "曾经你说",
+      "rawArtists": [
+        "赵乃吉"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Power (In Your Soul)",
+      "rawArtists": [
+        "Interupt",
+        "Luna LePage"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "雾里",
+      "rawArtists": [
+        "姚六一"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "稻香",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "一路向北",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "鲸落",
+      "rawArtists": [
+        "李小璐"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "明明就",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "目及皆是你",
+      "rawArtists": [
+        "小蓝背心"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "夜曲",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "忆爱",
+      "rawArtists": [
+        "霈丹(浪哥)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Ring Ring Ring",
+      "rawArtists": [
+        "不是花火呀"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "破茧",
+      "rawArtists": [
+        "张韶涵"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "万疆",
+      "rawArtists": [
+        "李玉刚"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "星辰大海",
+      "rawArtists": [
+        "黄霄雲"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "可可托海的牧羊人",
+      "rawArtists": [
+        "王琪"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "白月光与朱砂痣",
+      "rawArtists": [
+        "大籽"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "大风吹 (Live)",
+      "rawArtists": [
+        "刘惜君",
+        "王赫野"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "告白气球",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "不该用情 (女声版)",
+      "rawArtists": [
+        "莫叫姐姐"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "起风了",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "兰亭序",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "如果爱还在",
+      "rawArtists": [
+        "雨中百合"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "最近我有些累了",
+      "rawArtists": [
+        "马健涛"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "无双的王者",
+      "rawArtists": [
+        "G.E.M. 邓紫棋",
+        "王者荣耀"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "那年·年少",
+      "rawArtists": [
+        "宋瑀哲"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "不挽留没回头",
+      "rawArtists": [
+        "王小乱"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "搁浅",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "星月为媒",
+      "rawArtists": [
+        "王茗"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "朱雀",
+      "rawArtists": [
+        "时代少年团"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "大风吹",
+      "rawArtists": [
+        "王赫野"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "不负人间",
+      "rawArtists": [
+        "阿YueYue"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "来迟",
+      "rawArtists": [
+        "戴羽彤"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "篝火旁",
+      "rawArtists": [
+        "吕大叶",
+        "马子林Broma",
+        "陈觅Lynne",
+        "王以诺"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "尾号6208",
+      "rawArtists": [
+        "严浩翔"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "虞兮叹",
+      "rawArtists": [
+        "闻人听書_"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "嘉宾",
+      "rawArtists": [
+        "张远"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "满目星辰皆是你",
+      "rawArtists": [
+        "林宁"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "霍元甲",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "下辈子不一定还能遇见你",
+      "rawArtists": [
+        "陈雅森"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "风吹一夏",
+      "rawArtists": [
+        "DP龙猪",
+        "阿水SWEI",
+        "Rays陈袁"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "游山恋",
+      "rawArtists": [
+        "海伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "反方向的钟",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "蒲公英的约定",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "盗墓笔记·十年人间",
+      "rawArtists": [
+        "李常超（Lao乾妈）"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "狼人游戏",
+      "rawArtists": [
+        "小田音乐社",
+        "戾格",
+        "懒懒不平凡"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "听我说谢谢你",
+      "rawArtists": [
+        "李昕融"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "Stay (Explicit)",
+      "rawArtists": [
+        "Conor Maynard",
+        "Tayler Holder"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "五十年以后",
+      "rawArtists": [
+        "海来阿木"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "New Boy",
+      "rawArtists": [
+        "房东的猫"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "探窗",
+      "rawArtists": [
+        "国风新语",
+        "浮生梦",
+        "汐音社"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "风雨人生路",
+      "rawArtists": [
+        "张鑫雨"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "我太笨",
+      "rawArtists": [
+        "锤娜丽莎"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "HOME (归)",
+      "rawArtists": [
+        "王源",
+        "HENRY刘宪华"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "听妈妈的话",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "少年",
+      "rawArtists": [
+        "梦然"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "潮汐 (Natural) (DJ版)",
+      "rawArtists": [
+        "傅梦彤"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "珊瑚海",
+      "rawArtists": [
+        "周杰伦",
+        "Lara梁心颐"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "半岛铁盒",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "偏爱",
+      "rawArtists": [
+        "张芸京"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "以父之名",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "夜夜夜漫长",
+      "rawArtists": [
+        "DJ小鱼儿"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "清空",
+      "rawArtists": [
+        "王忻辰",
+        "苏星婕"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "迟来的情话",
+      "rawArtists": [
+        "张家旺"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "银河与星斗",
+      "rawArtists": [
+        "yihuik苡慧"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "这世界那么多人",
+      "rawArtists": [
+        "莫文蔚"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "阿衣莫",
+      "rawArtists": [
+        "阿吉太组合"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "哪里都是你",
+      "rawArtists": [
+        "队长"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "海阔天空",
+      "rawArtists": [
+        "BEYOND"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "可惜没如果",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "爱在西元前",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "不能说的秘密",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "红颜知己",
+      "rawArtists": [
+        "安静"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "白鸽",
+      "rawArtists": [
+        "你的上好佳"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "耍把戏",
+      "rawArtists": [
+        "张东尼"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    },
+    {
+      "sourceId": "qq-trend-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 0,
+      "rawTitle": "不谓侠",
+      "rawArtists": [
+        "萧忆情Alex"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/76",
+      "sourcePublishedAt": null,
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": [
+        "missing-source-published-at"
+      ]
+    }
+  ]
+}

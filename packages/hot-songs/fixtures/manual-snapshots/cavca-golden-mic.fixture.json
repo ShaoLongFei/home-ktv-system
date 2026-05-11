@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "hot-songs.manual-source.v1",
+  "sourceName": "CAVCA 金麦榜 fixture",
+  "sourceUrl": "https://www.cavca.org/news/49",
+  "publishedAt": "2026-05-01",
+  "capturedAt": "2026-05-10T00:00:00.000Z",
+  "rows": [
+    {
+      "rank": 1,
+      "title": "后来",
+      "artists": ["刘若英"]
+    },
+    {
+      "rank": 2,
+      "title": "同手同脚 (Live)",
+      "artists": ["温岚"],
+      "notes": "Manual snapshot preserves Live variant descriptor"
+    },
+    {
+      "rank": 3,
+      "title": "Run Wild（向风而野）",
+      "artists": ["周深"]
+    }
+  ]
+}

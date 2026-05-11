@@ -1,0 +1,422 @@
+{
+  "schemaVersion": "hot-songs.candidate-snapshot.v1",
+  "generatedAt": "2026-05-10T06:26:28.264Z",
+  "sourceRowCount": 15,
+  "candidateCount": 6,
+  "sourceStatuses": [
+    {
+      "sourceId": "qq-kge-toplist",
+      "status": "succeeded",
+      "usable": true,
+      "rowCount": 3,
+      "warnings": [
+        "row-count-below-expected"
+      ],
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
+    },
+    {
+      "sourceId": "cavca-golden-mic-manual",
+      "status": "succeeded",
+      "usable": true,
+      "rowCount": 3,
+      "warnings": [],
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
+    },
+    {
+      "sourceId": "qq-hot-toplist",
+      "status": "succeeded",
+      "usable": true,
+      "rowCount": 3,
+      "warnings": [],
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
+    },
+    {
+      "sourceId": "kugou-rank-home",
+      "status": "succeeded",
+      "usable": true,
+      "rowCount": 3,
+      "warnings": [],
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
+    },
+    {
+      "sourceId": "netease-toplist",
+      "status": "succeeded",
+      "usable": true,
+      "rowCount": 3,
+      "warnings": [],
+      "startedAt": "2026-05-10T06:26:28.264Z",
+      "finishedAt": "2026-05-10T06:26:28.264Z"
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "song_615fae7231ed90be",
+      "songKey": "title:run wild 向风而野|artists:周深|variant:original",
+      "canonicalTitleKey": "run wild 向风而野",
+      "baseTitleKey": "run wild 向风而野",
+      "canonicalArtistKeys": [
+        "周深"
+      ],
+      "variantSignature": "original",
+      "displayTitle": "Run Wild（向风而野）",
+      "displayArtists": [
+        "周深"
+      ],
+      "sourceIds": [
+        "cavca-golden-mic-manual",
+        "kugou-rank-home",
+        "qq-hot-toplist",
+        "qq-kge-toplist"
+      ],
+      "sourceTypes": [
+        "ktv_first",
+        "support"
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceId": "cavca-golden-mic-manual",
+          "sourceType": "ktv_first",
+          "provider": "cavca",
+          "rank": 3,
+          "rawTitle": "Run Wild（向风而野）",
+          "rawArtists": [
+            "周深"
+          ],
+          "sourceUrl": "https://www.cavca.org/news/49",
+          "sourcePublishedAt": "2026-05-01",
+          "collectedAt": "2026-05-10T00:00:00.000Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "qq-kge-toplist",
+          "sourceType": "ktv_first",
+          "provider": "qq_music",
+          "rank": 3,
+          "rawTitle": "Run Wild（向风而野）",
+          "rawArtists": [
+            "周深"
+          ],
+          "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
+          "sourcePublishedAt": "2026-05-10",
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "kugou-rank-home",
+          "sourceType": "support",
+          "provider": "kugou",
+          "rank": 3,
+          "rawTitle": "Run Wild（向风而野）",
+          "rawArtists": [
+            "周深"
+          ],
+          "sourceUrl": "https://www.kugou.com/yy/rank/home",
+          "sourcePublishedAt": null,
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "qq-hot-toplist",
+          "sourceType": "support",
+          "provider": "qq_music",
+          "rank": 3,
+          "rawTitle": "Run Wild（向风而野）",
+          "rawArtists": [
+            "周深"
+          ],
+          "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
+          "sourcePublishedAt": "2026-05-10",
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "candidateId": "song_cd4a0824fb9cec9a",
+      "songKey": "title:十年|artists:陈奕迅|variant:original",
+      "canonicalTitleKey": "十年",
+      "baseTitleKey": "十年",
+      "canonicalArtistKeys": [
+        "陈奕迅"
+      ],
+      "variantSignature": "original",
+      "displayTitle": "十年",
+      "displayArtists": [
+        "陈奕迅"
+      ],
+      "sourceIds": [
+        "kugou-rank-home"
+      ],
+      "sourceTypes": [
+        "support"
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceId": "kugou-rank-home",
+          "sourceType": "support",
+          "provider": "kugou",
+          "rank": 2,
+          "rawTitle": "十年",
+          "rawArtists": [
+            "陈奕迅"
+          ],
+          "sourceUrl": "https://www.kugou.com/yy/rank/home",
+          "sourcePublishedAt": null,
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "candidateId": "song_b56812bc69cae431",
+      "songKey": "title:同手同脚 live|artists:温岚|variant:variant-live",
+      "canonicalTitleKey": "同手同脚 live",
+      "baseTitleKey": "同手同脚",
+      "canonicalArtistKeys": [
+        "温岚"
+      ],
+      "variantSignature": "variant-live",
+      "displayTitle": "同手同脚 (Live)",
+      "displayArtists": [
+        "温岚"
+      ],
+      "sourceIds": [
+        "cavca-golden-mic-manual"
+      ],
+      "sourceTypes": [
+        "ktv_first"
+      ],
+      "warnings": [
+        "Manual snapshot preserves Live variant descriptor",
+        "variant-live"
+      ],
+      "evidence": [
+        {
+          "sourceId": "cavca-golden-mic-manual",
+          "sourceType": "ktv_first",
+          "provider": "cavca",
+          "rank": 2,
+          "rawTitle": "同手同脚 (Live)",
+          "rawArtists": [
+            "温岚"
+          ],
+          "sourceUrl": "https://www.cavca.org/news/49",
+          "sourcePublishedAt": "2026-05-01",
+          "collectedAt": "2026-05-10T00:00:00.000Z",
+          "warnings": [
+            "Manual snapshot preserves Live variant descriptor"
+          ]
+        }
+      ]
+    },
+    {
+      "candidateId": "song_3ff1430199235032",
+      "songKey": "title:后来|artists:刘若英|variant:original",
+      "canonicalTitleKey": "后来",
+      "baseTitleKey": "后来",
+      "canonicalArtistKeys": [
+        "刘若英"
+      ],
+      "variantSignature": "original",
+      "displayTitle": "后来",
+      "displayArtists": [
+        "刘若英"
+      ],
+      "sourceIds": [
+        "cavca-golden-mic-manual",
+        "kugou-rank-home",
+        "netease-toplist",
+        "qq-hot-toplist",
+        "qq-kge-toplist"
+      ],
+      "sourceTypes": [
+        "ktv_first",
+        "support"
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceId": "cavca-golden-mic-manual",
+          "sourceType": "ktv_first",
+          "provider": "cavca",
+          "rank": 1,
+          "rawTitle": "后来",
+          "rawArtists": [
+            "刘若英"
+          ],
+          "sourceUrl": "https://www.cavca.org/news/49",
+          "sourcePublishedAt": "2026-05-01",
+          "collectedAt": "2026-05-10T00:00:00.000Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "qq-kge-toplist",
+          "sourceType": "ktv_first",
+          "provider": "qq_music",
+          "rank": 1,
+          "rawTitle": "后来",
+          "rawArtists": [
+            "刘若英"
+          ],
+          "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
+          "sourcePublishedAt": "2026-05-10",
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "kugou-rank-home",
+          "sourceType": "support",
+          "provider": "kugou",
+          "rank": 1,
+          "rawTitle": "后来",
+          "rawArtists": [
+            "刘若英"
+          ],
+          "sourceUrl": "https://www.kugou.com/yy/rank/home",
+          "sourcePublishedAt": null,
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "netease-toplist",
+          "sourceType": "support",
+          "provider": "netease",
+          "rank": 1,
+          "rawTitle": "后来",
+          "rawArtists": [
+            "刘若英"
+          ],
+          "sourceUrl": "https://music.163.com/discover/toplist",
+          "sourcePublishedAt": null,
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "qq-hot-toplist",
+          "sourceType": "support",
+          "provider": "qq_music",
+          "rank": 1,
+          "rawTitle": "后来",
+          "rawArtists": [
+            "刘若英"
+          ],
+          "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
+          "sourcePublishedAt": "2026-05-10",
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "candidateId": "song_0f408c73fdcff086",
+      "songKey": "title:小幸运|artists:田馥甄|variant:original",
+      "canonicalTitleKey": "小幸运",
+      "baseTitleKey": "小幸运",
+      "canonicalArtistKeys": [
+        "田馥甄"
+      ],
+      "variantSignature": "original",
+      "displayTitle": "小幸运",
+      "displayArtists": [
+        "田馥甄"
+      ],
+      "sourceIds": [
+        "netease-toplist",
+        "qq-hot-toplist",
+        "qq-kge-toplist"
+      ],
+      "sourceTypes": [
+        "ktv_first",
+        "support"
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceId": "qq-kge-toplist",
+          "sourceType": "ktv_first",
+          "provider": "qq_music",
+          "rank": 2,
+          "rawTitle": "小幸运",
+          "rawArtists": [
+            "田馥甄"
+          ],
+          "sourceUrl": "https://y.qq.com/n/ryqq/toplist/36",
+          "sourcePublishedAt": "2026-05-10",
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "qq-hot-toplist",
+          "sourceType": "support",
+          "provider": "qq_music",
+          "rank": 2,
+          "rawTitle": "小幸运",
+          "rawArtists": [
+            "田馥甄"
+          ],
+          "sourceUrl": "https://y.qq.com/n/ryqq/toplist/26",
+          "sourcePublishedAt": "2026-05-10",
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        },
+        {
+          "sourceId": "netease-toplist",
+          "sourceType": "support",
+          "provider": "netease",
+          "rank": 3,
+          "rawTitle": "小幸运",
+          "rawArtists": [
+            "田馥甄"
+          ],
+          "sourceUrl": "https://music.163.com/discover/toplist",
+          "sourcePublishedAt": null,
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        }
+      ]
+    },
+    {
+      "candidateId": "song_891b3c95b3be86d9",
+      "songKey": "title:晴天|artists:周杰伦|variant:original",
+      "canonicalTitleKey": "晴天",
+      "baseTitleKey": "晴天",
+      "canonicalArtistKeys": [
+        "周杰伦"
+      ],
+      "variantSignature": "original",
+      "displayTitle": "晴天",
+      "displayArtists": [
+        "周杰伦"
+      ],
+      "sourceIds": [
+        "netease-toplist"
+      ],
+      "sourceTypes": [
+        "support"
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceId": "netease-toplist",
+          "sourceType": "support",
+          "provider": "netease",
+          "rank": 2,
+          "rawTitle": "晴天",
+          "rawArtists": [
+            "周杰伦"
+          ],
+          "sourceUrl": "https://music.163.com/discover/toplist",
+          "sourcePublishedAt": null,
+          "collectedAt": "2026-05-10T06:26:28.264Z",
+          "warnings": []
+        }
+      ]
+    }
+  ]
+}

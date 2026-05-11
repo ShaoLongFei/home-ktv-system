@@ -1,0 +1,1427 @@
+{
+  "schemaVersion": "hot-songs.source-file.v1",
+  "generatedAt": "2026-05-10T17:20:20.391Z",
+  "sourceId": "qq-soaring-toplist",
+  "rowCount": 100,
+  "rows": [
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 120494,
+      "rawTitle": "无声电影",
+      "rawArtists": [
+        "鹭卓"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 104747,
+      "rawTitle": "Be Yourself",
+      "rawArtists": [
+        "TF家族-陈奕恒"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 98790,
+      "rawTitle": "YOLO",
+      "rawArtists": [
+        "卓沅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 197725,
+      "rawTitle": "星梦-XingMeng",
+      "rawArtists": [
+        "GAI周延"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 205562,
+      "rawTitle": "颜色",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 76702,
+      "rawTitle": "一半一半 (Live)",
+      "rawArtists": [
+        "希林娜依高",
+        "欧阳娣娣 (Didi Ouyang)",
+        "王晓赟子",
+        "谢可寅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 38216,
+      "rawTitle": "Somebody That I Used to Know",
+      "rawArtists": [
+        "Gotye",
+        "Kimbra"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 437254,
+      "rawTitle": "爱错",
+      "rawArtists": [
+        "王力宏"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 466033,
+      "rawTitle": "Beauty And A Beat",
+      "rawArtists": [
+        "Justin Bieber",
+        "Nicki Minaj"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 611831,
+      "rawTitle": "晴天",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 192102,
+      "rawTitle": "天龙八部之宿敌",
+      "rawArtists": [
+        "许嵩"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 276674,
+      "rawTitle": "答案 — 冒海飞/徐丽东",
+      "rawArtists": [
+        "冒海飞",
+        "徐丽东"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 379405,
+      "rawTitle": "雨爱",
+      "rawArtists": [
+        "杨丞琳"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 35484,
+      "rawTitle": "尕连手 (Live)",
+      "rawArtists": [
+        "赵骏"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 483254,
+      "rawTitle": "搁浅",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 45706,
+      "rawTitle": "妈妈我爱你",
+      "rawArtists": [
+        "李昕融"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 328699,
+      "rawTitle": "告白气球",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 238756,
+      "rawTitle": "一半一半",
+      "rawArtists": [
+        "Top Barry",
+        "INDEcompany"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 188514,
+      "rawTitle": "夏天的风",
+      "rawArtists": [
+        "温岚"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 418469,
+      "rawTitle": "稻香",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 35760,
+      "rawTitle": "我认 (Live)",
+      "rawArtists": [
+        "费宇涛"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 185172,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "是晚星呀"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 432864,
+      "rawTitle": "人生路漫漫",
+      "rawArtists": [
+        "白小白"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 120356,
+      "rawTitle": "枪火",
+      "rawArtists": [
+        "宝石Gem"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 74909,
+      "rawTitle": "喜欢",
+      "rawArtists": [
+        "阿肆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 203545,
+      "rawTitle": "Baby, Don't Cry (人鱼的眼泪) (Chinese Ver.)",
+      "rawArtists": [
+        "EXO (엑소)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 183559,
+      "rawTitle": "关键词",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 548843,
+      "rawTitle": "恋人",
+      "rawArtists": [
+        "李荣浩"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 420651,
+      "rawTitle": "花海",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 267879,
+      "rawTitle": "江南",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 30551,
+      "rawTitle": "爱错 (Live)",
+      "rawArtists": [
+        "康子奇",
+        "鹭卓",
+        "POLARIX-邵子恒",
+        "姚弛"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 30560,
+      "rawTitle": "如烟",
+      "rawArtists": [
+        "五月天"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 288843,
+      "rawTitle": "Always Online",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 217003,
+      "rawTitle": "Baby",
+      "rawArtists": [
+        "Justin Bieber",
+        "Ludacris"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 372360,
+      "rawTitle": "我怀念的",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 212219,
+      "rawTitle": "海阔天空",
+      "rawArtists": [
+        "BEYOND"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 284526,
+      "rawTitle": "富士山下",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 235913,
+      "rawTitle": "失眠",
+      "rawArtists": [
+        "Suki刘舒妤"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 407424,
+      "rawTitle": "唯一",
+      "rawArtists": [
+        "G.E.M. 邓紫棋"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 358463,
+      "rawTitle": "演员",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 389074,
+      "rawTitle": "小半",
+      "rawArtists": [
+        "陈粒"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 119259,
+      "rawTitle": "Love Story",
+      "rawArtists": [
+        "Taylor Swift"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 255445,
+      "rawTitle": "坏女孩",
+      "rawArtists": [
+        "徐良",
+        "小凌"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 46418,
+      "rawTitle": "云水谣",
+      "rawArtists": [
+        "en (王翊恩)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 113463,
+      "rawTitle": "真的爱你",
+      "rawArtists": [
+        "BEYOND"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 213220,
+      "rawTitle": "美人鱼",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 215593,
+      "rawTitle": "这叫爱",
+      "rawArtists": [
+        "BY2"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 292076,
+      "rawTitle": "特别的人",
+      "rawArtists": [
+        "方大同"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 215344,
+      "rawTitle": "如愿",
+      "rawArtists": [
+        "王菲"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 423839,
+      "rawTitle": "雨过后的风景",
+      "rawArtists": [
+        "Dizzy Dizzo (蔡诗芸)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 229507,
+      "rawTitle": "十年",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 345568,
+      "rawTitle": "其实",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 223540,
+      "rawTitle": "最佳损友",
+      "rawArtists": [
+        "陈奕迅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 212315,
+      "rawTitle": "一样的月光",
+      "rawArtists": [
+        "徐佳莹"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 163236,
+      "rawTitle": "REDRED",
+      "rawArtists": [
+        "CORTIS"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 164709,
+      "rawTitle": "춤 (CHOOM)",
+      "rawArtists": [
+        "BABYMONSTER (베이비몬스터)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 77266,
+      "rawTitle": "绿光",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 140594,
+      "rawTitle": "奢香夫人",
+      "rawArtists": [
+        "凤凰传奇"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 114467,
+      "rawTitle": "蝴蝶",
+      "rawArtists": [
+        "陶喆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 245582,
+      "rawTitle": "天外来物",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 13355,
+      "rawTitle": "Just Glow(慢慢发光)",
+      "rawArtists": [
+        "玉芬"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 166400,
+      "rawTitle": "ANGEL (天使)",
+      "rawArtists": [
+        "尹美莱 (윤미래)",
+        "Tiger JK",
+        "Bizzy (비지)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 67046,
+      "rawTitle": "Coco Elva Tia",
+      "rawArtists": [
+        "马思唯"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 101864,
+      "rawTitle": "RUDE!",
+      "rawArtists": [
+        "Hearts2Hearts"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 105225,
+      "rawTitle": "Come Back To Me",
+      "rawArtists": [
+        "Utada (宇多田光)"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 236405,
+      "rawTitle": "爱情讯息",
+      "rawArtists": [
+        "郭静"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 150610,
+      "rawTitle": "普通朋友",
+      "rawArtists": [
+        "陶喆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 236282,
+      "rawTitle": "我们俩",
+      "rawArtists": [
+        "郭顶"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 203266,
+      "rawTitle": "愿与愁",
+      "rawArtists": [
+        "林俊杰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 295853,
+      "rawTitle": "离开我的依赖",
+      "rawArtists": [
+        "王艳薇"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 23082,
+      "rawTitle": "讨厌",
+      "rawArtists": [
+        "芮恩"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 315991,
+      "rawTitle": "春娇与志明",
+      "rawArtists": [
+        "街道办GDC",
+        "欧阳耀莹"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 80444,
+      "rawTitle": "Cruel Summer",
+      "rawArtists": [
+        "Taylor Swift"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 160627,
+      "rawTitle": "我是真的爱上你",
+      "rawArtists": [
+        "王杰"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 442063,
+      "rawTitle": "七里香",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 39562,
+      "rawTitle": "活着Viva",
+      "rawArtists": [
+        "谢霆锋"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 26106,
+      "rawTitle": "拥抱",
+      "rawArtists": [
+        "五月天"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 229902,
+      "rawTitle": "素颜",
+      "rawArtists": [
+        "许嵩",
+        "何曼婷"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 177371,
+      "rawTitle": "我们的歌",
+      "rawArtists": [
+        "王力宏"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 404228,
+      "rawTitle": "红尘客栈",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 13628,
+      "rawTitle": "答案 (嫌疑人X的献身)",
+      "rawArtists": [
+        "舒马赫",
+        "你星Official"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 99764,
+      "rawTitle": "爱你（把我们衣服纽扣互扣）",
+      "rawArtists": [
+        "徐俊雅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 117322,
+      "rawTitle": "去北极忘记你",
+      "rawArtists": [
+        "Gareth.T"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 75465,
+      "rawTitle": "Zoo (From \"Zootopia 2\")",
+      "rawArtists": [
+        "Disney",
+        "Shakira"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 359237,
+      "rawTitle": "一路向北",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 117711,
+      "rawTitle": "云裳羽衣曲",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 191968,
+      "rawTitle": "认真的雪",
+      "rawArtists": [
+        "薛之谦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 85121,
+      "rawTitle": "逝去的爱",
+      "rawArtists": [
+        "李安"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 230628,
+      "rawTitle": "红色高跟鞋",
+      "rawArtists": [
+        "蔡健雅"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 242609,
+      "rawTitle": "遇见",
+      "rawArtists": [
+        "孙燕姿"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 144367,
+      "rawTitle": "半壶纱",
+      "rawArtists": [
+        "刘珂矣"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 11491,
+      "rawTitle": "心跳同步",
+      "rawArtists": [
+        "杨佳林Lamb"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 32748,
+      "rawTitle": "暗恋",
+      "rawArtists": [
+        "陶喆"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 171974,
+      "rawTitle": "幻听",
+      "rawArtists": [
+        "许嵩"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 12794,
+      "rawTitle": "小棉袄",
+      "rawArtists": [
+        "万佳明",
+        "面妹孔佳奇"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 251579,
+      "rawTitle": "情歌",
+      "rawArtists": [
+        "梁静茹"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 408064,
+      "rawTitle": "青花瓷",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 163022,
+      "rawTitle": "迷人的危险",
+      "rawArtists": [
+        "Dance Flow"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 371693,
+      "rawTitle": "兰亭序",
+      "rawArtists": [
+        "周杰伦"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "qq-soaring-toplist",
+      "sourceType": "support",
+      "provider": "qq_music",
+      "rank": 169129,
+      "rawTitle": "我知道",
+      "rawArtists": [
+        "BY2"
+      ],
+      "sourceUrl": "https://y.qq.com/n/ryqq/toplist/62",
+      "sourcePublishedAt": "2026-05-10",
+      "collectedAt": "2026-05-10T17:20:20.391Z",
+      "warnings": []
+    }
+  ]
+}

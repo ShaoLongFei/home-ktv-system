@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "hot-songs.source-rows.v1",
+  "generatedAt": "2026-05-10T06:15:32.630Z",
+  "rows": [
+    {
+      "sourceId": "cavca-golden-mic-manual",
+      "sourceType": "ktv_first",
+      "provider": "cavca",
+      "rank": 1,
+      "rawTitle": "后来",
+      "rawArtists": [
+        "刘若英"
+      ],
+      "sourceUrl": "https://www.cavca.org/news/49",
+      "sourcePublishedAt": "2026-05-01",
+      "collectedAt": "2026-05-10T00:00:00.000Z",
+      "warnings": []
+    },
+    {
+      "sourceId": "cavca-golden-mic-manual",
+      "sourceType": "ktv_first",
+      "provider": "cavca",
+      "rank": 2,
+      "rawTitle": "同手同脚 (Live)",
+      "rawArtists": [
+        "温岚"
+      ],
+      "sourceUrl": "https://www.cavca.org/news/49",
+      "sourcePublishedAt": "2026-05-01",
+      "collectedAt": "2026-05-10T00:00:00.000Z",
+      "warnings": [
+        "Manual snapshot preserves Live variant descriptor"
+      ]
+    },
+    {
+      "sourceId": "cavca-golden-mic-manual",
+      "sourceType": "ktv_first",
+      "provider": "cavca",
+      "rank": 3,
+      "rawTitle": "Run Wild（向风而野）",
+      "rawArtists": [
+        "周深"
+      ],
+      "sourceUrl": "https://www.cavca.org/news/49",
+      "sourcePublishedAt": "2026-05-01",
+      "collectedAt": "2026-05-10T00:00:00.000Z",
+      "warnings": []
+    }
+  ]
+}
