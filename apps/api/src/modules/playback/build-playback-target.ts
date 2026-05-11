@@ -1,4 +1,4 @@
-import type { Asset, QueueEntry, Room, Song } from "@home-ktv/domain";
+import type { Asset, PlaybackProfile, QueueEntry, Room, Song, TrackRef } from "@home-ktv/domain";
 import type { PlaybackTarget, QueueEntryPreview } from "@home-ktv/player-contracts";
 import type { AssetGateway } from "../assets/asset-gateway.js";
 import type { AssetRepository } from "../catalog/repositories/asset-repository.js";
@@ -56,8 +56,34 @@ export async function buildPlaybackTarget(input: BuildPlaybackTargetInput): Prom
     resumePositionMs: session.playerPositionMs,
     vocalMode: asset.vocalMode,
     switchFamily: asset.switchFamily,
+    playbackProfile: buildPlaybackProfileForAsset(asset),
+    selectedTrackRef: selectedTrackRefForAsset(asset),
     nextQueueEntryPreview: await buildNextQueueEntryPreview(room, session.nextQueueEntryId, input.repositories)
   };
+}
+
+function buildPlaybackProfileForAsset(asset: Asset): PlaybackProfile {
+  if (asset.playbackProfile) {
+    return asset.playbackProfile;
+  }
+
+  return {
+    kind: "separate_asset_pair",
+    container: asset.mediaInfoSummary?.container ?? null,
+    videoCodec: asset.mediaInfoSummary?.videoCodec ?? null,
+    audioCodecs: asset.mediaInfoSummary?.audioTracks.map((track) => track.codec).filter((codec): codec is string => Boolean(codec)) ?? [],
+    requiresAudioTrackSelection: false
+  };
+}
+
+function selectedTrackRefForAsset(asset: Asset): TrackRef | null {
+  if (asset.vocalMode === "original") {
+    return asset.trackRoles?.original ?? null;
+  }
+  if (asset.vocalMode === "instrumental") {
+    return asset.trackRoles?.instrumental ?? null;
+  }
+  return null;
 }
 
 async function buildNextQueueEntryPreview(
@@ -115,6 +141,8 @@ export function buildPlaybackTargetFromResolvedState(input: {
     resumePositionMs: input.resumePositionMs,
     vocalMode: input.asset.vocalMode,
     switchFamily: input.asset.switchFamily,
+    playbackProfile: buildPlaybackProfileForAsset(input.asset),
+    selectedTrackRef: selectedTrackRefForAsset(input.asset),
     nextQueueEntryPreview: input.nextQueueEntryPreview
   };
 }

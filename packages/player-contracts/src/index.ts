@@ -3,9 +3,11 @@ import type {
   ControlSessionId,
   QueueEntryId,
   QueueEntryStatus,
+  PlaybackProfile,
   RoomId,
   SongId,
   SwitchFamily,
+  TrackRef,
   VocalMode
 } from "@home-ktv/domain";
 import type { PlayerTelemetryEventName } from "@home-ktv/protocol";
@@ -26,6 +28,8 @@ export interface PlaybackTarget {
   resumePositionMs: number;
   vocalMode: VocalMode;
   switchFamily: SwitchFamily | null;
+  playbackProfile?: PlaybackProfile;
+  selectedTrackRef?: TrackRef | null;
   nextQueueEntryPreview: QueueEntryPreview | null;
 }
 

@@ -50,11 +50,63 @@ describe("buildPlaybackTarget", () => {
       resumePositionMs: 45678,
       vocalMode: "instrumental",
       switchFamily: "family-main",
+      playbackProfile: {
+        kind: "separate_asset_pair",
+        container: null,
+        videoCodec: null,
+        audioCodecs: [],
+        requiresAudioTrackSelection: false
+      },
+      selectedTrackRef: null,
       nextQueueEntryPreview: {
         queueEntryId: "queue-next",
         songTitle: "后来",
         artistName: "刘若英"
       }
+    });
+  });
+
+  it("selects instrumental track ref for single-file real MV playback", async () => {
+    const room = createRoom("living-room");
+    const currentAsset = {
+      ...createAsset("asset-real-mv", "instrumental", "real-mv-family"),
+      songId: "song-current",
+      assetKind: "dual-track-video" as const,
+      playbackProfile: {
+        kind: "single_file_audio_tracks" as const,
+        container: "matroska,webm",
+        videoCodec: "h264",
+        audioCodecs: ["aac"],
+        requiresAudioTrackSelection: true
+      },
+      trackRoles: {
+        original: { index: 0, id: "0x1100", label: "Original vocal" },
+        instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+      }
+    };
+    const currentSong = createSong("song-current", "七里香", "周杰伦", currentAsset.id);
+    const queueEntries = [createQueueEntry("queue-current", room.id, currentSong.id, currentAsset.id, "playing")];
+    const repositories = createRepositories({
+      room,
+      session: { ...createPlaybackSession(room.id, currentAsset.id), nextQueueEntryId: null },
+      assets: [currentAsset],
+      queueEntries,
+      songs: [currentSong]
+    });
+
+    const target = await buildPlaybackTarget({
+      roomSlug: "living-room",
+      repositories,
+      assetGateway: createAssetGateway(repositories.assets)
+    });
+
+    expect(target).toMatchObject({
+      assetId: "asset-real-mv",
+      playbackProfile: {
+        kind: "single_file_audio_tracks",
+        requiresAudioTrackSelection: true
+      },
+      selectedTrackRef: { index: 1, id: "0x1101", label: "Instrumental" }
     });
   });
 });
