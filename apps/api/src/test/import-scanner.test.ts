@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { CandidateBuilder } from "../modules/ingest/candidate-builder.js";
 import { ImportScanner } from "../modules/ingest/import-scanner.js";
 import { resolveLibraryPaths, toLibraryRelativePath } from "../modules/ingest/library-paths.js";
+import type { ImportCandidateRepository } from "../modules/ingest/repositories/import-candidate-repository.js";
 import type { ImportFileRepository } from "../modules/ingest/repositories/import-file-repository.js";
 import type { ScanRunRepository } from "../modules/ingest/repositories/scan-run-repository.js";
 
@@ -112,6 +113,55 @@ describe("CandidateBuilder", () => {
       ])
     });
   });
+
+  it("keeps raw probe streams and format out of candidate probeSummary", async () => {
+    const capturedInputs: Array<Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]> = [];
+    const upsertCandidateWithFiles = vi.fn(async (input: Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]) => {
+      capturedInputs.push(input);
+      return createCandidate();
+    });
+    const builder = new CandidateBuilder({
+      importCandidates: { upsertCandidateWithFiles }
+    });
+
+    await builder.buildFromImportFiles([
+      createImportFile({
+        relativePath: "周杰伦/七里香.mkv",
+        probePayload: {
+          streams: [{ codec_type: "audio" }],
+          format: { duration: "60.000" },
+          mediaInfoSummary: {
+            container: "matroska,webm",
+            durationMs: 60000,
+            videoCodec: "h264",
+            resolution: { width: 1920, height: 1080 },
+            fileSizeBytes: 104857600,
+            audioTracks: []
+          },
+          mediaInfoProvenance: {
+            source: "ffprobe",
+            sourceVersion: "8.1",
+            probedAt: "2026-05-11T08:10:00.000Z",
+            importedFrom: "周杰伦/七里香.mkv"
+          }
+        }
+      })
+    ]);
+
+    const capturedInput = capturedInputs[0];
+    if (!capturedInput) {
+      throw new Error("upsertCandidateWithFiles was not called");
+    }
+    const probeSummary = capturedInput.files[0]?.probeSummary;
+    expect(probeSummary).toMatchObject({
+      durationMs: 180000,
+      probeStatus: "probed",
+      mediaInfoSummary: expect.objectContaining({ container: "matroska,webm" }),
+      mediaInfoProvenance: expect.objectContaining({ source: "ffprobe" })
+    });
+    expect(probeSummary).not.toHaveProperty("streams");
+    expect(probeSummary).not.toHaveProperty("format");
+  });
 });
 
 async function createScannerHarness(input: { existingFile: boolean; content: string }) {
@@ -147,6 +197,20 @@ async function createScannerHarness(input: { existingFile: boolean; content: str
     audioCodec: "aac",
     width: 1920,
     height: 1080,
+    mediaInfoSummary: {
+      container: "mov,mp4,m4a,3gp,3g2,mj2",
+      durationMs: 180123,
+      videoCodec: "h264",
+      resolution: { width: 1920, height: 1080 },
+      fileSizeBytes: 10,
+      audioTracks: [{ index: 0, id: "stream-0", label: "Audio 1", language: null, codec: "aac", channels: 2 }]
+    },
+    mediaInfoProvenance: {
+      source: "ffprobe" as const,
+      sourceVersion: null,
+      probedAt: "2026-04-30T00:00:00.000Z",
+      importedFrom: "周杰伦/七里香.instrumental.mp4"
+    },
     raw: {}
   }));
 

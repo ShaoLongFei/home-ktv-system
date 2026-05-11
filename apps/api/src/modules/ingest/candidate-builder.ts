@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { AssetKind, ImportFile, Language, VocalMode } from "@home-ktv/domain";
+import type { AssetKind, ImportFile, Language, MediaInfoProvenance, MediaInfoSummary, VocalMode } from "@home-ktv/domain";
 import type { ImportCandidateRepository } from "./repositories/import-candidate-repository.js";
 
 export interface CandidateBuilderOptions {
@@ -32,6 +32,8 @@ export class CandidateBuilder {
         },
         files: group.files.map((file) => {
           const proposedVocalMode = inferVocalMode(file.relativePath);
+          const mediaInfoSummary = readMediaInfoSummary(file.probePayload.mediaInfoSummary);
+          const mediaInfoProvenance = readMediaInfoProvenance(file.probePayload.mediaInfoProvenance);
           return {
             importFileId: file.id,
             selected: true,
@@ -39,7 +41,9 @@ export class CandidateBuilder {
             proposedAssetKind: inferAssetKind(file.relativePath),
             roleConfidence: proposedVocalMode === "unknown" ? 0.4 : 0.9,
             probeDurationMs: file.durationMs,
-            probeSummary: buildProbeSummary(file)
+            probeSummary: buildProbeSummary(file),
+            mediaInfoSummary,
+            mediaInfoProvenance
           };
         })
       });
@@ -137,6 +141,44 @@ function buildProbeSummary(file: ImportFile): Record<string, unknown> {
   return {
     durationMs: file.durationMs,
     probeStatus: file.probeStatus,
-    ...file.probePayload
+    mediaInfoSummary: readMediaInfoSummary(file.probePayload.mediaInfoSummary),
+    mediaInfoProvenance: readMediaInfoProvenance(file.probePayload.mediaInfoProvenance)
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readMediaInfoSummary(value: unknown): MediaInfoSummary | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+  return {
+    container: typeof value.container === "string" ? value.container : null,
+    durationMs: typeof value.durationMs === "number" ? value.durationMs : null,
+    videoCodec: typeof value.videoCodec === "string" ? value.videoCodec : null,
+    resolution: isRecord(value.resolution) &&
+      typeof value.resolution.width === "number" &&
+      typeof value.resolution.height === "number"
+      ? { width: value.resolution.width, height: value.resolution.height }
+      : null,
+    fileSizeBytes: typeof value.fileSizeBytes === "number" ? value.fileSizeBytes : 0,
+    audioTracks: Array.isArray(value.audioTracks) ? value.audioTracks as MediaInfoSummary["audioTracks"] : []
+  };
+}
+
+function readMediaInfoProvenance(value: unknown): MediaInfoProvenance | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const source = value.source === "ffprobe" || value.source === "mediainfo" || value.source === "manual" || value.source === "unknown"
+    ? value.source
+    : "unknown";
+  return {
+    source,
+    sourceVersion: typeof value.sourceVersion === "string" ? value.sourceVersion : null,
+    probedAt: typeof value.probedAt === "string" ? value.probedAt : null,
+    importedFrom: typeof value.importedFrom === "string" ? value.importedFrom : null
   };
 }

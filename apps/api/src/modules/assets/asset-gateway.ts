@@ -67,8 +67,10 @@ export class AssetGateway {
   }
 }
 
-function inferVideoContentType(filePath: string): string {
+export function inferVideoContentType(filePath: string): string {
   const lowerPath = filePath.toLowerCase();
+  if (lowerPath.endsWith(".mkv")) return "video/x-matroska";
+  if (lowerPath.endsWith(".mpg") || lowerPath.endsWith(".mpeg")) return "video/mpeg";
   if (lowerPath.endsWith(".webm")) {
     return "video/webm";
   }
