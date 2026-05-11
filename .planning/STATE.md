@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
-status: ready_to_execute
+status: executing
 stopped_at: Phase 12 planned
-last_updated: "2026-05-11T01:02:25+08:00"
-last_activity: 2026-05-11
+last_updated: "2026-05-11T07:16:13.505Z"
+last_activity: 2026-05-11 -- Phase 12 execution started
 progress:
   total_phases: 5
   completed_phases: 0
@@ -21,15 +21,15 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 12 - Contract, Schema, and Playback-Risk Spike
+**Current focus:** Phase 12 — contract-schema-and-playback-risk-spike
 
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 12 of 16 (1 of 5 in v1.2) - Contract, Schema, and Playback-Risk Spike
-Plan: 6 plans ready
-Status: Ready to execute
-Last activity: 2026-05-11 -- Phase 12 planned and plan-checker passed
+Phase: 12 (contract-schema-and-playback-risk-spike) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 12
+Last activity: 2026-05-11 -- Phase 12 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
