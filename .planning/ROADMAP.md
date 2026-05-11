@@ -43,7 +43,7 @@ Plans:
 - [x] 12-02-PLAN.md - Durable schema and repository mapping
 - [x] 12-03-PLAN.md - Probe summary, MIME, and compatibility evaluator
 - [x] 12-04-PLAN.md - PlaybackTarget profile and selected track ref
-- [ ] 12-05-PLAN.md - Controlled playback-risk spike harness
+- [x] 12-05-PLAN.md - Controlled playback-risk spike harness
 - [ ] 12-06-PLAN.md - User real-sample playback-risk evidence
 
 ### Phase 13: MediaInfo Probe, Scanner, and Sidecars
@@ -102,7 +102,7 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Contract, Schema, and Playback-Risk Spike | 4/6 | Executing | - |
+| 12. Contract, Schema, and Playback-Risk Spike | 5/6 | Executing | - |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 0/TBD | Not started | - |
 | 14. Admin Review and Catalog Admission | 0/TBD | Not started | - |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |

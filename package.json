@@ -11,6 +11,7 @@
     "ui:visual-check": "node scripts/ui-visual-check.mjs",
     "ui:visual-check:test": "node --test scripts/ui-visual-check.test.mjs",
     "tv:visual-check": "node scripts/tv-visual-check.mjs",
+    "real-mv:risk-spike": "node scripts/real-mv-playback-risk-spike.mjs",
     "hot-songs:sources": "pnpm -F @home-ktv/hot-songs collect-sources",
     "hot-songs:normalize": "pnpm -F @home-ktv/hot-songs normalize",
     "hot-songs:sources:test": "pnpm -F @home-ktv/hot-songs test",
