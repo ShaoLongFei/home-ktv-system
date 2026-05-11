@@ -414,7 +414,7 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
     const songIds = songs.map((song) => song.id);
     const assetResult = await this.db.query<AssetRow>(
       `SELECT id, song_id, source_type, asset_kind, display_name, file_path, duration_ms,
-              lyric_mode, vocal_mode, status, switch_family, switch_quality_status,
+              lyric_mode, vocal_mode, status, switch_family, switch_quality_status, compatibility_status, compatibility_reasons, media_info_summary, media_info_provenance, track_roles, playback_profile,
               created_at, updated_at
        FROM assets
        WHERE song_id = ANY($1::text[])

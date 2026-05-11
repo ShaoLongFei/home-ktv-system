@@ -1,5 +1,7 @@
 import type {
   AssetKind,
+  CompatibilityReason,
+  CompatibilityStatus,
   ImportCandidate,
   ImportCandidateFileDetail,
   ImportCandidateStatus,
@@ -7,10 +9,20 @@ import type {
   ImportFileProbeStatus,
   ImportFileRootKind,
   Language,
+  MediaInfoProvenance,
+  MediaInfoSummary,
+  PlaybackProfile,
+  TrackRoles,
   VocalMode
 } from "@home-ktv/domain";
 import type { QueryExecutor } from "../../../db/query-executor.js";
 import type { ImportCandidateFileDetailRow, ImportCandidateRow } from "../../../db/schema.js";
+import {
+  normalizeMediaInfoProvenance,
+  normalizeMediaInfoSummary,
+  normalizePlaybackProfile,
+  normalizeTrackRoles
+} from "../../catalog/repositories/asset-repository.js";
 
 export interface ImportCandidateRepository {
   listCandidates(filters?: ListImportCandidateFilters): Promise<ImportCandidate[]>;
@@ -78,6 +90,12 @@ export interface UpsertImportCandidateWithFilesInput {
     roleConfidence: number;
     probeDurationMs: number | null;
     probeSummary: Record<string, unknown>;
+    compatibilityStatus?: CompatibilityStatus;
+    compatibilityReasons?: readonly CompatibilityReason[];
+    mediaInfoSummary?: MediaInfoSummary | null;
+    mediaInfoProvenance?: MediaInfoProvenance | null;
+    trackRoles?: TrackRoles;
+    playbackProfile?: PlaybackProfile;
   }>;
 }
 
@@ -142,6 +160,12 @@ export function mapImportCandidateFileDetailRow(row: ImportCandidateFileDetailRo
     roleConfidence: row.role_confidence,
     probeDurationMs: row.probe_duration_ms,
     probeSummary: row.probe_summary,
+    compatibilityStatus: row.compatibility_status as CompatibilityStatus,
+    compatibilityReasons: normalizeCompatibilityReasons(row.compatibility_reasons),
+    mediaInfoSummary: normalizeMediaInfoSummary(row.media_info_summary),
+    mediaInfoProvenance: normalizeMediaInfoProvenance(row.media_info_provenance),
+    trackRoles: normalizeTrackRoles(row.track_roles),
+    playbackProfile: normalizePlaybackProfile(row.playback_profile),
     createdAt: toIsoString(row.candidate_file_created_at),
     updatedAt: toIsoString(row.candidate_file_updated_at),
     rootKind: row.root_kind as ImportFileRootKind,
@@ -154,6 +178,41 @@ export function mapImportCandidateFileDetailRow(row: ImportCandidateFileDetailRo
     durationMs: row.duration_ms,
     fileCreatedAt: toIsoString(row.import_file_created_at),
     fileUpdatedAt: toIsoString(row.import_file_updated_at)
+  };
+}
+
+function normalizeCompatibilityReasons(value: unknown): CompatibilityReason[] {
+  return Array.isArray(value)
+    ? value.filter((reason): reason is CompatibilityReason => (
+        typeof reason === "object" &&
+        reason !== null &&
+        "code" in reason &&
+        "severity" in reason &&
+        "message" in reason &&
+        "source" in reason
+      ))
+    : [];
+}
+
+function defaultMediaInfoSummary(): MediaInfoSummary {
+  return { container: null, durationMs: null, videoCodec: null, resolution: null, fileSizeBytes: 0, audioTracks: [] };
+}
+
+function defaultMediaInfoProvenance(): MediaInfoProvenance {
+  return { source: "unknown", sourceVersion: null, probedAt: null, importedFrom: null };
+}
+
+function defaultTrackRoles(): TrackRoles {
+  return { original: null, instrumental: null };
+}
+
+function defaultPlaybackProfile(): PlaybackProfile {
+  return {
+    kind: "separate_asset_pair",
+    container: null,
+    videoCodec: null,
+    audioCodecs: [],
+    requiresAudioTrackSelection: false
   };
 }
 
@@ -266,9 +325,11 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
         const fileResult = await db.query<{ id: string }>(
           `INSERT INTO import_candidate_files (
              candidate_id, import_file_id, selected, proposed_vocal_mode,
-             proposed_asset_kind, role_confidence, probe_duration_ms, probe_summary
+             proposed_asset_kind, role_confidence, probe_duration_ms, probe_summary,
+             compatibility_status, compatibility_reasons, media_info_summary, media_info_provenance,
+             track_roles, playback_profile
            )
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9, $10::jsonb, $11::jsonb, $12::jsonb, $13::jsonb, $14::jsonb)
            ON CONFLICT(candidate_id, import_file_id)
            DO UPDATE SET
              selected = EXCLUDED.selected,
@@ -277,6 +338,12 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
              role_confidence = EXCLUDED.role_confidence,
              probe_duration_ms = EXCLUDED.probe_duration_ms,
              probe_summary = EXCLUDED.probe_summary,
+             compatibility_status = EXCLUDED.compatibility_status,
+             compatibility_reasons = EXCLUDED.compatibility_reasons,
+             media_info_summary = EXCLUDED.media_info_summary,
+             media_info_provenance = EXCLUDED.media_info_provenance,
+             track_roles = EXCLUDED.track_roles,
+             playback_profile = EXCLUDED.playback_profile,
              updated_at = now()
            RETURNING id`,
           [
@@ -287,7 +354,13 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
             file.proposedAssetKind,
             file.roleConfidence,
             file.probeDurationMs,
-            file.probeSummary
+            file.probeSummary,
+            file.compatibilityStatus ?? "unknown",
+            file.compatibilityReasons ?? [],
+            file.mediaInfoSummary ?? defaultMediaInfoSummary(),
+            file.mediaInfoProvenance ?? defaultMediaInfoProvenance(),
+            file.trackRoles ?? defaultTrackRoles(),
+            file.playbackProfile ?? defaultPlaybackProfile()
           ]
         );
         const candidateFileId = fileResult.rows[0]?.id;
@@ -345,6 +418,12 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
               icf.role_confidence,
               icf.probe_duration_ms,
               icf.probe_summary,
+              icf.compatibility_status,
+              icf.compatibility_reasons,
+              icf.media_info_summary,
+              icf.media_info_provenance,
+              icf.track_roles,
+              icf.playback_profile,
               icf.created_at AS candidate_file_created_at,
               icf.updated_at AS candidate_file_updated_at,
               inf.root_kind,

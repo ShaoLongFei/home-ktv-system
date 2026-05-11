@@ -1,3 +1,5 @@
+import type { MediaInfoProvenance, MediaInfoSummary, PlaybackProfile, TrackRoles } from "@home-ktv/domain";
+
 export const defaultRoomSeed = {
   id: "living-room",
   slug: "living-room",
@@ -31,6 +33,7 @@ export const enumValues = {
   vocalMode: ["original", "instrumental", "dual", "unknown"],
   assetStatus: ["ready", "caching", "failed", "unavailable", "stale", "promoted"],
   switchQualityStatus: ["verified", "review_required", "rejected", "unknown"],
+  compatibilityStatus: ["unknown", "review_required", "playable", "unsupported"],
   roomStatus: ["active", "inactive", "maintenance"],
   queueEntryStatus: ["queued", "preparing", "loading", "playing", "played", "skipped", "failed", "removed"],
   deviceType: ["tv", "mobile"],
@@ -103,6 +106,12 @@ export interface AssetRow {
   status: string;
   switch_family: string | null;
   switch_quality_status: string;
+  compatibility_status: string;
+  compatibility_reasons: Record<string, unknown>[];
+  media_info_summary: MediaInfoSummary;
+  media_info_provenance: MediaInfoProvenance;
+  track_roles: TrackRoles;
+  playback_profile: PlaybackProfile;
   created_at: Date;
   updated_at: Date;
 }
@@ -239,6 +248,12 @@ export interface ImportCandidateFileRow {
   role_confidence: number | null;
   probe_duration_ms: number | null;
   probe_summary: Record<string, unknown>;
+  compatibility_status: string;
+  compatibility_reasons: Record<string, unknown>[];
+  media_info_summary: MediaInfoSummary;
+  media_info_provenance: MediaInfoProvenance;
+  track_roles: TrackRoles;
+  playback_profile: PlaybackProfile;
   created_at: Date;
   updated_at: Date;
 }
@@ -329,6 +344,12 @@ export interface ImportCandidateFileDetailRow {
   role_confidence: number | null;
   probe_duration_ms: number | null;
   probe_summary: Record<string, unknown>;
+  compatibility_status: string;
+  compatibility_reasons: Record<string, unknown>[];
+  media_info_summary: MediaInfoSummary;
+  media_info_provenance: MediaInfoProvenance;
+  track_roles: TrackRoles;
+  playback_profile: PlaybackProfile;
   candidate_file_created_at: Date;
   candidate_file_updated_at: Date;
   root_kind: string;
@@ -384,6 +405,12 @@ CREATE TABLE IF NOT EXISTS assets (
   status text NOT NULL CHECK (status IN ('ready', 'caching', 'failed', 'unavailable', 'stale', 'promoted')),
   switch_family text,
   switch_quality_status text NOT NULL CHECK (switch_quality_status IN ('verified', 'review_required', 'rejected', 'unknown')),
+  compatibility_status text NOT NULL DEFAULT 'unknown' CHECK (compatibility_status IN ('unknown', 'review_required', 'playable', 'unsupported')),
+  compatibility_reasons jsonb NOT NULL DEFAULT '[]'::jsonb,
+  media_info_summary jsonb NOT NULL DEFAULT '{"container":null,"durationMs":null,"videoCodec":null,"resolution":null,"fileSizeBytes":0,"audioTracks":[]}'::jsonb,
+  media_info_provenance jsonb NOT NULL DEFAULT '{"source":"unknown","sourceVersion":null,"probedAt":null,"importedFrom":null}'::jsonb,
+  track_roles jsonb NOT NULL DEFAULT '{"original":null,"instrumental":null}'::jsonb,
+  playback_profile jsonb NOT NULL DEFAULT '{"kind":"separate_asset_pair","container":null,"videoCodec":null,"audioCodecs":[],"requiresAudioTrackSelection":false}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -460,6 +487,7 @@ ALTER TABLE rooms
 
 CREATE INDEX IF NOT EXISTS assets_song_switch_mode_idx ON assets(song_id, switch_family, vocal_mode);
 CREATE INDEX IF NOT EXISTS assets_ready_switch_idx ON assets(switch_family, vocal_mode, status, switch_quality_status);
+CREATE INDEX IF NOT EXISTS assets_compatibility_status_idx ON assets(compatibility_status, status);
 CREATE INDEX IF NOT EXISTS songs_normalized_title_trgm_idx ON songs USING gin (normalized_title gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS songs_artist_name_trgm_idx ON songs USING gin (lower(artist_name) gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS songs_title_pinyin_trgm_idx ON songs USING gin (title_pinyin gin_trgm_ops);

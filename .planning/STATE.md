@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
 status: executing
-stopped_at: Phase 12 plan 1 completed
-last_updated: "2026-05-11T08:00:17Z"
-last_activity: 2026-05-11 -- Phase 12 plan 1 completed: shared real-MV domain contracts
+stopped_at: Phase 12 plan 2 completed
+last_updated: "2026-05-11T08:08:24Z"
+last_activity: 2026-05-11 -- Phase 12 plan 2 completed: durable real-MV schema fields and repository mapping
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
-  percent: 17
+  completed_plans: 2
+  percent: 33
 ---
 
 # Project State
@@ -27,11 +27,11 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 Milestone: v1.2 真实 MV 歌库
 Phase: 12 (contract-schema-and-playback-risk-spike) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Executing Phase 12
-Last activity: 2026-05-11 -- Phase 12 plan 1 completed: shared real-MV domain contracts
+Last activity: 2026-05-11 -- Phase 12 plan 2 completed: durable real-MV schema fields and repository mapping
 
-Progress: [██░░░░░░░░] 17%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -94,5 +94,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-05-11T01:02:25+08:00
-Stopped at: Phase 12 plan 1 completed
-Resume file: .planning/phases/12-contract-schema-and-playback-risk-spike/12-02-PLAN.md
+Stopped at: Phase 12 plan 2 completed
+Resume file: .planning/phases/12-contract-schema-and-playback-risk-spike/12-03-PLAN.md

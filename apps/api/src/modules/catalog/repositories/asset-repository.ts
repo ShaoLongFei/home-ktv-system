@@ -4,10 +4,17 @@ import type {
   AssetKind,
   AssetSourceType,
   AssetStatus,
+  CompatibilityReason,
+  CompatibilityStatus,
   LyricMode,
+  MediaInfoProvenance,
+  MediaInfoSummary,
+  PlaybackProfile,
   SongId,
   SwitchFamily,
   SwitchQualityStatus,
+  TrackRef,
+  TrackRoles,
   VocalMode
 } from "@home-ktv/domain";
 import type { QueryExecutor } from "../../../db/query-executor.js";
@@ -25,6 +32,12 @@ export interface UpdateFormalAssetInput {
   switchFamily?: SwitchFamily | null;
   switchQualityStatus?: SwitchQualityStatus;
   durationMs?: number;
+  compatibilityStatus?: CompatibilityStatus;
+  compatibilityReasons?: readonly CompatibilityReason[];
+  mediaInfoSummary?: MediaInfoSummary | null;
+  mediaInfoProvenance?: MediaInfoProvenance | null;
+  trackRoles?: TrackRoles;
+  playbackProfile?: PlaybackProfile;
 }
 
 export interface AdminCatalogAssetRepository {
@@ -35,6 +48,146 @@ export interface AdminCatalogAssetRepository {
 
 function toIsoString(value: Date): string {
   return value.toISOString();
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function numberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function isTrackRef(value: unknown): value is TrackRef {
+  return (
+    isRecord(value) &&
+    typeof value.index === "number" &&
+    Number.isFinite(value.index) &&
+    typeof value.id === "string" &&
+    typeof value.label === "string"
+  );
+}
+
+function normalizeTrackRef(value: unknown): TrackRef | null {
+  return isTrackRef(value) ? { index: value.index, id: value.id, label: value.label } : null;
+}
+
+export function normalizeMediaInfoSummary(value: unknown): MediaInfoSummary {
+  if (!isRecord(value)) {
+    return defaultMediaInfoSummary();
+  }
+
+  const resolution = isRecord(value.resolution) &&
+    typeof value.resolution.width === "number" &&
+    typeof value.resolution.height === "number"
+    ? { width: value.resolution.width, height: value.resolution.height }
+    : null;
+  const audioTracks = Array.isArray(value.audioTracks)
+    ? value.audioTracks.map((track) => {
+        if (!isTrackRef(track) || !isRecord(track)) {
+          return null;
+        }
+        return {
+          index: track.index,
+          id: track.id,
+          label: track.label,
+          language: stringOrNull(track.language),
+          codec: stringOrNull(track.codec),
+          channels: numberOrNull(track.channels)
+        };
+      }).filter((track): track is MediaInfoSummary["audioTracks"][number] => track !== null)
+    : [];
+
+  return {
+    container: stringOrNull(value.container),
+    durationMs: numberOrNull(value.durationMs),
+    videoCodec: stringOrNull(value.videoCodec),
+    resolution,
+    fileSizeBytes: typeof value.fileSizeBytes === "number" && Number.isFinite(value.fileSizeBytes) ? value.fileSizeBytes : 0,
+    audioTracks
+  };
+}
+
+export function normalizeMediaInfoProvenance(value: unknown): MediaInfoProvenance {
+  if (!isRecord(value)) {
+    return defaultMediaInfoProvenance();
+  }
+  const source = value.source === "ffprobe" || value.source === "mediainfo" || value.source === "manual" || value.source === "unknown"
+    ? value.source
+    : "unknown";
+  return {
+    source,
+    sourceVersion: stringOrNull(value.sourceVersion),
+    probedAt: stringOrNull(value.probedAt),
+    importedFrom: stringOrNull(value.importedFrom)
+  };
+}
+
+export function normalizeTrackRoles(value: unknown): TrackRoles {
+  if (!isRecord(value)) {
+    return defaultTrackRoles();
+  }
+  return {
+    original: normalizeTrackRef(value.original),
+    instrumental: normalizeTrackRef(value.instrumental)
+  };
+}
+
+export function normalizePlaybackProfile(value: unknown): PlaybackProfile {
+  if (!isRecord(value)) {
+    return defaultPlaybackProfile();
+  }
+  const kind = value.kind === "single_file_audio_tracks" ? "single_file_audio_tracks" : "separate_asset_pair";
+  const audioCodecs = Array.isArray(value.audioCodecs)
+    ? value.audioCodecs.filter((codec): codec is string => typeof codec === "string")
+    : [];
+  return {
+    kind,
+    container: stringOrNull(value.container),
+    videoCodec: stringOrNull(value.videoCodec),
+    audioCodecs,
+    requiresAudioTrackSelection: value.requiresAudioTrackSelection === true
+  };
+}
+
+function defaultMediaInfoSummary(): MediaInfoSummary {
+  return { container: null, durationMs: null, videoCodec: null, resolution: null, fileSizeBytes: 0, audioTracks: [] };
+}
+
+function defaultMediaInfoProvenance(): MediaInfoProvenance {
+  return { source: "unknown", sourceVersion: null, probedAt: null, importedFrom: null };
+}
+
+function defaultTrackRoles(): TrackRoles {
+  return { original: null, instrumental: null };
+}
+
+function defaultPlaybackProfile(): PlaybackProfile {
+  return {
+    kind: "separate_asset_pair",
+    container: null,
+    videoCodec: null,
+    audioCodecs: [],
+    requiresAudioTrackSelection: false
+  };
+}
+
+function isCompatibilityReason(value: unknown): value is CompatibilityReason {
+  return (
+    isRecord(value) &&
+    typeof value.code === "string" &&
+    (value.severity === "warning" || value.severity === "error") &&
+    typeof value.message === "string" &&
+    (value.source === "probe" || value.source === "runtime_spike" || value.source === "review" || value.source === "scanner")
+  );
+}
+
+function normalizeCompatibilityReasons(value: unknown): CompatibilityReason[] {
+  return Array.isArray(value) ? value.filter(isCompatibilityReason) : [];
 }
 
 export function mapAssetRow(row: AssetRow): Asset {
@@ -51,6 +204,12 @@ export function mapAssetRow(row: AssetRow): Asset {
     status: row.status as AssetStatus,
     switchFamily: row.switch_family as SwitchFamily | null,
     switchQualityStatus: row.switch_quality_status as SwitchQualityStatus,
+    compatibilityStatus: row.compatibility_status as CompatibilityStatus,
+    compatibilityReasons: normalizeCompatibilityReasons(row.compatibility_reasons),
+    mediaInfoSummary: normalizeMediaInfoSummary(row.media_info_summary),
+    mediaInfoProvenance: normalizeMediaInfoProvenance(row.media_info_provenance),
+    trackRoles: normalizeTrackRoles(row.track_roles),
+    playbackProfile: normalizePlaybackProfile(row.playback_profile),
     createdAt: toIsoString(row.created_at),
     updatedAt: toIsoString(row.updated_at)
   };
@@ -62,7 +221,7 @@ export class PgAssetRepository implements AssetRepository, AdminCatalogAssetRepo
   async findById(assetId: AssetId): Promise<Asset | null> {
     const result = await this.db.query<AssetRow>(
       `SELECT id, song_id, source_type, asset_kind, display_name, file_path, duration_ms,
-              lyric_mode, vocal_mode, status, switch_family, switch_quality_status,
+              lyric_mode, vocal_mode, status, switch_family, switch_quality_status, compatibility_status, compatibility_reasons, media_info_summary, media_info_provenance, track_roles, playback_profile,
               created_at, updated_at
        FROM assets
        WHERE id = $1
@@ -77,7 +236,7 @@ export class PgAssetRepository implements AssetRepository, AdminCatalogAssetRepo
   async listBySongId(songId: SongId): Promise<Asset[]> {
     const result = await this.db.query<AssetRow>(
       `SELECT id, song_id, source_type, asset_kind, display_name, file_path, duration_ms,
-              lyric_mode, vocal_mode, status, switch_family, switch_quality_status,
+              lyric_mode, vocal_mode, status, switch_family, switch_quality_status, compatibility_status, compatibility_reasons, media_info_summary, media_info_provenance, track_roles, playback_profile,
               created_at, updated_at
        FROM assets
        WHERE song_id = $1
@@ -116,6 +275,30 @@ export class PgAssetRepository implements AssetRepository, AdminCatalogAssetRepo
       values.push(input.durationMs);
       assignments.push(`duration_ms = $${values.length}`);
     }
+    if (input.compatibilityStatus !== undefined) {
+      values.push(input.compatibilityStatus);
+      assignments.push(`compatibility_status = $${values.length}`);
+    }
+    if (input.compatibilityReasons !== undefined) {
+      values.push(input.compatibilityReasons);
+      assignments.push(`compatibility_reasons = $${values.length}::jsonb`);
+    }
+    if (input.mediaInfoSummary !== undefined) {
+      values.push(input.mediaInfoSummary ?? defaultMediaInfoSummary());
+      assignments.push(`media_info_summary = $${values.length}::jsonb`);
+    }
+    if (input.mediaInfoProvenance !== undefined) {
+      values.push(input.mediaInfoProvenance ?? defaultMediaInfoProvenance());
+      assignments.push(`media_info_provenance = $${values.length}::jsonb`);
+    }
+    if (input.trackRoles !== undefined) {
+      values.push(input.trackRoles);
+      assignments.push(`track_roles = $${values.length}::jsonb`);
+    }
+    if (input.playbackProfile !== undefined) {
+      values.push(input.playbackProfile);
+      assignments.push(`playback_profile = $${values.length}::jsonb`);
+    }
 
     if (assignments.length > 0) {
       values.push(assetId);
@@ -137,7 +320,7 @@ export class PgAssetRepository implements AssetRepository, AdminCatalogAssetRepo
 
     const result = await this.db.query<AssetRow>(
       `SELECT id, song_id, source_type, asset_kind, display_name, file_path, duration_ms,
-              lyric_mode, vocal_mode, status, switch_family, switch_quality_status,
+              lyric_mode, vocal_mode, status, switch_family, switch_quality_status, compatibility_status, compatibility_reasons, media_info_summary, media_info_provenance, track_roles, playback_profile,
               created_at, updated_at
        FROM assets
        WHERE song_id = $1

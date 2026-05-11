@@ -319,6 +319,33 @@ function createAssetRow(input: Partial<AssetRow> = {}): AssetRow {
     status: "ready",
     switch_family: "family-main",
     switch_quality_status: "verified",
+    compatibility_status: "playable",
+    compatibility_reasons: [],
+    media_info_summary: {
+      container: null,
+      durationMs: null,
+      videoCodec: null,
+      resolution: null,
+      fileSizeBytes: 0,
+      audioTracks: []
+    },
+    media_info_provenance: {
+      source: "unknown",
+      sourceVersion: null,
+      probedAt: null,
+      importedFrom: null
+    },
+    track_roles: {
+      original: null,
+      instrumental: null
+    },
+    playback_profile: {
+      kind: "separate_asset_pair",
+      container: null,
+      videoCodec: null,
+      audioCodecs: [],
+      requiresAudioTrackSelection: false
+    },
     created_at: now,
     updated_at: now,
     ...input
