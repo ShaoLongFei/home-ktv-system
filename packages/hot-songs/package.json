@@ -9,6 +9,7 @@
     "collect-sources": "tsx src/cli.ts",
     "normalize": "tsx src/normalize-cli.ts",
     "fuse": "tsx src/fuse-cli.ts",
+    "update": "tsx src/update-cli.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "tsc -p tsconfig.json --noEmit",

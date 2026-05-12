@@ -1,21 +1,18 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 
-import { z } from "zod";
-
-import {
-  SourceRowSchema,
-  SourceStatusSchema,
-  type SourceRow,
-  type SourceStatus
-} from "./contracts.js";
+import type { SourceRow, SourceStatus } from "./contracts.js";
 import { resolveRunPath } from "./manifest.js";
 import {
   buildCandidateSnapshot,
   type BuildCandidateSnapshotInput
 } from "./normalize/candidates.js";
+import {
+  readSourceReportFile,
+  readSourceRowsFile
+} from "./source-files.js";
 
 export const HOT_SONGS_NORMALIZE_HELP =
   "Usage: pnpm hot-songs:normalize -- --source-rows <path> --out <dir> [--source-report <path>]";
@@ -26,34 +23,6 @@ export type NormalizeSourcesArgs = {
   outDir: string | undefined;
   help: boolean;
 };
-
-const SourceRowsFileSchema = z
-  .union([
-    SourceRowSchema.array(),
-    z.object({
-      generatedAt: z.string().datetime().optional(),
-      rows: SourceRowSchema.array()
-    })
-  ])
-  .transform((parsed) =>
-    Array.isArray(parsed)
-      ? { rows: parsed, generatedAt: undefined as string | undefined }
-      : { rows: parsed.rows, generatedAt: parsed.generatedAt }
-  );
-
-const SourceReportFileSchema = z
-  .union([
-    SourceStatusSchema.array(),
-    z.object({
-      generatedAt: z.string().datetime().optional(),
-      sources: SourceStatusSchema.array()
-    })
-  ])
-  .transform((parsed) =>
-    Array.isArray(parsed)
-      ? { sources: parsed, generatedAt: undefined as string | undefined }
-      : { sources: parsed.sources, generatedAt: parsed.generatedAt }
-  );
 
 export function parseNormalizeSourcesArgs(
   argv: string[]
@@ -150,19 +119,6 @@ function validateRequiredPath(
   }
 
   return filePath;
-}
-
-async function readJsonFile(filePath: string): Promise<unknown> {
-  const fileContent = await readFile(filePath, "utf8");
-  return JSON.parse(fileContent) as unknown;
-}
-
-async function readSourceRowsFile(filePath: string) {
-  return SourceRowsFileSchema.parse(await readJsonFile(filePath));
-}
-
-async function readSourceReportFile(filePath: string) {
-  return SourceReportFileSchema.parse(await readJsonFile(filePath));
 }
 
 function filterUsableSourceRows(

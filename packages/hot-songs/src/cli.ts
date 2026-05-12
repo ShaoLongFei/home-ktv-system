@@ -1,5 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 
@@ -36,9 +35,9 @@ import {
   collectVvMusicRankSource,
   parseVvMusicRankRows
 } from "./adapters/vv-music-rank-html.js";
-import type { SourceDefinition, SourceRow, SourceStatus } from "./contracts.js";
+import type { SourceDefinition, SourceRow } from "./contracts.js";
 import { loadSourceManifest, resolveRunPath, validateManifestPath } from "./manifest.js";
-import { buildSourceHealthReport, writeSourceReport } from "./report/source-health.js";
+import { buildSourceHealthReport } from "./report/source-health.js";
 import {
   collectSources,
   CollectSourcesError,
@@ -46,11 +45,12 @@ import {
   type CollectSourcesResult,
   type SourceAdapter
 } from "./runner.js";
+import { writeSourceCollectionArtifacts } from "./source-artifacts.js";
 
 export const HOT_SONGS_SOURCES_HELP =
   "Usage: pnpm hot-songs:sources -- --manifest <path> --out <dir> [--fixture]";
 
-const proxyBypassHosts = ["music.163.com", "www.51vv.com"];
+export const proxyBypassHosts = ["music.163.com", "www.51vv.com"];
 
 export type CollectSourcesArgs = {
   manifestPath: string | undefined;
@@ -144,7 +144,7 @@ function validateOutDirPath(outDir: string | undefined): string {
   return outDir;
 }
 
-function applyProxyBypassHosts(hosts: readonly string[]): void {
+export function applyProxyBypassHosts(hosts: readonly string[]): void {
   const bypassHosts = new Set(
     [
       ...(process.env.NO_PROXY ?? process.env.no_proxy ?? "")
@@ -160,7 +160,7 @@ function applyProxyBypassHosts(hosts: readonly string[]): void {
   process.env.no_proxy = merged;
 }
 
-function buildAdapters(options: {
+export function buildAdapters(options: {
   fixture: boolean;
   runRoot: string;
 }): CollectContext["adapters"] {
@@ -320,68 +320,11 @@ async function writeRunArtifacts(
   outDir: string,
   result: CollectSourcesResult
 ): Promise<void> {
-  await mkdir(outDir, { recursive: true });
-  await writeSourceRows(outDir, result.generatedAt, result.rows);
-  await writePerSourceRows(outDir, result.generatedAt, result.rows, result.statuses);
-  await writeSourceReport(
-    outDir,
-    buildSourceHealthReport({
-      generatedAt: result.generatedAt,
-      rows: result.rows,
-      statuses: result.statuses
-    })
-  );
-}
-
-async function writePerSourceRows(
-  outDir: string,
-  generatedAt: string,
-  rows: SourceRow[],
-  statuses: SourceStatus[]
-): Promise<void> {
-  const sourcesDir = join(outDir, "sources");
-  await mkdir(sourcesDir, { recursive: true });
-
-  await Promise.all(
-    statuses.map((status) => {
-      const sourceRows = rows.filter((row) => row.sourceId === status.sourceId);
-      return writeFile(
-        join(sourcesDir, `${status.sourceId}.json`),
-        `${JSON.stringify(
-          {
-            schemaVersion: "hot-songs.source-file.v1",
-            generatedAt,
-            sourceId: status.sourceId,
-            rowCount: sourceRows.length,
-            rows: sourceRows
-          },
-          null,
-          2
-        )}\n`,
-        "utf8"
-      );
-    })
-  );
-}
-
-async function writeSourceRows(
-  outDir: string,
-  generatedAt: string,
-  rows: SourceRow[]
-): Promise<void> {
-  await writeFile(
-    join(outDir, "source-rows.json"),
-    `${JSON.stringify(
-      {
-        schemaVersion: "hot-songs.source-rows.v1",
-        generatedAt,
-        rows
-      },
-      null,
-      2
-    )}\n`,
-    "utf8"
-  );
+  await writeSourceCollectionArtifacts(outDir, {
+    generatedAt: result.generatedAt,
+    rows: result.rows,
+    statuses: result.statuses
+  });
 }
 
 function isDirectRun(): boolean {

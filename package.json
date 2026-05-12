@@ -15,6 +15,7 @@
     "hot-songs:sources": "pnpm -F @home-ktv/hot-songs collect-sources",
     "hot-songs:normalize": "pnpm -F @home-ktv/hot-songs normalize",
     "hot-songs:fuse": "pnpm -F @home-ktv/hot-songs fuse",
+    "hot-songs:update": "pnpm -F @home-ktv/hot-songs run update",
     "hot-songs:sources:test": "pnpm -F @home-ktv/hot-songs test",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
