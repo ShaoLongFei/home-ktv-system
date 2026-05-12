@@ -149,7 +149,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     await registerAdminImportRoutes(server, {
       importCandidates: ingest.importCandidates,
       scanScheduler: ingest.scheduler,
-      admissionService: ingest.admissionService
+      admissionService: ingest.admissionService,
+      paths: ingest.paths
     });
     await registerAdminCatalogRoutes(server, {
       songs: ingest.catalogSongs,

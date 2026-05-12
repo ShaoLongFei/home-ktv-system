@@ -1,3 +1,6 @@
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { tmpdir } from "node:os";
 import Fastify from "fastify";
 import type {
   ImportCandidate,
@@ -6,6 +9,7 @@ import type {
   ImportScanScope
 } from "@home-ktv/domain";
 import { describe, expect, it, vi } from "vitest";
+import { resolveLibraryPaths, type LibraryPaths } from "../modules/ingest/library-paths.js";
 import { registerAdminImportRoutes } from "../routes/admin-imports.js";
 
 describe("admin import review routes", () => {
@@ -140,6 +144,68 @@ describe("admin import review routes", () => {
     expect(response.json()).toEqual({ accepted: true, scope: "all" });
   });
 
+  it("serves real MV cover previews from stored sidecar metadata", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-admin-cover-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    await writeFile(path.join(paths.importsPendingRoot, "关喆-想你的夜.jpg"), "jpeg-cover");
+    const { server } = await createAdminImportsHarness({
+      files: [createRealMvCandidateFileDetail()],
+      paths
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/admin/import-candidates/candidate-1/files/candidate-file-real-mv/cover"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-type"]).toContain("image/jpeg");
+    expect(response.body).toBe("jpeg-cover");
+  });
+
+  it("returns 404 when a real MV cover preview cannot be resolved", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-admin-missing-cover-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    const { server } = await createAdminImportsHarness({
+      files: [createRealMvCandidateFileDetail({ coverRelativePath: null })],
+      paths
+    });
+
+    const missingFile = await server.inject({
+      method: "GET",
+      url: "/admin/import-candidates/candidate-1/files/missing-file/cover"
+    });
+    const missingCover = await server.inject({
+      method: "GET",
+      url: "/admin/import-candidates/candidate-1/files/candidate-file-real-mv/cover"
+    });
+
+    expect(missingFile.statusCode).toBe(404);
+    expect(missingFile.json()).toMatchObject({ error: "IMPORT_COVER_NOT_FOUND" });
+    expect(missingCover.statusCode).toBe(404);
+    expect(missingCover.json()).toMatchObject({ error: "IMPORT_COVER_NOT_FOUND" });
+  });
+
+  it("rejects real MV cover preview paths outside the file scan root", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-admin-cover-outside-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    const { server } = await createAdminImportsHarness({
+      files: [createRealMvCandidateFileDetail({ coverRelativePath: "../outside.jpg" })],
+      paths
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/admin/import-candidates/candidate-1/files/candidate-file-real-mv/cover"
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toMatchObject({ error: "IMPORT_COVER_OUTSIDE_ROOT" });
+  });
+
   it("POST /admin/import-candidates/:candidateId/reject-delete requires confirmDelete", async () => {
     const { server, admissionService } = await createAdminImportsHarness();
 
@@ -203,7 +269,11 @@ describe("admin import review routes", () => {
   });
 });
 
-async function createAdminImportsHarness(input: { candidate?: ImportCandidate; files?: ImportCandidateFileDetail[] } = {}) {
+async function createAdminImportsHarness(input: {
+  candidate?: ImportCandidate;
+  files?: ImportCandidateFileDetail[];
+  paths?: LibraryPaths;
+} = {}) {
   const server = Fastify({ logger: false });
   const candidate = input.candidate ?? createCandidate();
   const files = input.files ?? [createCandidateFileDetail()];
@@ -233,7 +303,12 @@ async function createAdminImportsHarness(input: { candidate?: ImportCandidate; f
     }))
   };
 
-  await registerAdminImportRoutes(server, { importCandidates, scanScheduler, admissionService });
+  await registerAdminImportRoutes(server, {
+    importCandidates,
+    scanScheduler,
+    admissionService,
+    ...(input.paths ? { paths: input.paths } : {})
+  });
   return { server, importCandidates, scanScheduler, admissionService };
 }
 
@@ -290,7 +365,11 @@ function createCandidateFileDetail(): ImportCandidateFileDetail {
   };
 }
 
-function createRealMvCandidateFileDetail(): ImportCandidateFileDetail {
+function createRealMvCandidateFileDetail(input: {
+  coverRelativePath?: string | null;
+  coverContentType?: string;
+} = {}): ImportCandidateFileDetail {
+  const coverRelativePath = input.coverRelativePath === undefined ? "关喆-想你的夜.jpg" : input.coverRelativePath;
   return {
     ...createCandidateFileDetail(),
     id: "candidate-file-real-mv",
@@ -318,12 +397,14 @@ function createRealMvCandidateFileDetail(): ImportCandidateFileDetail {
           }
         ],
         sidecars: {
-          cover: {
-            relativePath: "关喆-想你的夜.jpg",
-            sizeBytes: 10,
-            mtimeMs: 1777536000000,
-            contentType: "image/jpeg"
-          }
+          cover: coverRelativePath
+            ? {
+                relativePath: coverRelativePath,
+                sizeBytes: 10,
+                mtimeMs: 1777536000000,
+                contentType: input.coverContentType ?? "image/jpeg"
+              }
+            : null
         }
       }
     },

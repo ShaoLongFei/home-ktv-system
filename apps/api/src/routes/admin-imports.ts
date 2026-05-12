@@ -1,6 +1,10 @@
+import { createReadStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import path from "node:path";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type {
   ImportCandidateFileDetail,
+  ImportFileRootKind,
   ImportCandidateStatus,
   ImportScanScope,
   Language,
@@ -14,6 +18,7 @@ import type {
 } from "../modules/ingest/repositories/import-candidate-repository.js";
 import type { ScanScheduler } from "../modules/ingest/scan-scheduler.js";
 import type { CatalogAdmissionService, ConflictResolution } from "../modules/catalog/admission-service.js";
+import type { LibraryPaths } from "../modules/ingest/library-paths.js";
 
 export interface AdminImportRouteDependencies {
   importCandidates: Pick<
@@ -25,6 +30,7 @@ export interface AdminImportRouteDependencies {
     CatalogAdmissionService,
     "holdCandidate" | "rejectDeleteCandidate" | "approveCandidate" | "resolveCandidateConflict"
   >;
+  paths?: LibraryPaths;
 }
 
 const importCandidateStatuses: ImportCandidateStatus[] = ["pending", "held", "review_required", "conflict"];
@@ -62,6 +68,48 @@ export async function registerAdminImportRoutes(
     }
 
     return { candidate: serializeCandidateWithFiles(record) };
+  });
+
+  server.get("/admin/import-candidates/:candidateId/files/:candidateFileId/cover", async (request, reply) => {
+    const paths = dependencies.paths;
+    if (!paths) {
+      return reply.code(404).send({ error: "IMPORT_COVER_NOT_FOUND" });
+    }
+
+    const { candidateId, candidateFileId } = request.params as { candidateId: string; candidateFileId: string };
+    const record = await dependencies.importCandidates.getCandidateWithFiles(candidateId);
+    const file = record?.files.find((item) => item.id === candidateFileId);
+    if (!record || !file) {
+      return reply.code(404).send({ error: "IMPORT_COVER_NOT_FOUND" });
+    }
+
+    const realMv = readRealMvPreview(file.probeSummary, record.candidate.candidateMeta.realMv);
+    const cover = realMv ? readCoverSidecar(realMv) : null;
+    const contentType = cover ? readCoverContentType(cover) : null;
+    if (!cover || !contentType) {
+      return reply.code(404).send({ error: "IMPORT_COVER_NOT_FOUND" });
+    }
+
+    const rootPath = rootPathFor(file.rootKind, paths);
+    const coverPath = resolveSidecarPath(rootPath, String(cover.relativePath));
+    if (!coverPath.ok) {
+      return reply.code(404).send({ error: "IMPORT_COVER_OUTSIDE_ROOT" });
+    }
+
+    try {
+      const fileStat = await stat(coverPath.path);
+      if (!fileStat.isFile()) {
+        return reply.code(404).send({ error: "IMPORT_COVER_NOT_FOUND" });
+      }
+      reply.type(contentType);
+      reply.header("content-length", fileStat.size);
+      return reply.send(createReadStream(coverPath.path));
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        return reply.code(404).send({ error: "IMPORT_COVER_NOT_FOUND" });
+      }
+      throw error;
+    }
   });
 
   // PATCH /admin/import-candidates/:candidateId is the canonical D-07 metadata update route.
@@ -363,6 +411,34 @@ function readCoverSidecar(realMv: Record<string, unknown>): Record<string, unkno
   return isRecord(realMv.sidecars.cover) && typeof realMv.sidecars.cover.relativePath === "string"
     ? realMv.sidecars.cover
     : null;
+}
+
+function readCoverContentType(cover: Record<string, unknown>): string | null {
+  const contentType = cover.contentType;
+  return contentType === "image/jpeg" || contentType === "image/png" || contentType === "image/webp" ? contentType : null;
+}
+
+function rootPathFor(rootKind: ImportFileRootKind, paths: LibraryPaths): string {
+  if (rootKind === "imports_pending") {
+    return paths.importsPendingRoot;
+  }
+  if (rootKind === "imports_needs_review") {
+    return paths.importsNeedsReviewRoot;
+  }
+  return paths.songsRoot;
+}
+
+function resolveSidecarPath(rootPath: string, relativePath: string): { ok: true; path: string } | { ok: false } {
+  const root = path.resolve(rootPath);
+  const candidate = path.resolve(root, relativePath);
+  const relative = path.relative(root, candidate);
+
+  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
+    // Path is outside the file scan root.
+    return { ok: false };
+  }
+
+  return { ok: true, path: candidate };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
