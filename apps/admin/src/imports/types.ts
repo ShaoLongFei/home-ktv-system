@@ -4,6 +4,75 @@ export type VocalMode = "original" | "instrumental" | "dual" | "unknown";
 export type AssetKind = "video" | "audio+lyrics" | "dual-track-video";
 export type ImportFileRootKind = "imports_pending" | "imports_needs_review" | "songs";
 export type ProbeStatus = "pending" | "probed" | "failed" | "skipped" | "deleted";
+export type CompatibilityStatus = "unknown" | "review_required" | "playable" | "unsupported";
+export type CompatibilityReasonSeverity = "info" | "warning" | "error";
+export type CompatibilityReasonSource = "scanner" | "probe" | "runtime" | "manual";
+
+export interface CompatibilityReason {
+  code: string;
+  severity: CompatibilityReasonSeverity;
+  message: string;
+  source: CompatibilityReasonSource;
+}
+
+export interface TrackRef {
+  index: number;
+  id: string;
+  label: string;
+}
+
+export interface TrackRoles {
+  original: TrackRef | null;
+  instrumental: TrackRef | null;
+}
+
+export interface MediaInfoSummary {
+  container: string | null;
+  durationMs: number | null;
+  videoCodec: string | null;
+  resolution: { width: number; height: number } | null;
+  fileSizeBytes: number;
+  audioTracks: ReadonlyArray<TrackRef & {
+    language: string | null;
+    codec: string | null;
+    channels: number | null;
+  }>;
+}
+
+export interface MediaInfoProvenance {
+  source: "ffprobe" | "mediainfo" | "manual" | "unknown";
+  sourceVersion: string | null;
+  probedAt: string | null;
+  importedFrom: string | null;
+}
+
+export interface PlaybackProfile {
+  kind: "separate_asset_pair" | "single_file_audio_tracks";
+  container: string | null;
+  videoCodec: string | null;
+  audioCodecs: readonly string[];
+  requiresAudioTrackSelection: boolean;
+}
+
+export interface RealMvSidecarArtifact {
+  relativePath: string;
+  sizeBytes?: number;
+  mtimeMs?: number;
+  contentType?: string;
+}
+
+export interface RealMvPreview {
+  groupKey?: string;
+  mediaKind?: string;
+  sidecarMetadata?: Record<string, unknown>;
+  scannerReasons?: readonly CompatibilityReason[];
+  metadataSources?: readonly Record<string, unknown>[];
+  metadataConflicts?: readonly Record<string, unknown>[];
+  sidecars?: {
+    cover?: RealMvSidecarArtifact | null;
+    songJson?: RealMvSidecarArtifact | null;
+  };
+}
 
 export interface ImportCandidateFileDetail {
   candidateFileId: string;
@@ -14,6 +83,14 @@ export interface ImportCandidateFileDetail {
   roleConfidence: number | null;
   probeDurationMs: number | null;
   probeSummary: Record<string, unknown>;
+  compatibilityStatus?: CompatibilityStatus;
+  compatibilityReasons?: readonly CompatibilityReason[];
+  mediaInfoSummary?: MediaInfoSummary | null;
+  mediaInfoProvenance?: MediaInfoProvenance | null;
+  trackRoles?: TrackRoles;
+  playbackProfile?: PlaybackProfile;
+  realMv?: RealMvPreview;
+  coverPreviewUrl?: string;
   rootKind: ImportFileRootKind;
   relativePath: string;
   sizeBytes: number;

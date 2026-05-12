@@ -261,11 +261,20 @@ function parseConflictResolution(body: unknown): ConflictResolution | null {
 function serializeCandidateWithFiles(record: ImportCandidateWithFiles) {
   return {
     ...record.candidate,
-    files: record.files.map(serializeCandidateFileDetail)
+    files: record.files.map((file) => serializeCandidateFileDetail(file, record.candidate.id, record.candidate.candidateMeta.realMv))
   };
 }
 
-function serializeCandidateFileDetail(detail: ImportCandidateFileDetail) {
+function serializeCandidateFileDetail(
+  detail: ImportCandidateFileDetail,
+  candidateId: string,
+  candidateRealMv: unknown = null
+) {
+  const realMv = readRealMvPreview(detail.probeSummary, candidateRealMv);
+  const coverPreviewUrl = realMv && readCoverSidecar(realMv)
+    ? `/admin/import-candidates/${encodeURIComponent(candidateId)}/files/${encodeURIComponent(detail.id)}/cover`
+    : undefined;
+
   return {
     candidateFileId: detail.id,
     importFileId: detail.importFileId,
@@ -275,6 +284,14 @@ function serializeCandidateFileDetail(detail: ImportCandidateFileDetail) {
     roleConfidence: detail.roleConfidence,
     probeDurationMs: detail.probeDurationMs,
     probeSummary: detail.probeSummary,
+    compatibilityStatus: detail.compatibilityStatus,
+    compatibilityReasons: detail.compatibilityReasons,
+    mediaInfoSummary: detail.mediaInfoSummary,
+    mediaInfoProvenance: detail.mediaInfoProvenance,
+    trackRoles: detail.trackRoles,
+    playbackProfile: detail.playbackProfile,
+    ...(realMv ? { realMv } : {}),
+    ...(coverPreviewUrl ? { coverPreviewUrl } : {}),
     rootKind: detail.rootKind,
     relativePath: detail.relativePath,
     sizeBytes: detail.sizeBytes,
@@ -286,6 +303,66 @@ function serializeCandidateFileDetail(detail: ImportCandidateFileDetail) {
     createdAt: detail.createdAt,
     updatedAt: detail.updatedAt
   };
+}
+
+function readRealMvPreview(probeSummary: Record<string, unknown>, candidateRealMv: unknown): Record<string, unknown> | null {
+  const probeRealMv = isRecord(probeSummary.realMv) ? probeSummary.realMv : null;
+  const source = probeRealMv ?? (isRecord(candidateRealMv) ? candidateRealMv : null);
+  if (!source) {
+    return null;
+  }
+
+  const preview: Record<string, unknown> = {};
+  copyString(source, preview, "groupKey");
+  copyString(source, preview, "mediaKind");
+  copyArray(source, preview, "metadataSources");
+  copyArray(source, preview, "metadataConflicts");
+  copyArray(source, preview, "scannerReasons");
+  if (isRecord(source.sidecarMetadata)) {
+    preview.sidecarMetadata = source.sidecarMetadata;
+  }
+  if (isRecord(source.sidecars)) {
+    preview.sidecars = {
+      cover: readSidecarArtifact(source.sidecars.cover),
+      songJson: readSidecarArtifact(source.sidecars.songJson)
+    };
+  }
+
+  return Object.keys(preview).length > 0 ? preview : null;
+}
+
+function copyString(source: Record<string, unknown>, target: Record<string, unknown>, key: string): void {
+  if (typeof source[key] === "string") {
+    target[key] = source[key];
+  }
+}
+
+function copyArray(source: Record<string, unknown>, target: Record<string, unknown>, key: string): void {
+  if (Array.isArray(source[key])) {
+    target[key] = source[key];
+  }
+}
+
+function readSidecarArtifact(value: unknown): Record<string, unknown> | null {
+  if (!isRecord(value) || typeof value.relativePath !== "string") {
+    return null;
+  }
+
+  return {
+    relativePath: value.relativePath,
+    ...(typeof value.sizeBytes === "number" ? { sizeBytes: value.sizeBytes } : {}),
+    ...(typeof value.mtimeMs === "number" ? { mtimeMs: value.mtimeMs } : {}),
+    ...(typeof value.contentType === "string" ? { contentType: value.contentType } : {})
+  };
+}
+
+function readCoverSidecar(realMv: Record<string, unknown>): Record<string, unknown> | null {
+  if (!isRecord(realMv.sidecars)) {
+    return null;
+  }
+  return isRecord(realMv.sidecars.cover) && typeof realMv.sidecars.cover.relativePath === "string"
+    ? realMv.sidecars.cover
+    : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
