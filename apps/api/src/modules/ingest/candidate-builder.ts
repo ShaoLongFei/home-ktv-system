@@ -102,11 +102,17 @@ function buildRealMvCandidateInput(file: ImportFile): Parameters<ImportCandidate
   });
   const playbackProfile = buildSingleFileAudioTrackPlaybackProfile(compatibilitySummary);
   const requiresAudioTrackSelection = playbackProfile.requiresAudioTrackSelection;
-  const compatibility = evaluateRealMvCompatibility({
-    summary: compatibilitySummary,
-    trackRoles,
-    currentWebCanPlayType: "unknown"
-  });
+  const compatibility = metadataDraft.scannerReasons.length > 0
+    ? {
+        compatibilityStatus: "review_required" as const,
+        compatibilityReasons: metadataDraft.scannerReasons
+      }
+    : evaluateRealMvCompatibility({
+        summary: compatibilitySummary,
+        trackRoles,
+        currentWebCanPlayType: "unknown"
+      });
+  const candidateStatus = compatibility.compatibilityStatus === "playable" ? "pending" : "review_required";
   const roleConfidence = trackRoles.original && trackRoles.instrumental
     ? (trackRoles.instrumental.label === "Instrumental" ? 0.95 : 0.9)
     : 0.5;
@@ -121,6 +127,7 @@ function buildRealMvCandidateInput(file: ImportFile): Parameters<ImportCandidate
       aliases: metadataDraft.aliases ?? [],
       searchHints: metadataDraft.searchHints ?? [],
       releaseYear: metadataDraft.releaseYear ?? null,
+      status: candidateStatus,
       candidateMeta: {
         groupKey,
         inferredFrom: "real_mv_scanner",

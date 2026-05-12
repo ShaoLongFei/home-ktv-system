@@ -461,6 +461,140 @@ describe("CandidateBuilder", () => {
     });
   });
 
+  it("preserves real MV review evidence in candidateMeta", async () => {
+    const capturedInputs: Array<Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]> = [];
+    const upsertCandidateWithFiles = vi.fn(async (input: Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]) => {
+      capturedInputs.push(input);
+      return createCandidate();
+    });
+    const builder = new CandidateBuilder({
+      importCandidates: { upsertCandidateWithFiles }
+    });
+
+    await builder.buildFromImportFiles([
+      createImportFile({
+        id: "import-real-mv-evidence",
+        relativePath: "关喆-想你的夜(MTV)-国语-流行.mkv",
+        probePayload: {
+          realMv: {
+            mediaKind: "single_file_real_mv",
+            sidecarMetadata: {
+              title: "Sidecar Title",
+              searchHints: ["xiang ni de ye"]
+            },
+            scannerReasons: [
+              {
+                code: "sidecar-json-invalid",
+                severity: "warning",
+                message: "invalid JSON",
+                source: "scanner"
+              }
+            ],
+            sidecars: {
+              cover: { relativePath: "关喆-想你的夜.jpg", sizeBytes: 10, mtimeMs: 1777536000000, contentType: "image/jpeg" },
+              songJson: { relativePath: "关喆-想你的夜.song.json", sizeBytes: 12, mtimeMs: 1777536000000, contentType: "application/json" }
+            }
+          },
+          mediaInfoSummary: {
+            container: "matroska,webm",
+            durationMs: 60041,
+            videoCodec: "h264",
+            resolution: { width: 1920, height: 1080 },
+            fileSizeBytes: 104857600,
+            audioTracks: [
+              { index: 0, id: "0x1100", label: "Original vocal", language: "zh", codec: "aac", channels: 2 },
+              { index: 1, id: "0x1101", label: "Instrumental", language: "zh", codec: "aac", channels: 2 }
+            ]
+          }
+        }
+      })
+    ]);
+
+    expect(capturedInputs[0]?.candidate).toMatchObject({
+      status: "review_required",
+      candidateMeta: {
+        realMv: {
+          metadataSources: expect.arrayContaining([
+            { field: "title", source: "filename" },
+            { field: "searchHints", source: "sidecar" }
+          ]),
+          metadataConflicts: [
+            expect.objectContaining({ field: "title" })
+          ],
+          sidecarMetadata: expect.objectContaining({
+            title: "Sidecar Title",
+            searchHints: ["xiang ni de ye"]
+          }),
+          scannerReasons: [
+            expect.objectContaining({ code: "sidecar-json-invalid", source: "scanner" })
+          ],
+          sidecars: {
+            cover: expect.objectContaining({ relativePath: "关喆-想你的夜.jpg" })
+          }
+        }
+      }
+    });
+    expect(capturedInputs[0]?.files[0]).toMatchObject({
+      compatibilityStatus: "review_required",
+      compatibilityReasons: [
+        expect.objectContaining({ code: "sidecar-json-invalid", source: "scanner" })
+      ]
+    });
+  });
+
+  it("keeps pending real MV files with scanner reasons visible for review", async () => {
+    const capturedInputs: Array<Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]> = [];
+    const upsertCandidateWithFiles = vi.fn(async (input: Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]) => {
+      capturedInputs.push(input);
+      return createCandidate();
+    });
+    const builder = new CandidateBuilder({
+      importCandidates: { upsertCandidateWithFiles }
+    });
+
+    await expect(builder.buildFromImportFiles([
+      createImportFile({
+        id: "import-real-mv-pending",
+        relativePath: "关喆-想你的夜.mkv",
+        probeStatus: "pending",
+        durationMs: null,
+        probePayload: {
+          realMv: {
+            mediaKind: "single_file_real_mv",
+            scannerReasons: [
+              {
+                code: "file-unstable",
+                severity: "warning",
+                message: "file is still changing",
+                source: "scanner"
+              }
+            ],
+            sidecars: { cover: null, songJson: null }
+          }
+        }
+      })
+    ])).resolves.toBe(1);
+
+    expect(capturedInputs[0]?.candidate).toMatchObject({
+      status: "review_required",
+      title: "想你的夜",
+      artistName: "关喆"
+    });
+    expect(capturedInputs[0]?.candidate.candidateMeta).toMatchObject({
+      realMv: {
+        scannerReasons: [
+          expect.objectContaining({ code: "file-unstable", source: "scanner" })
+        ]
+      }
+    });
+    expect(capturedInputs[0]?.files[0]).toMatchObject({
+      compatibilityStatus: "review_required",
+      compatibilityReasons: [
+        expect.objectContaining({ code: "file-unstable", source: "scanner" })
+      ]
+    });
+  });
+
   it("keeps raw probe streams and format out of candidate probeSummary", async () => {
     const capturedInputs: Array<Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]> = [];
     const upsertCandidateWithFiles = vi.fn(async (input: Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]) => {
