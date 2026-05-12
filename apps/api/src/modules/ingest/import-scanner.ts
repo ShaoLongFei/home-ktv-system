@@ -1,11 +1,12 @@
 import { createHash } from "node:crypto";
-import { open, readdir, stat } from "node:fs/promises";
+import { open, readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
-import type { ImportFile, ImportFileRootKind, ImportScanScope, ImportScanTrigger } from "@home-ktv/domain";
+import type { CompatibilityReason, ImportFile, ImportFileRootKind, ImportScanScope, ImportScanTrigger } from "@home-ktv/domain";
 import type { CandidateBuilder } from "./candidate-builder.js";
 import type { LibraryPaths } from "./library-paths.js";
 import { toLibraryRelativePath } from "./library-paths.js";
 import { probeMediaFile, type MediaProbeSummary } from "./media-probe.js";
+import { parseRealMvSidecarJson, type RealMvSidecarMetadata } from "./real-mv-metadata.js";
 import {
   buildRealMvArtifactSignature,
   findRealMvSidecars,
@@ -51,6 +52,11 @@ interface ScanCounters {
   filesChanged: number;
   filesDeleted: number;
   candidateCount: number;
+}
+
+interface RealMvScannerPayload {
+  sidecarMetadata?: RealMvSidecarMetadata;
+  scannerReasons: CompatibilityReason[];
 }
 
 const MEDIA_EXTENSIONS = new Set([".mp4", ".mkv", ".mov", ".webm", ".mpg", ".mpeg"]);
@@ -126,6 +132,9 @@ export class ImportScanner {
     const sidecars = isRealMvMediaPath(discovered.absolutePath)
       ? await findRealMvSidecars({ mediaAbsolutePath: discovered.absolutePath, rootPath: discovered.rootPath })
       : null;
+    const realMvPayload = sidecars
+      ? await buildRealMvScannerPayload(discovered.rootPath, sidecars)
+      : null;
     const existing = await this.options.importFiles.findByRootAndRelativePath(discovered.rootKind, discovered.relativePath);
     if (sidecars && !(await this.fileStabilityCheck(discovered.absolutePath))) {
       const quickHash = buildUnstableRealMvQuickHash(fileStat, sidecars);
@@ -138,7 +147,8 @@ export class ImportScanner {
         probeStatus: "pending",
         probePayload: mergeRealMvSidecars({
           realMv: {
-            scannerReasons: [FILE_UNSTABLE_REASON]
+            scannerReasons: [...(realMvPayload?.scannerReasons ?? []), FILE_UNSTABLE_REASON],
+            ...(realMvPayload?.sidecarMetadata ? { sidecarMetadata: realMvPayload.sidecarMetadata } : {})
           }
         }, sidecars),
         durationMs: null,
@@ -175,7 +185,7 @@ export class ImportScanner {
       return { importFile, added: false, changed: false };
     }
 
-    const probe = await this.probeChangedFile(discovered.absolutePath, sidecars);
+    const probe = await this.probeChangedFile(discovered.absolutePath, sidecars, realMvPayload);
     const importFile = await this.options.importFiles.upsertDiscoveredFile({
       rootKind: discovered.rootKind,
       relativePath: discovered.relativePath,
@@ -197,13 +207,14 @@ export class ImportScanner {
 
   private async probeChangedFile(
     absolutePath: string,
-    sidecars: RealMvSidecars | null
+    sidecars: RealMvSidecars | null,
+    realMvPayload: RealMvScannerPayload | null
   ): Promise<{ status: "probed" | "failed"; payload: Record<string, unknown>; durationMs: number | null }> {
     try {
       const summary = await this.probeMedia(absolutePath);
       return {
         status: "probed",
-        payload: mergeRealMvSidecars(summary as unknown as Record<string, unknown>, sidecars),
+        payload: mergeRealMvSidecars(summary as unknown as Record<string, unknown>, sidecars, realMvPayload),
         durationMs: summary.durationMs
       };
     } catch (error) {
@@ -211,7 +222,7 @@ export class ImportScanner {
         status: "failed",
         payload: mergeRealMvSidecars({
           errorMessage: error instanceof Error ? error.message : String(error)
-        }, sidecars),
+        }, sidecars, realMvPayload),
         durationMs: null
       };
     }
@@ -357,17 +368,58 @@ function isSongJsonFile(filePath: string): boolean {
   return path.basename(filePath).toLocaleLowerCase() === "song.json";
 }
 
-function mergeRealMvSidecars(payload: Record<string, unknown>, sidecars: RealMvSidecars | null): Record<string, unknown> {
+async function buildRealMvScannerPayload(rootPath: string, sidecars: RealMvSidecars): Promise<RealMvScannerPayload> {
+  if (!sidecars.songJson) {
+    return { scannerReasons: [] };
+  }
+
+  try {
+    const raw = await readFile(path.join(rootPath, sidecars.songJson.relativePath), "utf8");
+    const result = parseRealMvSidecarJson(raw);
+    if (result.status === "ok") {
+      return {
+        sidecarMetadata: result.metadata,
+        scannerReasons: []
+      };
+    }
+    return { scannerReasons: result.reasons };
+  } catch (error) {
+    return {
+      scannerReasons: [
+        {
+          code: "sidecar-read-failed",
+          severity: "warning",
+          message: error instanceof Error ? error.message : String(error),
+          source: "scanner"
+        }
+      ]
+    };
+  }
+}
+
+function mergeRealMvSidecars(
+  payload: Record<string, unknown>,
+  sidecars: RealMvSidecars | null,
+  scannerPayload: RealMvScannerPayload | null = null
+): Record<string, unknown> {
   if (!sidecars) {
     return payload;
   }
   const existingRealMv = isRecord(payload.realMv) ? payload.realMv : {};
+  const existingReasons = Array.isArray(existingRealMv.scannerReasons)
+    ? existingRealMv.scannerReasons
+    : [];
+  const scannerReasons = scannerPayload
+    ? [...scannerPayload.scannerReasons, ...existingReasons]
+    : existingReasons;
   return {
     ...payload,
     realMv: {
       ...existingRealMv,
       mediaKind: "single_file_real_mv",
-      sidecars
+      sidecars,
+      scannerReasons,
+      ...(scannerPayload?.sidecarMetadata ? { sidecarMetadata: scannerPayload.sidecarMetadata } : {})
     }
   };
 }

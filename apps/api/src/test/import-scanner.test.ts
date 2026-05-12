@@ -157,6 +157,81 @@ describe("ImportScanner", () => {
     ]);
   });
 
+  it("parses adjacent real MV song.json metadata into the scanner payload", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-real-mv-sidecar-metadata-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    await writeFile(path.join(paths.importsPendingRoot, "关喆-想你的夜.mkv"), "mkv-media");
+    await writeFile(path.join(paths.importsPendingRoot, "关喆-想你的夜.song.json"), JSON.stringify({
+      title: "想你的夜",
+      artistName: "关喆"
+    }));
+    const importFiles = new MemoryImportFileRepository(null);
+    const scanRuns = new MemoryScanRunRepository();
+    const candidateBuilder = { buildFromImportFiles: vi.fn(async (files: ImportFile[]) => files.length) };
+    const probeMedia = vi.fn(async (_filePath: string) => createProbeSummary());
+
+    const scanner = new ImportScanner({ paths, importFiles, scanRuns, candidateBuilder, probeMedia });
+
+    await scanner.scan({ trigger: "manual", scope: "imports" });
+
+    const probePayload = importFiles.upserts[0]?.probePayload;
+    expect(probePayload).toMatchObject({
+      realMv: {
+        sidecars: {
+          songJson: expect.objectContaining({ relativePath: "关喆-想你的夜.song.json" })
+        },
+        sidecarMetadata: {
+          title: "想你的夜",
+          artistName: "关喆"
+        },
+        scannerReasons: []
+      }
+    });
+    expect(JSON.stringify(probePayload)).not.toContain(mediaRoot);
+  });
+
+  it("keeps invalid real MV song.json retryable and still rebuilds candidates", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-real-mv-invalid-sidecar-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    await writeFile(path.join(paths.importsPendingRoot, "关喆-想你的夜.mkv"), "mkv-media");
+    await writeFile(path.join(paths.importsPendingRoot, "关喆-想你的夜.song.json"), "{");
+    const importFiles = new MemoryImportFileRepository(null);
+    const scanRuns = new MemoryScanRunRepository();
+    const candidateBuilder = { buildFromImportFiles: vi.fn(async (files: ImportFile[]) => files.length) };
+    const probeMedia = vi.fn(async (_filePath: string) => createProbeSummary());
+
+    const scanner = new ImportScanner({ paths, importFiles, scanRuns, candidateBuilder, probeMedia });
+
+    await scanner.scan({ trigger: "manual", scope: "imports" });
+
+    expect(importFiles.upserts[0]?.probePayload).toMatchObject({
+      realMv: {
+        sidecars: {
+          songJson: expect.objectContaining({ relativePath: "关喆-想你的夜.song.json" })
+        },
+        scannerReasons: [
+          expect.objectContaining({
+            code: "sidecar-json-invalid",
+            severity: "warning",
+            source: "scanner"
+          })
+        ]
+      }
+    });
+    expect(candidateBuilder.buildFromImportFiles).toHaveBeenCalledWith([
+      expect.objectContaining({
+        relativePath: "关喆-想你的夜.mkv",
+        probePayload: expect.objectContaining({
+          realMv: expect.objectContaining({
+            scannerReasons: [expect.objectContaining({ code: "sidecar-json-invalid" })]
+          })
+        })
+      })
+    ]);
+  });
+
   it("keeps unstable real MV files pending without probing", async () => {
     const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-real-mv-unstable-"));
     const paths = resolveLibraryPaths(mediaRoot);
