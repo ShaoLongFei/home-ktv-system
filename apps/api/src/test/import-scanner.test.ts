@@ -402,9 +402,63 @@ describe("CandidateBuilder", () => {
         importFileId: "import-real-mv",
         proposedAssetKind: "dual-track-video",
         proposedVocalMode: "dual",
-        selected: true
+        selected: true,
+        compatibilityStatus: "review_required",
+        trackRoles: {
+          original: { index: 0, id: "0x1100", label: "Original vocal" },
+          instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+        },
+        playbackProfile: {
+          kind: "single_file_audio_tracks",
+          container: "matroska,webm",
+          videoCodec: "h264",
+          audioCodecs: ["aac"],
+          requiresAudioTrackSelection: true
+        }
       })
     ]);
+  });
+
+  it("keeps unlabeled real MV track roles unmapped and review-required", async () => {
+    const capturedInputs: Array<Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]> = [];
+    const upsertCandidateWithFiles = vi.fn(async (input: Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]) => {
+      capturedInputs.push(input);
+      return createCandidate();
+    });
+    const builder = new CandidateBuilder({
+      importCandidates: { upsertCandidateWithFiles }
+    });
+
+    await builder.buildFromImportFiles([
+      createImportFile({
+        id: "import-real-mv-unlabeled",
+        relativePath: "关喆-想你的夜(MTV)-国语-流行.mkv",
+        durationMs: 60041,
+        probePayload: {
+          realMv: {
+            mediaKind: "single_file_real_mv",
+            scannerReasons: [],
+            sidecars: { cover: null, songJson: null }
+          },
+          mediaInfoSummary: {
+            container: "matroska,webm",
+            durationMs: 60041,
+            videoCodec: "h264",
+            resolution: { width: 1920, height: 1080 },
+            fileSizeBytes: 104857600,
+            audioTracks: [
+              { index: 0, id: "0x1100", label: "Audio 1", language: "zh", codec: "aac", channels: 2 },
+              { index: 1, id: "0x1101", label: "Audio 2", language: "zh", codec: "mp2", channels: 2 }
+            ]
+          }
+        }
+      })
+    ]);
+
+    expect(capturedInputs[0]?.files[0]).toMatchObject({
+      compatibilityStatus: "review_required",
+      trackRoles: { original: null, instrumental: null }
+    });
   });
 
   it("keeps raw probe streams and format out of candidate probeSummary", async () => {

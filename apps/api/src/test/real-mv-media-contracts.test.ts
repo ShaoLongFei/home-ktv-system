@@ -1,7 +1,11 @@
 import type { MediaInfoSummary, TrackRoles } from "@home-ktv/domain";
 import { inferVideoContentType } from "../modules/assets/asset-gateway.js";
 import { buildMediaInfoSummaryFromFfprobe } from "../modules/ingest/media-probe.js";
-import { evaluateRealMvCompatibility } from "../modules/media/real-mv-compatibility.js";
+import {
+  buildSingleFileAudioTrackPlaybackProfile,
+  evaluateRealMvCompatibility,
+  inferTrackRolesFromRealMv
+} from "../modules/media/real-mv-compatibility.js";
 import { describe, expect, it } from "vitest";
 
 describe("real MV media contracts", () => {
@@ -103,6 +107,47 @@ describe("real MV media contracts", () => {
     );
   });
 
+  it("infers original and instrumental roles from audio track labels", () => {
+    expect(inferTrackRolesFromRealMv({ mediaInfoSummary: createMediaInfoSummary() })).toEqual(createTrackRoles());
+  });
+
+  it("leaves unlabeled audio track roles unmapped and review-required", () => {
+    const summary = createMediaInfoSummary({
+      audioTracks: [
+        { index: 0, id: "0x1100", label: "Audio 1", language: "zh", codec: "aac", channels: 2 },
+        { index: 1, id: "0x1101", label: "Audio 2", language: "zh", codec: "mp2", channels: 2 }
+      ]
+    });
+    const trackRoles = inferTrackRolesFromRealMv({ mediaInfoSummary: summary });
+
+    expect(trackRoles).toEqual({ original: null, instrumental: null });
+    expect(evaluateRealMvCompatibility({
+      summary,
+      trackRoles,
+      currentWebCanPlayType: "unknown"
+    }).compatibilityStatus).toBe("review_required");
+  });
+
+  it("builds a single-file audio-track playback profile from MediaInfo", () => {
+    expect(buildSingleFileAudioTrackPlaybackProfile(createMediaInfoSummary())).toEqual({
+      kind: "single_file_audio_tracks",
+      container: "matroska,webm",
+      videoCodec: "h264",
+      audioCodecs: ["aac"],
+      requiresAudioTrackSelection: true
+    });
+  });
+
+  it("keeps unknown scanner runtime support review-required instead of playable", () => {
+    const result = evaluateRealMvCompatibility({
+      summary: createMediaInfoSummary(),
+      trackRoles: createTrackRoles(),
+      currentWebCanPlayType: "unknown"
+    });
+
+    expect(result.compatibilityStatus).toBe("review_required");
+  });
+
   it("returns playable only when no warnings or errors remain and browser support is probable", () => {
     const result = evaluateRealMvCompatibility({
       summary: createMediaInfoSummary(),
@@ -117,7 +162,7 @@ describe("real MV media contracts", () => {
   });
 });
 
-function createMediaInfoSummary(): MediaInfoSummary {
+function createMediaInfoSummary(overrides: Partial<MediaInfoSummary> = {}): MediaInfoSummary {
   return {
     container: "matroska,webm",
     durationMs: 60041,
@@ -127,7 +172,8 @@ function createMediaInfoSummary(): MediaInfoSummary {
     audioTracks: [
       { index: 0, id: "0x1100", label: "Original vocal", language: "zh", codec: "aac", channels: 2 },
       { index: 1, id: "0x1101", label: "Instrumental", language: "zh", codec: "aac", channels: 2 }
-    ]
+    ],
+    ...overrides
   };
 }
 

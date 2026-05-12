@@ -1,4 +1,12 @@
-import type { CompatibilityReason, CompatibilityStatus, MediaInfoSummary, TrackRoles } from "@home-ktv/domain";
+import type {
+  AudioTrackSummary,
+  CompatibilityReason,
+  CompatibilityStatus,
+  MediaInfoSummary,
+  PlaybackProfile,
+  TrackRef,
+  TrackRoles
+} from "@home-ktv/domain";
 
 export interface EvaluateRealMvCompatibilityInput {
   summary: MediaInfoSummary;
@@ -9,6 +17,14 @@ export interface EvaluateRealMvCompatibilityInput {
 export interface EvaluateRealMvCompatibilityResult {
   compatibilityStatus: CompatibilityStatus;
   compatibilityReasons: CompatibilityReason[];
+}
+
+export interface InferTrackRolesFromRealMvInput {
+  mediaInfoSummary: MediaInfoSummary;
+  sidecarTrackRoles?: {
+    original?: number | string;
+    instrumental?: number | string;
+  };
 }
 
 export function evaluateRealMvCompatibility(input: EvaluateRealMvCompatibilityInput): EvaluateRealMvCompatibilityResult {
@@ -59,4 +75,61 @@ export function evaluateRealMvCompatibility(input: EvaluateRealMvCompatibilityIn
   }
 
   return { compatibilityStatus: "playable", compatibilityReasons };
+}
+
+export function inferTrackRolesFromRealMv(input: InferTrackRolesFromRealMvInput): TrackRoles {
+  const tracks = input.mediaInfoSummary.audioTracks;
+  return {
+    original: resolveTrackRole(tracks, input.sidecarTrackRoles?.original, /(?:original|vocals?|原唱)/iu),
+    instrumental: resolveTrackRole(tracks, input.sidecarTrackRoles?.instrumental, /(?:instrumental|karaoke|accompaniment|伴奏|伴唱)/iu)
+  };
+}
+
+export function buildSingleFileAudioTrackPlaybackProfile(mediaInfoSummary: MediaInfoSummary): PlaybackProfile {
+  return {
+    kind: "single_file_audio_tracks",
+    container: mediaInfoSummary.container,
+    videoCodec: mediaInfoSummary.videoCodec,
+    audioCodecs: Array.from(new Set(mediaInfoSummary.audioTracks
+      .map((track) => track.codec)
+      .filter((codec): codec is string => typeof codec === "string" && codec.length > 0))),
+    requiresAudioTrackSelection: mediaInfoSummary.audioTracks.length >= 2
+  };
+}
+
+function resolveTrackRole(
+  tracks: readonly AudioTrackSummary[],
+  sidecarHint: number | string | undefined,
+  labelPattern: RegExp
+): TrackRef | null {
+  const sidecarMatch = sidecarHint !== undefined ? findTrackBySidecarHint(tracks, sidecarHint) : null;
+  if (sidecarMatch) {
+    return toTrackRef(sidecarMatch);
+  }
+
+  const labelMatch = tracks.find((track) => labelPattern.test(track.label));
+  return labelMatch ? toTrackRef(labelMatch) : null;
+}
+
+function findTrackBySidecarHint(
+  tracks: readonly AudioTrackSummary[],
+  sidecarHint: number | string
+): AudioTrackSummary | null {
+  if (typeof sidecarHint === "number") {
+    return tracks.find((track) => track.index === sidecarHint) ?? null;
+  }
+
+  const normalized = sidecarHint.trim().toLocaleLowerCase();
+  return tracks.find((track) => (
+    track.id.toLocaleLowerCase() === normalized ||
+    track.label.toLocaleLowerCase() === normalized
+  )) ?? null;
+}
+
+function toTrackRef(track: AudioTrackSummary): TrackRef {
+  return {
+    index: track.index,
+    id: track.id,
+    label: track.label
+  };
 }

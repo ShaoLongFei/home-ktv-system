@@ -9,6 +9,11 @@ import type {
   VocalMode
 } from "@home-ktv/domain";
 import {
+  buildSingleFileAudioTrackPlaybackProfile,
+  evaluateRealMvCompatibility,
+  inferTrackRolesFromRealMv
+} from "../media/real-mv-compatibility.js";
+import {
   buildRealMvMetadataDraft,
   parseRealMvFilename,
   type RealMvSidecarMetadata
@@ -90,6 +95,21 @@ function buildRealMvCandidateInput(file: ImportFile): Parameters<ImportCandidate
     ...(realMvPayload.sidecarMetadata ? { sidecarMetadata: realMvPayload.sidecarMetadata } : {})
   });
   const groupKey = `single_file_real_mv:${file.relativePath}`;
+  const compatibilitySummary = mediaInfoSummary ?? defaultMediaInfoSummary(file);
+  const trackRoles = inferTrackRolesFromRealMv({
+    mediaInfoSummary: compatibilitySummary,
+    ...(metadataDraft.trackRoles ? { sidecarTrackRoles: metadataDraft.trackRoles } : {})
+  });
+  const playbackProfile = buildSingleFileAudioTrackPlaybackProfile(compatibilitySummary);
+  const requiresAudioTrackSelection = playbackProfile.requiresAudioTrackSelection;
+  const compatibility = evaluateRealMvCompatibility({
+    summary: compatibilitySummary,
+    trackRoles,
+    currentWebCanPlayType: "unknown"
+  });
+  const roleConfidence = trackRoles.original && trackRoles.instrumental
+    ? (trackRoles.instrumental.label === "Instrumental" ? 0.95 : 0.9)
+    : 0.5;
 
   return {
     candidate: {
@@ -120,11 +140,19 @@ function buildRealMvCandidateInput(file: ImportFile): Parameters<ImportCandidate
       selected: true,
       proposedVocalMode: "dual",
       proposedAssetKind: "dual-track-video",
-      roleConfidence: 0.8,
+      roleConfidence,
       probeDurationMs: file.durationMs,
       probeSummary: buildProbeSummary(file),
       mediaInfoSummary,
-      mediaInfoProvenance
+      mediaInfoProvenance,
+      compatibilityStatus: compatibility.compatibilityStatus,
+      compatibilityReasons: compatibility.compatibilityReasons,
+      trackRoles,
+      playbackProfile: {
+        ...playbackProfile,
+        kind: "single_file_audio_tracks",
+        requiresAudioTrackSelection
+      }
     }]
   };
 }
@@ -264,6 +292,17 @@ function readMediaInfoSummary(value: unknown): MediaInfoSummary | null {
       : null,
     fileSizeBytes: typeof value.fileSizeBytes === "number" ? value.fileSizeBytes : 0,
     audioTracks: Array.isArray(value.audioTracks) ? value.audioTracks as MediaInfoSummary["audioTracks"] : []
+  };
+}
+
+function defaultMediaInfoSummary(file: ImportFile): MediaInfoSummary {
+  return {
+    container: null,
+    durationMs: file.durationMs,
+    videoCodec: null,
+    resolution: null,
+    fileSizeBytes: file.sizeBytes,
+    audioTracks: []
   };
 }
 
