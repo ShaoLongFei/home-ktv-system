@@ -43,6 +43,26 @@ interface TestCandidateFile {
   relativePath: string;
   probeStatus: "pending" | "probed" | "failed" | "skipped" | "deleted";
   durationMs: number | null;
+  compatibilityStatus?: string;
+  compatibilityReasons?: Array<Record<string, unknown>>;
+  mediaInfoSummary?: {
+    container: string | null;
+    durationMs: number | null;
+    videoCodec: string | null;
+    resolution: { width: number; height: number } | null;
+    fileSizeBytes: number;
+    audioTracks: Array<Record<string, unknown>>;
+  } | null;
+  mediaInfoProvenance?: Record<string, unknown> | null;
+  trackRoles?: Record<string, unknown>;
+  playbackProfile?: Record<string, unknown>;
+  realMv?: {
+    metadataSources?: Array<Record<string, unknown>>;
+    metadataConflicts?: Array<Record<string, unknown>>;
+    scannerReasons?: Array<Record<string, unknown>>;
+    sidecars?: Record<string, unknown>;
+  };
+  coverPreviewUrl?: string;
 }
 
 const languageStorageKey = "home_ktv_language_v2";
@@ -137,6 +157,25 @@ describe("import review workbench", () => {
     expect(screen.getByText("周杰伦/七里香/original.mp4")).toBeTruthy();
     expect(screen.getAllByText("probed").length).toBeGreaterThan(0);
     expect(screen.getAllByText("03:00.000").length).toBeGreaterThan(0);
+  });
+
+  it("renders real MV cover, media facts, provenance, and review warnings", async () => {
+    const user = userEvent.setup();
+    installFetchMock();
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /想你的夜/u }));
+
+    const cover = await screen.findByAltText("MV 封面");
+    expect(cover.getAttribute("src")).toBe("/admin/import-candidates/real-mv-candidate/files/candidate-file-real-mv/cover");
+    expect(screen.getByRole("heading", { name: "媒体信息" })).toBeTruthy();
+    expect(screen.getByText("matroska,webm")).toBeTruthy();
+    expect(screen.getByText("1920 x 1080")).toBeTruthy();
+    expect(screen.getByText("2 条音轨")).toBeTruthy();
+    expect(screen.getByText("来源")).toBeTruthy();
+    expect(screen.getByText("filename")).toBeTruthy();
+    expect(screen.getByText("需要确认")).toBeTruthy();
+    expect(screen.getByText("sidecar-json-invalid")).toBeTruthy();
   });
 
   it("sends the canonical PATCH /admin/import-candidates/:candidateId metadata update request", async () => {
@@ -405,6 +444,81 @@ function createCandidates(): TestCandidate[] {
       conflictSongId: null,
       candidateMeta: {},
       files: []
+    },
+    {
+      id: "real-mv-candidate",
+      status: "review_required",
+      title: "想你的夜",
+      artistName: "关喆",
+      language: "mandarin",
+      genre: ["流行"],
+      tags: ["真实MV"],
+      aliases: [],
+      searchHints: ["xiang ni de ye"],
+      releaseYear: 2012,
+      sameVersionConfirmed: false,
+      conflictSongId: null,
+      candidateMeta: {},
+      files: [
+        {
+          candidateFileId: "candidate-file-real-mv",
+          importFileId: "import-file-real-mv",
+          selected: true,
+          proposedVocalMode: "dual",
+          proposedAssetKind: "dual-track-video",
+          roleConfidence: 0.95,
+          probeDurationMs: 60041,
+          probeSummary: {},
+          rootKind: "imports_pending",
+          relativePath: "关喆-想你的夜.mkv",
+          probeStatus: "probed",
+          durationMs: 60041,
+          compatibilityStatus: "review_required",
+          compatibilityReasons: [{ code: "instrumental-track-unmapped", severity: "warning", message: "未识别伴奏声轨", source: "scanner" }],
+          mediaInfoSummary: {
+            container: "matroska,webm",
+            durationMs: 60041,
+            videoCodec: "h264",
+            resolution: { width: 1920, height: 1080 },
+            fileSizeBytes: 104857600,
+            audioTracks: [
+              { index: 0, id: "0x1100", label: "Original vocal", language: "zh", codec: "aac", channels: 2 },
+              { index: 1, id: "0x1101", label: "Instrumental", language: "zh", codec: "aac", channels: 2 }
+            ]
+          },
+          mediaInfoProvenance: {
+            source: "ffprobe",
+            sourceVersion: "6.1",
+            probedAt: "2026-05-12T00:00:00.000Z",
+            importedFrom: "ffprobe-json"
+          },
+          trackRoles: {
+            original: { index: 0, id: "0x1100", label: "Original vocal" },
+            instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+          },
+          playbackProfile: {
+            kind: "single_file_audio_tracks",
+            container: "matroska,webm",
+            videoCodec: "h264",
+            audioCodecs: ["aac"],
+            requiresAudioTrackSelection: true
+          },
+          realMv: {
+            metadataSources: [
+              { field: "title", source: "filename" },
+              { field: "artistName", source: "sidecar" }
+            ],
+            metadataConflicts: [
+              { field: "title", values: [{ source: "filename", value: "想你的夜" }, { source: "sidecar", value: "想你的夜 Live" }] }
+            ],
+            scannerReasons: [{ code: "sidecar-json-invalid", severity: "warning", message: "song.json 无法解析", source: "scanner" }],
+            sidecars: {
+              cover: { relativePath: "关喆-想你的夜.jpg", contentType: "image/jpeg" }
+            }
+          },
+          coverPreviewUrl: "/admin/import-candidates/real-mv-candidate/files/candidate-file-real-mv/cover"
+        }
+      ]
     },
     {
       id: "review-candidate",

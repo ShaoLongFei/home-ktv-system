@@ -70,6 +70,7 @@ export function CandidateEditor({
   }, [candidate]);
 
   const conflict = useMemo(() => (candidate ? conflictMeta(candidate) : null), [candidate]);
+  const previewFile = useMemo(() => (candidate ? realMvPreviewFile(candidate.files) : null), [candidate]);
 
   if (!candidate || !form) {
     return (
@@ -157,6 +158,8 @@ export function CandidateEditor({
       </header>
 
       <p className="action-note">{t("candidate.holdNote")}</p>
+
+      {previewFile ? <RealMvPreviewPanel file={previewFile} /> : null}
 
       <form className="metadata-form" onSubmit={(event) => void handleSave(event)}>
         <label>
@@ -326,6 +329,79 @@ export function CandidateEditor({
   );
 }
 
+function RealMvPreviewPanel({ file }: { file: ImportCandidateFileDetail }) {
+  const { t } = useI18n();
+  const mediaInfo = file.mediaInfoSummary ?? null;
+  const realMv = file.realMv ?? null;
+  const sources = realMvSources(realMv);
+  const warnings = realMvWarnings(file, realMv);
+  const coverAlt = translated(t, "candidate.realMvCoverAlt", "MV 封面");
+
+  return (
+    <section className="real-mv-preview" aria-label={t("candidate.realMvPreviewAria")}>
+      <div className="real-mv-cover">
+        {file.coverPreviewUrl ? (
+          <img alt={coverAlt} src={file.coverPreviewUrl} />
+        ) : (
+          <div className="real-mv-cover-placeholder">{translated(t, "candidate.noCover", "暂无封面")}</div>
+        )}
+      </div>
+      <div className="real-mv-preview-body">
+        <div className="real-mv-preview-header">
+          <h3>{translated(t, "candidate.mediaInfo", "媒体信息")}</h3>
+          {file.compatibilityStatus ? <span className="badge">{file.compatibilityStatus}</span> : null}
+        </div>
+        <dl className="fact-grid real-mv-facts">
+          <div>
+            <dt>{t("candidate.mediaContainer")}</dt>
+            <dd>{mediaInfo?.container ?? t("common.unknown")}</dd>
+          </div>
+          <div>
+            <dt>{t("candidate.duration")}</dt>
+            <dd>{formatDuration(mediaInfo?.durationMs ?? file.durationMs ?? file.probeDurationMs)}</dd>
+          </div>
+          <div>
+            <dt>{t("candidate.videoCodec")}</dt>
+            <dd>{mediaInfo?.videoCodec ?? t("common.unknown")}</dd>
+          </div>
+          <div>
+            <dt>{t("candidate.resolution")}</dt>
+            <dd>{formatResolution(mediaInfo?.resolution)}</dd>
+          </div>
+          <div>
+            <dt>{t("candidate.audioTracks")}</dt>
+            <dd>{t("candidate.audioTrackCount", { count: String(mediaInfo?.audioTracks.length ?? 0) })}</dd>
+          </div>
+        </dl>
+        {sources.length > 0 ? (
+          <div className="real-mv-signal-row">
+            <strong>{t("candidate.provenance")}</strong>
+            <span className="chip-row">
+              {sources.map((source) => (
+                <span className="badge" key={source}>
+                  {source}
+                </span>
+              ))}
+            </span>
+          </div>
+        ) : null}
+        {warnings.length > 0 ? (
+          <div className="real-mv-signal-row warning">
+            <strong>{t("candidate.needsReview")}</strong>
+            <span className="chip-row">
+              {warnings.map((warning) => (
+                <span className="warning-chip" key={warning}>
+                  {warning}
+                </span>
+              ))}
+            </span>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
 function CandidateFiles({ files }: { files: ImportCandidateFileDetail[] }) {
   const { t } = useI18n();
   return (
@@ -357,6 +433,46 @@ function CandidateFiles({ files }: { files: ImportCandidateFileDetail[] }) {
       ))}
     </div>
   );
+}
+
+function realMvPreviewFile(files: ImportCandidateFileDetail[]): ImportCandidateFileDetail | null {
+  return files.find((file) => file.selected && hasRealMvPreview(file)) ?? files.find(hasRealMvPreview) ?? null;
+}
+
+function hasRealMvPreview(file: ImportCandidateFileDetail): boolean {
+  return Boolean(file.mediaInfoSummary || file.realMv || file.coverPreviewUrl);
+}
+
+function realMvSources(realMv: ImportCandidateFileDetail["realMv"] | null): string[] {
+  if (!realMv?.metadataSources) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      realMv.metadataSources
+        .map((item) => (typeof item.source === "string" ? item.source : null))
+        .filter((source): source is string => Boolean(source))
+    )
+  );
+}
+
+function realMvWarnings(
+  file: ImportCandidateFileDetail,
+  realMv: ImportCandidateFileDetail["realMv"] | null
+): string[] {
+  const warningCodes = new Set<string>();
+  for (const reason of [...(file.compatibilityReasons ?? []), ...(realMv?.scannerReasons ?? [])]) {
+    if (reason.code) {
+      warningCodes.add(reason.code);
+    }
+  }
+  for (const conflict of realMv?.metadataConflicts ?? []) {
+    if (typeof conflict.field === "string") {
+      warningCodes.add(conflict.field);
+    }
+  }
+  return Array.from(warningCodes);
 }
 
 function toFormState(candidate: ImportCandidate): CandidateFormState {
@@ -458,4 +574,17 @@ function formatDuration(durationMs: number | null): string {
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${milliseconds
     .toString()
     .padStart(3, "0")}`;
+}
+
+function formatResolution(resolution: { width: number; height: number } | null | undefined): string {
+  return resolution ? `${resolution.width} x ${resolution.height}` : "unknown";
+}
+
+function translated(
+  t: (key: string, replacements?: Record<string, string>) => string,
+  key: string,
+  fallback: string
+): string {
+  const value = t(key);
+  return value === key ? fallback : value;
 }
