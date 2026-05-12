@@ -55,6 +55,47 @@ button:not(:disabled):hover {
   background: rgba(34, 211, 238, 0.18);
 }
 
+.primary-button {
+  border-color: rgba(34, 211, 238, 0.42);
+  color: #02131a;
+  background: var(--ktv-accent);
+}
+
+.primary-button:not(:disabled):hover {
+  border-color: rgba(125, 211, 252, 0.7);
+  background: #67e8f9;
+}
+
+.secondary-button {
+  border-color: var(--ktv-border);
+  color: var(--ktv-muted);
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.secondary-button:not(:disabled):hover {
+  border-color: rgba(203, 213, 225, 0.36);
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.danger-button {
+  border-color: rgba(248, 113, 113, 0.38);
+  color: var(--ktv-danger);
+  background: rgba(248, 113, 113, 0.13);
+}
+
+.danger-button:not(:disabled):hover {
+  border-color: rgba(248, 113, 113, 0.62);
+  background: rgba(248, 113, 113, 0.2);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.danger-button:disabled {
+  border-color: rgba(148, 163, 184, 0.16);
+  color: rgba(148, 163, 184, 0.62);
+  background: rgba(148, 163, 184, 0.08);
+}
+
 .app-shell {
   display: grid;
   gap: 14px;
@@ -325,8 +366,10 @@ button:not(:disabled):hover {
   gap: 12px;
   align-items: center;
   min-width: 0;
-  border-top: 1px solid var(--ktv-border);
-  padding-top: 10px;
+  border: 1px solid var(--ktv-border);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(2, 6, 23, 0.34);
 }
 
 .queue-row strong,
@@ -388,6 +431,12 @@ button:not(:disabled):hover {
   align-items: start;
 }
 
+.search-result-row strong,
+.queue-row strong,
+.online-candidate-row strong {
+  color: var(--ktv-text);
+}
+
 .result-main {
   min-width: 0;
 }
@@ -444,7 +493,7 @@ button:not(:disabled):hover {
   border: 1px solid var(--ktv-border);
   border-radius: 8px;
   padding: 10px;
-  background: rgba(11, 16, 32, 0.72);
+  background: rgba(11, 16, 32, 0.56);
 }
 
 .version-row p {
@@ -533,6 +582,10 @@ button:not(:disabled):hover {
 
 .modal p {
   color: var(--ktv-muted);
+}
+
+.modal .command-row {
+  margin-top: 16px;
 }
 
 @media (max-width: 520px) {

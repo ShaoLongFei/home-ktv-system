@@ -66,10 +66,10 @@ function ControllerApp() {
           <span className={`mode-summary-value ${current?.vocalMode ?? "unknown"}`}>{currentModeLabel}</span>
         </div>
         <div className="command-row">
-          <button type="button" disabled={!switchTarget} onClick={() => void controller.switchVocalMode()}>
+          <button className="primary-button" type="button" disabled={!switchTarget} onClick={() => void controller.switchVocalMode()}>
             {switchLabel}
           </button>
-          <button type="button" disabled={!current} onClick={controller.requestSkip}>
+          <button className="danger-button" type="button" disabled={!current} onClick={controller.requestSkip}>
             {t("button.skip")}
           </button>
         </div>
@@ -95,7 +95,7 @@ function ControllerApp() {
             onChange={(event) => controller.setSongSearchQuery(event.currentTarget.value)}
             placeholder={t("search.placeholder")}
           />
-          <button type="submit">{t("search.submit")}</button>
+          <button className="primary-button" type="submit">{t("search.submit")}</button>
         </form>
 
         <div className="song-list">
@@ -116,6 +116,7 @@ function ControllerApp() {
 
                 {result.versions.length === 1 && result.versions[0] ? (
                   <button
+                    className="primary-button"
                     type="button"
                     onClick={() =>
                       controller.requestAddSongVersion(
@@ -142,6 +143,7 @@ function ControllerApp() {
                           </p>
                         </div>
                         <button
+                          className="primary-button"
                           type="button"
                           onClick={() =>
                             controller.requestAddSongVersion(result.songId, version.assetId, result.title, result.queueState)
@@ -191,6 +193,7 @@ function ControllerApp() {
                           </div>
                         </div>
                         <button
+                          className="primary-button"
                           type="button"
                           disabled={isPending || isReady}
                           onClick={() => void controller.requestSupplement(candidate.provider, candidate.providerCandidateId)}
@@ -228,14 +231,14 @@ function ControllerApp() {
                     {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
                   </div>
                   <div className="row-actions">
-                    <button type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
+                    <button className="secondary-button" type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
                       {t("button.promote")}
                     </button>
-                    <button type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
+                    <button className="danger-button" type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
                       {t("button.delete")}
                     </button>
                     {undoExpiresAt ? (
-                      <button type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
+                      <button className="secondary-button" type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
                         {t("button.undo")}
                       </button>
                     ) : null}
@@ -255,10 +258,10 @@ function ControllerApp() {
             <h2 id="skip-title">{t("dialog.skipTitle")}</h2>
             <p>{t("dialog.skipBody", { title: current?.currentQueueEntryPreview.songTitle ?? t("current.eyebrow") })}</p>
             <div className="command-row">
-              <button type="button" onClick={controller.cancelSkip}>
+              <button className="secondary-button" type="button" onClick={controller.cancelSkip}>
                 {t("button.cancel")}
               </button>
-              <button type="button" onClick={() => void controller.confirmSkip()}>
+              <button className="danger-button" type="button" onClick={() => void controller.confirmSkip()}>
                 {t("button.confirm")}
               </button>
             </div>
@@ -272,10 +275,10 @@ function ControllerApp() {
             <h2 id="duplicate-title">{t("dialog.duplicateTitle")}</h2>
             <p>{t("dialog.duplicateBody", { title: controller.duplicateConfirm.title })}</p>
             <div className="command-row">
-              <button type="button" onClick={controller.cancelDuplicateAdd}>
+              <button className="secondary-button" type="button" onClick={controller.cancelDuplicateAdd}>
                 {t("button.cancel")}
               </button>
-              <button type="button" onClick={() => void controller.confirmDuplicateAdd()}>
+              <button className="primary-button" type="button" onClick={() => void controller.confirmDuplicateAdd()}>
                 {t("button.confirmAddAgain")}
               </button>
             </div>

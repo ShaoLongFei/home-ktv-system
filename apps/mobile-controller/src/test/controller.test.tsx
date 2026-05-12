@@ -364,6 +364,22 @@ describe("mobile controller runtime", () => {
     });
   });
 
+  it("marks destructive queue and skip actions with danger styling hooks", async () => {
+    const user = userEvent.setup();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("下一首");
+    expect(screen.getByRole("button", { name: "删除" }).className).toContain("danger-button");
+
+    await user.click(screen.getByRole("button", { name: "切歌" }));
+    expect(screen.getByRole("button", { name: "确认" }).className).toContain("danger-button");
+  });
+
   it("deletes immediately and shows undo only from server undoExpiresAt", async () => {
     const user = userEvent.setup();
     const undoExpiresAt = "2026-05-04T10:01:00.000Z";
