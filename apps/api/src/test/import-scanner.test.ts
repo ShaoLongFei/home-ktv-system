@@ -156,6 +156,55 @@ describe("ImportScanner", () => {
       expect.objectContaining({ relativePath: "song.json" })
     ]);
   });
+
+  it("keeps unstable real MV files pending without probing", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-real-mv-unstable-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    await writeFile(path.join(paths.importsPendingRoot, "周杰伦-七里香.mkv"), "partial-mkv-media");
+    const importFiles = new MemoryImportFileRepository(null);
+    const scanRuns = new MemoryScanRunRepository();
+    const candidateBuilder = { buildFromImportFiles: vi.fn(async (files: ImportFile[]) => files.length) };
+    const probeMedia = vi.fn(async (_filePath: string) => createProbeSummary());
+    const fileStabilityCheck = vi.fn(async () => false);
+
+    const scanner = new ImportScanner({
+      paths,
+      importFiles,
+      scanRuns,
+      candidateBuilder,
+      probeMedia,
+      fileStabilityCheck
+    });
+
+    const result = await scanner.scan({ trigger: "manual", scope: "imports" });
+
+    expect(fileStabilityCheck).toHaveBeenCalledTimes(1);
+    expect(probeMedia).not.toHaveBeenCalled();
+    expect(result.filesChanged).toBe(1);
+    expect(importFiles.upserts[0]).toMatchObject({
+      relativePath: "周杰伦-七里香.mkv",
+      probeStatus: "pending",
+      durationMs: null,
+      probePayload: {
+        realMv: {
+          scannerReasons: [
+            expect.objectContaining({
+              code: "file-unstable",
+              severity: "warning",
+              source: "scanner"
+            })
+          ]
+        }
+      }
+    });
+    expect(candidateBuilder.buildFromImportFiles).toHaveBeenCalledWith([
+      expect.objectContaining({
+        relativePath: "周杰伦-七里香.mkv",
+        probeStatus: "pending"
+      })
+    ]);
+  });
 });
 
 describe("real MV sidecars", () => {

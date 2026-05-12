@@ -21,6 +21,7 @@ export interface ImportScannerOptions {
   scanRuns: ScanRunRepository;
   candidateBuilder: Pick<CandidateBuilder, "buildFromImportFiles">;
   probeMedia?: ProbeMediaFunction;
+  fileStabilityCheck?: FileStabilityCheckFunction;
 }
 
 export interface ScanInput {
@@ -30,6 +31,7 @@ export interface ScanInput {
 }
 
 export type ProbeMediaFunction = (filePath: string) => Promise<MediaProbeSummary>;
+export type FileStabilityCheckFunction = (filePath: string) => Promise<boolean>;
 
 interface ScanRoot {
   rootKind: ImportFileRootKind;
@@ -53,12 +55,19 @@ interface ScanCounters {
 
 const MEDIA_EXTENSIONS = new Set([".mp4", ".mkv", ".mov", ".webm", ".mpg", ".mpeg"]);
 const QUICK_HASH_BYTES = 64 * 1024;
+const FILE_UNSTABLE_REASON = {
+  code: "file-unstable",
+  severity: "warning",
+  source: "scanner"
+} as const;
 
 export class ImportScanner {
   private readonly probeMedia: ProbeMediaFunction;
+  private readonly fileStabilityCheck: FileStabilityCheckFunction;
 
   constructor(private readonly options: ImportScannerOptions) {
     this.probeMedia = options.probeMedia ?? probeMediaFile;
+    this.fileStabilityCheck = options.fileStabilityCheck ?? waitForStableFile;
   }
 
   async scan(input: ScanInput): Promise<ScanCounters> {
@@ -117,11 +126,34 @@ export class ImportScanner {
     const sidecars = isRealMvMediaPath(discovered.absolutePath)
       ? await findRealMvSidecars({ mediaAbsolutePath: discovered.absolutePath, rootPath: discovered.rootPath })
       : null;
+    const existing = await this.options.importFiles.findByRootAndRelativePath(discovered.rootKind, discovered.relativePath);
+    if (sidecars && !(await this.fileStabilityCheck(discovered.absolutePath))) {
+      const quickHash = buildUnstableRealMvQuickHash(fileStat, sidecars);
+      const importFile = await this.options.importFiles.upsertDiscoveredFile({
+        rootKind: discovered.rootKind,
+        relativePath: discovered.relativePath,
+        sizeBytes,
+        mtimeMs,
+        quickHash,
+        probeStatus: "pending",
+        probePayload: mergeRealMvSidecars({
+          realMv: {
+            scannerReasons: [FILE_UNSTABLE_REASON]
+          }
+        }, sidecars),
+        durationMs: null,
+        lastSeenScanRunId: scanRunId
+      });
+      return {
+        importFile,
+        added: !existing,
+        changed: true
+      };
+    }
     const mediaQuickHash = await computeQuickHash(discovered.absolutePath, sizeBytes);
     const quickHash = sidecars
       ? `media:${mediaQuickHash}|artifacts:${buildRealMvArtifactSignature(sidecars)}`
       : mediaQuickHash;
-    const existing = await this.options.importFiles.findByRootAndRelativePath(discovered.rootKind, discovered.relativePath);
     const unchanged =
       Boolean(existing) &&
       existing?.sizeBytes === sizeBytes &&
@@ -338,6 +370,17 @@ function mergeRealMvSidecars(payload: Record<string, unknown>, sidecars: RealMvS
       sidecars
     }
   };
+}
+
+function buildUnstableRealMvQuickHash(fileStat: { size: number; mtimeMs: number }, sidecars: RealMvSidecars): string {
+  return `unstable:${fileStat.size}:${Math.trunc(fileStat.mtimeMs)}|artifacts:${buildRealMvArtifactSignature(sidecars)}`;
+}
+
+async function waitForStableFile(filePath: string, delayMs = 500): Promise<boolean> {
+  const initial = await stat(filePath);
+  await new Promise((resolve) => setTimeout(resolve, delayMs));
+  const current = await stat(filePath);
+  return initial.size === current.size && Math.trunc(initial.mtimeMs) === Math.trunc(current.mtimeMs);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
