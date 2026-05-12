@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { parseRealMvFilename, parseRealMvSidecarJson } from "../modules/ingest/real-mv-metadata.js";
+import type { MediaInfoSummary } from "@home-ktv/domain";
+import {
+  buildRealMvMetadataDraft,
+  parseRealMvFilename,
+  parseRealMvSidecarJson
+} from "../modules/ingest/real-mv-metadata.js";
 
 describe("real MV metadata helpers", () => {
   describe("parseRealMvSidecarJson", () => {
@@ -102,4 +107,103 @@ describe("real MV metadata helpers", () => {
       });
     });
   });
+
+  describe("buildRealMvMetadataDraft", () => {
+    it("marks technical MediaInfo fields as mediainfo sources", () => {
+      const result = buildRealMvMetadataDraft({
+        mediaInfoSummary: createMediaInfoSummary(),
+        filenameMetadata: { title: "七里香" }
+      });
+
+      expect(result.metadataSources).toEqual(expect.arrayContaining([
+        { field: "durationMs", source: "mediainfo" },
+        { field: "container", source: "mediainfo" },
+        { field: "videoCodec", source: "mediainfo" },
+        { field: "resolution", source: "mediainfo" },
+        { field: "fileSizeBytes", source: "mediainfo" },
+        { field: "audioTracks", source: "mediainfo" }
+      ]));
+    });
+
+    it("prefers MediaInfo identity, then filename, then sidecar for missing fields", () => {
+      const result = buildRealMvMetadataDraft({
+        mediaInfoSummary: createMediaInfoSummary(),
+        mediaInfoTags: { title: "MediaInfo 标题" },
+        filenameMetadata: {
+          title: "文件名标题",
+          artistName: "文件名歌手",
+          language: "mandarin"
+        },
+        sidecarMetadata: {
+          artistName: "sidecar singer",
+          tags: ["mv"]
+        }
+      });
+
+      expect(result).toMatchObject({
+        title: "MediaInfo 标题",
+        artistName: "文件名歌手",
+        language: "mandarin",
+        tags: ["mv"]
+      });
+      expect(result.metadataSources).toEqual(expect.arrayContaining([
+        { field: "title", source: "mediainfo" },
+        { field: "artistName", source: "filename" },
+        { field: "language", source: "filename" },
+        { field: "tags", source: "sidecar" }
+      ]));
+    });
+
+    it("preserves metadataConflicts when filename and sidecar disagree", () => {
+      const result = buildRealMvMetadataDraft({
+        mediaInfoSummary: createMediaInfoSummary(),
+        filenameMetadata: { title: "文件名标题" },
+        sidecarMetadata: { title: "sidecar title" }
+      });
+
+      expect(result.title).toBe("文件名标题");
+      expect(result.metadataConflicts).toEqual([
+        {
+          field: "title",
+          values: [
+            { source: "filename", value: "文件名标题" },
+            { source: "sidecar", value: "sidecar title" }
+          ]
+        }
+      ]);
+    });
+
+    it("copies invalid sidecar scanner reasons into the draft", () => {
+      const result = buildRealMvMetadataDraft({
+        mediaInfoSummary: createMediaInfoSummary(),
+        filenameMetadata: { title: "七里香" },
+        scannerReasons: [
+          {
+            code: "sidecar-json-invalid",
+            severity: "warning",
+            message: "invalid JSON",
+            source: "scanner"
+          }
+        ]
+      });
+
+      expect(result.scannerReasons).toEqual([
+        expect.objectContaining({ code: "sidecar-json-invalid", source: "scanner" })
+      ]);
+    });
+  });
 });
+
+function createMediaInfoSummary(): MediaInfoSummary {
+  return {
+    container: "matroska,webm",
+    durationMs: 60041,
+    videoCodec: "h264",
+    resolution: { width: 1920, height: 1080 },
+    fileSizeBytes: 104857600,
+    audioTracks: [
+      { index: 0, id: "0x1100", label: "Original vocal", language: "zh", codec: "aac", channels: 2 },
+      { index: 1, id: "0x1101", label: "Instrumental", language: "zh", codec: "aac", channels: 2 }
+    ]
+  };
+}

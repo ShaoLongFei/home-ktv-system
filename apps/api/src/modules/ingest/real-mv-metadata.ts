@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { CompatibilityReason, Language } from "@home-ktv/domain";
+import type { CompatibilityReason, Language, MediaInfoSummary } from "@home-ktv/domain";
 
 export interface RealMvSidecarTrackRoles {
   original?: number | string;
@@ -27,6 +27,33 @@ export interface FilenameMetadataDraft {
   artistName?: string;
   language?: Language;
   genre?: string[];
+}
+
+export type RealMvMetadataSourceLabel = "mediainfo" | "filename" | "sidecar";
+
+export interface RealMvMetadataSource {
+  field: string;
+  source: RealMvMetadataSourceLabel;
+}
+
+export interface RealMvMetadataConflict {
+  field: string;
+  values: Array<{ source: string; value: unknown }>;
+}
+
+export interface RealMvMetadataDraft extends RealMvSidecarMetadata {
+  metadataSources: RealMvMetadataSource[];
+  metadataConflicts: RealMvMetadataConflict[];
+  scannerReasons: CompatibilityReason[];
+  sidecarMetadata?: RealMvSidecarMetadata;
+}
+
+export interface BuildRealMvMetadataDraftInput {
+  mediaInfoSummary?: MediaInfoSummary | null;
+  mediaInfoTags?: Record<string, unknown>;
+  filenameMetadata?: FilenameMetadataDraft;
+  sidecarMetadata?: RealMvSidecarMetadata;
+  scannerReasons?: CompatibilityReason[];
 }
 
 export const RealMvSidecarMetadataSchema = {
@@ -82,6 +109,54 @@ export function parseRealMvFilename(relativePath: string): FilenameMetadataDraft
   };
 }
 
+export function buildRealMvMetadataDraft(input: BuildRealMvMetadataDraftInput): RealMvMetadataDraft {
+  const draft: RealMvMetadataDraft = {
+    metadataSources: [],
+    metadataConflicts: [],
+    scannerReasons: [...(input.scannerReasons ?? [])],
+    ...(input.sidecarMetadata ? { sidecarMetadata: input.sidecarMetadata } : {})
+  };
+  recordMediaInfoTechnicalSources(draft, input.mediaInfoSummary);
+
+  const mediaInfoIdentity = readMediaInfoIdentityTags(input.mediaInfoTags);
+  assignChosenField(draft, "title", chooseField("title", [
+    { source: "mediainfo", value: mediaInfoIdentity.title },
+    { source: "filename", value: input.filenameMetadata?.title },
+    { source: "sidecar", value: input.sidecarMetadata?.title }
+  ]));
+  assignChosenField(draft, "artistName", chooseField("artistName", [
+    { source: "mediainfo", value: mediaInfoIdentity.artistName },
+    { source: "filename", value: input.filenameMetadata?.artistName },
+    { source: "sidecar", value: input.sidecarMetadata?.artistName }
+  ]));
+  assignChosenField(draft, "language", chooseField("language", [
+    { source: "mediainfo", value: mediaInfoIdentity.language },
+    { source: "filename", value: input.filenameMetadata?.language },
+    { source: "sidecar", value: input.sidecarMetadata?.language }
+  ]));
+  assignChosenField(draft, "genre", chooseField("genre", [
+    { source: "filename", value: input.filenameMetadata?.genre },
+    { source: "sidecar", value: input.sidecarMetadata?.genre }
+  ]));
+  assignChosenField(draft, "tags", chooseField("tags", [
+    { source: "sidecar", value: input.sidecarMetadata?.tags }
+  ]));
+  assignChosenField(draft, "aliases", chooseField("aliases", [
+    { source: "sidecar", value: input.sidecarMetadata?.aliases }
+  ]));
+  assignChosenField(draft, "searchHints", chooseField("searchHints", [
+    { source: "sidecar", value: input.sidecarMetadata?.searchHints }
+  ]));
+  assignChosenField(draft, "releaseYear", chooseField("releaseYear", [
+    { source: "sidecar", value: input.sidecarMetadata?.releaseYear }
+  ]));
+  assignChosenField(draft, "trackRoles", chooseField("trackRoles", [
+    { source: "sidecar", value: input.sidecarMetadata?.trackRoles }
+  ]));
+
+  return draft;
+}
+
 function parseRealMvSidecarMetadataValue(value: unknown): ParseRealMvSidecarJsonResult {
   if (!isRecord(value)) {
     return invalidSchema("song.json must be a JSON object");
@@ -134,6 +209,79 @@ function parseRealMvSidecarMetadataValue(value: unknown): ParseRealMvSidecarJson
   }
 
   return { status: "ok", metadata };
+}
+
+function recordMediaInfoTechnicalSources(draft: RealMvMetadataDraft, mediaInfoSummary: MediaInfoSummary | null | undefined): void {
+  if (!mediaInfoSummary) {
+    return;
+  }
+  for (const field of ["durationMs", "container", "videoCodec", "resolution", "fileSizeBytes", "audioTracks"]) {
+    draft.metadataSources.push({ field, source: "mediainfo" });
+  }
+}
+
+function readMediaInfoIdentityTags(value: Record<string, unknown> | undefined): Partial<Pick<RealMvSidecarMetadata, "title" | "artistName" | "language">> {
+  if (!value) {
+    return {};
+  }
+  const identity: Partial<Pick<RealMvSidecarMetadata, "title" | "artistName" | "language">> = {};
+  if (typeof value.title === "string") {
+    identity.title = value.title;
+  }
+  if (typeof value.artistName === "string") {
+    identity.artistName = value.artistName;
+  } else if (typeof value.artist === "string") {
+    identity.artistName = value.artist;
+  }
+  if (isLanguage(value.language)) {
+    identity.language = value.language;
+  }
+  return identity;
+}
+
+function chooseField<T>(
+  field: string,
+  candidates: Array<{ source: RealMvMetadataSourceLabel; value: T | undefined }>
+): { selected: { source: RealMvMetadataSourceLabel; value: T } | null; conflicts: RealMvMetadataConflict[] } {
+  const present = candidates.filter((candidate): candidate is { source: RealMvMetadataSourceLabel; value: T } => candidate.value !== undefined);
+  const selected = present[0] ?? null;
+  if (!selected) {
+    return { selected: null, conflicts: [] };
+  }
+
+  const conflicting = present.filter((candidate) => candidate.source !== selected.source && !metadataValuesEqual(candidate.value, selected.value));
+  return {
+    selected,
+    conflicts: conflicting.length
+      ? [{
+          field,
+          values: [
+            { source: selected.source, value: selected.value },
+            ...conflicting.map((candidate) => ({ source: candidate.source, value: candidate.value }))
+          ]
+        }]
+      : []
+  };
+}
+
+function assignChosenField<TKey extends keyof RealMvSidecarMetadata>(
+  draft: RealMvMetadataDraft,
+  field: TKey,
+  result: {
+    selected: { source: RealMvMetadataSourceLabel; value: RealMvSidecarMetadata[TKey] } | null;
+    conflicts: RealMvMetadataConflict[];
+  }
+): void {
+  if (!result.selected) {
+    return;
+  }
+  (draft as RealMvSidecarMetadata)[field] = result.selected.value;
+  draft.metadataSources.push({ field, source: result.selected.source });
+  draft.metadataConflicts.push(...result.conflicts);
+}
+
+function metadataValuesEqual(left: unknown, right: unknown): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function parseTrackRoles(value: unknown): { status: "ok"; value: RealMvSidecarTrackRoles } | { status: "invalid"; message: string } {
