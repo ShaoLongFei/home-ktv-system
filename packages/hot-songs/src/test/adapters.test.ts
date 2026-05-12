@@ -7,7 +7,14 @@ import { describe, expect, it, vi } from "vitest";
 import { parseKugouRankHtmlRows } from "../adapters/kugou-rank-html.js";
 import { parseNeteaseToplistHtmlRows } from "../adapters/netease-toplist-html.js";
 import { parseQqToplistJsonRows, parseQqToplistRows } from "../adapters/qq-toplist.js";
-import { parseTencentMusicYobangRows } from "../adapters/tencent-music-yobang.js";
+import { parseHolidayKtvRankRows } from "../adapters/holiday-ktv-rank.js";
+import { parseSilverboxRankRows } from "../adapters/silverbox-rank-html.js";
+import { parseSpotifyPlaylistRows } from "../adapters/spotify-playlist.js";
+import {
+  parseTencentMusicYobangApiRows,
+  parseTencentMusicYobangRows
+} from "../adapters/tencent-music-yobang.js";
+import { parseVvMusicRankRows } from "../adapters/vv-music-rank-html.js";
 import { runCollectSourcesCli } from "../cli.js";
 import { SourceDefinitionSchema } from "../contracts.js";
 import { buildSourceFetchHeaders } from "../fetch/http.js";
@@ -95,7 +102,70 @@ const tencentYobangSource = SourceDefinitionSchema.parse({
   adapter: "tencent_music_yobang",
   weight: 80,
   url: "https://yobang.tencentmusic.com/chart/uni-chart/rankList/?shareFrom=qy",
+  platformCapRows: 200,
   expectedMinRows: 2,
+  staleAfterDays: 14
+});
+
+const spotifyKtvSource = SourceDefinitionSchema.parse({
+  id: "spotify-ktv-hot-playlist",
+  name: "Spotify KTV 热歌榜",
+  provider: "spotify",
+  sourceType: "ktv_first",
+  sourceKind: "public_chart",
+  adapter: "spotify_playlist",
+  weight: 90,
+  url: "https://open.spotify.com/playlist/0rwaPzCL2VFxnqA6tl5eEi",
+  targetRows: 500,
+  minRows: 400,
+  platformCapRows: 100,
+  expectedMinRows: 400,
+  staleAfterDays: 14
+});
+
+const holidayKtvSource = SourceDefinitionSchema.parse({
+  id: "holiday-ktv-mandarin-top",
+  name: "好乐迪 国语点播流行榜",
+  provider: "holiday_ktv",
+  sourceType: "ktv_first",
+  sourceKind: "public_chart",
+  adapter: "holiday_ktv_rank",
+  weight: 95,
+  url: "https://www.holiday.com.tw/SongInfo/SongList.aspx?st=top&lt=tc",
+  targetRows: 500,
+  minRows: 400,
+  platformCapRows: 30,
+  expectedMinRows: 400,
+  staleAfterDays: 14
+});
+
+const silverboxSource = SourceDefinitionSchema.parse({
+  id: "silverbox-mandarin-rank",
+  name: "钱柜 KTV 国语榜单",
+  provider: "silverbox",
+  sourceType: "ktv_first",
+  sourceKind: "public_chart",
+  adapter: "silverbox_rank_html",
+  weight: 95,
+  url: "https://www.silverbox.com.tw/rank/3/",
+  targetRows: 500,
+  minRows: 400,
+  expectedMinRows: 400,
+  staleAfterDays: 14
+});
+
+const vvKtvSource = SourceDefinitionSchema.parse({
+  id: "vv-ktv-request-chart",
+  name: "VV KTV点唱榜",
+  provider: "vv_music",
+  sourceType: "ktv_first",
+  sourceKind: "public_chart",
+  adapter: "vv_music_rank_html",
+  weight: 90,
+  url: "https://www.51vv.com/music/music_list_song.htm?songMenuID=277&curPage=1",
+  targetRows: 500,
+  minRows: 400,
+  expectedMinRows: 400,
   staleAfterDays: 14
 });
 
@@ -178,12 +248,19 @@ describe("fixture mode source collection", () => {
       "qq-douyin-hot-toplist",
       "netease-hot-toplist",
       "netease-soaring-toplist",
-      "netease-vip-hot-toplist"
+      "spotify-ktv-hot-playlist",
+      "holiday-ktv-mandarin-top",
+      "silverbox-mandarin-rank",
+      "vv-ktv-request-chart"
     ]);
 
     expect(manifest.sources.filter((source) => source.provider === "kugou")).toHaveLength(8);
     expect(manifest.sources.filter((source) => source.provider === "qq_music")).toHaveLength(11);
-    expect(manifest.sources.filter((source) => source.provider === "netease")).toHaveLength(3);
+    expect(manifest.sources.filter((source) => source.provider === "netease")).toHaveLength(2);
+    expect(manifest.sources.filter((source) => source.provider === "spotify")).toHaveLength(1);
+    expect(manifest.sources.filter((source) => source.provider === "holiday_ktv")).toHaveLength(1);
+    expect(manifest.sources.filter((source) => source.provider === "silverbox")).toHaveLength(1);
+    expect(manifest.sources.filter((source) => source.provider === "vv_music")).toHaveLength(1);
     expect(
       manifest.sources.every(
         (source) => source.targetRows === 500 && source.minRows === 400
@@ -215,7 +292,7 @@ describe("fixture mode source collection", () => {
 
       expect(exitCode).toBe(0);
       expect(logSpy).toHaveBeenCalledWith(
-        "Source collection complete: 3047 rows from 22 usable sources"
+        "Source collection complete: 3873 rows from 25 usable sources"
       );
       expect(errorSpy).not.toHaveBeenCalled();
 
@@ -225,7 +302,7 @@ describe("fixture mode source collection", () => {
         sources: Array<{ sourceId: string; status: string; rowCount: number }>;
       };
 
-      expect(report.sources).toHaveLength(22);
+      expect(report.sources).toHaveLength(25);
       expect(report.sources).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -239,9 +316,29 @@ describe("fixture mode source collection", () => {
             rowCount: 300
           }),
           expect.objectContaining({
-            sourceId: "netease-vip-hot-toplist",
+            sourceId: "tencent-music-yobang",
             status: "platform_cap",
-            rowCount: 10
+            rowCount: 200
+          }),
+          expect.objectContaining({
+            sourceId: "spotify-ktv-hot-playlist",
+            status: "platform_cap",
+            rowCount: 100
+          }),
+          expect.objectContaining({
+            sourceId: "holiday-ktv-mandarin-top",
+            status: "platform_cap",
+            rowCount: 30
+          }),
+          expect.objectContaining({
+            sourceId: "silverbox-mandarin-rank",
+            status: "succeeded",
+            rowCount: 500
+          }),
+          expect.objectContaining({
+            sourceId: "vv-ktv-request-chart",
+            status: "succeeded",
+            rowCount: 500
           })
         ])
       );
@@ -275,6 +372,121 @@ describe("fixture mode source collection", () => {
 });
 
 describe("support chart adapters", () => {
+  it("parses Spotify playlist fixture rows from embedded page state", async () => {
+    const html = await readFile(
+      resolve(
+        repoRoot,
+        "packages/hot-songs/fixtures/html/spotify-playlist.fixture.html"
+      ),
+      "utf8"
+    );
+
+    const rows = parseSpotifyPlaylistRows(
+      spotifyKtvSource,
+      html,
+      "2026-05-10T00:00:00.000Z"
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        sourceId: "spotify-ktv-hot-playlist",
+        sourceType: "ktv_first",
+        provider: "spotify",
+        rank: 1,
+        rawTitle: "太陽與地球",
+        rawArtists: ["盧廣仲"],
+        sourceUrl: "https://open.spotify.com/playlist/0rwaPzCL2VFxnqA6tl5eEi"
+      })
+    );
+  });
+
+  it("parses VV KTV point-song chart rows", async () => {
+    const html = await readFile(
+      resolve(
+        repoRoot,
+        "packages/hot-songs/fixtures/html/vv-ktv-rank.fixture.html"
+      ),
+      "utf8"
+    );
+
+    const rows = parseVvMusicRankRows(
+      vvKtvSource,
+      html,
+      "2026-05-10T00:00:00.000Z"
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        sourceId: "vv-ktv-request-chart",
+        sourceType: "ktv_first",
+        provider: "vv_music",
+        rank: 1,
+        rawTitle: "人生路漫漫",
+        rawArtists: ["白小白"],
+        sourceUrl: "https://www.51vv.com/music/music_list_song.htm?songMenuID=277&curPage=1"
+      })
+    );
+  });
+
+  it("parses Holiday KTV paged rank API rows", async () => {
+    const jsonText = await readFile(
+      resolve(
+        repoRoot,
+        "packages/hot-songs/fixtures/html/holiday-ktv-rank.fixture.json"
+      ),
+      "utf8"
+    );
+
+    const rows = parseHolidayKtvRankRows(
+      holidayKtvSource,
+      JSON.parse(jsonText) as unknown,
+      "2026-05-10T00:00:00.000Z"
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        sourceId: "holiday-ktv-mandarin-top",
+        sourceType: "ktv_first",
+        provider: "holiday_ktv",
+        rank: 1,
+        rawTitle: "離開我的依賴",
+        rawArtists: ["王艷薇"],
+        sourcePublishedAt: "2026-04-28"
+      })
+    );
+  });
+
+  it("parses Silverbox ranking HTML rows", async () => {
+    const html = await readFile(
+      resolve(
+        repoRoot,
+        "packages/hot-songs/fixtures/html/silverbox-rank.fixture.html"
+      ),
+      "utf8"
+    );
+
+    const rows = parseSilverboxRankRows(
+      silverboxSource,
+      html,
+      "2026-05-10T00:00:00.000Z"
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        sourceId: "silverbox-mandarin-rank",
+        sourceType: "ktv_first",
+        provider: "silverbox",
+        rank: 1,
+        rawTitle: "太陽與地球",
+        rawArtists: ["盧廣仲"]
+      })
+    );
+  });
+
   it("merges segmented Kugou ranking pages for one logical source", async () => {
     const html = await readFile(
       resolve(
@@ -346,6 +558,35 @@ describe("support chart adapters", () => {
     );
   });
 
+  it("falls back to list order when QQ public toplist JSON rank is zero", () => {
+    const rows = parseQqToplistJsonRows(
+      qqHotJsonSource,
+      {
+        code: 0,
+        date: "2026-05-10",
+        songlist: [
+          {
+            rank: 0,
+            data: {
+              songname: "第一首",
+              singer: [{ name: "测试歌手" }]
+            }
+          },
+          {
+            index: "0",
+            data: {
+              songname: "第二首",
+              singer: [{ name: "测试歌手" }]
+            }
+          }
+        ]
+      },
+      "2026-05-10T00:00:00.000Z"
+    );
+
+    expect(rows.map((row) => row.rank)).toEqual([1, 2]);
+  });
+
   it("parses Tencent Music 由你榜 Next page data", () => {
     const html = `<script id="__NEXT_DATA__" type="application/json">${JSON.stringify({
       props: {
@@ -372,6 +613,35 @@ describe("support chart adapters", () => {
         rank: 1,
         rawTitle: "星昼",
         rawArtists: ["周深"],
+        sourcePublishedAt: "2026-05-11"
+      })
+    );
+  });
+
+  it("parses Tencent Music 由你榜 dynamic API data", () => {
+    const rows = parseTencentMusicYobangApiRows(
+      tencentYobangSource,
+      {
+        code: "0",
+        data: {
+          startDateForTitle: "2026-05-11",
+          chartsList: [
+            { rank: 1, songName: "星昼", singerName: "周深" },
+            { rank: 2, trackNameShow: "Someone to Love", singerName: "严浩翔" },
+            { rank: 101, songName: "第一百零一首", singerName: "测试歌手" }
+          ]
+        }
+      },
+      "2026-05-11T00:00:00.000Z"
+    );
+
+    expect(rows).toHaveLength(3);
+    expect(rows[2]).toEqual(
+      expect.objectContaining({
+        sourceId: "tencent-music-yobang",
+        rank: 101,
+        rawTitle: "第一百零一首",
+        rawArtists: ["测试歌手"],
         sourcePublishedAt: "2026-05-11"
       })
     );

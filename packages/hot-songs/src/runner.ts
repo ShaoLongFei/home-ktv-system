@@ -100,6 +100,9 @@ export async function collectOneSource(
     const rows = await adapter(source, context);
     const minRows = effectiveMinRows(source);
     const warnings = buildRowCountWarnings(source, rows.length, minRows);
+    const atPlatformCap =
+      source.platformCapRows !== undefined &&
+      rows.length === source.platformCapRows;
 
     if (rows.length === 0) {
       return {
@@ -116,24 +119,21 @@ export async function collectOneSource(
       };
     }
 
-    if (rows.length < minRows) {
-      if (
-        source.platformCapRows !== undefined &&
-        rows.length <= source.platformCapRows
-      ) {
-        return {
-          rows,
-          status: buildStatus(source, {
-            status: "platform_cap",
-            usable: true,
-            rowCount: rows.length,
-            warnings,
-            startedAt,
-            finishedAt: generatedAt
-          })
-        };
-      }
+    if (atPlatformCap) {
+      return {
+        rows,
+        status: buildStatus(source, {
+          status: "platform_cap",
+          usable: true,
+          rowCount: rows.length,
+          warnings,
+          startedAt,
+          finishedAt: generatedAt
+        })
+      };
+    }
 
+    if (rows.length < minRows) {
       return {
         rows,
         status: buildStatus(source, {
@@ -202,7 +202,9 @@ export async function collectSources(
   );
   const result: CollectSourcesResult = {
     generatedAt,
-    rows: sourceResults.flatMap((sourceResult) => sourceResult.rows),
+    rows: sourceResults.flatMap((sourceResult) =>
+      sourceResult.status.usable ? sourceResult.rows : []
+    ),
     statuses: sourceResults.map((sourceResult) => sourceResult.status)
   };
 
@@ -255,8 +257,7 @@ function buildRowCountWarnings(
 
   if (
     source.platformCapRows !== undefined &&
-    rowCount <= source.platformCapRows &&
-    rowCount < minRows
+    rowCount === source.platformCapRows
   ) {
     warnings.push("row-count-limited-by-platform-cap");
   }

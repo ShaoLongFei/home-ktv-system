@@ -6,5 +6,6 @@ coverage/
 .env.local
 logs/
 home-ktv-media/
+songs-sample/
 .worktrees/
 worktrees/

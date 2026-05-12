@@ -366,11 +366,16 @@ function getNumber(
 
   for (const key of keys) {
     const nestedValue = value[key];
-    if (typeof nestedValue === "number" && Number.isFinite(nestedValue)) {
+    if (
+      typeof nestedValue === "number" &&
+      Number.isInteger(nestedValue) &&
+      nestedValue > 0
+    ) {
       return nestedValue;
     }
     if (typeof nestedValue === "string" && /^\d+$/u.test(nestedValue)) {
-      return Number.parseInt(nestedValue, 10);
+      const parsedValue = Number.parseInt(nestedValue, 10);
+      return parsedValue > 0 ? parsedValue : null;
     }
   }
 

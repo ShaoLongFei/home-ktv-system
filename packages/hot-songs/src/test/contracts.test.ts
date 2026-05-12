@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   SourceDefinitionSchema,
+  SourceManifestSchema,
   SourceStatusValueSchema
 } from "../contracts.js";
 
@@ -115,6 +116,26 @@ describe("SourceDefinitionSchema", () => {
         weight: 80
       })
     ).toThrow(/file is required/);
+  });
+
+  it("rejects duplicate source ids in a manifest", () => {
+    const source = {
+      id: "duplicate-source",
+      name: "Duplicate Source",
+      provider: "qq_music",
+      sourceType: "support",
+      sourceKind: "public_chart",
+      adapter: "qq_toplist",
+      weight: 20,
+      url: "https://y.qq.com/n/ryqq/toplist/26"
+    };
+
+    expect(() =>
+      SourceManifestSchema.parse({
+        schemaVersion: "hot-songs.source-manifest.v1",
+        sources: [source, { ...source, name: "Duplicate Source 2" }]
+      })
+    ).toThrow(/duplicate source id/);
   });
 });
 

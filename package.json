@@ -14,6 +14,7 @@
     "real-mv:risk-spike": "node scripts/real-mv-playback-risk-spike.mjs",
     "hot-songs:sources": "pnpm -F @home-ktv/hot-songs collect-sources",
     "hot-songs:normalize": "pnpm -F @home-ktv/hot-songs normalize",
+    "hot-songs:fuse": "pnpm -F @home-ktv/hot-songs fuse",
     "hot-songs:sources:test": "pnpm -F @home-ktv/hot-songs test",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",

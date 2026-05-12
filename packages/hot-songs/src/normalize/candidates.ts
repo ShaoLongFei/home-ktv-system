@@ -10,6 +10,7 @@ import {
 import { normalizeArtistKeys, normalizeTitleIdentity } from "./text.js";
 
 type SourceType = SourceDefinition["sourceType"];
+const unknownArtistLabel = "未知歌手";
 
 export type BuildCandidateSnapshotInput = {
   rows: SourceRow[];
@@ -30,7 +31,7 @@ export function buildCandidateSnapshot(
 
   for (const row of input.rows) {
     const titleIdentity = normalizeTitleIdentity(row.rawTitle);
-    const canonicalArtistKeys = normalizeArtistKeys(row.rawArtists);
+    const canonicalArtistKeys = ensureArtistKeys(normalizeArtistKeys(row.rawArtists));
     const songKey = buildSongKey({
       canonicalTitleKey: titleIdentity.canonicalTitleKey,
       canonicalArtistKeys,
@@ -65,7 +66,7 @@ export function buildCandidateIdentity(rows: SourceRow[]): CandidateIdentity {
   }
 
   const titleIdentity = normalizeTitleIdentity(displayEvidence.rawTitle);
-  const canonicalArtistKeys = normalizeArtistKeys(displayEvidence.rawArtists);
+  const canonicalArtistKeys = ensureArtistKeys(normalizeArtistKeys(displayEvidence.rawArtists));
   const songKey = buildSongKey({
     canonicalTitleKey: titleIdentity.canonicalTitleKey,
     canonicalArtistKeys,
@@ -84,7 +85,7 @@ export function buildCandidateIdentity(rows: SourceRow[]): CandidateIdentity {
     canonicalArtistKeys,
     variantSignature: titleIdentity.variantSignature,
     displayTitle: displayEvidence.rawTitle,
-    displayArtists: displayEvidence.rawArtists,
+    displayArtists: ensureDisplayArtists(displayEvidence.rawArtists),
     sourceIds: uniqueSorted(sortedEvidence.map((row) => row.sourceId)),
     sourceTypes: uniqueSourceTypes(sortedEvidence.map((row) => row.sourceType)),
     warnings,
@@ -131,4 +132,12 @@ function uniqueSourceTypes(values: SourceType[]): SourceType[] {
     : values.includes("ktv_first")
       ? ["ktv_first"]
       : ["support"];
+}
+
+function ensureArtistKeys(values: string[]): string[] {
+  return values.length > 0 ? values : [unknownArtistLabel];
+}
+
+function ensureDisplayArtists(values: string[]): string[] {
+  return values.length > 0 ? values : [unknownArtistLabel];
 }

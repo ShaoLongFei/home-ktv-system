@@ -5,7 +5,12 @@ import { parseArgs } from "node:util";
 
 import { z } from "zod";
 
-import { SourceRowSchema, SourceStatusSchema } from "./contracts.js";
+import {
+  SourceRowSchema,
+  SourceStatusSchema,
+  type SourceRow,
+  type SourceStatus
+} from "./contracts.js";
 import { resolveRunPath } from "./manifest.js";
 import {
   buildCandidateSnapshot,
@@ -99,8 +104,12 @@ export async function runNormalizeSourcesCli(argv: string[]): Promise<number> {
       sourceReportPath === undefined
         ? undefined
         : await readSourceReportFile(sourceReportPath);
+    const rows =
+      sourceReportFile === undefined
+        ? sourceRowsFile.rows
+        : filterUsableSourceRows(sourceRowsFile.rows, sourceReportFile.sources);
     const snapshotInput: BuildCandidateSnapshotInput = {
-      rows: sourceRowsFile.rows
+      rows
     };
     if (sourceReportFile !== undefined) {
       snapshotInput.sourceStatuses = sourceReportFile.sources;
@@ -154,6 +163,18 @@ async function readSourceRowsFile(filePath: string) {
 
 async function readSourceReportFile(filePath: string) {
   return SourceReportFileSchema.parse(await readJsonFile(filePath));
+}
+
+function filterUsableSourceRows(
+  rows: SourceRow[],
+  sourceStatuses: SourceStatus[]
+): SourceRow[] {
+  const usableSourceIds = new Set(
+    sourceStatuses
+      .filter((status) => status.usable)
+      .map((status) => status.sourceId)
+  );
+  return rows.filter((row) => usableSourceIds.has(row.sourceId));
 }
 
 function isDirectRun(): boolean {

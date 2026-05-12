@@ -130,6 +130,24 @@ describe("buildCandidateSnapshot", () => {
     expect(snapshot.candidates[0]?.warnings).toContain("manual-review-source");
   });
 
+  it("falls back to an unknown artist label when source rows have no artists", () => {
+    const snapshot = buildCandidateSnapshot({
+      rows: [
+        sourceRow({
+          sourceId: "no-artist-source",
+          rawTitle: "希林娜依高、欧阳娣娣 (Didi Ouyang)、王晓赟子、谢可寅、袁一琦...",
+          rawArtists: [],
+          warnings: ["missing-artist"]
+        })
+      ],
+      generatedAt: "2026-05-10T00:00:00.000Z"
+    });
+
+    expect(snapshot.candidateCount).toBe(1);
+    expect(snapshot.candidates[0]?.displayArtists).toEqual(["未知歌手"]);
+    expect(snapshot.candidates[0]?.canonicalArtistKeys).toEqual(["未知歌手"]);
+  });
+
   it("keeps candidate IDs and song keys stable when fixture rows are reversed", async () => {
     const rows = await loadFixtureRows();
     const original = buildCandidateSnapshot({

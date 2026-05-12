@@ -7,6 +7,10 @@ import {
   collectKugouRankHtmlSource,
   parseKugouRankHtmlRows
 } from "./adapters/kugou-rank-html.js";
+import {
+  collectHolidayKtvRankSource,
+  parseHolidayKtvRankRows
+} from "./adapters/holiday-ktv-rank.js";
 import { collectManualJsonSource } from "./adapters/manual-json.js";
 import {
   collectNeteaseToplistHtmlSource,
@@ -17,9 +21,21 @@ import {
   parseQqToplistRows
 } from "./adapters/qq-toplist.js";
 import {
+  collectSilverboxRankSource,
+  parseSilverboxRankRows
+} from "./adapters/silverbox-rank-html.js";
+import {
+  collectSpotifyPlaylistSource,
+  parseSpotifyPlaylistRows
+} from "./adapters/spotify-playlist.js";
+import {
   collectTencentMusicYobangSource,
   parseTencentMusicYobangRows
 } from "./adapters/tencent-music-yobang.js";
+import {
+  collectVvMusicRankSource,
+  parseVvMusicRankRows
+} from "./adapters/vv-music-rank-html.js";
 import type { SourceDefinition, SourceRow, SourceStatus } from "./contracts.js";
 import { loadSourceManifest, resolveRunPath, validateManifestPath } from "./manifest.js";
 import { buildSourceHealthReport, writeSourceReport } from "./report/source-health.js";
@@ -33,6 +49,8 @@ import {
 
 export const HOT_SONGS_SOURCES_HELP =
   "Usage: pnpm hot-songs:sources -- --manifest <path> --out <dir> [--fixture]";
+
+const proxyBypassHosts = ["music.163.com", "www.51vv.com"];
 
 export type CollectSourcesArgs = {
   manifestPath: string | undefined;
@@ -74,6 +92,8 @@ export async function runCollectSourcesCli(argv: string[]): Promise<number> {
       console.log(HOT_SONGS_SOURCES_HELP);
       return 0;
     }
+
+    applyProxyBypassHosts(proxyBypassHosts);
 
     const runRoot = process.env.INIT_CWD ?? process.cwd();
     const manifestPath = resolveRunPath(
@@ -124,6 +144,22 @@ function validateOutDirPath(outDir: string | undefined): string {
   return outDir;
 }
 
+function applyProxyBypassHosts(hosts: readonly string[]): void {
+  const bypassHosts = new Set(
+    [
+      ...(process.env.NO_PROXY ?? process.env.no_proxy ?? "")
+        .split(",")
+        .map((host) => host.trim())
+        .filter((host) => host.length > 0),
+      ...hosts
+    ].filter((host) => host.length > 0)
+  );
+
+  const merged = [...bypassHosts].join(",");
+  process.env.NO_PROXY = merged;
+  process.env.no_proxy = merged;
+}
+
 function buildAdapters(options: {
   fixture: boolean;
   runRoot: string;
@@ -166,6 +202,44 @@ function buildAdapters(options: {
             buildTencentMusicFixtureHtml(),
             context.generatedAt ?? new Date().toISOString()
           )
+        ),
+      spotify_playlist: async (source, context) =>
+        expandFixtureRows(
+          source,
+          parseSpotifyPlaylistRows(
+            source,
+            await readFixtureHtml(options.runRoot, "spotify-playlist.fixture.html"),
+            context.generatedAt ?? new Date().toISOString()
+          )
+        ),
+      holiday_ktv_rank: async (source, context) =>
+        expandFixtureRows(
+          source,
+          parseHolidayKtvRankRows(
+            source,
+            JSON.parse(
+              await readFixtureHtml(options.runRoot, "holiday-ktv-rank.fixture.json")
+            ) as unknown,
+            context.generatedAt ?? new Date().toISOString()
+          )
+        ),
+      silverbox_rank_html: async (source, context) =>
+        expandFixtureRows(
+          source,
+          parseSilverboxRankRows(
+            source,
+            await readFixtureHtml(options.runRoot, "silverbox-rank.fixture.html"),
+            context.generatedAt ?? new Date().toISOString()
+          )
+        ),
+      vv_music_rank_html: async (source, context) =>
+        expandFixtureRows(
+          source,
+          parseVvMusicRankRows(
+            source,
+            await readFixtureHtml(options.runRoot, "vv-ktv-rank.fixture.html"),
+            context.generatedAt ?? new Date().toISOString()
+          )
         )
     };
   }
@@ -175,7 +249,11 @@ function buildAdapters(options: {
     qq_toplist: collectQqToplistSource,
     kugou_rank_html: collectKugouRankHtmlSource,
     netease_toplist_html: collectNeteaseToplistHtmlSource,
-    tencent_music_yobang: collectTencentMusicYobangSource
+    tencent_music_yobang: collectTencentMusicYobangSource,
+    spotify_playlist: collectSpotifyPlaylistSource,
+    holiday_ktv_rank: collectHolidayKtvRankSource,
+    silverbox_rank_html: collectSilverboxRankSource,
+    vv_music_rank_html: collectVvMusicRankSource
   };
 }
 

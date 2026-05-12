@@ -7,13 +7,21 @@ export const ProviderSchema = z.enum([
   "cavca",
   "kugou",
   "netease",
-  "manual"
+  "manual",
+  "spotify",
+  "holiday_ktv",
+  "silverbox",
+  "vv_music"
 ]);
 export const AdapterSchema = z.enum([
   "qq_toplist",
   "kugou_rank_html",
   "netease_toplist_html",
   "tencent_music_yobang",
+  "spotify_playlist",
+  "holiday_ktv_rank",
+  "silverbox_rank_html",
+  "vv_music_rank_html",
   "manual_json"
 ]);
 export const SourceStatusValueSchema = z.enum([
@@ -96,6 +104,21 @@ export const SourceDefinitionSchema = z
 export const SourceManifestSchema = z.object({
   schemaVersion: z.literal("hot-songs.source-manifest.v1"),
   sources: z.array(SourceDefinitionSchema).min(1)
+}).superRefine((manifest, ctx) => {
+  const seen = new Map<string, number>();
+  manifest.sources.forEach((source, index) => {
+    const firstIndex = seen.get(source.id);
+    if (firstIndex !== undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["sources", index, "id"],
+        message: `duplicate source id ${source.id} (first seen at index ${firstIndex})`
+      });
+      return;
+    }
+
+    seen.set(source.id, index);
+  });
 });
 
 export const ManualSnapshotSchema = z.object({

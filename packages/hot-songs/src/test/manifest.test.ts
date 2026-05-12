@@ -52,18 +52,19 @@ describe("source manifest loading", () => {
     ]);
   });
 
-  it("loads the example manifest with requested full chart sources", async () => {
+  it("loads the example manifest with requested full chart and KTV-first sources", async () => {
     const manifest = await loadSourceManifest(
       resolveRunPath("packages/hot-songs/config/sources.example.json", repoRoot)
     );
 
-    expect(manifest.sources).toHaveLength(22);
+    expect(manifest.sources).toHaveLength(25);
     expect(manifest.sources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: "kugou-top500", provider: "kugou" }),
         expect.objectContaining({
           id: "tencent-music-yobang",
-          provider: "qq_music"
+          provider: "qq_music",
+          platformCapRows: 200
         }),
         expect.objectContaining({
           id: "qq-kge-toplist",
@@ -72,6 +73,28 @@ describe("source manifest loading", () => {
         expect.objectContaining({
           id: "netease-hot-toplist",
           provider: "netease"
+        }),
+        expect.objectContaining({
+          id: "spotify-ktv-hot-playlist",
+          provider: "spotify",
+          sourceType: "ktv_first",
+          platformCapRows: 100
+        }),
+        expect.objectContaining({
+          id: "holiday-ktv-mandarin-top",
+          provider: "holiday_ktv",
+          sourceType: "ktv_first",
+          platformCapRows: 30
+        }),
+        expect.objectContaining({
+          id: "silverbox-mandarin-rank",
+          provider: "silverbox",
+          sourceType: "ktv_first"
+        }),
+        expect.objectContaining({
+          id: "vv-ktv-request-chart",
+          provider: "vv_music",
+          sourceType: "ktv_first"
         })
       ])
     );

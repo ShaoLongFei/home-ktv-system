@@ -1,7 +1,7 @@
 import { load } from "cheerio";
 
 import type { SourceDefinition, SourceRow } from "../contracts.js";
-import { buildSourceFetchHeaders, fetchText } from "../fetch/http.js";
+import { buildSourceFetchHeaders, fetchJson, fetchText } from "../fetch/http.js";
 import type { CollectContext } from "../runner.js";
 
 export async function collectTencentMusicYobangSource(
@@ -12,16 +12,47 @@ export async function collectTencentMusicYobangSource(
     throw new Error(`Source ${source.id} is missing a Tencent Music chart URL`);
   }
 
-  const html = await fetchText(
-    source.url,
-    context.timeoutMs ?? 10000,
-    buildSourceFetchHeaders(source)
-  );
+  const collectedAt = context.generatedAt ?? new Date().toISOString();
+  const headers = {
+    referer: source.url,
+    ...buildSourceFetchHeaders(source)
+  };
+
+  try {
+    const apiData = await fetchJson(
+      buildTencentMusicYobangApiUrl(),
+      context.timeoutMs ?? 10000,
+      { headers }
+    );
+    return parseTencentMusicYobangApiRows(source, apiData, collectedAt);
+  } catch {
+    // Keep the SSR page as a fallback. It usually contains only the first 10 rows.
+  }
+
+  const html = await fetchText(source.url, context.timeoutMs ?? 10000, headers);
   return parseTencentMusicYobangRows(
     source,
     html,
-    context.generatedAt ?? new Date().toISOString()
+    collectedAt
   );
+}
+
+export function parseTencentMusicYobangApiRows(
+  source: SourceDefinition,
+  data: unknown,
+  collectedAt = new Date().toISOString()
+): SourceRow[] {
+  const sourcePublishedAt = findDateString(data);
+  const chartsList = findChartsList(data);
+  const rows = chartsList
+    .map((item, index) => parseSongRow(source, item, index + 1, sourcePublishedAt, collectedAt))
+    .filter((row): row is SourceRow => row !== null);
+
+  if (rows.length === 0) {
+    throw new Error("Tencent Music chart API data not found");
+  }
+
+  return rows;
 }
 
 export function parseTencentMusicYobangRows(
@@ -48,6 +79,17 @@ export function parseTencentMusicYobangRows(
   }
 
   return rows;
+}
+
+function buildTencentMusicYobangApiUrl(): string {
+  const params = new URLSearchParams({
+    offset: "0",
+    limit: "200",
+    platform: "website",
+    t: String(Date.now())
+  });
+
+  return `https://yobang.tencentmusic.com/unichartsapi/v1/songs/charts/dynamic?${params.toString()}`;
 }
 
 function findChartsList(value: unknown): unknown[] {

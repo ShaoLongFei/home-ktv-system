@@ -241,6 +241,80 @@ describe("collectSources", () => {
     ]);
   });
 
+  it("keeps exact platform caps usable even when the minimum is already met", async () => {
+    const cappedSource = source({
+      id: "qq-hot-toplist",
+      provider: "qq_music",
+      sourceKind: "public_chart",
+      adapter: "qq_toplist",
+      url: "https://y.qq.com/n/ryqq/toplist/26",
+      targetRows: 500,
+      minRows: 300,
+      platformCapRows: 400
+    });
+
+    const result = await collectSources(
+      manifest([cappedSource]),
+      context({
+        qq_toplist: async (sourceDefinition) => rows(sourceDefinition, 400)
+      })
+    );
+
+    expect(result.statuses).toEqual([
+      expect.objectContaining({
+        sourceId: "qq-hot-toplist",
+        status: "platform_cap",
+        usable: true,
+        rowCount: 400,
+        targetRows: 500,
+        minRows: 300,
+        platformCapRows: 400,
+        warnings: ["row-count-limited-by-platform-cap"]
+      })
+    ]);
+  });
+
+  it("does not treat below-cap partial rows as a platform cap success", async () => {
+    const cappedSource = source({
+      id: "qq-hot-toplist",
+      provider: "qq_music",
+      sourceKind: "public_chart",
+      adapter: "qq_toplist",
+      url: "https://y.qq.com/n/ryqq/toplist/26",
+      targetRows: 500,
+      minRows: 400,
+      platformCapRows: 300
+    });
+    const fallbackSource = source({ id: "manual-good" });
+
+    const result = await collectSources(
+      manifest([cappedSource, fallbackSource]),
+      context({
+        qq_toplist: async (sourceDefinition) => rows(sourceDefinition, 299),
+        manual_json: successAdapter()
+      })
+    );
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0]?.sourceId).toBe("manual-good");
+    expect(result.statuses).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceId: "qq-hot-toplist",
+          status: "failed_below_min_rows",
+          usable: false,
+          rowCount: 299,
+          warnings: expect.arrayContaining(["row-count-below-minimum"])
+        }),
+        expect.objectContaining({
+          sourceId: "manual-good",
+          status: "succeeded",
+          usable: true
+        })
+      ])
+    );
+  });
+
   it("marks uncapped below-minimum sources as unusable failures", async () => {
     const belowMinimumSource = source({
       id: "qq-unknown-toplist",
