@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
-status: planning
-stopped_at: Phase 13 planned
-last_updated: "2026-05-12T09:15:54Z"
-last_activity: "2026-05-12 -- Phase 13 planned: 4 plans ready for execution"
+status: executing
+stopped_at: Completed 13-01-PLAN.md
+last_updated: "2026-05-12T10:40:26.237Z"
+last_activity: "2026-05-12 -- Phase 13 Plan 13-01 complete; ready for 13-02"
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 10
-  completed_plans: 6
-  percent: 60
+  completed_plans: 7
+  percent: 70
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 13 (mediainfo-probe-scanner-and-sidecars) — PLANNED
-Plan: 0 of 4
-Status: Ready to execute Phase 13
-Last activity: 2026-05-12 -- Phase 13 planned: 4 plans ready for execution
+Phase: 13 (mediainfo-probe-scanner-and-sidecars) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute Plan 13-02
+Last activity: 2026-05-12 -- Phase 13 Plan 13-01 complete; ready for 13-02
 
-Progress: [██████░░░░] 60%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
@@ -64,6 +64,8 @@ Progress: [██████░░░░] 60%
 - [Milestone v1.2]: v1.2 preserves Android TV playback boundaries but does not build a native Android TV app.
 - [Milestone v1.2]: Review-first admission remains the default; auto-admit is only a reserved capability.
 - [Milestone v1.2]: Unsupported or uncertain files must be marked clearly and kept out of normal queueable user flows.
+- [Phase 13-01]: Real MV scanner identity combines media quick hash with artifact signatures so sidecar changes trigger reconciliation.
+- [Phase 13-01]: Unstable real MV files are persisted as pending with file-unstable scannerReasons instead of being probed or silently skipped.
 - [Phase 06] TV display copy, first-play prompt, and fallback notice text are centralized in `tv-display-model.ts`.
 - [Phase 06] First-play autoplay block is tracked in local TV state and cleared on successful playback.
 - [Phase 06] The first-play loading banner stays suppressed so the central prompt is not duplicated.
@@ -93,6 +95,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-12T09:15:54Z
-Stopped at: Phase 13 planned
-Resume file: .planning/phases/13-mediainfo-probe-scanner-and-sidecars/13-01-PLAN.md
+Last session: 2026-05-12T10:40:26Z
+Stopped at: Completed 13-01-PLAN.md
+Resume file: .planning/phases/13-mediainfo-probe-scanner-and-sidecars/13-02-PLAN.md

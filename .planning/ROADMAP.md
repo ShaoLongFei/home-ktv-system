@@ -57,7 +57,7 @@ Plans:
   4. Candidates clearly show metadata provenance and can be retried or reconciled after partial or unstable large files become stable.
 **Plans**: 4 plans
 Plans:
-- [ ] 13-01-PLAN.md - Scanner extension, sidecar/cover discovery, artifact-aware quick hash, and unstable-file guard
+- [x] 13-01-PLAN.md - Scanner extension, sidecar/cover discovery, artifact-aware quick hash, and unstable-file guard
 - [ ] 13-02-PLAN.md - Sidecar schema, filename parser, metadata draft, provenance, and conflict preservation
 - [ ] 13-03-PLAN.md - Sidecar metadata wiring, single-file real MV candidate integration, track roles, playback profile, and compatibility status
 - [ ] 13-04-PLAN.md - Admin import serialization, safe cover preview route, and minimal real MV preview UI
@@ -108,7 +108,7 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
-| 13. MediaInfo Probe, Scanner, and Sidecars | 0/4 | Planned | - |
+| 13. MediaInfo Probe, Scanner, and Sidecars | 1/4 | In Progress | - |
 | 14. Admin Review and Catalog Admission | 0/TBD | Not started | - |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |
 | 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
