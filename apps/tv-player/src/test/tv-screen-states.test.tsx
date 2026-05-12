@@ -60,6 +60,7 @@ describe("tv screen states", () => {
 
     expect(screen.getByText("已有电视端在线")).toBeTruthy();
     expect(screen.getByText(/Living Room TV/)).toBeTruthy();
+    expect(screen.getByText("连接冲突").style.color).toBe(tvTheme.colors.danger);
   });
 
   it("renders loading state copy in the playing screen", () => {

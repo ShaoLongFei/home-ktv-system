@@ -115,13 +115,18 @@ button:not(:disabled):hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
+  min-width: 0;
+}
+
+.top-bar > div:first-child {
   min-width: 0;
 }
 
 .top-actions {
   display: flex;
-  flex: 0 0 auto;
+  flex: 1 1 172px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
@@ -228,7 +233,13 @@ button:not(:disabled):hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
+  min-width: 0;
+}
+
+.panel-heading > * {
+  min-width: 0;
 }
 
 .current-panel {
@@ -397,6 +408,8 @@ button:not(:disabled):hover {
   color: var(--ktv-accent);
   font-size: 0.88rem;
   font-weight: 850;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .search-form {
@@ -512,6 +525,7 @@ button:not(:disabled):hover {
   display: grid;
   gap: 10px;
   margin-top: 2px;
+  min-width: 0;
 }
 
 .online-placeholder {
@@ -603,6 +617,22 @@ button:not(:disabled):hover {
   .online-candidate-row > button,
   .search-form > button {
     width: 100%;
+  }
+
+  .command-row > button,
+  .row-actions > button {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .top-actions {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+
+  .online-panel .panel-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
