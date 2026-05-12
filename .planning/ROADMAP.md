@@ -20,7 +20,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 - v1.2 continues with Phases 12-16.
 - Decimal phases remain reserved for urgent insertions.
 
-- [ ] **Phase 12: Contract, Schema, and Playback-Risk Spike** - Define real-MV catalog/player contracts, compatibility states, provenance, and platform-neutral playback boundaries
+- [x] **Phase 12: Contract, Schema, and Playback-Risk Spike** - Define real-MV catalog/player contracts, compatibility states, provenance, and platform-neutral playback boundaries
 - [ ] **Phase 13: MediaInfo Probe, Scanner, and Sidecars** - Scan stable MKV/MPG/MPEG files with MediaInfo facts, same-stem covers, and same-stem `song.json` metadata
 - [ ] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with a single real-MV asset
 - [ ] **Phase 15: Search, Queue, Playback, and Switching** - Make approved real MV songs searchable, queueable, playable, and switchable only when runtime capability is verified
@@ -44,7 +44,7 @@ Plans:
 - [x] 12-03-PLAN.md - Probe summary, MIME, and compatibility evaluator
 - [x] 12-04-PLAN.md - PlaybackTarget profile and selected track ref
 - [x] 12-05-PLAN.md - Controlled playback-risk spike harness
-- [ ] 12-06-PLAN.md - User real-sample playback-risk evidence
+- [x] 12-06-PLAN.md - User real-sample playback-risk evidence
 
 ### Phase 13: MediaInfo Probe, Scanner, and Sidecars
 **Goal**: User can drop real MV files, covers, and sidecar metadata under `MEDIA_ROOT` and get stable, reviewable candidates.
@@ -102,7 +102,7 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 12. Contract, Schema, and Playback-Risk Spike | 5/6 | Executing | - |
+| 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 0/TBD | Not started | - |
 | 14. Admin Review and Catalog Admission | 0/TBD | Not started | - |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |
