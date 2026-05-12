@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
 status: executing
-stopped_at: Completed 13-01-PLAN.md
-last_updated: "2026-05-12T10:40:26.237Z"
-last_activity: "2026-05-12 -- Phase 13 Plan 13-01 complete; ready for 13-02"
+stopped_at: Completed 13-02-PLAN.md
+last_updated: "2026-05-12T11:25:37.484Z"
+last_activity: "2026-05-12 -- Phase 13 Plan 13-02 complete; ready for 13-03"
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
-  percent: 70
+  completed_plans: 8
+  percent: 80
 ---
 
 # Project State
@@ -27,11 +27,11 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 Milestone: v1.2 真实 MV 歌库
 Phase: 13 (mediainfo-probe-scanner-and-sidecars) — EXECUTING
-Plan: 2 of 4
-Status: Ready to execute Plan 13-02
-Last activity: 2026-05-12 -- Phase 13 Plan 13-01 complete; ready for 13-02
+Plan: 3 of 4
+Status: Ready to execute Plan 13-03
+Last activity: 2026-05-12 -- Phase 13 Plan 13-02 complete; ready for 13-03
 
-Progress: [███████░░░] 70%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [███████░░░] 70%
 - Trend: Stable
 
 *Updated after each plan completion*
+| Phase 13 P02 | 20 min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Progress: [███████░░░] 70%
 - [Phase 11-admin-runtime-boundary-completion]: QUAL-01 closure is scoped to the audited Admin Import/Songs runtime boundary and does not add product capability.
 - [Phase 11-admin-runtime-boundary-completion]: Final evidence combines runtime hook tests, page behavior tests, structure grep checks, Admin typecheck, and workspace typecheck.
 - [Milestone v1.1]: TV playback polish, productized Chinese UI, paired Mobile visual coverage, runtime boundaries, and traceability audit are archived.
+- [Phase 13]: Invalid real MV sidecar JSON and schema mismatches become scanner warnings with stable reason codes instead of scan failures. — Plan 13-02 keeps malformed song.json retryable and visible for later Admin review.
+- [Phase 13]: Real MV filename fallback stays conservative and records provenance/conflicts for Admin review. — Plan 13-02 avoids aggressive identity guesses while preserving MediaInfo, filename, and sidecar source labels.
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-12T10:40:26Z
-Stopped at: Completed 13-01-PLAN.md
-Resume file: .planning/phases/13-mediainfo-probe-scanner-and-sidecars/13-02-PLAN.md
+Last session: 2026-05-12T11:25:37.480Z
+Stopped at: Completed 13-02-PLAN.md
+Resume file: .planning/phases/13-mediainfo-probe-scanner-and-sidecars/13-03-PLAN.md

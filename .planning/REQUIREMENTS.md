@@ -17,7 +17,7 @@
 - [x] **SCAN-01**: User can place `.mkv`, `.mpg`, or `.mpeg` files under `MEDIA_ROOT` and trigger existing scan flows to produce review candidates.
 - [x] **SCAN-02**: User can place same-stem cover images beside a media file and have the candidate show that cover for preview.
 - [x] **SCAN-03**: User can place same-stem `song.json` beside a media file and have its metadata used as a review input.
-- [ ] **SCAN-04**: Candidate metadata is prefilled from MediaInfo first, then filename and sibling `song.json` fallback where fields are missing.
+- [x] **SCAN-04**: Candidate metadata is prefilled from MediaInfo first, then filename and sibling `song.json` fallback where fields are missing.
 - [x] **SCAN-05**: Scanner avoids probing partial or unstable large files and can retry/reconcile candidates after files become stable.
 
 ### Admin Review And Admission
@@ -87,7 +87,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCAN-01 | Phase 13 | Complete |
 | SCAN-02 | Phase 13 | Complete |
 | SCAN-03 | Phase 13 | Complete |
-| SCAN-04 | Phase 13 | Pending |
+| SCAN-04 | Phase 13 | Complete |
 | SCAN-05 | Phase 13 | Complete |
 | REVIEW-01 | Phase 14 | Pending |
 | REVIEW-02 | Phase 14 | Pending |
