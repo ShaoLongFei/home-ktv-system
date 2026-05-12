@@ -1,5 +1,18 @@
 import path from "node:path";
-import type { AssetKind, ImportFile, Language, MediaInfoProvenance, MediaInfoSummary, VocalMode } from "@home-ktv/domain";
+import type {
+  AssetKind,
+  CompatibilityReason,
+  ImportFile,
+  Language,
+  MediaInfoProvenance,
+  MediaInfoSummary,
+  VocalMode
+} from "@home-ktv/domain";
+import {
+  buildRealMvMetadataDraft,
+  parseRealMvFilename,
+  type RealMvSidecarMetadata
+} from "./real-mv-metadata.js";
 import type { ImportCandidateRepository } from "./repositories/import-candidate-repository.js";
 
 export interface CandidateBuilderOptions {
@@ -13,11 +26,24 @@ interface CandidateGroup {
   files: ImportFile[];
 }
 
+interface RealMvPayload {
+  mediaKind?: string;
+  sidecarMetadata?: RealMvSidecarMetadata;
+  scannerReasons: CompatibilityReason[];
+  sidecars?: unknown;
+}
+
 export class CandidateBuilder {
   constructor(private readonly options: CandidateBuilderOptions) {}
 
   async buildFromImportFiles(files: ImportFile[]): Promise<number> {
-    const groups = groupImportFiles(files);
+    const activeFiles = files.filter((file) => !file.deletedAt && file.probeStatus !== "deleted");
+    const realMvFiles = activeFiles.filter(isSingleFileRealMvImportFile);
+    const groups = groupImportFiles(activeFiles.filter((file) => !isSingleFileRealMvImportFile(file)));
+
+    for (const file of realMvFiles) {
+      await this.options.importCandidates.upsertCandidateWithFiles(buildRealMvCandidateInput(file));
+    }
 
     for (const group of groups) {
       await this.options.importCandidates.upsertCandidateWithFiles({
@@ -49,18 +75,64 @@ export class CandidateBuilder {
       });
     }
 
-    return groups.length;
+    return realMvFiles.length + groups.length;
   }
+}
+
+function buildRealMvCandidateInput(file: ImportFile): Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0] {
+  const realMvPayload = readRealMvPayload(file.probePayload);
+  const mediaInfoSummary = readMediaInfoSummary(file.probePayload.mediaInfoSummary);
+  const mediaInfoProvenance = readMediaInfoProvenance(file.probePayload.mediaInfoProvenance);
+  const metadataDraft = buildRealMvMetadataDraft({
+    mediaInfoSummary,
+    filenameMetadata: parseRealMvFilename(file.relativePath),
+    scannerReasons: realMvPayload.scannerReasons,
+    ...(realMvPayload.sidecarMetadata ? { sidecarMetadata: realMvPayload.sidecarMetadata } : {})
+  });
+  const groupKey = `single_file_real_mv:${file.relativePath}`;
+
+  return {
+    candidate: {
+      title: metadataDraft.title ?? stripExtension(path.basename(file.relativePath)),
+      artistName: metadataDraft.artistName ?? "Unknown Artist",
+      language: metadataDraft.language ?? inferLanguageFromText(`${metadataDraft.artistName ?? ""}${metadataDraft.title ?? file.relativePath}`),
+      genre: metadataDraft.genre ?? [],
+      tags: metadataDraft.tags ?? [],
+      aliases: metadataDraft.aliases ?? [],
+      searchHints: metadataDraft.searchHints ?? [],
+      releaseYear: metadataDraft.releaseYear ?? null,
+      candidateMeta: {
+        groupKey,
+        inferredFrom: "real_mv_scanner",
+        realMv: {
+          groupKey,
+          mediaKind: "single_file_real_mv",
+          sidecarMetadata: metadataDraft.sidecarMetadata,
+          scannerReasons: metadataDraft.scannerReasons,
+          sidecars: realMvPayload.sidecars,
+          metadataSources: metadataDraft.metadataSources,
+          metadataConflicts: metadataDraft.metadataConflicts
+        }
+      }
+    },
+    files: [{
+      importFileId: file.id,
+      selected: true,
+      proposedVocalMode: "dual",
+      proposedAssetKind: "dual-track-video",
+      roleConfidence: 0.8,
+      probeDurationMs: file.durationMs,
+      probeSummary: buildProbeSummary(file),
+      mediaInfoSummary,
+      mediaInfoProvenance
+    }]
+  };
 }
 
 function groupImportFiles(files: ImportFile[]): CandidateGroup[] {
   const groups = new Map<string, CandidateGroup>();
 
   for (const file of files) {
-    if (file.deletedAt || file.probeStatus === "deleted") {
-      continue;
-    }
-
     const identity = inferCandidateIdentity(file.relativePath);
     const group = groups.get(identity.groupKey) ?? {
       artistName: identity.artistName,
@@ -73,6 +145,29 @@ function groupImportFiles(files: ImportFile[]): CandidateGroup[] {
   }
 
   return Array.from(groups.values());
+}
+
+function isSingleFileRealMvImportFile(file: ImportFile): boolean {
+  return readRealMvPayload(file.probePayload).mediaKind === "single_file_real_mv";
+}
+
+function readRealMvPayload(value: Record<string, unknown>): RealMvPayload {
+  const realMv = isRecord(value.realMv) ? value.realMv : {};
+  const payload: RealMvPayload = {
+    scannerReasons: Array.isArray(realMv.scannerReasons)
+      ? realMv.scannerReasons as CompatibilityReason[]
+      : []
+  };
+  if (typeof realMv.mediaKind === "string") {
+    payload.mediaKind = realMv.mediaKind;
+  }
+  if (isRecord(realMv.sidecarMetadata)) {
+    payload.sidecarMetadata = realMv.sidecarMetadata as RealMvSidecarMetadata;
+  }
+  if (realMv.sidecars !== undefined) {
+    payload.sidecars = realMv.sidecars;
+  }
+  return payload;
 }
 
 function inferCandidateIdentity(relativePath: string): { artistName: string; title: string; groupKey: string } {
@@ -134,7 +229,11 @@ function inferAssetKind(relativePath: string): AssetKind {
 }
 
 function inferLanguage(group: CandidateGroup): Language {
-  return /[\u4e00-\u9fff]/u.test(`${group.artistName}${group.title}`) ? "mandarin" : "other";
+  return inferLanguageFromText(`${group.artistName}${group.title}`);
+}
+
+function inferLanguageFromText(value: string): Language {
+  return /[\u4e00-\u9fff]/u.test(value) ? "mandarin" : "other";
 }
 
 function buildProbeSummary(file: ImportFile): Record<string, unknown> {

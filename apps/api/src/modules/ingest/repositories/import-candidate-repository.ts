@@ -80,6 +80,11 @@ export interface UpsertImportCandidateWithFilesInput {
     artistName: string;
     language: Language;
     status?: ImportCandidateStatus;
+    genre?: string[];
+    tags?: string[];
+    aliases?: string[];
+    searchHints?: string[];
+    releaseYear?: number | null;
     candidateMeta?: Record<string, unknown>;
   };
   files: Array<{
@@ -504,7 +509,12 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
              normalized_title = $4,
              artist_name = $5,
              language = $6,
-             candidate_meta = $7::jsonb,
+             genre = COALESCE($7::text[], genre),
+             tags = COALESCE($8::text[], tags),
+             aliases = COALESCE($9::text[], aliases),
+             search_hints = COALESCE($10::text[], search_hints),
+             release_year = $11,
+             candidate_meta = $12::jsonb,
              updated_at = now()
          WHERE id = $1
          RETURNING id, status, title, normalized_title, title_pinyin, title_initials,
@@ -519,6 +529,11 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
           normalizeTitle(input.candidate.title),
           input.candidate.artistName,
           input.candidate.language,
+          input.candidate.genre ?? null,
+          input.candidate.tags ?? null,
+          input.candidate.aliases ?? null,
+          input.candidate.searchHints ?? null,
+          input.candidate.releaseYear ?? null,
           input.candidate.candidateMeta ?? {}
         ]
       );
@@ -527,9 +542,10 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
 
     const result = await db.query<ImportCandidateRow>(
       `INSERT INTO import_candidates (
-         status, title, normalized_title, artist_name, language, candidate_meta
+         status, title, normalized_title, artist_name, language, genre, tags, aliases,
+         search_hints, release_year, candidate_meta
        )
-       VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+       VALUES ($1, $2, $3, $4, $5, $6::text[], $7::text[], $8::text[], $9::text[], $10, $11::jsonb)
        RETURNING id, status, title, normalized_title, title_pinyin, title_initials,
                  artist_id, artist_name, language, genre, tags, aliases, search_hints,
                  release_year, canonical_duration_ms, default_candidate_file_id,
@@ -541,6 +557,11 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
         normalizeTitle(input.candidate.title),
         input.candidate.artistName,
         input.candidate.language,
+        input.candidate.genre ?? [],
+        input.candidate.tags ?? [],
+        input.candidate.aliases ?? [],
+        input.candidate.searchHints ?? [],
+        input.candidate.releaseYear ?? null,
         input.candidate.candidateMeta ?? {}
       ]
     );

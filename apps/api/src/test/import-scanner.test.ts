@@ -340,6 +340,73 @@ describe("CandidateBuilder", () => {
     });
   });
 
+  it("builds one single-file real MV candidate with metadata draft fields", async () => {
+    const capturedInputs: Array<Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]> = [];
+    const upsertCandidateWithFiles = vi.fn(async (input: Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]) => {
+      capturedInputs.push(input);
+      return createCandidate();
+    });
+    const builder = new CandidateBuilder({
+      importCandidates: { upsertCandidateWithFiles }
+    });
+
+    const count = await builder.buildFromImportFiles([
+      createImportFile({
+        id: "import-real-mv",
+        relativePath: "关喆-想你的夜(MTV)-国语-流行.mkv",
+        durationMs: 60041,
+        probePayload: {
+          realMv: {
+            mediaKind: "single_file_real_mv",
+            sidecarMetadata: {
+              searchHints: ["xiang ni de ye"]
+            },
+            scannerReasons: [],
+            sidecars: { cover: null, songJson: null }
+          },
+          mediaInfoSummary: {
+            container: "matroska,webm",
+            durationMs: 60041,
+            videoCodec: "h264",
+            resolution: { width: 1920, height: 1080 },
+            fileSizeBytes: 104857600,
+            audioTracks: [
+              { index: 0, id: "0x1100", label: "Original vocal", language: "zh", codec: "aac", channels: 2 },
+              { index: 1, id: "0x1101", label: "Instrumental", language: "zh", codec: "aac", channels: 2 }
+            ]
+          }
+        }
+      })
+    ]);
+
+    expect(count).toBe(1);
+    const capturedInput = capturedInputs[0];
+    if (!capturedInput) {
+      throw new Error("upsertCandidateWithFiles was not called");
+    }
+    expect(capturedInput.candidate).toMatchObject({
+      title: "想你的夜",
+      artistName: "关喆",
+      searchHints: ["xiang ni de ye"],
+      candidateMeta: {
+        realMv: expect.objectContaining({
+          groupKey: expect.stringContaining("关喆-想你的夜(MTV)-国语-流行.mkv"),
+          sidecarMetadata: expect.objectContaining({
+            searchHints: ["xiang ni de ye"]
+          })
+        })
+      }
+    });
+    expect(capturedInput.files).toEqual([
+      expect.objectContaining({
+        importFileId: "import-real-mv",
+        proposedAssetKind: "dual-track-video",
+        proposedVocalMode: "dual",
+        selected: true
+      })
+    ]);
+  });
+
   it("keeps raw probe streams and format out of candidate probeSummary", async () => {
     const capturedInputs: Array<Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]> = [];
     const upsertCandidateWithFiles = vi.fn(async (input: Parameters<ImportCandidateRepository["upsertCandidateWithFiles"]>[0]) => {
