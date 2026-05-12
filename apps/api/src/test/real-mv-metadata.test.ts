@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseRealMvSidecarJson } from "../modules/ingest/real-mv-metadata.js";
+import { parseRealMvFilename, parseRealMvSidecarJson } from "../modules/ingest/real-mv-metadata.js";
 
 describe("real MV metadata helpers", () => {
   describe("parseRealMvSidecarJson", () => {
@@ -67,6 +67,38 @@ describe("real MV metadata helpers", () => {
             source: "scanner"
           }
         ]
+      });
+    });
+  });
+
+  describe("parseRealMvFilename", () => {
+    it("extracts common Chinese MV filename metadata", () => {
+      const result = parseRealMvFilename("关喆-想你的夜(MTV)-国语-流行.mkv");
+
+      expect(result).toMatchObject({
+        artistName: "关喆",
+        title: "想你的夜",
+        language: "mandarin",
+        genre: ["流行"]
+      });
+    });
+
+    it("keeps English title casing while extracting artist and language", () => {
+      const result = parseRealMvFilename("蔡依林-BECAUSE OF YOU(演唱会)-国语-流行.mpg");
+
+      expect(result).toMatchObject({
+        artistName: "蔡依林",
+        title: "BECAUSE OF YOU",
+        language: "mandarin",
+        genre: ["流行"]
+      });
+    });
+
+    it("falls back to title only when filename parts are ambiguous", () => {
+      const result = parseRealMvFilename("unknown-file-name.mkv");
+
+      expect(result).toEqual({
+        title: "unknown-file-name"
       });
     });
   });

@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { CompatibilityReason, Language } from "@home-ktv/domain";
 
 export interface RealMvSidecarTrackRoles {
@@ -21,6 +22,13 @@ export type ParseRealMvSidecarJsonResult =
   | { status: "ok"; metadata: RealMvSidecarMetadata }
   | { status: "invalid"; reasons: CompatibilityReason[] };
 
+export interface FilenameMetadataDraft {
+  title: string;
+  artistName?: string;
+  language?: Language;
+  genre?: string[];
+}
+
 export const RealMvSidecarMetadataSchema = {
   parse(value: unknown): RealMvSidecarMetadata {
     const result = parseRealMvSidecarMetadataValue(value);
@@ -43,6 +51,35 @@ export function parseRealMvSidecarJson(raw: string): ParseRealMvSidecarJsonResul
   }
 
   return parseRealMvSidecarMetadataValue(parsed);
+}
+
+export function parseRealMvFilename(relativePath: string): FilenameMetadataDraft {
+  const fileName = path.basename(relativePath);
+  const stem = stripExtension(fileName).trim();
+  const parts = stem.split("-").map((part) => part.trim()).filter(Boolean);
+  const fallback = { title: stem };
+
+  if (parts.length < 2) {
+    return fallback;
+  }
+
+  const language = parts[2] ? parseFilenameLanguage(parts[2]) : undefined;
+  const hasRecognizedTail = parts.length === 2 || Boolean(language);
+  if (!hasRecognizedTail) {
+    return fallback;
+  }
+  const artistName = parts[0];
+  const titlePart = parts[1];
+  if (!artistName || !titlePart) {
+    return fallback;
+  }
+
+  return {
+    artistName,
+    title: stripTrailingDisplayMarker(titlePart),
+    ...(language ? { language } : {}),
+    ...(parts[3] ? { genre: [parts[3]] } : {})
+  };
 }
 
 function parseRealMvSidecarMetadataValue(value: unknown): ParseRealMvSidecarJsonResult {
@@ -160,6 +197,26 @@ function scannerWarning(code: string, message: string): CompatibilityReason {
 
 function isLanguage(value: unknown): value is Language {
   return value === "mandarin" || value === "cantonese" || value === "other";
+}
+
+function parseFilenameLanguage(value: string): Language | undefined {
+  if (value === "国语" || value === "普通话") {
+    return "mandarin";
+  }
+  if (value === "粤语") {
+    return "cantonese";
+  }
+  return undefined;
+}
+
+function stripTrailingDisplayMarker(value: string): string {
+  return value
+    .replace(/\s*[\(（][^()（）]*[\)）]\s*$/u, "")
+    .trim();
+}
+
+function stripExtension(fileName: string): string {
+  return fileName.slice(0, fileName.length - path.extname(fileName).length);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
