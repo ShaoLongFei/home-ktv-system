@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
-status: completed
-stopped_at: Phase 13 context gathered
-last_updated: "2026-05-12T07:35:22.580Z"
-last_activity: "2026-05-12 -- Phase 12 plan 6 completed: real sample playback-risk evidence"
+status: planning
+stopped_at: Phase 13 planned
+last_updated: "2026-05-12T09:15:54Z"
+last_activity: "2026-05-12 -- Phase 13 planned: 4 plans ready for execution"
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 6
+  total_plans: 10
   completed_plans: 6
-  percent: 100
+  percent: 60
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 12 — contract-schema-and-playback-risk-spike
+**Current focus:** Phase 13 — mediainfo-probe-scanner-and-sidecars
 
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 12 (contract-schema-and-playback-risk-spike) — COMPLETED
-Plan: 6 of 6
-Status: Completed Phase 12
-Last activity: 2026-05-12 -- Phase 12 plan 6 completed: real sample playback-risk evidence
+Phase: 13 (mediainfo-probe-scanner-and-sidecars) — PLANNED
+Plan: 0 of 4
+Status: Ready to execute Phase 13
+Last activity: 2026-05-12 -- Phase 13 planned: 4 plans ready for execution
 
-Progress: [██████████] 100%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -93,6 +93,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-12T07:35:22.576Z
-Stopped at: Phase 13 context gathered
-Resume file: .planning/phases/13-mediainfo-probe-scanner-and-sidecars/13-CONTEXT.md
+Last session: 2026-05-12T09:15:54Z
+Stopped at: Phase 13 planned
+Resume file: .planning/phases/13-mediainfo-probe-scanner-and-sidecars/13-01-PLAN.md
