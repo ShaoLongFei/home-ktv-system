@@ -6,6 +6,12 @@ import type { CandidateBuilder } from "./candidate-builder.js";
 import type { LibraryPaths } from "./library-paths.js";
 import { toLibraryRelativePath } from "./library-paths.js";
 import { probeMediaFile, type MediaProbeSummary } from "./media-probe.js";
+import {
+  buildRealMvArtifactSignature,
+  findRealMvSidecars,
+  isRealMvMediaPath,
+  type RealMvSidecars
+} from "./real-mv-sidecars.js";
 import type { ImportFileRepository } from "./repositories/import-file-repository.js";
 import type { ScanRunRepository } from "./repositories/scan-run-repository.js";
 
@@ -45,7 +51,7 @@ interface ScanCounters {
   candidateCount: number;
 }
 
-const MEDIA_EXTENSIONS = new Set([".mp4", ".mkv", ".mov", ".webm"]);
+const MEDIA_EXTENSIONS = new Set([".mp4", ".mkv", ".mov", ".webm", ".mpg", ".mpeg"]);
 const QUICK_HASH_BYTES = 64 * 1024;
 
 export class ImportScanner {
@@ -108,7 +114,13 @@ export class ImportScanner {
     const fileStat = await stat(discovered.absolutePath);
     const sizeBytes = fileStat.size;
     const mtimeMs = Math.trunc(fileStat.mtimeMs);
-    const quickHash = await computeQuickHash(discovered.absolutePath, sizeBytes);
+    const sidecars = isRealMvMediaPath(discovered.absolutePath)
+      ? await findRealMvSidecars({ mediaAbsolutePath: discovered.absolutePath, rootPath: discovered.rootPath })
+      : null;
+    const mediaQuickHash = await computeQuickHash(discovered.absolutePath, sizeBytes);
+    const quickHash = sidecars
+      ? `media:${mediaQuickHash}|artifacts:${buildRealMvArtifactSignature(sidecars)}`
+      : mediaQuickHash;
     const existing = await this.options.importFiles.findByRootAndRelativePath(discovered.rootKind, discovered.relativePath);
     const unchanged =
       Boolean(existing) &&
@@ -131,7 +143,7 @@ export class ImportScanner {
       return { importFile, added: false, changed: false };
     }
 
-    const probe = await this.probeChangedFile(discovered.absolutePath);
+    const probe = await this.probeChangedFile(discovered.absolutePath, sidecars);
     const importFile = await this.options.importFiles.upsertDiscoveredFile({
       rootKind: discovered.rootKind,
       relativePath: discovered.relativePath,
@@ -152,21 +164,22 @@ export class ImportScanner {
   }
 
   private async probeChangedFile(
-    absolutePath: string
+    absolutePath: string,
+    sidecars: RealMvSidecars | null
   ): Promise<{ status: "probed" | "failed"; payload: Record<string, unknown>; durationMs: number | null }> {
     try {
       const summary = await this.probeMedia(absolutePath);
       return {
         status: "probed",
-        payload: summary as unknown as Record<string, unknown>,
+        payload: mergeRealMvSidecars(summary as unknown as Record<string, unknown>, sidecars),
         durationMs: summary.durationMs
       };
     } catch (error) {
       return {
         status: "failed",
-        payload: {
+        payload: mergeRealMvSidecars({
           errorMessage: error instanceof Error ? error.message : String(error)
-        },
+        }, sidecars),
         durationMs: null
       };
     }
@@ -200,6 +213,9 @@ export class ImportScanner {
     try {
       const fileStat = await stat(absolutePath);
       if (!fileStat.isFile()) {
+        return null;
+      }
+      if (await isRealMvGenericSongJsonSidecar(absolutePath)) {
         return null;
       }
     } catch {
@@ -259,6 +275,7 @@ async function walkRoot(root: ScanRoot, currentPath = root.rootPath): Promise<Di
 
   try {
     const entries = await readdir(currentPath, { withFileTypes: true });
+    const realMvMediaCount = entries.filter((entry) => entry.isFile() && isRealMvMediaPath(entry.name)).length;
     for (const entry of entries) {
       const absolutePath = path.join(currentPath, entry.name);
       if (entry.isDirectory()) {
@@ -267,6 +284,9 @@ async function walkRoot(root: ScanRoot, currentPath = root.rootPath): Promise<Di
       }
 
       if (entry.isFile() && isSupportedFile(absolutePath)) {
+        if (isSongJsonFile(absolutePath) && realMvMediaCount === 1) {
+          continue;
+        }
         files.push({
           rootKind: root.rootKind,
           rootPath: root.rootPath,
@@ -287,6 +307,41 @@ async function walkRoot(root: ScanRoot, currentPath = root.rootPath): Promise<Di
 function isSupportedFile(filePath: string): boolean {
   const baseName = path.basename(filePath).toLocaleLowerCase();
   return baseName === "song.json" || MEDIA_EXTENSIONS.has(path.extname(baseName));
+}
+
+async function isRealMvGenericSongJsonSidecar(absolutePath: string): Promise<boolean> {
+  if (!isSongJsonFile(absolutePath)) {
+    return false;
+  }
+  try {
+    const entries = await readdir(path.dirname(absolutePath), { withFileTypes: true });
+    return entries.filter((entry) => entry.isFile() && isRealMvMediaPath(entry.name)).length === 1;
+  } catch {
+    return false;
+  }
+}
+
+function isSongJsonFile(filePath: string): boolean {
+  return path.basename(filePath).toLocaleLowerCase() === "song.json";
+}
+
+function mergeRealMvSidecars(payload: Record<string, unknown>, sidecars: RealMvSidecars | null): Record<string, unknown> {
+  if (!sidecars) {
+    return payload;
+  }
+  const existingRealMv = isRecord(payload.realMv) ? payload.realMv : {};
+  return {
+    ...payload,
+    realMv: {
+      ...existingRealMv,
+      mediaKind: "single_file_real_mv",
+      sidecars
+    }
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function findContainingRoot(roots: ScanRoot[], absolutePath: string): ScanRoot | null {

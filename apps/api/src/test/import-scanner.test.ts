@@ -79,6 +79,83 @@ describe("ImportScanner", () => {
     ]);
     expect(paths.scanRuns.finishes[0]).toMatchObject({ candidateCount: 1 });
   });
+
+  it("discovers .mpg and .mpeg files under imports/pending", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-real-mv-scan-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    await writeFile(path.join(paths.importsPendingRoot, "demo-a.mpg"), "mpg-media");
+    await writeFile(path.join(paths.importsPendingRoot, "demo-b.mpeg"), "mpeg-media");
+    const importFiles = new MemoryImportFileRepository(null);
+    const scanRuns = new MemoryScanRunRepository();
+    const candidateBuilder = { buildFromImportFiles: vi.fn(async (files: ImportFile[]) => files.length) };
+    const probeMedia = vi.fn(async (_filePath: string) => createProbeSummary());
+
+    const scanner = new ImportScanner({ paths, importFiles, scanRuns, candidateBuilder, probeMedia });
+
+    await scanner.scan({ trigger: "manual", scope: "imports" });
+
+    expect(probeMedia).toHaveBeenCalledTimes(2);
+    expect(probeMedia.mock.calls.map(([filePath]) => path.extname(filePath)).sort()).toEqual([".mpeg", ".mpg"]);
+  });
+
+  it("includes same-stem artifact changes in the persisted quickHash", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-real-mv-hash-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    const filePath = path.join(paths.importsPendingRoot, "周杰伦-七里香.mkv");
+    await writeFile(filePath, "mkv-media");
+    await writeFile(path.join(paths.importsPendingRoot, "周杰伦-七里香.jpg"), "new-cover");
+    const stats = await import("node:fs/promises").then((fs) => fs.stat(filePath));
+    const mediaQuickHash = `${stats.size}:${createHash("sha1").update("mkv-media").digest("hex")}`;
+    const importFiles = new MemoryImportFileRepository(createImportFile({
+      rootKind: "imports_pending",
+      relativePath: "周杰伦-七里香.mkv",
+      sizeBytes: stats.size,
+      mtimeMs: Math.trunc(stats.mtimeMs),
+      quickHash: `media:${mediaQuickHash}|artifacts:cover:old-cover:1:1:image/jpeg|songJson:none`
+    }));
+    const scanRuns = new MemoryScanRunRepository();
+    const candidateBuilder = { buildFromImportFiles: vi.fn(async (files: ImportFile[]) => files.length) };
+    const probeMedia = vi.fn(async (_filePath: string) => createProbeSummary());
+
+    const scanner = new ImportScanner({ paths, importFiles, scanRuns, candidateBuilder, probeMedia });
+
+    await scanner.scan({ trigger: "manual", scope: "imports" });
+
+    expect(importFiles.upserts[0]?.quickHash).toContain(`media:${mediaQuickHash}|artifacts:`);
+    expect(importFiles.upserts[0]?.quickHash).not.toContain("old-cover");
+    expect(importFiles.upserts[0]?.probePayload).toMatchObject({
+      realMv: {
+        sidecars: {
+          cover: expect.objectContaining({ relativePath: "周杰伦-七里香.jpg" })
+        }
+      }
+    });
+  });
+
+  it("does not pass real MV sidecar files into CandidateBuilder", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-real-mv-sidecar-scan-"));
+    const paths = resolveLibraryPaths(mediaRoot);
+    await mkdir(paths.importsPendingRoot, { recursive: true });
+    await writeFile(path.join(paths.importsPendingRoot, "周杰伦-七里香.mkv"), "mkv-media");
+    await writeFile(path.join(paths.importsPendingRoot, "song.json"), "{}");
+    const importFiles = new MemoryImportFileRepository(null);
+    const scanRuns = new MemoryScanRunRepository();
+    const candidateBuilder = { buildFromImportFiles: vi.fn(async (files: ImportFile[]) => files.length) };
+    const probeMedia = vi.fn(async (_filePath: string) => createProbeSummary());
+
+    const scanner = new ImportScanner({ paths, importFiles, scanRuns, candidateBuilder, probeMedia });
+
+    await scanner.scan({ trigger: "manual", scope: "imports" });
+
+    expect(candidateBuilder.buildFromImportFiles).toHaveBeenCalledWith([
+      expect.objectContaining({ relativePath: "周杰伦-七里香.mkv" })
+    ]);
+    expect(candidateBuilder.buildFromImportFiles).not.toHaveBeenCalledWith([
+      expect.objectContaining({ relativePath: "song.json" })
+    ]);
+  });
 });
 
 describe("real MV sidecars", () => {
@@ -268,8 +345,10 @@ class MemoryImportFileRepository {
 
   constructor(private existing: ImportFile | null) {}
 
-  async findByRootAndRelativePath(): Promise<ImportFile | null> {
-    return this.existing;
+  async findByRootAndRelativePath(rootKind: ImportFile["rootKind"], relativePath: string): Promise<ImportFile | null> {
+    return this.existing && this.existing.rootKind === rootKind && this.existing.relativePath === relativePath
+      ? this.existing
+      : null;
   }
 
   async upsertDiscoveredFile(input: Parameters<ImportFileRepository["upsertDiscoveredFile"]>[0]): Promise<ImportFile> {
@@ -282,12 +361,39 @@ class MemoryImportFileRepository {
       mtimeMs: input.mtimeMs,
       quickHash: input.quickHash,
       probeStatus: input.probeStatus,
+      probePayload: input.probePayload,
       durationMs: input.durationMs
     });
     return this.existing;
   }
 
   async markDeleted(): Promise<void> {}
+}
+
+function createProbeSummary() {
+  return {
+    durationMs: 180123,
+    formatName: "matroska,webm",
+    videoCodec: "h264",
+    audioCodec: "aac",
+    width: 1920,
+    height: 1080,
+    mediaInfoSummary: {
+      container: "matroska,webm",
+      durationMs: 180123,
+      videoCodec: "h264",
+      resolution: { width: 1920, height: 1080 },
+      fileSizeBytes: 10,
+      audioTracks: [{ index: 0, id: "stream-0", label: "Audio 1", language: null, codec: "aac", channels: 2 }]
+    },
+    mediaInfoProvenance: {
+      source: "ffprobe" as const,
+      sourceVersion: null,
+      probedAt: "2026-04-30T00:00:00.000Z",
+      importedFrom: "fixture.mkv"
+    },
+    raw: {}
+  };
 }
 
 class MemoryScanRunRepository implements ScanRunRepository {
