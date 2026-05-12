@@ -343,7 +343,7 @@ function RealMvPreviewPanel({ file }: { file: ImportCandidateFileDetail }) {
         {file.coverPreviewUrl ? (
           <img alt={coverAlt} src={file.coverPreviewUrl} />
         ) : (
-          <div className="real-mv-cover-placeholder">{translated(t, "candidate.noCover", "暂无封面")}</div>
+          <div className="real-mv-cover-empty">{translated(t, "candidate.noCover", "暂无封面")}</div>
         )}
       </div>
       <div className="real-mv-preview-body">
