@@ -1,6 +1,7 @@
 import type { PairingInfo } from "@home-ktv/player-contracts";
 import type { CSSProperties } from "react";
 import { create } from "qrcode";
+import { tvTheme } from "../theme.js";
 
 export interface PairingQrProps {
   pairing: PairingInfo;
@@ -67,24 +68,36 @@ function qrStyle(isLarge: boolean, moduleSize: number): CSSProperties {
 
 const styles = {
   largeFrame: {
-    margin: 0,
+    backdropFilter: "blur(18px)",
+    background: tvTheme.colors.surface,
+    border: `1px solid ${tvTheme.colors.border}`,
+    borderRadius: tvTheme.radii.panel,
+    boxShadow: "0 24px 80px rgba(0, 0, 0, 0.38), 0 0 36px rgba(34, 211, 238, 0.08)",
     display: "grid",
     gap: 28,
-    justifyItems: "center"
+    justifyItems: "center",
+    margin: 0,
+    padding: 28
   },
   cornerFrame: {
-    margin: 0,
+    backdropFilter: "blur(16px)",
+    background: "rgba(15, 23, 42, 0.62)",
+    border: `1px solid ${tvTheme.colors.border}`,
+    borderRadius: tvTheme.radii.panel,
+    boxShadow: "0 16px 48px rgba(0, 0, 0, 0.34)",
     display: "grid",
     gap: 8,
-    justifyItems: "center"
+    justifyItems: "center",
+    margin: 0,
+    padding: 10
   },
   largeQr: {
     width: "min(34vw, 380px)",
     minWidth: 260,
     aspectRatio: "1",
-    background: "#fff8e7",
-    border: "10px solid #fff8e7",
-    boxShadow: "0 24px 80px rgba(0, 0, 0, 0.35)",
+    background: tvTheme.colors.text,
+    border: `10px solid ${tvTheme.colors.text}`,
+    boxShadow: "0 22px 64px rgba(0, 0, 0, 0.42)",
     display: "grid",
     gap: 0,
     padding: 0
@@ -92,26 +105,26 @@ const styles = {
   cornerQr: {
     width: 132,
     aspectRatio: "1",
-    background: "#fff8e7",
-    border: "5px solid #fff8e7",
-    boxShadow: "0 16px 48px rgba(0, 0, 0, 0.32)",
+    background: tvTheme.colors.text,
+    border: `5px solid ${tvTheme.colors.text}`,
+    boxShadow: "0 14px 38px rgba(0, 0, 0, 0.34)",
     display: "grid",
     gap: 0,
     padding: 0
   },
   dot: {
-    background: "#fff8e7"
+    background: tvTheme.colors.text
   },
   dotActive: {
-    background: "#11140f"
+    background: "#020617"
   },
   largeCaption: {
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
     fontSize: 30,
     fontWeight: 800
   },
   cornerCaption: {
-    color: "#fff8e7",
+    color: tvTheme.colors.textMuted,
     fontSize: 16,
     fontWeight: 800,
     letterSpacing: 0.4,
