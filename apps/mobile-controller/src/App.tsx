@@ -75,43 +75,6 @@ function ControllerApp() {
         </div>
       </section>
 
-      <section className="panel" aria-label={t("queue.aria")}>
-        <h2>{t("queue.title")}</h2>
-        <div className="queue-list">
-          {snapshot?.queue.length ? (
-            snapshot.queue.map((entry) => {
-              const undoExpiresAt =
-                entry.undoExpiresAt ??
-                (controller.pendingUndo?.queueEntryId === entry.queueEntryId ? controller.pendingUndo.undoExpiresAt : null);
-              return (
-                <article className="queue-row" key={entry.queueEntryId}>
-                  <div>
-                    <strong>{entry.songTitle}</strong>
-                    <p>{entry.artistName}</p>
-                    {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
-                  </div>
-                  <div className="row-actions">
-                    <button type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
-                      {t("button.promote")}
-                    </button>
-                    <button type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
-                      {t("button.delete")}
-                    </button>
-                    {undoExpiresAt ? (
-                      <button type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
-                        {t("button.undo")}
-                      </button>
-                    ) : null}
-                  </div>
-                </article>
-              );
-            })
-          ) : (
-            <p className="empty-state">{t("queue.empty")}</p>
-          )}
-        </div>
-      </section>
-
       <section className="panel search-panel" aria-label={t("search.aria")}>
         <div className="panel-heading">
           <h2>{t("search.title")}</h2>
@@ -246,6 +209,43 @@ function ControllerApp() {
               ) : null}
             </section>
           ) : null}
+        </div>
+      </section>
+
+      <section className="panel" aria-label={t("queue.aria")}>
+        <h2>{t("queue.title")}</h2>
+        <div className="queue-list">
+          {snapshot?.queue.length ? (
+            snapshot.queue.map((entry) => {
+              const undoExpiresAt =
+                entry.undoExpiresAt ??
+                (controller.pendingUndo?.queueEntryId === entry.queueEntryId ? controller.pendingUndo.undoExpiresAt : null);
+              return (
+                <article className="queue-row" key={entry.queueEntryId}>
+                  <div>
+                    <strong>{entry.songTitle}</strong>
+                    <p>{entry.artistName}</p>
+                    {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
+                  </div>
+                  <div className="row-actions">
+                    <button type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
+                      {t("button.promote")}
+                    </button>
+                    <button type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
+                      {t("button.delete")}
+                    </button>
+                    {undoExpiresAt ? (
+                      <button type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
+                        {t("button.undo")}
+                      </button>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })
+          ) : (
+            <p className="empty-state">{t("queue.empty")}</p>
+          )}
         </div>
       </section>
 
