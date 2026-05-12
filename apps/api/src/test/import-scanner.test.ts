@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { CandidateBuilder } from "../modules/ingest/candidate-builder.js";
 import { ImportScanner } from "../modules/ingest/import-scanner.js";
 import { resolveLibraryPaths, toLibraryRelativePath } from "../modules/ingest/library-paths.js";
+import { findRealMvSidecars, isRealMvMediaPath } from "../modules/ingest/real-mv-sidecars.js";
 import type { ImportCandidateRepository } from "../modules/ingest/repositories/import-candidate-repository.js";
 import type { ImportFileRepository } from "../modules/ingest/repositories/import-file-repository.js";
 import type { ScanRunRepository } from "../modules/ingest/repositories/scan-run-repository.js";
@@ -77,6 +78,30 @@ describe("ImportScanner", () => {
       })
     ]);
     expect(paths.scanRuns.finishes[0]).toMatchObject({ candidateCount: 1 });
+  });
+});
+
+describe("real MV sidecars", () => {
+  it("discovers same-stem cover and song.json artifacts without treating them as media", async () => {
+    const mediaRoot = await mkdtemp(path.join(tmpdir(), "home-ktv-sidecars-"));
+    const rootPath = path.join(mediaRoot, "imports", "pending");
+    await mkdir(rootPath, { recursive: true });
+    const mediaAbsolutePath = path.join(rootPath, "周杰伦-七里香.mkv");
+    await writeFile(mediaAbsolutePath, "fake-media");
+    await writeFile(path.join(rootPath, "周杰伦-七里香.jpg"), "fake-cover");
+    await writeFile(path.join(rootPath, "周杰伦-七里香.song.json"), "{}");
+
+    const sidecars = await findRealMvSidecars({ mediaAbsolutePath, rootPath });
+
+    expect(sidecars.cover).toMatchObject({
+      relativePath: "周杰伦-七里香.jpg",
+      contentType: "image/jpeg"
+    });
+    expect(sidecars.songJson).toMatchObject({
+      relativePath: "周杰伦-七里香.song.json"
+    });
+    expect(isRealMvMediaPath("周杰伦-七里香.jpg")).toBe(false);
+    expect(isRealMvMediaPath("周杰伦-七里香.song.json")).toBe(false);
   });
 });
 
