@@ -125,7 +125,57 @@ describe("tv screen states", () => {
       />
     );
 
-    expect(screen.getByText("播放失败，已跳到下一首")).toBeTruthy();
+    expect(screen.getByText("当前歌曲播放失败，已切到下一首或返回空闲。")).toBeTruthy();
+  });
+
+  it("renders preprocessing notice copy for unsupported real MV playback failures", () => {
+    const roomSnapshot = snapshot({
+      notice: {
+        kind: "playback_failed_skipped",
+        message: "media-not-supported: preprocess required"
+      }
+    });
+
+    render(
+      <PlayingScreen
+        displayState={deriveTvDisplayState({
+          errorMessage: null,
+          firstPlayBlocked: false,
+          snapshot: roomSnapshot,
+          status: "ready"
+        })}
+        snapshot={roomSnapshot}
+        playbackPositionMs={12_345}
+        durationMs={180_000}
+      />
+    );
+
+    expect(screen.getByText("当前 MV 暂不可播放，请先预处理后再重试。")).toBeTruthy();
+  });
+
+  it("renders same-file switch failure notice copy", () => {
+    const roomSnapshot = snapshot({
+      notice: {
+        kind: "switch_failed_reverted",
+        message: "current device does not support audio-track switching"
+      }
+    });
+
+    render(
+      <PlayingScreen
+        displayState={deriveTvDisplayState({
+          errorMessage: null,
+          firstPlayBlocked: false,
+          snapshot: roomSnapshot,
+          status: "ready"
+        })}
+        snapshot={roomSnapshot}
+        playbackPositionMs={12_345}
+        durationMs={180_000}
+      />
+    );
+
+    expect(screen.getByText("原唱/伴唱切换失败，已保持当前播放。")).toBeTruthy();
   });
 
   it("renders recovery fallback notice copy", () => {

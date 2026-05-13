@@ -1,7 +1,7 @@
 import type { PlaybackTarget, RoomSnapshot, SwitchTarget, SwitchTransitionResult } from "@home-ktv/player-contracts";
 import { describe, expect, it } from "vitest";
 import { SwitchController, canAttemptRuntimePlayback, type SwitchRuntimeClient } from "../runtime/switch-controller.js";
-import { DualVideoPool, type KtvVideoElement } from "../runtime/video-pool.js";
+import { DualVideoPool, type KtvVideoElement, type SelectableAudioTrack } from "../runtime/video-pool.js";
 
 describe("switch runtime", () => {
   it("switches from original to instrumental through the backend-authored switch target", async () => {
@@ -64,6 +64,95 @@ describe("switch runtime", () => {
     ]);
   });
 
+  it("switches same-file real MV audio tracks without changing the active video src", async () => {
+    const activeVideo = new FakeVideo({
+      audioTracks: [
+        { id: "0x1100", label: "Original", enabled: true },
+        { id: "0x1101", label: "Instrumental", enabled: false }
+      ]
+    });
+    const standbyVideo = new FakeVideo();
+    const pool = new DualVideoPool(activeVideo, standbyVideo);
+    pool.primeActive(realMvPlaybackTarget());
+    activeVideo.currentTime = 42.3;
+    const client = new FakeSwitchClient({
+      status: "ready",
+      switchTarget: audioTrackSwitchTarget({ resumePositionMs: 42300 }),
+      reason: null
+    });
+
+    const result = await new SwitchController({ client, videoPool: pool }).switchVocalMode(
+      snapshot({
+        currentTarget: realMvPlaybackTarget(),
+        switchTarget: audioTrackSwitchTarget({ resumePositionMs: 42300 }),
+        targetVocalMode: "instrumental"
+      })
+    );
+
+    expect(result.status).toBe("committed");
+    expect(pool.activeVideo.src).toBe("http://ktv.local/media/asset-real-mv");
+    expect(pool.activeVideo.currentTime).toBe(42.3);
+    expect(activeVideo.audioTracks?.[0]?.enabled).toBe(false);
+    expect(activeVideo.audioTracks?.[1]?.enabled).toBe(true);
+    expect(standbyVideo.playCalls).toBe(0);
+    expect(client.telemetry).toMatchObject([
+      {
+        eventType: "playing",
+        stage: "switch_committed",
+        assetId: "asset-real-mv",
+        playbackPositionMs: 42300,
+        vocalMode: "instrumental"
+      }
+    ]);
+  });
+
+  it("reports audio_track switch failure and keeps playback position when requested track is missing", async () => {
+    const activeVideo = new FakeVideo({
+      audioTracks: [{ id: "0x1100", label: "Original", enabled: true }]
+    });
+    const standbyVideo = new FakeVideo();
+    const pool = new DualVideoPool(activeVideo, standbyVideo);
+    pool.primeActive(realMvPlaybackTarget());
+    activeVideo.currentTime = 42.3;
+    const client = new FakeSwitchClient({
+      status: "ready",
+      switchTarget: audioTrackSwitchTarget({
+        resumePositionMs: 42300,
+        selectedTrackRef: { index: 2, id: "0x1102", label: "Missing" }
+      }),
+      reason: null
+    });
+
+    const result = await new SwitchController({ client, videoPool: pool }).switchVocalMode(
+      snapshot({
+        currentTarget: realMvPlaybackTarget(),
+        switchTarget: audioTrackSwitchTarget({
+          resumePositionMs: 42300,
+          selectedTrackRef: { index: 2, id: "0x1102", label: "Missing" }
+        }),
+        targetVocalMode: "instrumental"
+      })
+    );
+
+    expect(result).toMatchObject({
+      status: "reverted",
+      message: "未找到请求的音轨，已保持当前播放。"
+    });
+    expect(pool.activeVideo.src).toBe("http://ktv.local/media/asset-real-mv");
+    expect(pool.activeVideo.currentTime).toBe(42.3);
+    expect(activeVideo.audioTracks?.[0]?.enabled).toBe(true);
+    expect(standbyVideo.playCalls).toBe(0);
+    expect(client.telemetry).toMatchObject([
+      {
+        eventType: "switch_failed",
+        stage: "audio_track",
+        assetId: "asset-real-mv",
+        playbackPositionMs: 42300,
+        vocalMode: "original"
+      }
+    ]);
+  });
+
   it("keeps playback disabled for an explicit conflict snapshot", async () => {
     const activeVideo = new FakeVideo();
     const standbyVideo = new FakeVideo();
@@ -114,6 +203,7 @@ class FakeSwitchClient implements SwitchRuntimeClient {
 }
 
 class FakeVideo implements KtvVideoElement {
+  audioTracks?: { readonly length: number; [index: number]: SelectableAudioTrack | undefined };
   currentTime = 0;
   duration = 180;
   failPlay = false;
@@ -122,6 +212,12 @@ class FakeVideo implements KtvVideoElement {
   playCalls = 0;
   readyState = 4;
   src = "";
+
+  constructor(input: { audioTracks?: SelectableAudioTrack[] } = {}) {
+    if (input.audioTracks) {
+      this.audioTracks = Object.assign(input.audioTracks, { length: input.audioTracks.length });
+    }
+  }
 
   load(): void {}
 
@@ -188,6 +284,21 @@ function playbackTarget(input: { assetId: string; vocalMode: PlaybackTarget["voc
   };
 }
 
+function realMvPlaybackTarget(): PlaybackTarget {
+  return {
+    ...playbackTarget({ assetId: "asset-real-mv", vocalMode: "original" }),
+    playbackProfile: {
+      kind: "single_file_audio_tracks",
+      container: "matroska",
+      videoCodec: "h264",
+      audioCodecs: ["aac", "aac"],
+      requiresAudioTrackSelection: true
+    },
+    selectedTrackRef: { index: 0, id: "0x1100", label: "Original" },
+    switchFamily: null
+  };
+}
+
 function switchTarget(input: { resumePositionMs: number }): SwitchTarget {
   return {
     roomId: "living-room",
@@ -201,5 +312,32 @@ function switchTarget(input: { resumePositionMs: number }): SwitchTarget {
     vocalMode: "instrumental",
     resumePositionMs: input.resumePositionMs,
     rollbackAssetId: "asset-original"
+  };
+}
+
+function audioTrackSwitchTarget(input: {
+  resumePositionMs: number;
+  selectedTrackRef?: SwitchTarget["selectedTrackRef"];
+}): SwitchTarget {
+  return {
+    roomId: "living-room",
+    sessionVersion: 4,
+    queueEntryId: "queue-current",
+    switchKind: "audio_track",
+    fromAssetId: "asset-real-mv",
+    toAssetId: "asset-real-mv",
+    playbackUrl: "http://ktv.local/media/asset-real-mv",
+    switchFamily: "real-mv-audio-track",
+    vocalMode: "instrumental",
+    resumePositionMs: input.resumePositionMs,
+    rollbackAssetId: "asset-real-mv",
+    playbackProfile: {
+      kind: "single_file_audio_tracks",
+      container: "matroska",
+      videoCodec: "h264",
+      audioCodecs: ["aac", "aac"],
+      requiresAudioTrackSelection: true
+    },
+    selectedTrackRef: input.selectedTrackRef ?? { index: 1, id: "0x1101", label: "Instrumental" }
   };
 }
