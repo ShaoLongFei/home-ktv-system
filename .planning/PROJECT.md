@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 将从演示歌库走向真实 MKV/MPG MV 歌库接入。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成真实 MV 的合同、扫描、旁路元数据、后台审核和正式歌库准入，下一步是把已入库真实 MV 接入搜索、队列、TV 播放和音轨切换。
 
 Milestone archives:
 
@@ -55,14 +55,15 @@ Milestone archives:
 - v1.1 validated TV playback state readability, progress time display, first-play guidance, switch feedback, and responsive TV layout.
 - v1.1 validated Chinese-first product polish across Admin, Mobile, and TV, including empty/error/loading states and key action feedback.
 - v1.1 validated clearer runtime boundaries for Mobile, Admin, and TV, including Phase 11 Admin Import/Songs runtime hooks for `QUAL-01`.
+- v1.2 validated real-MV catalog/player contracts, compatibility states, MediaInfo provenance, playback profiles, and platform-neutral audio-track boundaries.
+- v1.2 validated MKV/MPG/MPEG scanner candidates with same-stem covers, same-stem `song.json`, MediaInfo-first metadata, filename fallback, conflict preservation, and unstable-file retry behavior.
+- v1.2 validated Admin real-MV review and catalog admission: metadata editing, raw MediaInfo review, original/accompaniment track-role mapping, one Song plus one real-MV Asset, formal `song.json`, and repair guidance for unsupported or incomplete candidates.
 
 ### Active
 
-- [ ] 真实 MKV/MPG MV 文件可以被扫描为待审核导入候选。
-- [ ] 候选可以结合 MediaInfo、文件名、旁边 `song.json` 和封面图生成可确认的歌曲信息。
-- [ ] 后台可以审核、编辑、预览并将真实 MV 候选纳入正式歌库。
 - [ ] 正式歌库中的真实 MV 可以被搜索、点歌、播放，并通过音轨索引切换原声/伴奏。
-- [ ] 不可直接播放或媒体信息不完整的文件会被清楚标记，不阻塞其它可用歌曲入库。
+- [ ] TV 运行时只在能力验证通过后开放音轨切换；不能加载、seek、resume 或切换的真实 MV 要显示需预处理或不支持状态。
+- [ ] 评审优先策略、现有 demo/local 歌曲、在线补歌任务、队列控制、后台维护和未来 Android TV 边界在真实 MV 接入后保持兼容。
 
 ### Out of Scope
 
@@ -111,7 +112,9 @@ v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分
 | 保持 app-local runtime hook，不急于抽共享状态包 | 当前跨端重复还不足以抵消 shared package 的抽象和维护成本 | Good |
 | Mobile visual check 默认走配对 URL | 临时 Chrome profile 无法依赖已有 cookie，必须用 tokenized controller URL 验证真实控制台状态 | Good |
 | Admin Import/Songs 运行时逻辑收敛到 feature-local hooks | 关闭 QUAL-01 审计缺口，同时避免引入产品行为变化 | Good |
-| v1.2 优先做真实 MV 歌库，不做 Android TV 原生端 | 先稳定媒体合同、扫描审核和播放链路，Android TV 下个版本再接入会更可控 | Pending |
+| v1.2 优先做真实 MV 歌库，不做 Android TV 原生端 | 先稳定媒体合同、扫描审核和播放链路，Android TV 下个版本再接入会更可控 | Good |
+| 一个真实 MV 文件入库为一个 Song 加一个 real-MV Asset | 与用户文件组织方式一致，避免同一 MV 被拆成原声/伴奏两首歌 | Good |
+| 原声/伴奏使用审核后的 TrackRef 保存 | 保留 MediaInfo 原始证据，并给 Phase 15 runtime playback payload 留出稳定边界 | Good |
 
 ## Evolution
 
@@ -134,4 +137,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-10 after starting v1.2 milestone*
+*Last updated: 2026-05-13 after completing Phase 14*
