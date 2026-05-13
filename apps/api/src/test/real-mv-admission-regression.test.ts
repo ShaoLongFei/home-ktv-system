@@ -411,7 +411,7 @@ function createAssetFromPromotion(promotion: PromotionInput, asset: PromotedAsse
     mediaInfoSummary: asset.mediaInfoSummary ?? null,
     mediaInfoProvenance: asset.mediaInfoProvenance ?? null,
     trackRoles: asset.trackRoles ?? { original: null, instrumental: null },
-    playbackProfile: asset.playbackProfile,
+    playbackProfile: asset.playbackProfile ?? createRealMvPlaybackProfile(),
     createdAt: new Date("2026-05-13T00:00:00.000Z").toISOString(),
     updatedAt: new Date("2026-05-13T00:00:00.000Z").toISOString()
   };
