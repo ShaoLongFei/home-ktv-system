@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
-status: executing
-stopped_at: Completed 15-04-PLAN.md
-last_updated: "2026-05-13T09:37:49.545Z"
-last_activity: "2026-05-13 -- Phase 15 Plan 04 completed"
+status: planning
+stopped_at: Phase 15 verification passed
+last_updated: "2026-05-13T11:21:59Z"
+last_activity: "2026-05-13 -- Phase 15 verification passed"
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 20
-  completed_plans: 19
-  percent: 95
+  completed_plans: 20
+  percent: 100
 ---
 
 # Project State
@@ -21,17 +21,17 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-13)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 15 — search-queue-playback-and-switching
+**Current focus:** Phase 16 — policy-seam-android-reservation-and-hardening
 
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 15 (search-queue-playback-and-switching) — EXECUTING
-Plan: 5 of 5
-Status: Ready to execute
-Last activity: 2026-05-13 -- Phase 15 Plan 04 completed
+Phase: 16 (policy-seam-android-reservation-and-hardening) — NOT STARTED
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-05-13 -- Phase 15 verification passed
 
-Progress: [██████████] 95%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [██████████] 95%
 | Phase 15 P02 | 19 min | 2 tasks | 4 files |
 | Phase 15 P03 | 20 min | 3 tasks | 8 files |
 | Phase 15 P04 | 32 min | 4 tasks | 11 files |
+| Phase 15 P05 | 89 min | 4 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,9 @@ Progress: [██████████] 95%
 - [Phase 15-03]: TV switch_committed telemetry is the only server-side commit point for real-MV preferredVocalMode. — Failed switch attempts must not change queue playbackOptions, so server state advances only after TV confirms playback.
 - [Phase 15-04]: TV runtime derives TrackRef from PlaybackTarget instead of importing @home-ktv/domain directly. — Keeps tv-player package boundaries clean while preserving the shared player-contract payload shape.
 - [Phase 15-04]: Audio-track playback capability failures send failed telemetry with stage=playback_capability_blocked. — Unsupported real-MV playback should reuse backend failure recovery and show preprocessing copy instead of the autoplay prompt.
+- [Phase 15-05]: Mobile real-MV search queueability is server-authoritative through canQueue/disabledLabel, while nonqueueable candidates stay visible with Chinese disabled labels.
+- [Phase 15-05]: Mobile add-queue payload remains songId/assetId only; vocal mode intent is resolved by the server from current room playback state.
+- [Phase 15-05]: Phase 15 verification passed with automated evidence across Mobile search UI, API queue/playback/switch contracts, TV audio-track runtime, and unsupported failure states.
 
 ### Pending Todos
 
@@ -127,6 +131,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T09:37:26.492Z
-Stopped at: Completed 15-04-PLAN.md
-Resume file: .planning/phases/15-search-queue-playback-and-switching/15-05-PLAN.md
+Last session: 2026-05-13T11:21:59Z
+Stopped at: Phase 15 verification passed
+Resume file: None

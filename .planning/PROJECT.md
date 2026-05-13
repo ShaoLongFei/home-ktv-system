@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成真实 MV 的合同、扫描、旁路元数据、后台审核和正式歌库准入，下一步是把已入库真实 MV 接入搜索、队列、TV 播放和音轨切换。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成真实 MV 的合同、扫描、旁路元数据、后台审核、正式歌库准入、搜索点歌、TV 播放和音轨切换链路。下一步是收口评审优先策略、既有 demo/local/online 流程兼容性、Android TV 预留边界和回归硬化。
 
 Milestone archives:
 
@@ -58,11 +58,10 @@ Milestone archives:
 - v1.2 validated real-MV catalog/player contracts, compatibility states, MediaInfo provenance, playback profiles, and platform-neutral audio-track boundaries.
 - v1.2 validated MKV/MPG/MPEG scanner candidates with same-stem covers, same-stem `song.json`, MediaInfo-first metadata, filename fallback, conflict preservation, and unstable-file retry behavior.
 - v1.2 validated Admin real-MV review and catalog admission: metadata editing, raw MediaInfo review, original/accompaniment track-role mapping, one Song plus one real-MV Asset, formal `song.json`, and repair guidance for unsupported or incomplete candidates.
+- v1.2 validated real-MV Mobile search and queueing, backend-resolved vocal intent, explicit TV playback profiles and selected audio tracks, runtime-gated original/accompaniment switching, and clear preprocessing/failure states.
 
 ### Active
 
-- [ ] 正式歌库中的真实 MV 可以被搜索、点歌、播放，并通过音轨索引切换原声/伴奏。
-- [ ] TV 运行时只在能力验证通过后开放音轨切换；不能加载、seek、resume 或切换的真实 MV 要显示需预处理或不支持状态。
 - [ ] 评审优先策略、现有 demo/local 歌曲、在线补歌任务、队列控制、后台维护和未来 Android TV 边界在真实 MV 接入后保持兼容。
 
 ### Out of Scope
@@ -115,6 +114,8 @@ v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分
 | v1.2 优先做真实 MV 歌库，不做 Android TV 原生端 | 先稳定媒体合同、扫描审核和播放链路，Android TV 下个版本再接入会更可控 | Good |
 | 一个真实 MV 文件入库为一个 Song 加一个 real-MV Asset | 与用户文件组织方式一致，避免同一 MV 被拆成原声/伴奏两首歌 | Good |
 | 原声/伴奏使用审核后的 TrackRef 保存 | 保留 MediaInfo 原始证据，并给 Phase 15 runtime playback payload 留出稳定边界 | Good |
+| 真实 MV 点歌不在手机端选择原声/伴奏 | 点歌沿用当前房间播放状态，服务端解析为 selectedTrackRef，避免手机点歌流程增加额外决策 | Good |
+| 浏览器 TV 端音轨切换必须运行时确认 | 不假设所有 MKV/MPG 都可切音轨，成功后才提交状态，失败时回退并提示预处理 | Good |
 
 ## Evolution
 
@@ -137,4 +138,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-13 after completing Phase 14*
+*Last updated: 2026-05-13 after completing Phase 15*

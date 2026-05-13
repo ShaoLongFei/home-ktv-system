@@ -23,7 +23,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 - [x] **Phase 12: Contract, Schema, and Playback-Risk Spike** - Define real-MV catalog/player contracts, compatibility states, provenance, and platform-neutral playback boundaries
 - [x] **Phase 13: MediaInfo Probe, Scanner, and Sidecars** - Scan stable MKV/MPG/MPEG files with MediaInfo facts, same-stem covers, and same-stem `song.json` metadata (completed 2026-05-12)
 - [x] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with a single real-MV asset (completed 2026-05-13)
-- [ ] **Phase 15: Search, Queue, Playback, and Switching** - Make approved real MV songs searchable, queueable, playable, and switchable only when runtime capability is verified
+- [x] **Phase 15: Search, Queue, Playback, and Switching** - Make approved real MV songs searchable, queueable, playable, and switchable only when runtime capability is verified (completed 2026-05-13)
 - [ ] **Phase 16: Policy Seam, Android Reservation, and Hardening** - Preserve review-first policy, future Android boundaries, regression coverage, and compatibility with existing flows
 
 ## Phase Details
@@ -96,7 +96,7 @@ Plans:
 - [x] 15-02-PLAN.md - Queue-time vocal-mode resolution and playback target selected track intent
 - [x] 15-03-PLAN.md - Same-asset switch target contract and switch commit persistence
 - [x] 15-04-PLAN.md - TV runtime audio-track selection, capability gating, and Chinese failure notices
-- [ ] 15-05-PLAN.md - Mobile disabled-state UI and cross-surface real-MV playback regression coverage
+- [x] 15-05-PLAN.md - Mobile disabled-state UI and cross-surface real-MV playback regression coverage
 **UI hint**: yes
 
 ### Phase 16: Policy Seam, Android Reservation, and Hardening
@@ -120,5 +120,5 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
 | 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
-| 15. Search, Queue, Playback, and Switching | 4/5 | In Progress|  |
+| 15. Search, Queue, Playback, and Switching | 5/5 | Complete    | 2026-05-13 |
 | 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
