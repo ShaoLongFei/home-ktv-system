@@ -17,7 +17,7 @@ describe("phase 16 boundary guards", () => {
     const lower = bundle.toLowerCase();
 
     for (const forbidden of ["android", "media3", "exo", "native android tv", "adapter seam", "autoAdmit"]) {
-      expect(lower).not.toContain(forbidden);
+      expect(lower).not.toContain(forbidden.toLowerCase());
     }
 
     for (const required of ["PlaybackTarget", "SwitchTarget", "selectedTrackRef", "playbackProfile", "room.snapshot"]) {
