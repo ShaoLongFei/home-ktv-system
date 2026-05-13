@@ -197,6 +197,11 @@ export type SongSearchMatchReason =
   | "search_hint"
   | "default";
 export type SongSearchQueueState = "not_queued" | "queued";
+export type SongSearchVersionQueueState =
+  | "queueable"
+  | "needs_preprocess"
+  | "temporarily_unavailable"
+  | "missing_track_role";
 
 export interface SongSearchVersionOption {
   assetId: AssetId;
@@ -206,6 +211,9 @@ export interface SongSearchVersionOption {
   durationMs: number;
   qualityLabel: string;
   isRecommended: boolean;
+  queueState: SongSearchVersionQueueState;
+  canQueue: boolean;
+  disabledLabel: string | null;
 }
 
 export interface SongSearchLocalResult {

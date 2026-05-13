@@ -335,6 +335,9 @@ function createVersion(input: Partial<SongSearchVersionOption> = {}): SongSearch
     durationMs: 180000,
     qualityLabel: "video / 180s",
     isRecommended: true,
+    queueState: "queueable",
+    canQueue: true,
+    disabledLabel: null,
     ...input
   };
 }
