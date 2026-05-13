@@ -169,7 +169,7 @@ export function CandidateEditor({
           <button className="secondary-button" disabled={isBusy} type="button" onClick={() => void onHold(candidate.id)}>
             {t("candidate.hold")}
           </button>
-          <button className="primary-button" disabled={isBusy} type="button" onClick={() => setPendingConfirm("approve")}>
+          <button className="primary-button" disabled={isBusy || !form.title.trim() || !form.artistName.trim()} type="button" onClick={() => setPendingConfirm("approve")}>
             {t("candidate.approve")}
           </button>
           <button
@@ -184,6 +184,9 @@ export function CandidateEditor({
       </header>
 
       <p className="action-note">{t("candidate.holdNote")}</p>
+      {!form.title.trim() || !form.artistName.trim() ? (
+        <p className="action-note required-note">{t("candidate.titleArtistRequired")}</p>
+      ) : null}
 
       {previewFile ? <RealMvPreviewPanel file={previewFile} /> : null}
 
@@ -368,6 +371,7 @@ function RealMvPreviewPanel({ file }: { file: ImportCandidateFileDetail }) {
   const realMv = file.realMv ?? null;
   const sources = realMvSources(realMv);
   const warnings = realMvWarnings(file, realMv);
+  const conflicts = realMvMetadataConflicts(realMv);
   const coverAlt = translated(t, "candidate.realMvCoverAlt", "MV 封面");
 
   return (
@@ -406,6 +410,27 @@ function RealMvPreviewPanel({ file }: { file: ImportCandidateFileDetail }) {
             <dd>{t("candidate.audioTrackCount", { count: String(mediaInfo?.audioTracks.length ?? 0) })}</dd>
           </div>
         </dl>
+        {mediaInfo?.audioTracks.length ? (
+          <section className="audio-track-table" aria-label={t("candidate.rawAudioTracks")}>
+            <h4>{t("candidate.rawAudioTracks")}</h4>
+            <div className="audio-track-head">
+              <span>#</span>
+              <span>{t("candidate.role")}</span>
+              <span>{t("candidate.trackCodec")}</span>
+              <span>{t("candidate.trackLanguage")}</span>
+              <span>{t("candidate.trackChannels")}</span>
+            </div>
+            {mediaInfo.audioTracks.map((track) => (
+              <div className="audio-track-row" key={track.id}>
+                <span>{`#${track.index}`}</span>
+                <span>{track.label}</span>
+                <span>{track.codec ?? t("common.unknown")}</span>
+                <span>{track.language ?? t("common.unknown")}</span>
+                <span>{track.channels ?? t("common.unknown")}</span>
+              </div>
+            ))}
+          </section>
+        ) : null}
         {sources.length > 0 ? (
           <div className="real-mv-signal-row">
             <strong>{t("candidate.provenance")}</strong>
@@ -417,6 +442,21 @@ function RealMvPreviewPanel({ file }: { file: ImportCandidateFileDetail }) {
               ))}
             </span>
           </div>
+        ) : null}
+        {conflicts.length > 0 ? (
+          <section className="metadata-conflict-list">
+            <h4>{t("candidate.metadataConflicts")}</h4>
+            {conflicts.map((conflict) => (
+              <div className="metadata-conflict-row" key={conflict.field}>
+                <strong>{conflict.field}</strong>
+                <span>
+                  {conflict.values.map((value) => (
+                    <span key={`${value.source}:${value.value}`}>{`${value.source}: ${value.value}`}</span>
+                  ))}
+                </span>
+              </div>
+            ))}
+          </section>
         ) : null}
         {warnings.length > 0 ? (
           <div className="real-mv-signal-row warning">
@@ -430,6 +470,10 @@ function RealMvPreviewPanel({ file }: { file: ImportCandidateFileDetail }) {
             </span>
           </div>
         ) : null}
+        <div className="compatibility-guidance">
+          <strong>{t("candidate.compatibilityGuidance")}</strong>
+          <p>{compatibilityGuidance(file, t)}</p>
+        </div>
       </div>
     </section>
   );
@@ -557,6 +601,42 @@ function realMvWarnings(
     }
   }
   return Array.from(warningCodes);
+}
+
+function realMvMetadataConflicts(
+  realMv: ImportCandidateFileDetail["realMv"] | null
+): Array<{ field: string; values: Array<{ source: string; value: string }> }> {
+  return (realMv?.metadataConflicts ?? [])
+    .map((conflict) => {
+      const field = typeof conflict.field === "string" ? conflict.field : null;
+      const rawValues = Array.isArray(conflict.values) ? conflict.values : [];
+      const values = rawValues
+        .map((entry) =>
+          entry &&
+          typeof entry === "object" &&
+          typeof (entry as { source?: unknown }).source === "string" &&
+          typeof (entry as { value?: unknown }).value === "string"
+            ? { source: (entry as { source: string }).source, value: (entry as { value: string }).value }
+            : null
+        )
+        .filter((entry): entry is { source: string; value: string } => entry !== null);
+
+      return field && values.length > 0 ? { field, values } : null;
+    })
+    .filter((conflict): conflict is { field: string; values: Array<{ source: string; value: string }> } => conflict !== null);
+}
+
+function compatibilityGuidance(
+  file: ImportCandidateFileDetail,
+  t: (key: string, replacements?: Record<string, string>) => string
+): string {
+  if (file.compatibilityStatus === "unsupported") {
+    return `${t("candidate.unsupportedGuidance")} ${t("candidate.retryScanGuidance")}`;
+  }
+  if (file.compatibilityStatus === "playable") {
+    return t("candidate.playableGuidance");
+  }
+  return t("candidate.reviewRequiredGuidance");
 }
 
 function toFormState(candidate: ImportCandidate): CandidateFormState {
