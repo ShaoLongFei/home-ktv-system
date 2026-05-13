@@ -126,4 +126,4 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
 | 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
 | 15. Search, Queue, Playback, and Switching | 5/5 | Complete    | 2026-05-13 |
-| 16. Policy Seam, Android Reservation, and Hardening | 4/4 | Complete   | 2026-05-13 |
+| 16. Policy Seam, Android Reservation, and Hardening | 4/4 | Complete    | 2026-05-13 |

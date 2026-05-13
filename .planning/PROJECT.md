@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成真实 MV 的合同、扫描、旁路元数据、后台审核、正式歌库准入、搜索点歌、TV 播放和音轨切换链路。下一步是收口评审优先策略、既有 demo/local/online 流程兼容性、Android TV 预留边界和回归硬化。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成真实 MV 的合同、扫描、旁路元数据、后台审核、正式歌库准入、搜索点歌、TV 播放、音轨切换、评审优先策略、既有 demo/local/online 兼容性和 Android TV 预留边界回归硬化。下一步是 v1.2 milestone 审计与归档。
 
 Milestone archives:
 
@@ -59,10 +59,11 @@ Milestone archives:
 - v1.2 validated MKV/MPG/MPEG scanner candidates with same-stem covers, same-stem `song.json`, MediaInfo-first metadata, filename fallback, conflict preservation, and unstable-file retry behavior.
 - v1.2 validated Admin real-MV review and catalog admission: metadata editing, raw MediaInfo review, original/accompaniment track-role mapping, one Song plus one real-MV Asset, formal `song.json`, and repair guidance for unsupported or incomplete candidates.
 - v1.2 validated real-MV Mobile search and queueing, backend-resolved vocal intent, explicit TV playback profiles and selected audio tracks, runtime-gated original/accompaniment switching, and clear preprocessing/failure states.
+- v1.2 validated review-first hardening after real-MV integration: reserved auto-admit metadata stays inert, demo/local/online/Admin compatibility remains covered, local media hardening reports are portable, and Android TV remains a contract boundary only.
 
 ### Active
 
-- [ ] 评审优先策略、现有 demo/local 歌曲、在线补歌任务、队列控制、后台维护和未来 Android TV 边界在真实 MV 接入后保持兼容。
+None for the current v1.2 phase set. The milestone is ready for audit and archive preparation.
 
 ### Out of Scope
 
@@ -138,4 +139,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-13 after completing Phase 15*
+*Last updated: 2026-05-13 after completing Phase 16*
