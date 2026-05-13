@@ -60,6 +60,27 @@ describe("song catalog maintenance", () => {
     expect(screen.getAllByText((_, element) => element?.textContent === "切换质量: verified").length).toBeGreaterThan(0);
   });
 
+  it("keeps legacy song maintenance controls visible alongside real-MV catalog assets", async () => {
+    const user = userEvent.setup();
+    installFetchMock({ songs: [...createSongs(), createRealMvSong()] });
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "歌曲" }));
+
+    expect(await screen.findByRole("heading", { name: "歌曲目录" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: /七里香.+国语.+已准备.+2 个资源/u })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /真实 MV.+国语.+需复核.+1 个资源/u })).toBeTruthy();
+
+    const detail = screen.getByRole("region", { name: "歌曲资源详情" });
+    expect((within(detail).getByLabelText("歌名") as HTMLInputElement).value).toBe("七里香");
+    expect((within(detail).getByLabelText("歌手") as HTMLInputElement).value).toBe("周杰伦");
+    expect(within(detail).getByLabelText("默认资源")).toBeTruthy();
+    expect(within(detail).getByRole("button", { name: "保存歌曲元数据" })).toBeTruthy();
+    expect(within(detail).getByRole("button", { name: "设为默认资源" })).toBeTruthy();
+    expect(within(detail).getByRole("button", { name: "更新 asset-instrumental" })).toBeTruthy();
+    expect(screen.getAllByText((_, element) => element?.textContent === "切换质量: verified").length).toBeGreaterThan(0);
+  });
+
   it("filters song status through /admin/catalog/songs?status=...", async () => {
     const user = userEvent.setup();
     const { requests } = installFetchMock();
@@ -212,9 +233,11 @@ describe("song catalog maintenance", () => {
   });
 });
 
-function installFetchMock(options: { defaultAssetResponse?: { promise: Promise<Response> }; catalogStatus?: number } = {}) {
+function installFetchMock(
+  options: { defaultAssetResponse?: { promise: Promise<Response> }; catalogStatus?: number; songs?: AdminCatalogSong[] } = {}
+) {
   const requests: RequestRecord[] = [];
-  const songs = createSongs();
+  const songs = options.songs ?? createSongs();
 
   vi.stubGlobal(
     "fetch",
@@ -378,6 +401,44 @@ function createSongs(): AdminCatalogSong[] {
       assets: [originalAsset, instrumentalAsset]
     }
   ];
+}
+
+function createRealMvSong(): AdminCatalogSong {
+  const realMvAsset = createAsset({
+    id: "asset-real-mv",
+    songId: "song-real-mv",
+    assetKind: "dual-track-video",
+    displayName: "真实 MV",
+    filePath: "songs/mandarin/示例歌手/真实 MV/real-mv.mkv",
+    vocalMode: "dual",
+    switchFamily: null,
+    switchQualityStatus: "review_required"
+  });
+
+  return {
+    id: "song-real-mv",
+    title: "真实 MV",
+    normalizedTitle: "真实 MV",
+    titlePinyin: "",
+    titleInitials: "",
+    artistId: "artist-real-mv",
+    artistName: "示例歌手",
+    language: "mandarin",
+    status: "review_required",
+    genre: ["mv"],
+    tags: ["real-mv"],
+    aliases: [],
+    searchHints: [],
+    releaseYear: null,
+    canonicalDurationMs: 180000,
+    searchWeight: 0,
+    defaultAssetId: realMvAsset.id,
+    capabilities: { canSwitchVocalMode: true },
+    createdAt: "2026-04-30T00:00:00.000Z",
+    updatedAt: "2026-04-30T00:00:00.000Z",
+    defaultAsset: realMvAsset,
+    assets: [realMvAsset]
+  };
 }
 
 function createAsset(overrides: Partial<AdminCatalogAsset> = {}): AdminCatalogAsset {
