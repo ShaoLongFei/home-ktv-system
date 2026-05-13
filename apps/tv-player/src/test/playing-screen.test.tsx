@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import type { RoomSnapshot } from "@home-ktv/player-contracts";
 import { PlayingScreen } from "../screens/PlayingScreen.js";
 import { deriveTvDisplayState } from "../screens/tv-display-model.js";
+import { tvTheme } from "../theme.js";
 
 describe("PlayingScreen", () => {
   it("shows the vocal mode and the mm:ss time pair", () => {
@@ -25,6 +26,25 @@ describe("PlayingScreen", () => {
     expect(screen.getByText("伴唱")).toBeTruthy();
     expect(screen.getByText("00:12 / 03:00")).toBeTruthy();
     expect(screen.getByText("下一首 - 歌手")).toBeTruthy();
+  });
+
+  it("uses the approved success color for active playback state", () => {
+    const roomSnapshot = snapshot();
+    render(
+      <PlayingScreen
+        displayState={deriveTvDisplayState({
+          errorMessage: null,
+          firstPlayBlocked: false,
+          snapshot: roomSnapshot,
+          status: "ready"
+        })}
+        snapshot={roomSnapshot}
+        playbackPositionMs={12_345}
+        durationMs={180_000}
+      />
+    );
+
+    expect(screen.getAllByText("播放中")[0]?.style.color).toBe(tvTheme.colors.success);
   });
 
   it("shows an actionable first-play prompt when playback is blocked", () => {

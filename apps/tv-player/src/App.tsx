@@ -6,6 +6,7 @@ import { IdleScreen } from "./screens/IdleScreen.js";
 import { PlayingScreen } from "./screens/PlayingScreen.js";
 import { useTvPlaybackRuntime } from "./runtime/use-tv-playback-runtime.js";
 import { deriveTvDisplayState, type TvDisplayState } from "./screens/tv-display-model.js";
+import { tvTheme } from "./theme.js";
 
 export function App() {
   const activeVideoRef = useRef<HTMLVideoElement>(null);
@@ -85,9 +86,9 @@ function SystemScreen({ displayState }: { displayState: TvDisplayState }) {
 
 const styles = {
   shell: {
-    background: "linear-gradient(135deg, #050604 0%, #11140f 54%, #070806 100%)",
-    color: "#fff8e7",
-    fontFamily: "Avenir Next, Futura, Gill Sans, Trebuchet MS, sans-serif",
+    background: `linear-gradient(135deg, ${tvTheme.colors.background} 0%, ${tvTheme.colors.backgroundElevated} 58%, #020617 100%)`,
+    color: tvTheme.colors.text,
+    fontFamily: tvTheme.fonts.body,
     minHeight: "100vh",
     overflow: "hidden",
     position: "relative",
@@ -95,10 +96,10 @@ const styles = {
   },
   atmosphere: {
     background:
-      "linear-gradient(90deg, rgba(255, 248, 231, 0.04) 1px, transparent 1px), linear-gradient(0deg, rgba(255, 248, 231, 0.03) 1px, transparent 1px)",
-    backgroundSize: "42px 42px",
+      `linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px), linear-gradient(0deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px), linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(5, 7, 13, 0.72) 100%)`,
+    backgroundSize: "48px 48px, 48px 48px, 100% 100%",
     inset: 0,
-    opacity: 0.42,
+    opacity: 0.5,
     pointerEvents: "none",
     position: "absolute"
   },
@@ -108,7 +109,7 @@ const styles = {
     zIndex: 1
   },
   video: {
-    background: "#050604",
+    background: tvTheme.colors.background,
     height: "100vh",
     inset: 0,
     objectFit: "contain",
@@ -123,15 +124,16 @@ const styles = {
     padding: "64px"
   },
   systemKicker: {
-    color: "#8fe6ad",
+    color: tvTheme.colors.accent,
     fontSize: 28,
     fontWeight: 900,
-    letterSpacing: 1.5,
+    letterSpacing: 0,
     margin: "0 0 24px",
-    textTransform: "uppercase"
+    textTransform: "none"
   },
   systemTitle: {
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
+    fontFamily: tvTheme.fonts.heading,
     fontSize: 96,
     fontWeight: 950,
     letterSpacing: 0,
@@ -140,7 +142,7 @@ const styles = {
     overflowWrap: "anywhere"
   },
   systemDetail: {
-    color: "#d9d0b8",
+    color: tvTheme.colors.textMuted,
     fontSize: 34,
     lineHeight: 1.24,
     margin: "30px 0 0",

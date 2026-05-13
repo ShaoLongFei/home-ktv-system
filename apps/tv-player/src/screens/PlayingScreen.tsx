@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { PairingQr } from "../components/PairingQr.js";
 import { PlaybackStatusBanner } from "../components/PlaybackStatusBanner.js";
 import { formatPlaybackClock, type TvDisplayState } from "./tv-display-model.js";
+import { tvTheme } from "../theme.js";
 
 export interface PlayingScreenProps {
   displayState: TvDisplayState;
@@ -80,56 +81,56 @@ function modeLabelFor(vocalMode: string): string {
 function modeAccent(vocalMode: string): CSSProperties {
   if (vocalMode === "original") {
     return {
-      background: "rgba(143, 230, 173, 0.18)",
-      borderColor: "rgba(143, 230, 173, 0.35)",
-      color: "#b5f5c5"
+      background: "rgba(52, 211, 153, 0.16)",
+      borderColor: "rgba(52, 211, 153, 0.38)",
+      color: tvTheme.colors.success
     };
   }
 
   if (vocalMode === "instrumental") {
     return {
-      background: "rgba(242, 200, 75, 0.18)",
-      borderColor: "rgba(242, 200, 75, 0.35)",
-      color: "#ffe39d"
+      background: "rgba(34, 211, 238, 0.14)",
+      borderColor: "rgba(34, 211, 238, 0.36)",
+      color: tvTheme.colors.accent
     };
   }
 
   return {
-    background: "rgba(255, 248, 231, 0.08)",
-    borderColor: "rgba(255, 248, 231, 0.16)",
-    color: "#fff8e7"
+    background: "rgba(148, 163, 184, 0.12)",
+    borderColor: tvTheme.colors.border,
+    color: tvTheme.colors.text
   };
 }
 
 function stateAccent(tone: TvDisplayState["tone"]): CSSProperties {
   if (tone === "danger") {
     return {
-      background: "rgba(255, 155, 114, 0.18)",
-      borderColor: "rgba(255, 155, 114, 0.35)",
-      color: "#ffc3ad"
+      background: "rgba(248, 113, 113, 0.16)",
+      borderColor: "rgba(248, 113, 113, 0.38)",
+      color: tvTheme.colors.danger
     };
   }
 
   if (tone === "warning") {
     return {
-      background: "rgba(242, 200, 75, 0.18)",
-      borderColor: "rgba(242, 200, 75, 0.35)",
-      color: "#ffe39d"
+      background: "rgba(251, 191, 36, 0.16)",
+      borderColor: "rgba(251, 191, 36, 0.4)",
+      color: tvTheme.colors.warning
     };
   }
 
   if (tone === "ready") {
     return {
-      background: "rgba(143, 230, 173, 0.18)",
-      borderColor: "rgba(143, 230, 173, 0.35)",
-      color: "#b5f5c5"
+      background: "rgba(52, 211, 153, 0.16)",
+      borderColor: "rgba(52, 211, 153, 0.38)",
+      color: tvTheme.colors.success
     };
   }
 
   return {
-    background: "rgba(255, 248, 231, 0.08)",
-    borderColor: "rgba(255, 248, 231, 0.16)",
-    color: "#fff8e7"
+    background: "rgba(148, 163, 184, 0.12)",
+    borderColor: tvTheme.colors.border,
+    color: tvTheme.colors.text
   };
 }
 
@@ -158,7 +159,7 @@ const styles = {
     minWidth: 0
   },
   kicker: {
-    color: "#f2c84b",
+    color: tvTheme.colors.accent,
     fontSize: 28,
     fontWeight: 900,
     letterSpacing: 0,
@@ -166,7 +167,8 @@ const styles = {
     textTransform: "none"
   },
   title: {
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
+    fontFamily: tvTheme.fonts.heading,
     fontSize: 108,
     fontWeight: 950,
     letterSpacing: 0,
@@ -176,7 +178,7 @@ const styles = {
     overflowWrap: "anywhere"
   },
   artist: {
-    color: "#d9d0b8",
+    color: tvTheme.colors.textMuted,
     fontSize: 40,
     fontWeight: 800,
     lineHeight: 1.15,
@@ -185,10 +187,12 @@ const styles = {
   },
   footer: {
     alignItems: "stretch",
-    background: "rgba(17, 20, 15, 0.72)",
-    border: "1px solid rgba(255, 248, 231, 0.14)",
-    borderRadius: 8,
-    color: "#fff8e7",
+    backdropFilter: "blur(18px)",
+    background: tvTheme.colors.surface,
+    border: `1px solid ${tvTheme.colors.border}`,
+    borderRadius: tvTheme.radii.panel,
+    boxShadow: "0 18px 64px rgba(0, 0, 0, 0.32)",
+    color: tvTheme.colors.text,
     display: "grid",
     gap: 16,
     gridTemplateColumns: "minmax(96px, auto) minmax(104px, auto) minmax(190px, auto) minmax(0, 1fr)",
@@ -211,7 +215,7 @@ const styles = {
     minWidth: 0
   },
   metricLabel: {
-    color: "#d9d0b8",
+    color: tvTheme.colors.textWeak,
     fontSize: 18,
     fontWeight: 850,
     letterSpacing: 0,
@@ -219,8 +223,8 @@ const styles = {
   },
   metricValue: {
     alignItems: "center",
-    border: "1px solid rgba(255, 248, 231, 0.14)",
-    borderRadius: 16,
+    border: `1px solid ${tvTheme.colors.border}`,
+    borderRadius: tvTheme.radii.panel,
     display: "inline-flex",
     fontSize: 26,
     fontWeight: 900,
@@ -235,9 +239,9 @@ const styles = {
   },
   timeValue: {
     alignItems: "center",
-    border: "1px solid rgba(255, 248, 231, 0.14)",
+    border: `1px solid ${tvTheme.colors.border}`,
     borderRadius: 8,
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
     display: "inline-flex",
     fontSize: 28,
     fontWeight: 950,
@@ -250,9 +254,9 @@ const styles = {
   },
   nextValue: {
     alignItems: "center",
-    border: "1px solid rgba(255, 248, 231, 0.14)",
+    border: `1px solid ${tvTheme.colors.border}`,
     borderRadius: 8,
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
     display: "inline-flex",
     fontSize: 26,
     fontWeight: 900,
@@ -266,9 +270,10 @@ const styles = {
     whiteSpace: "nowrap"
   },
   firstPlayPrompt: {
-    background: "rgba(17, 20, 15, 0.86)",
-    border: "1px solid rgba(242, 200, 75, 0.46)",
-    borderRadius: 8,
+    backdropFilter: "blur(18px)",
+    background: tvTheme.colors.surface,
+    border: "1px solid rgba(251, 191, 36, 0.46)",
+    borderRadius: tvTheme.radii.panel,
     boxShadow: "0 24px 80px rgba(0, 0, 0, 0.42)",
     left: "50%",
     maxWidth: 720,
@@ -280,7 +285,7 @@ const styles = {
     width: "min(720px, calc(100vw - 128px))"
   },
   promptHeading: {
-    color: "#f2c84b",
+    color: tvTheme.colors.warning,
     fontSize: 44,
     fontWeight: 950,
     letterSpacing: 0,
@@ -289,7 +294,7 @@ const styles = {
     overflowWrap: "anywhere"
   },
   promptBody: {
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
     fontSize: 28,
     fontWeight: 800,
     lineHeight: 1.25,

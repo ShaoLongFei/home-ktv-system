@@ -2,6 +2,7 @@ import type { PairingInfo } from "@home-ktv/player-contracts";
 import type { CSSProperties } from "react";
 import { PairingQr } from "../components/PairingQr.js";
 import type { TvDisplayState } from "./tv-display-model.js";
+import { tvTheme } from "../theme.js";
 
 export interface IdleScreenProps {
   displayState: TvDisplayState;
@@ -30,13 +31,14 @@ const styles = {
     gap: 72,
     gridTemplateColumns: "minmax(0, 1fr) auto",
     minHeight: "100vh",
-    padding: "72px 96px"
+    padding: "72px 96px",
+    position: "relative"
   },
   copy: {
     maxWidth: 920
   },
   kicker: {
-    color: "#8fe6ad",
+    color: tvTheme.colors.success,
     fontSize: 28,
     fontWeight: 900,
     letterSpacing: 0,
@@ -44,7 +46,8 @@ const styles = {
     textTransform: "none"
   },
   title: {
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
+    fontFamily: tvTheme.fonts.heading,
     fontSize: 96,
     fontWeight: 950,
     letterSpacing: 0,
@@ -54,7 +57,7 @@ const styles = {
     overflowWrap: "anywhere"
   },
   detail: {
-    color: "#d9d0b8",
+    color: tvTheme.colors.textMuted,
     fontSize: 30,
     lineHeight: 1.24,
     margin: "32px 0 0",

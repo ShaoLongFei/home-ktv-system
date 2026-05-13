@@ -6,6 +6,7 @@ import { IdleScreen } from "../screens/IdleScreen.js";
 import { PlayingScreen } from "../screens/PlayingScreen.js";
 import { PlaybackStatusBanner } from "../components/PlaybackStatusBanner.js";
 import { deriveTvDisplayState } from "../screens/tv-display-model.js";
+import { tvTheme } from "../theme.js";
 
 afterEach(() => {
   cleanup();
@@ -29,6 +30,7 @@ describe("tv screen states", () => {
 
     expect(screen.getByText("扫码点歌")).toBeTruthy();
     expect(screen.getByText("手机扫码点歌")).toBeTruthy();
+    expect(screen.getByLabelText("large pairing QR").parentElement?.style.background).toBe(tvTheme.colors.surface);
   });
 
   it("renders the conflict screen with the active device name", () => {
@@ -58,6 +60,7 @@ describe("tv screen states", () => {
 
     expect(screen.getByText("已有电视端在线")).toBeTruthy();
     expect(screen.getByText(/Living Room TV/)).toBeTruthy();
+    expect(screen.getByText("连接冲突").style.color).toBe(tvTheme.colors.danger);
   });
 
   it("renders loading state copy in the playing screen", () => {

@@ -1,6 +1,7 @@
 import type { PlayerConflictState } from "@home-ktv/player-contracts";
 import type { CSSProperties } from "react";
 import type { TvDisplayState } from "./tv-display-model.js";
+import { tvTheme } from "../theme.js";
 
 export interface ConflictScreenProps {
   conflict: PlayerConflictState;
@@ -26,7 +27,7 @@ const styles = {
     padding: "72px"
   },
   kicker: {
-    color: "#ff9b72",
+    color: tvTheme.colors.danger,
     fontSize: 28,
     fontWeight: 900,
     letterSpacing: 0,
@@ -34,7 +35,8 @@ const styles = {
     textTransform: "none"
   },
   title: {
-    color: "#fff8e7",
+    color: tvTheme.colors.text,
+    fontFamily: tvTheme.fonts.heading,
     fontSize: 96,
     fontWeight: 950,
     letterSpacing: 0,
@@ -44,7 +46,7 @@ const styles = {
     overflowWrap: "anywhere"
   },
   detail: {
-    color: "#d9d0b8",
+    color: tvTheme.colors.textMuted,
     fontSize: 32,
     lineHeight: 1.25,
     margin: "34px 0 0",
@@ -52,10 +54,10 @@ const styles = {
     overflowWrap: "anywhere"
   },
   device: {
-    background: "rgba(17, 20, 15, 0.76)",
-    border: "1px solid rgba(255, 155, 114, 0.3)",
-    borderRadius: 20,
-    color: "#fff8e7",
+    background: tvTheme.colors.surface,
+    border: "1px solid rgba(248, 113, 113, 0.34)",
+    borderRadius: tvTheme.radii.panel,
+    color: tvTheme.colors.text,
     fontSize: 26,
     fontWeight: 850,
     lineHeight: 1.18,

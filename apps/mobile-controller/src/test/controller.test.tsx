@@ -133,6 +133,23 @@ describe("mobile controller runtime", () => {
     expect(screen.getByRole("region", { name: "搜索歌曲" })).toBeTruthy();
   });
 
+  it("places song search before the queue for the phone-first flow", async () => {
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("电视在线");
+    const current = screen.getByRole("region", { name: "当前播放" });
+    const search = screen.getByRole("region", { name: "搜索歌曲" });
+    const queue = screen.getByRole("region", { name: "播放队列" });
+
+    expect(current).toBeTruthy();
+    expect(search.compareDocumentPosition(queue) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("shows an empty online supplement state when a search has no local result and no candidates", async () => {
     const user = userEvent.setup();
     installControllerFetchMock({
@@ -345,6 +362,22 @@ describe("mobile controller runtime", () => {
     expect(requests.find((request) => request.url === "/rooms/living-room/commands/skip-current")?.body).toMatchObject({
       confirmSkip: true
     });
+  });
+
+  it("marks destructive queue and skip actions with danger styling hooks", async () => {
+    const user = userEvent.setup();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("下一首");
+    expect(screen.getByRole("button", { name: "删除" }).className).toContain("danger-button");
+
+    await user.click(screen.getByRole("button", { name: "切歌" }));
+    expect(screen.getByRole("button", { name: "确认" }).className).toContain("danger-button");
   });
 
   it("deletes immediately and shows undo only from server undoExpiresAt", async () => {

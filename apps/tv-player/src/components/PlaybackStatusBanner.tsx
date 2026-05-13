@@ -1,6 +1,7 @@
 import type { PlaybackNotice } from "@home-ktv/player-contracts";
 import type { CSSProperties } from "react";
 import { firstPlayPromptCopy, noticeCopyFor } from "../screens/tv-display-model.js";
+import { tvTheme } from "../theme.js";
 
 export interface PlaybackStatusBannerProps {
   notice: PlaybackNotice | null;
@@ -14,7 +15,7 @@ export function PlaybackStatusBanner({ notice }: PlaybackStatusBannerProps) {
 
   return (
     <aside role="status" style={styles.banner}>
-      <span style={styles.pill}>{noticeLabelFor(notice)}</span>
+      <span style={{ ...styles.pill, ...noticeTone(notice) }}>{noticeLabelFor(notice)}</span>
       <span style={styles.message}>{copy}</span>
     </aside>
   );
@@ -40,14 +41,38 @@ function noticeLabelFor(notice: PlaybackNotice): string {
   return "提示";
 }
 
+function noticeTone(notice: PlaybackNotice): CSSProperties {
+  if (notice.kind === "playback_failed_skipped" || notice.kind === "switch_failed_reverted") {
+    return {
+      background: `rgba(248, 113, 113, 0.18)`,
+      borderColor: "rgba(248, 113, 113, 0.42)",
+      color: tvTheme.colors.danger
+    };
+  }
+
+  if (notice.kind === "recovery_fallback_start_over") {
+    return {
+      background: "rgba(52, 211, 153, 0.16)",
+      borderColor: "rgba(52, 211, 153, 0.38)",
+      color: tvTheme.colors.success
+    };
+  }
+
+  return {
+    background: "rgba(251, 191, 36, 0.16)",
+    borderColor: "rgba(251, 191, 36, 0.4)",
+    color: tvTheme.colors.warning
+  };
+}
+
 const styles = {
   banner: {
     alignItems: "center",
     backdropFilter: "blur(16px)",
-    background: "rgba(255, 248, 231, 0.12)",
-    border: "1px solid rgba(255, 248, 231, 0.22)",
-    borderRadius: 999,
-    color: "#fff8e7",
+    background: tvTheme.colors.surface,
+    border: `1px solid ${tvTheme.colors.border}`,
+    borderRadius: tvTheme.radii.pill,
+    color: tvTheme.colors.text,
     display: "flex",
     fontSize: 20,
     fontWeight: 800,
@@ -57,9 +82,8 @@ const styles = {
     padding: "14px 22px"
   },
   pill: {
-    background: "#f2c84b",
-    borderRadius: 999,
-    color: "#11140f",
+    border: "1px solid transparent",
+    borderRadius: tvTheme.radii.pill,
     fontSize: 14,
     fontWeight: 900,
     padding: "8px 12px",
