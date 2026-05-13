@@ -2,16 +2,25 @@ import { access, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type {
+  CompatibilityReason,
   ImportCandidate,
   ImportCandidateFileDetail,
   ImportCandidateStatus,
   ImportFileRootKind,
+  MediaInfoSummary,
+  PlaybackProfile,
+  TrackRoles,
   VocalMode
 } from "@home-ktv/domain";
 import { describe, expect, it } from "vitest";
 import type { QueryExecutor } from "../db/query-executor.js";
 import { schemaSql } from "../db/schema.js";
-import { CatalogAdmissionError, CatalogAdmissionService, PgCatalogAdmissionWriter } from "../modules/catalog/admission-service.js";
+import {
+  CatalogAdmissionError,
+  CatalogAdmissionService,
+  type CatalogAdmissionWriter,
+  PgCatalogAdmissionWriter
+} from "../modules/catalog/admission-service.js";
 import { resolveLibraryPaths } from "../modules/ingest/library-paths.js";
 
 describe("CatalogAdmissionService", () => {
@@ -155,6 +164,135 @@ describe("CatalogAdmissionService", () => {
     await expectPathExists(path.join(harness.paths.songsRoot, "mandarin/周杰伦/七里香/song.json"));
   });
 
+  it("approves a single real MV candidate as one formal asset with reviewed trackRoles", async () => {
+    const trackRoles = createRealMvTrackRoles();
+    const harness = await createAdmissionHarness({
+      files: [
+        createDetail({
+          id: "candidate-file-real-mv",
+          importFileId: "import-real-mv",
+          proposedVocalMode: "dual",
+          proposedAssetKind: "dual-track-video",
+          relativePath: "周杰伦/七里香/七里香.mkv",
+          compatibilityStatus: "review_required",
+          compatibilityReasons: [
+            {
+              code: "runtime-switch-unverified",
+              severity: "warning",
+              message: "Runtime audio track switching still needs verification.",
+              source: "scanner"
+            }
+          ],
+          mediaInfoSummary: createRealMvMediaInfoSummary(),
+          mediaInfoProvenance: {
+            source: "mediainfo",
+            sourceVersion: "24.01",
+            probedAt: "2026-05-13T00:00:00.000Z",
+            importedFrom: "scanner"
+          },
+          trackRoles,
+          playbackProfile: createRealMvPlaybackProfile(),
+          probeSummary: { realMv: { sidecars: { cover: { relativePath: "周杰伦/七里香/cover.jpg" } } } }
+        })
+      ]
+    });
+    await harness.writeImportFile("imports_pending", "周杰伦/七里香/七里香.mkv", "real mv");
+    await harness.writeImportFile("imports_pending", "周杰伦/七里香/cover.jpg", "cover image");
+
+    const result = await harness.service.approveCandidate("candidate-1");
+
+    expect(result.status).toBe("approved");
+    expect(harness.catalogWriter.promotions).toHaveLength(1);
+    expect(harness.catalogWriter.promotions[0]?.assets).toEqual([
+      expect.objectContaining({
+        assetId: "asset-candidate-1-real-mv",
+        assetKind: "dual-track-video",
+        vocalMode: "dual",
+        status: "promoted",
+        switchQualityStatus: "review_required",
+        trackRoles: expect.objectContaining({
+          instrumental: expect.objectContaining({ id: "0x1101" })
+        })
+      })
+    ]);
+    const targetDirectory = path.join(harness.paths.songsRoot, "mandarin/周杰伦/七里香");
+    const songJson = JSON.parse(await readFile(path.join(targetDirectory, "song.json"), "utf8")) as {
+      coverPath: string;
+      assets: Array<{ id?: string; assetKind?: string; vocalMode?: string; trackRoles?: TrackRoles }>;
+    };
+    expect(songJson.coverPath).toBe("cover.jpg");
+    expect(songJson.assets).toHaveLength(1);
+    expect(songJson.assets[0]).toMatchObject({
+      id: "asset-candidate-1-real-mv",
+      assetKind: "dual-track-video",
+      vocalMode: "dual",
+      trackRoles: expect.objectContaining({
+        instrumental: expect.objectContaining({ id: "0x1101" })
+      })
+    });
+    expect(JSON.stringify(songJson)).not.toContain("asset-candidate-1-original");
+    await expectPathExists(path.join(targetDirectory, "cover.jpg"));
+  });
+
+  it("maps playable real MV approval to ready without verifying switching", async () => {
+    const harness = await createAdmissionHarness({
+      files: [
+        createDetail({
+          id: "candidate-file-real-mv",
+          importFileId: "import-real-mv",
+          proposedVocalMode: "dual",
+          proposedAssetKind: "dual-track-video",
+          relativePath: "周杰伦/七里香/七里香.mkv",
+          compatibilityStatus: "playable",
+          mediaInfoSummary: createRealMvMediaInfoSummary(),
+          trackRoles: createRealMvTrackRoles(),
+          playbackProfile: createRealMvPlaybackProfile()
+        })
+      ]
+    });
+    await harness.writeImportFile("imports_pending", "周杰伦/七里香/七里香.mkv", "real mv");
+
+    const result = await harness.service.approveCandidate("candidate-1");
+
+    expect(result.status).toBe("approved");
+    expect(harness.catalogWriter.promotions[0]).toMatchObject({
+      songStatus: "ready",
+      assets: [
+        expect.objectContaining({
+          status: "ready",
+          switchQualityStatus: "review_required"
+        })
+      ]
+    });
+  });
+
+  it("keeps unsupported real MV candidates visible for repair", async () => {
+    const harness = await createAdmissionHarness({
+      files: [
+        createDetail({
+          id: "candidate-file-real-mv",
+          importFileId: "import-real-mv",
+          proposedVocalMode: "dual",
+          proposedAssetKind: "dual-track-video",
+          relativePath: "周杰伦/七里香/七里香.mkv",
+          compatibilityStatus: "unsupported",
+          mediaInfoSummary: createRealMvMediaInfoSummary(),
+          trackRoles: createRealMvTrackRoles(),
+          playbackProfile: createRealMvPlaybackProfile()
+        })
+      ]
+    });
+    await harness.writeImportFile("imports_pending", "周杰伦/七里香/七里香.mkv", "real mv");
+
+    const result = await harness.service.approveCandidate("candidate-1");
+
+    expect(result.status).toBe("review_required");
+    expect(result.reason).toBe("real-mv-unsupported");
+    expect(harness.importFiles.locations).toHaveLength(0);
+    expect(harness.catalogWriter.promotions).toHaveLength(0);
+    await expectPathExists(path.join(harness.paths.importsPendingRoot, "周杰伦/七里香/七里香.mkv"));
+  });
+
   it("requires targetSongId for merge_existing conflict resolution", async () => {
     const harness = await createAdmissionHarness();
 
@@ -230,11 +368,12 @@ async function createAdmissionHarness(input: {
   const files = input.files ?? [createDetail({ id: "candidate-file-original", importFileId: "import-original" })];
   const importCandidates = new MemoryImportCandidateRepository(candidate, files);
   const importFiles = new MemoryImportFileRepository();
+  const catalogWriter = new MemoryCatalogAdmissionWriter();
   const service = new CatalogAdmissionService({
     paths,
     importCandidates,
     importFiles,
-    catalogWriter: { promoteApprovedCandidate: async () => undefined }
+    catalogWriter
   });
 
   return {
@@ -242,6 +381,7 @@ async function createAdmissionHarness(input: {
     service,
     importCandidates,
     importFiles,
+    catalogWriter,
     async writeImportFile(rootKind: ImportFileRootKind, relativePath: string, content: string) {
       const rootPath = rootKind === "imports_needs_review" ? paths.importsNeedsReviewRoot : paths.importsPendingRoot;
       const filePath = path.join(rootPath, relativePath);
@@ -292,6 +432,14 @@ class MemoryImportFileRepository {
   async markDeletedById(): Promise<void> {}
 }
 
+class MemoryCatalogAdmissionWriter implements CatalogAdmissionWriter {
+  readonly promotions: Parameters<CatalogAdmissionWriter["promoteApprovedCandidate"]>[0][] = [];
+
+  async promoteApprovedCandidate(input: Parameters<CatalogAdmissionWriter["promoteApprovedCandidate"]>[0]): Promise<void> {
+    this.promotions.push(input);
+  }
+}
+
 function createCandidate(overrides: Partial<ImportCandidate> = {}): ImportCandidate {
   return {
     id: "candidate-1",
@@ -320,6 +468,37 @@ function createCandidate(overrides: Partial<ImportCandidate> = {}): ImportCandid
   };
 }
 
+function createRealMvTrackRoles(): TrackRoles {
+  return {
+    original: { index: 0, id: "0x1100", label: "Original" },
+    instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+  };
+}
+
+function createRealMvMediaInfoSummary(): MediaInfoSummary {
+  return {
+    container: "matroska",
+    durationMs: 180000,
+    videoCodec: "h264",
+    resolution: { width: 1920, height: 1080 },
+    fileSizeBytes: 123456,
+    audioTracks: [
+      { index: 0, id: "0x1100", label: "Original", language: "zh", codec: "aac", channels: 2 },
+      { index: 1, id: "0x1101", label: "Instrumental", language: "zh", codec: "aac", channels: 2 }
+    ]
+  };
+}
+
+function createRealMvPlaybackProfile(): PlaybackProfile {
+  return {
+    kind: "single_file_audio_tracks",
+    container: "matroska",
+    videoCodec: "h264",
+    audioCodecs: ["aac", "aac"],
+    requiresAudioTrackSelection: true
+  };
+}
+
 function createDetail(overrides: Partial<ImportCandidateFileDetail> = {}): ImportCandidateFileDetail {
   return {
     id: "candidate-file-1",
@@ -341,6 +520,18 @@ function createDetail(overrides: Partial<ImportCandidateFileDetail> = {}): Impor
     probeStatus: "probed",
     probePayload: {},
     durationMs: 180000,
+    compatibilityStatus: "playable",
+    compatibilityReasons: [] satisfies CompatibilityReason[],
+    mediaInfoSummary: createRealMvMediaInfoSummary(),
+    mediaInfoProvenance: { source: "unknown", sourceVersion: null, probedAt: null, importedFrom: null },
+    trackRoles: { original: null, instrumental: null },
+    playbackProfile: {
+      kind: "separate_asset_pair",
+      container: null,
+      videoCodec: null,
+      audioCodecs: [],
+      requiresAudioTrackSelection: false
+    },
     fileCreatedAt: new Date("2026-04-30T00:00:00.000Z").toISOString(),
     fileUpdatedAt: new Date("2026-04-30T00:00:00.000Z").toISOString(),
     ...overrides
