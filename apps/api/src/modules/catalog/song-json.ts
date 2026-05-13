@@ -3,10 +3,16 @@ import path from "node:path";
 import type {
   AssetKind,
   AssetStatus,
+  CompatibilityReason,
+  CompatibilityStatus,
   Language,
   LyricMode,
+  MediaInfoProvenance,
+  MediaInfoSummary,
+  PlaybackProfile,
   SongStatus,
   SwitchQualityStatus,
+  TrackRoles,
   VocalMode
 } from "@home-ktv/domain";
 
@@ -21,6 +27,15 @@ export interface SongJsonAsset {
   switchFamily: string | null;
   switchQualityStatus?: SwitchQualityStatus;
   displayName?: string;
+  compatibilityStatus?: CompatibilityStatus;
+  compatibilityReasons?: readonly CompatibilityReason[];
+  mediaInfoSummary?: MediaInfoSummary | null;
+  mediaInfoProvenance?: MediaInfoProvenance | null;
+  trackRoles?: TrackRoles;
+  playbackProfile?: PlaybackProfile;
+  container?: string | null;
+  videoCodec?: string | null;
+  audioCodecs?: readonly string[];
 }
 
 export interface SongJsonDocument {
@@ -28,6 +43,7 @@ export interface SongJsonDocument {
   artistName: string;
   language: Language;
   status?: SongStatus;
+  coverPath?: string | null;
   defaultAssetId?: string | null;
   defaultAssetPath?: string | null;
   defaultVocalMode?: VocalMode;
