@@ -114,6 +114,6 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 |-------|----------------|--------|-----------|
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
-| 14. Admin Review and Catalog Admission | 5/5 | Completed 2026-05-13 | 2026-05-13 |
+| 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |
 | 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
