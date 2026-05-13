@@ -61,6 +61,28 @@ describe("real MV domain contracts", () => {
     }
   });
 
+  it("keeps candidate metadata serialization platform-neutral", () => {
+    const candidateMetaFixture = {
+      realMv: {
+        playbackProfile,
+        trackRoles,
+        admissionPolicy: {
+          mode: "review_first",
+          reservedAutoAdmit: {
+            reserved: true,
+            eligible: true,
+            reasons: []
+          }
+        }
+      }
+    };
+
+    const serializedCandidateMeta = JSON.stringify(candidateMetaFixture).toLowerCase();
+    for (const forbidden of ["android", "exo", "media3"]) {
+      expect(serializedCandidateMeta).not.toContain(forbidden);
+    }
+  });
+
   it("models one physical real-MV file as one asset with trackRoles", () => {
     const assets: Asset[] = [
       {

@@ -179,6 +179,61 @@ describe("real MV playback flow", () => {
     expect(rejected.code).toBe("SONG_NOT_QUEUEABLE");
   });
 
+  it("keeps final real MV playback contracts platform-neutral for playable and unsupported assets", async () => {
+    const playableHarness = createFlowHarness();
+    expectAccepted(
+      await executeAddQueueEntry(playableHarness, {
+        commandId: "command-add-neutral-real-mv",
+        songId: "song-real-mv",
+        assetId: "asset-real-mv"
+      })
+    );
+
+    const playbackTarget = await buildPlaybackTarget({
+      roomSlug: playableHarness.room.slug,
+      repositories: playableHarness.repositories,
+      assetGateway: playableHarness.assetGateway
+    });
+    expect(playbackTarget).toMatchObject({
+      selectedTrackRef: { id: "0x1101" }
+    });
+
+    const forbiddenContractTerms = ["android", "media3", "exo"];
+    const serializedTarget = JSON.stringify(playbackTarget).toLowerCase();
+    for (const forbidden of forbiddenContractTerms) {
+      expect(serializedTarget).not.toContain(forbidden);
+    }
+
+    const unsupportedSearchRepository = createSearchRepository({
+      song: createSongRow({
+        id: "song-unsupported-real-mv",
+        title: "Unsupported Real MV",
+        normalized_title: "unsupported real mv",
+        default_asset_id: "asset-unsupported-real-mv"
+      }),
+      asset: createRealMvAssetRow({
+        id: "asset-unsupported-real-mv",
+        song_id: "song-unsupported-real-mv",
+        compatibility_status: "unsupported"
+      })
+    });
+    const unsupportedSearch = await unsupportedSearchRepository.searchFormalSongs({
+      query: "unsupported real mv",
+      limit: 10,
+      queuedSongIds: []
+    });
+    const unsupportedVersion = unsupportedSearch[0]?.versions[0];
+
+    expect(unsupportedVersion).toMatchObject({
+      queueState: "needs_preprocess",
+      disabledLabel: "需预处理"
+    });
+    const serializedUnsupportedVersion = JSON.stringify(unsupportedVersion ?? {}).toLowerCase();
+    for (const forbidden of forbiddenContractTerms) {
+      expect(serializedUnsupportedVersion).not.toContain(forbidden);
+    }
+  });
+
   it("keeps the real MV playback flow regression scoped to playback contracts", async () => {
     const source = await readFile(new URL("./real-mv-playback-flow.test.ts", import.meta.url), "utf8");
     const sourceWithoutGuard = source

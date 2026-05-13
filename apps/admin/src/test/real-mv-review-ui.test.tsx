@@ -108,6 +108,7 @@ describe("real MV review UI", () => {
 
     expect(screen.queryByRole("button", { name: /自动入库|auto admit|auto-admit/i })).toBeNull();
     expect(screen.queryByLabelText(/自动入库|auto admit|auto-admit/i)).toBeNull();
+    expect(screen.queryByText(new RegExp(["Android " + "TV", "native " + "app"].join("|"), "i"))).toBeNull();
     expect(screen.getByRole("button", { name: "批准入库" })).toBeTruthy();
   });
 
@@ -126,7 +127,10 @@ describe("real MV review UI", () => {
       readFile(resolve(process.cwd(), "src/imports/use-import-workbench-runtime.ts"), "utf8"),
       readFile(resolve(process.cwd(), "src/i18n.tsx"), "utf8")
     ]);
-    expect(`${checkedTestSource}\n${productionUiSources.join("\n")}`).not.toMatch(/autoAdmit|auto-admit|自动入库/iu);
+    const forbiddenReviewCopy = ["autoAdmit", "auto-admit", "自动入库", "Android " + "TV", "native " + "app"];
+    expect(`${checkedTestSource}\n${productionUiSources.join("\n")}`).not.toMatch(
+      new RegExp(forbiddenReviewCopy.join("|"), "iu")
+    );
   });
   // policy-guard-allowed-end
 
@@ -140,7 +144,8 @@ describe("real MV review UI", () => {
       "TV " + "playback",
       "runtime " + "switching",
       "trans" + "cod",
-      "Android " + "TV"
+      "Android " + "TV",
+      "native " + "app"
     ];
     expect(source).not.toMatch(new RegExp(forbidden.join("|"), "i"));
   });
