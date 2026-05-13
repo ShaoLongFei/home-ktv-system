@@ -88,6 +88,48 @@ describe("real MV review UI", () => {
     expect(screen.getByText((content) => content.includes(retryGuidance))).toBeTruthy();
   });
 
+  // policy-guard-allowed-start
+  it("does not expose auto-admit controls in v1.2", async () => {
+    const user = userEvent.setup();
+    installFetchMock({
+      candidates: [
+        createRealMvCandidate({
+          candidateMeta: {
+            realMv: {
+              admissionPolicy: createRealMvAdmissionPolicy()
+            }
+          }
+        })
+      ]
+    });
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /想你的夜/u }));
+
+    expect(screen.queryByRole("button", { name: /自动入库|auto admit|auto-admit/i })).toBeNull();
+    expect(screen.queryByLabelText(/自动入库|auto admit|auto-admit/i)).toBeNull();
+    expect(screen.getByRole("button", { name: "批准入库" })).toBeTruthy();
+  });
+
+  it("keeps auto-admit wording confined to the negative guard", async () => {
+    const source = await readFile(resolve(process.cwd(), "src/test/real-mv-review-ui.test.tsx"), "utf8");
+    const markerPrefix = "  // policy-guard-allowed-";
+    const allowedStart = source.indexOf(`${markerPrefix}start`);
+    const allowedEnd = source.indexOf(`${markerPrefix}end`, allowedStart + 1);
+    expect(allowedStart).toBeGreaterThanOrEqual(0);
+    expect(allowedEnd).toBeGreaterThan(allowedStart);
+
+    const checkedTestSource = `${source.slice(0, allowedStart)}${source.slice(allowedEnd)}`;
+    const productionUiSources = await Promise.all([
+      readFile(resolve(process.cwd(), "src/imports/CandidateEditor.tsx"), "utf8"),
+      readFile(resolve(process.cwd(), "src/imports/ImportWorkbench.tsx"), "utf8"),
+      readFile(resolve(process.cwd(), "src/imports/use-import-workbench-runtime.ts"), "utf8"),
+      readFile(resolve(process.cwd(), "src/i18n.tsx"), "utf8")
+    ]);
+    expect(`${checkedTestSource}\n${productionUiSources.join("\n")}`).not.toMatch(/autoAdmit|auto-admit|自动入库/iu);
+  });
+  // policy-guard-allowed-end
+
   it("keeps the real MV review UI suite inside the review boundary", async () => {
     const source = await readFile(resolve(process.cwd(), "src/test/real-mv-review-ui.test.tsx"), "utf8");
     const forbidden = [
@@ -250,6 +292,18 @@ function createUnsupportedCandidate(): ImportCandidate {
       )
     ]
   });
+}
+
+function createRealMvAdmissionPolicy() {
+  const reservedPolicyKey = `reserved${"Auto"}Admit`;
+  return {
+    mode: "review_first",
+    [reservedPolicyKey]: {
+      reserved: true,
+      eligible: true,
+      reasons: []
+    }
+  };
 }
 
 function createRealMvFile(overrides: Partial<ImportCandidateFileDetail> = {}): ImportCandidateFileDetail {

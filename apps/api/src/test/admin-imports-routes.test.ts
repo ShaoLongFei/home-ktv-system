@@ -45,7 +45,16 @@ describe("admin import review routes", () => {
 
   it("serializes real MV file review fields without absolute paths", async () => {
     const realMvFile = createRealMvCandidateFileDetail();
-    const { server } = await createAdminImportsHarness({ files: [realMvFile] });
+    const { server } = await createAdminImportsHarness({
+      candidate: createCandidate({
+        candidateMeta: {
+          realMv: {
+            admissionPolicy: createRealMvAdmissionPolicy()
+          }
+        }
+      }),
+      files: [realMvFile]
+    });
 
     const response = await server.inject({
       method: "GET",
@@ -53,7 +62,20 @@ describe("admin import review routes", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const file = response.json().candidate.files[0];
+    const candidate = response.json().candidate;
+    const file = candidate.files[0];
+    expect(candidate.candidateMeta).toMatchObject({
+      realMv: {
+        admissionPolicy: {
+          mode: "review_first",
+          reservedAutoAdmit: {
+            reserved: true,
+            eligible: true,
+            reasons: []
+          }
+        }
+      }
+    });
     expect(file).toMatchObject({
       candidateFileId: "candidate-file-real-mv",
       compatibilityStatus: "review_required",
@@ -84,6 +106,7 @@ describe("admin import review routes", () => {
       },
       coverPreviewUrl: "/admin/import-candidates/candidate-1/files/candidate-file-real-mv/cover"
     });
+    expect(file.realMv).not.toHaveProperty("admissionPolicy");
     expect(JSON.stringify(response.json())).not.toContain("/tmp/home-ktv");
   });
 
@@ -381,7 +404,7 @@ async function createAdminImportsHarness(input: {
   return { server, importCandidates, scanScheduler, admissionService };
 }
 
-function createCandidate(): ImportCandidate {
+function createCandidate(overrides: Partial<ImportCandidate> = {}): ImportCandidate {
   return {
     id: "candidate-1",
     status: "pending",
@@ -404,7 +427,19 @@ function createCandidate(): ImportCandidate {
     reviewNotes: null,
     candidateMeta: {},
     createdAt: new Date("2026-04-30T00:00:00.000Z").toISOString(),
-    updatedAt: new Date("2026-04-30T00:00:00.000Z").toISOString()
+    updatedAt: new Date("2026-04-30T00:00:00.000Z").toISOString(),
+    ...overrides
+  };
+}
+
+function createRealMvAdmissionPolicy() {
+  return {
+    mode: "review_first",
+    reservedAutoAdmit: {
+      reserved: true,
+      eligible: true,
+      reasons: []
+    }
   };
 }
 
