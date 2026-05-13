@@ -1,18 +1,26 @@
-import { access, mkdir, rename, rm } from "node:fs/promises";
+import { access, copyFile, mkdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import type {
   Asset,
   AssetId,
+  AssetKind,
   AssetStatus,
+  CompatibilityReason,
+  CompatibilityStatus,
   ImportCandidateFileDetail,
   ImportCandidateId,
   ImportCandidateStatus,
   ImportFileRootKind,
   Language,
   LyricMode,
+  MediaInfoProvenance,
+  MediaInfoSummary,
+  PlaybackProfile,
+  SongStatus,
   SongId,
   SwitchFamily,
   SwitchQualityStatus,
+  TrackRoles,
   VocalMode
 } from "@home-ktv/domain";
 import type { QueryExecutor } from "../../db/query-executor.js";
@@ -86,12 +94,23 @@ export interface PromoteApprovedCandidateInput {
   releaseYear: number | null;
   switchFamily: string;
   defaultAssetId: string;
+  songStatus?: SongStatus;
   assets: Array<{
     assetId: string;
     importFileId: string;
     filePath: string;
     vocalMode: VocalMode;
     durationMs: number;
+    assetKind?: AssetKind;
+    status?: AssetStatus;
+    switchFamily?: string | null;
+    switchQualityStatus?: SwitchQualityStatus;
+    compatibilityStatus?: CompatibilityStatus;
+    compatibilityReasons?: readonly CompatibilityReason[];
+    mediaInfoSummary?: MediaInfoSummary | null;
+    mediaInfoProvenance?: MediaInfoProvenance | null;
+    trackRoles?: TrackRoles;
+    playbackProfile?: PlaybackProfile;
   }>;
 }
 
@@ -301,6 +320,11 @@ export class CatalogAdmissionService {
 
   private async approve(candidateId: ImportCandidateId, resolution?: ConflictResolution): Promise<CatalogAdmissionResult> {
     const record = await this.requireCandidate(candidateId);
+    const realMvFile = record.files.find(isSelectedRealMvFile);
+    if (realMvFile) {
+      return this.approveRealMvCandidate(record, realMvFile, resolution);
+    }
+
     const evaluation = this.evaluatePair(record);
     if (evaluation.status !== "verified") {
       const reason = evaluation.reason ?? "admission-review-required";
@@ -382,6 +406,158 @@ export class CatalogAdmissionService {
     }
   }
 
+  private async approveRealMvCandidate(
+    record: ImportCandidateWithFiles,
+    file: ImportCandidateFileDetail,
+    resolution?: ConflictResolution
+  ): Promise<CatalogAdmissionResult> {
+    const candidateId = record.candidate.id;
+    const title = record.candidate.title.trim();
+    const artistName = record.candidate.artistName.trim();
+    if (!title) {
+      const updated = await this.updateCandidateStatus(candidateId, {
+        status: "review_required",
+        reviewNotes: "missing-title"
+      });
+      return { ...updated, status: "review_required", reason: "missing-title" };
+    }
+    if (!artistName) {
+      const updated = await this.updateCandidateStatus(candidateId, {
+        status: "review_required",
+        reviewNotes: "missing-artist"
+      });
+      return { ...updated, status: "review_required", reason: "missing-artist" };
+    }
+
+    const readiness = deriveRealMvReadiness(file);
+    if (!readiness.promotable) {
+      const reason = readiness.reason ?? "real-mv-unsupported";
+      const updated = await this.updateCandidateStatus(candidateId, {
+        status: "review_required",
+        reviewNotes: reason,
+        candidateMeta: { ...asRecord(record.candidate.candidateMeta), repairReason: reason }
+      });
+      return { ...updated, status: "review_required", reason };
+    }
+
+    const targetDirectory = this.targetDirectory(record, resolution);
+    const targetRelativeDirectory = toLibraryRelativePath(this.options.paths.songsRoot, targetDirectory);
+    const targetExists = await pathExists(targetDirectory);
+    const explicitConflictResolution = Boolean(resolution);
+    const repairableApprovalFailure =
+      record.candidate.status === "approval_failed" && record.candidate.candidateMeta.targetDirectory === targetRelativeDirectory;
+
+    if (targetExists && !explicitConflictResolution && !repairableApprovalFailure) {
+      const conflictMeta = {
+        targetDirectory: targetRelativeDirectory,
+        conflictType: "formal_directory_exists",
+        existingSongId: null
+      };
+      await this.updateCandidateStatus(candidateId, {
+        status: "conflict",
+        candidateMeta: conflictMeta
+      });
+      throw new CatalogAdmissionError("FORMAL_DIRECTORY_CONFLICT", "Formal directory conflict", {
+        candidateId,
+        status: "conflict",
+        conflictMeta
+      });
+    }
+
+    try {
+      const sourcePath = this.absolutePathFor(file.rootKind, file.relativePath);
+      const targetPath = path.join(targetDirectory, path.basename(file.relativePath));
+      await moveFileIfNeeded(sourcePath, targetPath);
+      const relativePath = `${targetRelativeDirectory}/${path.basename(file.relativePath)}`;
+      await this.options.importFiles.updateFileLocation({
+        importFileId: file.importFileId,
+        rootKind: "songs",
+        relativePath
+      });
+
+      const coverPath = await this.copyRealMvCoverSidecar(record, file, targetDirectory);
+      const assetId = `asset-${record.candidate.id}-real-mv`;
+      const songId =
+        resolution?.resolution === "merge_existing" && resolution.targetSongId
+          ? resolution.targetSongId
+          : `song-${record.candidate.id}`;
+      const mediaInfoSummary = file.mediaInfoSummary ?? defaultMediaInfoSummary();
+      const playbackProfile = defaultSingleFilePlaybackProfile(file);
+      const asset: SongJsonAsset & PromoteApprovedCandidateInput["assets"][number] = {
+        id: assetId,
+        assetId,
+        importFileId: file.importFileId,
+        filePath: `songs/${relativePath}`,
+        vocalMode: "dual",
+        assetKind: "dual-track-video",
+        lyricMode: "none",
+        status: readiness.assetStatus,
+        durationMs: file.durationMs ?? file.probeDurationMs ?? mediaInfoSummary.durationMs ?? 0,
+        switchFamily: null,
+        switchQualityStatus: readiness.switchQualityStatus,
+        compatibilityStatus: file.compatibilityStatus,
+        compatibilityReasons: file.compatibilityReasons,
+        mediaInfoSummary,
+        mediaInfoProvenance: file.mediaInfoProvenance ?? defaultMediaInfoProvenance(),
+        trackRoles: file.trackRoles ?? defaultTrackRoles(),
+        playbackProfile,
+        container: playbackProfile.container ?? mediaInfoSummary.container,
+        videoCodec: playbackProfile.videoCodec ?? mediaInfoSummary.videoCodec,
+        audioCodecs: playbackProfile.audioCodecs
+      };
+
+      await writeSongJson(targetDirectory, {
+        title: record.candidate.title,
+        artistName: record.candidate.artistName,
+        language: record.candidate.language,
+        status: readiness.songStatus,
+        defaultAssetId: assetId,
+        defaultAssetPath: asset.filePath,
+        coverPath,
+        defaultVocalMode: "instrumental",
+        sameVersionConfirmed: record.candidate.sameVersionConfirmed,
+        genre: record.candidate.genre,
+        tags: record.candidate.tags,
+        aliases: record.candidate.aliases,
+        searchHints: record.candidate.searchHints,
+        releaseYear: record.candidate.releaseYear,
+        source: { importCandidateId: record.candidate.id },
+        assets: [asset]
+      });
+
+      await this.catalogWriter.promoteApprovedCandidate({
+        candidateId: record.candidate.id,
+        songId,
+        title: record.candidate.title,
+        artistName: record.candidate.artistName,
+        language: record.candidate.language,
+        releaseYear: record.candidate.releaseYear,
+        switchFamily: `candidate-${record.candidate.id}`,
+        defaultAssetId: assetId,
+        songStatus: readiness.songStatus,
+        assets: [asset]
+      });
+
+      const updated = await this.updateCandidateStatus(candidateId, {
+        status: "approved",
+        candidateMeta: {
+          ...asRecord(record.candidate.candidateMeta),
+          targetDirectory: targetRelativeDirectory,
+          conflictResolution: resolution?.resolution ?? null
+        }
+      });
+      return { ...updated, status: "approved" };
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      const updated = await this.updateCandidateStatus(candidateId, {
+        status: "approval_failed",
+        reviewNotes: reason,
+        candidateMeta: { ...asRecord(record.candidate.candidateMeta), targetDirectory: targetRelativeDirectory, repairReason: reason }
+      });
+      return { ...updated, status: "approval_failed", reason };
+    }
+  }
+
   private async moveApprovedFiles(
     record: ImportCandidateWithFiles,
     targetDirectory: string,
@@ -414,6 +590,50 @@ export class CatalogAdmissionService {
     }
 
     return assets;
+  }
+
+  private readRealMvCoverSidecar(
+    record: ImportCandidateWithFiles,
+    file: ImportCandidateFileDetail
+  ): { relativePath: string } | null {
+    const fileCoverPath = readNestedString(file.probeSummary, ["realMv", "sidecars", "cover", "relativePath"]);
+    const candidateCoverPath = readNestedString(record.candidate.candidateMeta, ["realMv", "sidecars", "cover", "relativePath"]);
+    const relativePath = fileCoverPath ?? candidateCoverPath;
+    return relativePath ? { relativePath } : null;
+  }
+
+  private async copyRealMvCoverSidecar(
+    record: ImportCandidateWithFiles,
+    file: ImportCandidateFileDetail,
+    targetDirectory: string
+  ): Promise<string | null> {
+    const sidecar = this.readRealMvCoverSidecar(record, file);
+    if (!sidecar || !isSafeRelativePath(sidecar.relativePath)) {
+      return null;
+    }
+
+    const mediaDirectory = path.dirname(file.relativePath);
+    const coverDirectory = path.dirname(sidecar.relativePath);
+    const coverRelativePath =
+      coverDirectory === "." || coverDirectory === ""
+        ? path.join(mediaDirectory, sidecar.relativePath)
+        : coverDirectory === mediaDirectory
+          ? sidecar.relativePath
+          : null;
+    if (!coverRelativePath) {
+      return null;
+    }
+
+    const sourcePath = this.absolutePathFor(file.rootKind, coverRelativePath);
+    const mediaDirectoryPath = this.absolutePathFor(file.rootKind, mediaDirectory);
+    const relativeToMediaDirectory = path.relative(mediaDirectoryPath, sourcePath);
+    if (relativeToMediaDirectory.startsWith("..") || path.isAbsolute(relativeToMediaDirectory)) {
+      return null;
+    }
+
+    const basename = path.basename(coverRelativePath);
+    await copyFile(sourcePath, path.join(targetDirectory, basename));
+    return basename;
   }
 
   private targetDirectory(record: ImportCandidateWithFiles, resolution?: ConflictResolution): string {
@@ -471,6 +691,75 @@ export class CatalogAdmissionService {
       formalAssets: this.options.formalAssets
     };
   }
+}
+
+export function isSelectedRealMvFile(file: ImportCandidateFileDetail): boolean {
+  return (
+    file.selected &&
+    (file.proposedAssetKind === "dual-track-video" || file.playbackProfile?.kind === "single_file_audio_tracks")
+  );
+}
+
+export function deriveRealMvReadiness(file: ImportCandidateFileDetail): {
+  promotable: boolean;
+  reason?: string;
+  songStatus: SongStatus;
+  assetStatus: AssetStatus;
+  switchQualityStatus: SwitchQualityStatus;
+} {
+  if (file.compatibilityStatus === "unsupported") {
+    return {
+      promotable: false,
+      reason: "real-mv-unsupported",
+      songStatus: "review_required",
+      assetStatus: "promoted",
+      switchQualityStatus: "review_required"
+    };
+  }
+
+  if (file.compatibilityStatus === "playable") {
+    return {
+      promotable: true,
+      songStatus: "ready",
+      assetStatus: "ready",
+      switchQualityStatus: "review_required"
+    };
+  }
+
+  return {
+    promotable: true,
+    songStatus: "review_required",
+    assetStatus: "promoted",
+    switchQualityStatus: "review_required"
+  };
+}
+
+export function defaultSingleFilePlaybackProfile(file: ImportCandidateFileDetail): PlaybackProfile {
+  const audioCodecs =
+    file.playbackProfile?.audioCodecs && file.playbackProfile.audioCodecs.length > 0
+      ? [...file.playbackProfile.audioCodecs]
+      : (file.mediaInfoSummary?.audioTracks ?? [])
+          .map((track) => track.codec)
+          .filter((codec): codec is string => Boolean(codec));
+  return {
+    kind: "single_file_audio_tracks",
+    container: file.playbackProfile?.container ?? file.mediaInfoSummary?.container ?? null,
+    videoCodec: file.playbackProfile?.videoCodec ?? file.mediaInfoSummary?.videoCodec ?? null,
+    audioCodecs,
+    requiresAudioTrackSelection: true
+  };
+}
+
+export function defaultTrackRoles(): TrackRoles {
+  return { original: null, instrumental: null };
+}
+
+function defaultMediaInfoSummary(): MediaInfoSummary {
+  return { container: null, durationMs: null, videoCodec: null, resolution: null, fileSizeBytes: 0, audioTracks: [] };
+}
+
+function defaultMediaInfoProvenance(): MediaInfoProvenance {
+  return { source: "unknown", sourceVersion: null, probedAt: null, importedFrom: null };
 }
 
 export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
@@ -585,4 +874,30 @@ async function pathExists(filePath: string): Promise<boolean> {
 
 function sanitizeSegment(value: string): string {
   return value.replace(/[\\/]/g, "-").trim() || "untitled";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return isRecord(value) ? value : {};
+}
+
+function readNestedString(value: unknown, keys: readonly string[]): string | null {
+  let current: unknown = value;
+  for (const key of keys) {
+    if (!isRecord(current)) {
+      return null;
+    }
+    current = current[key];
+  }
+  return typeof current === "string" && current.trim() ? current : null;
+}
+
+function isSafeRelativePath(relativePath: string): boolean {
+  if (path.isAbsolute(relativePath)) {
+    return false;
+  }
+  return !relativePath.split(/[\\/]+/).some((segment) => segment === "..");
 }
