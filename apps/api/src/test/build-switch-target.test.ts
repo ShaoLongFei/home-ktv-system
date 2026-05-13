@@ -53,9 +53,12 @@ describe("buildSwitchTarget", () => {
       fromAssetId: "asset-real-mv",
       toAssetId: "asset-real-mv",
       rollbackAssetId: "asset-real-mv",
-      vocalMode: "original",
-      selectedTrackRef: { id: "0x1100" }
+      vocalMode: "original"
     });
+    if (!target?.selectedTrackRef) {
+      throw new Error("expected selectedTrackRef");
+    }
+    expect(target.selectedTrackRef.id).toBe("0x1100");
   });
 
   it("builds audio-track switch target for formal real MV from original to accompaniment", async () => {
@@ -77,9 +80,12 @@ describe("buildSwitchTarget", () => {
       switchKind: "audio_track",
       fromAssetId: "asset-real-mv",
       toAssetId: "asset-real-mv",
-      vocalMode: "instrumental",
-      selectedTrackRef: { id: "0x1101" }
+      vocalMode: "instrumental"
     });
+    if (!target?.selectedTrackRef) {
+      throw new Error("expected selectedTrackRef");
+    }
+    expect(target.selectedTrackRef.id).toBe("0x1101");
   });
 
   it("returns null when real MV target role is missing", async () => {
@@ -138,6 +144,8 @@ function createRepositories(
   assets: Asset[],
   options: { activeAssetId?: string; queueEntry?: QueueEntry } = {}
 ): BuildSwitchTargetRepositories {
+  const createSession = () =>
+    options.activeAssetId ? createPlaybackSession({ activeAssetId: options.activeAssetId }) : createPlaybackSession();
   const assetRepository: AssetRepository = {
     async findById(assetId) {
       return assets.find((asset) => asset.id === assetId) ?? null;
@@ -158,16 +166,16 @@ function createRepositories(
     },
     playbackSessions: {
       async findByRoomId(roomId) {
-        return roomId === livingRoom.id ? createPlaybackSession({ activeAssetId: options.activeAssetId }) : null;
+        return roomId === livingRoom.id ? createSession() : null;
       },
       async startQueueEntry() {
-        return createPlaybackSession({ activeAssetId: options.activeAssetId });
+        return createSession();
       },
       async setIdle() {
-        return createPlaybackSession({ activeAssetId: options.activeAssetId });
+        return createSession();
       },
       async requestSwitchTarget() {
-        return createPlaybackSession({ activeAssetId: options.activeAssetId });
+        return createSession();
       }
     },
     queueEntries: {

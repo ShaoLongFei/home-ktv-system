@@ -37,6 +37,7 @@ export interface SwitchTarget {
   roomId: RoomId;
   sessionVersion: number;
   queueEntryId: QueueEntryId;
+  switchKind: "asset" | "audio_track";
   fromAssetId: AssetId;
   toAssetId: AssetId;
   playbackUrl: string;
@@ -44,6 +45,8 @@ export interface SwitchTarget {
   vocalMode: VocalMode;
   resumePositionMs: number;
   rollbackAssetId: AssetId;
+  playbackProfile?: PlaybackProfile;
+  selectedTrackRef?: TrackRef | null;
 }
 
 export interface PlayerTelemetryEvent {

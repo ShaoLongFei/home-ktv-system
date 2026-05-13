@@ -319,6 +319,7 @@ function switchTarget(vocalMode: "original" | "instrumental"): SwitchTarget {
     roomId: "living-room",
     sessionVersion: 5,
     queueEntryId: "queue-current",
+    switchKind: "asset",
     fromAssetId: vocalMode === "instrumental" ? "asset-original" : "asset-instrumental",
     toAssetId: vocalMode === "instrumental" ? "asset-instrumental" : "asset-original",
     playbackUrl: `http://ktv.local/media/${vocalMode === "instrumental" ? "asset-instrumental" : "asset-original"}`,

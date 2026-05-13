@@ -193,6 +193,7 @@ function switchTarget(input: { resumePositionMs: number }): SwitchTarget {
     roomId: "living-room",
     sessionVersion: 4,
     queueEntryId: "queue-current",
+    switchKind: "asset",
     fromAssetId: "asset-original",
     toAssetId: "asset-instrumental",
     playbackUrl: "http://ktv.local/media/asset-instrumental",

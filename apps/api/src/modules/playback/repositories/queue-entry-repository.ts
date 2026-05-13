@@ -6,7 +6,8 @@ import type {
   QueueEntryId,
   QueueEntryStatus,
   RoomId,
-  SongId
+  SongId,
+  VocalMode
 } from "@home-ktv/domain";
 import type { QueryExecutor } from "../../../db/query-executor.js";
 import type { QueueEntryRow } from "../../../db/schema.js";
@@ -61,6 +62,12 @@ export interface MarkPlaybackStateQueueEntryInput {
   startedAt: Date;
 }
 
+export interface UpdatePreferredVocalModeInput {
+  roomId: RoomId;
+  queueEntryId: QueueEntryId;
+  preferredVocalMode: Extract<VocalMode, "original" | "instrumental">;
+}
+
 export interface QueueEntryRepository {
   findById(queueEntryId: QueueEntryId): Promise<QueueEntry | null>;
   listEffectiveQueue(roomId: RoomId): Promise<QueueEntry[]>;
@@ -71,6 +78,7 @@ export interface QueueEntryRepository {
   undoRemoved(input: UndoRemovedQueueEntryInput): Promise<QueueEntry | null>;
   renumberQueue(roomId: RoomId, orderedQueueEntryIds: readonly QueueEntryId[]): Promise<QueueEntry[]>;
   markPlaybackState?(input: MarkPlaybackStateQueueEntryInput): Promise<QueueEntry | null>;
+  updatePreferredVocalMode?(input: UpdatePreferredVocalModeInput): Promise<QueueEntry | null>;
   markCompleted(input: MarkCompletedQueueEntryInput): Promise<QueueEntry | null>;
 }
 
@@ -310,6 +318,22 @@ export class PgQueueEntryRepository implements QueueEntryRepository {
     const row = result.rows[0];
     return row ? mapQueueEntryRow(row) : null;
   }
+
+  async updatePreferredVocalMode(input: UpdatePreferredVocalModeInput): Promise<QueueEntry | null> {
+    const result = await this.db.query<QueueEntryRow>(
+      `UPDATE queue_entries
+       SET playback_options = jsonb_set(COALESCE(playback_options, '{}'::jsonb), '{preferredVocalMode}', to_jsonb($3::text), true)
+       WHERE room_id = $1
+         AND id = $2
+       RETURNING id, room_id, song_id, asset_id, requested_by, queue_position, status,
+                 priority, playback_options, requested_at, started_at, ended_at,
+                 removed_at, removed_by_control_session_id, undo_expires_at`,
+      [input.roomId, input.queueEntryId, input.preferredVocalMode]
+    );
+
+    const row = result.rows[0];
+    return row ? mapQueueEntryRow(row) : null;
+  }
 }
 
 export class InMemoryQueueEntryRepository implements QueueEntryRepository {
@@ -460,6 +484,23 @@ export class InMemoryQueueEntryRepository implements QueueEntryRepository {
       removedAt: null,
       removedByControlSessionId: null,
       undoExpiresAt: null
+    };
+    this.entries.set(updated.id, cloneQueueEntry(updated));
+    return cloneQueueEntry(updated);
+  }
+
+  async updatePreferredVocalMode(input: UpdatePreferredVocalModeInput): Promise<QueueEntry | null> {
+    const entry = this.entries.get(input.queueEntryId);
+    if (!entry || entry.roomId !== input.roomId) {
+      return null;
+    }
+
+    const updated: QueueEntry = {
+      ...entry,
+      playbackOptions: {
+        ...entry.playbackOptions,
+        preferredVocalMode: input.preferredVocalMode
+      }
     };
     this.entries.set(updated.id, cloneQueueEntry(updated));
     return cloneQueueEntry(updated);

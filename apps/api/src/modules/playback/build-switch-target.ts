@@ -1,3 +1,4 @@
+import type { Asset, QueueEntry, TrackRef } from "@home-ktv/domain";
 import type { SwitchTarget } from "@home-ktv/player-contracts";
 import type { AssetGateway } from "../assets/asset-gateway.js";
 import type { AssetRepository } from "../catalog/repositories/asset-repository.js";
@@ -34,7 +35,22 @@ export async function buildSwitchTarget(input: BuildSwitchTargetInput): Promise<
     input.repositories.assets.findById(session.activeAssetId)
   ]);
 
-  if (!queueEntry || !currentAsset?.switchFamily) {
+  if (!queueEntry || !currentAsset) {
+    return null;
+  }
+
+  if (isSingleFileRealMvAsset(currentAsset)) {
+    return buildRealMvSwitchTarget({
+      roomId: room.id,
+      sessionVersion: session.version,
+      queueEntry,
+      currentAsset,
+      resumePositionMs: session.playerPositionMs,
+      assetGateway: input.assetGateway
+    });
+  }
+
+  if (!currentAsset.switchFamily) {
     return null;
   }
 
@@ -56,16 +72,81 @@ export async function buildSwitchTarget(input: BuildSwitchTargetInput): Promise<
     return null;
   }
 
+  const selectedTrackRef = selectedTrackRefForAsset(targetAsset);
+
   return {
     roomId: room.id,
     sessionVersion: session.version,
     queueEntryId: queueEntry.id,
+    switchKind: "asset",
     fromAssetId: currentAsset.id,
     toAssetId: targetAsset.id,
     playbackUrl: input.assetGateway.createPlaybackUrl(targetAsset.id),
     switchFamily: targetAsset.switchFamily,
     vocalMode: targetAsset.vocalMode,
     rollbackAssetId: currentAsset.id,
-    resumePositionMs: session.playerPositionMs
+    resumePositionMs: session.playerPositionMs,
+    ...(targetAsset.playbackProfile ? { playbackProfile: targetAsset.playbackProfile } : {}),
+    ...(selectedTrackRef ? { selectedTrackRef } : {})
+  };
+}
+
+function isSingleFileRealMvAsset(asset: Asset): boolean {
+  return asset.playbackProfile?.kind === "single_file_audio_tracks" || asset.assetKind === "dual-track-video";
+}
+
+function committedVocalModeForQueueEntry(queueEntry: QueueEntry): "original" | "instrumental" {
+  const preferredVocalMode = queueEntry.playbackOptions.preferredVocalMode;
+  return preferredVocalMode === "original" || preferredVocalMode === "instrumental"
+    ? preferredVocalMode
+    : "instrumental";
+}
+
+function nextRealMvVocalMode(current: "original" | "instrumental"): "original" | "instrumental" {
+  return current === "original" ? "instrumental" : "original";
+}
+
+function selectedTrackRefForRealMvSwitch(asset: Asset, vocalMode: "original" | "instrumental"): TrackRef | null {
+  return vocalMode === "original" ? asset.trackRoles?.original ?? null : asset.trackRoles?.instrumental ?? null;
+}
+
+function selectedTrackRefForAsset(asset: Asset): TrackRef | null {
+  if (asset.vocalMode === "original") {
+    return asset.trackRoles?.original ?? null;
+  }
+  if (asset.vocalMode === "instrumental") {
+    return asset.trackRoles?.instrumental ?? null;
+  }
+  return null;
+}
+
+function buildRealMvSwitchTarget(input: {
+  roomId: string;
+  sessionVersion: number;
+  queueEntry: QueueEntry;
+  currentAsset: Asset;
+  resumePositionMs: number;
+  assetGateway: AssetGateway;
+}): SwitchTarget | null {
+  const targetMode = nextRealMvVocalMode(committedVocalModeForQueueEntry(input.queueEntry));
+  const selectedTrackRef = selectedTrackRefForRealMvSwitch(input.currentAsset, targetMode);
+  if (!selectedTrackRef) {
+    return null;
+  }
+
+  return {
+    roomId: input.roomId,
+    sessionVersion: input.sessionVersion,
+    queueEntryId: input.queueEntry.id,
+    switchKind: "audio_track",
+    fromAssetId: input.currentAsset.id,
+    toAssetId: input.currentAsset.id,
+    playbackUrl: input.assetGateway.createPlaybackUrl(input.currentAsset.id),
+    switchFamily: input.currentAsset.switchFamily ?? "real-mv-audio-track",
+    vocalMode: targetMode,
+    resumePositionMs: input.resumePositionMs,
+    rollbackAssetId: input.currentAsset.id,
+    ...(input.currentAsset.playbackProfile ? { playbackProfile: input.currentAsset.playbackProfile } : {}),
+    selectedTrackRef
   };
 }

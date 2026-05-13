@@ -35,7 +35,7 @@ export interface IngestTelemetryInput {
   telemetry: PlayerTelemetryInput;
   playbackEvents: PlaybackEventRepository;
   playbackSessions: TelemetryPlaybackSessionRepository;
-  queueEntries?: Pick<QueueEntryRepository, "markPlaybackState">;
+  queueEntries?: Pick<QueueEntryRepository, "markPlaybackState" | "updatePreferredVocalMode">;
 }
 
 export interface IngestTelemetryResult {
@@ -87,6 +87,17 @@ export async function ingestPlayerTelemetry(input: IngestTelemetryInput): Promis
       queueEntryId: telemetry.queueEntryId,
       status: queueStatus,
       startedAt: telemetry.emittedAt ? new Date(telemetry.emittedAt) : new Date()
+    });
+  }
+  if (
+    telemetry.eventType === "playing" &&
+    telemetry.stage === "switch_committed" &&
+    (telemetry.vocalMode === "original" || telemetry.vocalMode === "instrumental")
+  ) {
+    await input.queueEntries?.updatePreferredVocalMode?.({
+      roomId: telemetry.room.id,
+      queueEntryId: telemetry.queueEntryId,
+      preferredVocalMode: telemetry.vocalMode
     });
   }
 
