@@ -8,6 +8,7 @@ import type {
   ImportCandidateFileDetail,
   Language,
   MetadataUpdateInput,
+  TrackRoles,
   VocalMode
 } from "./types.js";
 
@@ -41,6 +42,7 @@ interface FileFormState {
   selected: boolean;
   proposedVocalMode: VocalMode;
   proposedAssetKind: AssetKind;
+  trackRoles: TrackRoles;
 }
 
 type PendingConfirm = "approve" | "reject-delete" | null;
@@ -92,6 +94,30 @@ export function CandidateEditor({
             ...current,
             files: current.files.map((file) =>
               file.candidateFileId === candidateFileId ? { ...file, ...patch } : file
+            )
+          }
+        : current
+    );
+  };
+
+  const updateTrackRole = (candidateFileId: string, role: keyof TrackRoles, trackId: string) => {
+    const selectedFile = candidate.files.find((file) => file.candidateFileId === candidateFileId);
+    const track = selectedFile?.mediaInfoSummary?.audioTracks.find((item) => item.id === trackId) ?? null;
+
+    setForm((current) =>
+      current
+        ? {
+            ...current,
+            files: current.files.map((file) =>
+              file.candidateFileId === candidateFileId
+                ? {
+                    ...file,
+                    trackRoles: {
+                      ...file.trackRoles,
+                      [role]: track ? { index: track.index, id: track.id, label: track.label } : null
+                    }
+                  }
+                : file
             )
           }
         : current
@@ -250,6 +276,13 @@ export function CandidateEditor({
                     <option value="unknown">{vocalModeName("unknown", t)}</option>
                   </select>
                 </label>
+                {currentFile.selected && isRealMvTrackRoleFile(file) ? (
+                  <RealMvTrackRoleReview
+                    file={file}
+                    trackRoles={currentFile.trackRoles}
+                    onTrackRoleChange={updateTrackRole}
+                  />
+                ) : null}
               </div>
             );
           })}
@@ -402,6 +435,53 @@ function RealMvPreviewPanel({ file }: { file: ImportCandidateFileDetail }) {
   );
 }
 
+function RealMvTrackRoleReview({
+  file,
+  trackRoles,
+  onTrackRoleChange
+}: {
+  file: ImportCandidateFileDetail;
+  trackRoles: TrackRoles;
+  onTrackRoleChange: (candidateFileId: string, role: keyof TrackRoles, trackId: string) => void;
+}) {
+  const { t } = useI18n();
+  const tracks = file.mediaInfoSummary?.audioTracks ?? [];
+  const needsReview = translated(t, "candidate.needsReview", "需要确认");
+
+  return (
+    <div className="track-role-review">
+      <label>
+        <span>{translated(t, "candidate.originalTrackRole", "原唱声轨")}</span>
+        <select
+          value={trackRoles.original?.id ?? ""}
+          onChange={(event) => onTrackRoleChange(file.candidateFileId, "original", event.target.value)}
+        >
+          <option value="">{needsReview}</option>
+          {tracks.map((track) => (
+            <option key={track.id} value={track.id}>
+              {formatAudioTrackOption(track)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>{translated(t, "candidate.instrumentalTrackRole", "伴唱声轨")}</span>
+        <select
+          value={trackRoles.instrumental?.id ?? ""}
+          onChange={(event) => onTrackRoleChange(file.candidateFileId, "instrumental", event.target.value)}
+        >
+          <option value="">{needsReview}</option>
+          {tracks.map((track) => (
+            <option key={track.id} value={track.id}>
+              {formatAudioTrackOption(track)}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}
+
 function CandidateFiles({ files }: { files: ImportCandidateFileDetail[] }) {
   const { t } = useI18n();
   return (
@@ -441,6 +521,10 @@ function realMvPreviewFile(files: ImportCandidateFileDetail[]): ImportCandidateF
 
 function hasRealMvPreview(file: ImportCandidateFileDetail): boolean {
   return Boolean(file.mediaInfoSummary || file.realMv || file.coverPreviewUrl);
+}
+
+function isRealMvTrackRoleFile(file: ImportCandidateFileDetail): boolean {
+  return file.proposedAssetKind === "dual-track-video" || file.playbackProfile?.kind === "single_file_audio_tracks";
 }
 
 function realMvSources(realMv: ImportCandidateFileDetail["realMv"] | null): string[] {
@@ -492,7 +576,8 @@ function toFormState(candidate: ImportCandidate): CandidateFormState {
       label: fileName(file.relativePath),
       selected: file.selected,
       proposedVocalMode: file.proposedVocalMode ?? "unknown",
-      proposedAssetKind: file.proposedAssetKind ?? "video"
+      proposedAssetKind: file.proposedAssetKind ?? "video",
+      trackRoles: file.trackRoles ?? { original: null, instrumental: null }
     }))
   };
 }
@@ -513,7 +598,8 @@ function toMetadataInput(form: CandidateFormState): MetadataUpdateInput {
       candidateFileId: file.candidateFileId,
       selected: file.selected,
       proposedVocalMode: file.proposedVocalMode,
-      proposedAssetKind: file.proposedAssetKind
+      proposedAssetKind: file.proposedAssetKind,
+      trackRoles: file.trackRoles
     }))
   };
 }
@@ -578,6 +664,10 @@ function formatDuration(durationMs: number | null): string {
 
 function formatResolution(resolution: { width: number; height: number } | null | undefined): string {
   return resolution ? `${resolution.width} x ${resolution.height}` : "unknown";
+}
+
+function formatAudioTrackOption(track: { index: number; label: string; codec: string | null }): string {
+  return `#${track.index} ${track.label} ${track.codec ?? ""}`.trim();
 }
 
 function translated(

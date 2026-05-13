@@ -174,7 +174,7 @@ describe("import review workbench", () => {
     expect(screen.getByText("2 条音轨")).toBeTruthy();
     expect(screen.getByText("来源")).toBeTruthy();
     expect(screen.getByText("filename")).toBeTruthy();
-    expect(screen.getByText("需要确认")).toBeTruthy();
+    expect(screen.getAllByText("需要确认").length).toBeGreaterThan(0);
     expect(screen.getByText("sidecar-json-invalid")).toBeTruthy();
   });
 
@@ -264,13 +264,15 @@ describe("import review workbench", () => {
           candidateFileId: "candidate-file-original",
           selected: true,
           proposedVocalMode: "original",
-          proposedAssetKind: "video"
+          proposedAssetKind: "video",
+          trackRoles: { original: null, instrumental: null }
         },
         {
           candidateFileId: "candidate-file-instrumental",
           selected: true,
           proposedVocalMode: "instrumental",
-          proposedAssetKind: "video"
+          proposedAssetKind: "video",
+          trackRoles: { original: null, instrumental: null }
         }
       ]
     });

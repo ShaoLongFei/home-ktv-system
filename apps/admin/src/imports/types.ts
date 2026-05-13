@@ -153,6 +153,7 @@ export interface MetadataUpdateInput {
     selected: boolean;
     proposedVocalMode: VocalMode;
     proposedAssetKind: AssetKind;
+    trackRoles?: TrackRoles;
   }>;
 }
 
