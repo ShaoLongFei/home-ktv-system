@@ -18,6 +18,7 @@ import {
   parseRealMvFilename,
   type RealMvSidecarMetadata
 } from "./real-mv-metadata.js";
+import { deriveRealMvAdmissionPolicy } from "./real-mv-policy.js";
 import type { ImportCandidateRepository } from "./repositories/import-candidate-repository.js";
 
 export interface CandidateBuilderOptions {
@@ -138,7 +139,14 @@ function buildRealMvCandidateInput(file: ImportFile): Parameters<ImportCandidate
           scannerReasons: metadataDraft.scannerReasons,
           sidecars: realMvPayload.sidecars,
           metadataSources: metadataDraft.metadataSources,
-          metadataConflicts: metadataDraft.metadataConflicts
+          metadataConflicts: metadataDraft.metadataConflicts,
+          admissionPolicy: deriveRealMvAdmissionPolicy({
+            title: metadataDraft.title ?? null,
+            artistName: metadataDraft.artistName ?? null,
+            compatibilityStatus: compatibility.compatibilityStatus,
+            trackRoles,
+            scannerReasons: metadataDraft.scannerReasons
+          })
         }
       }
     },
