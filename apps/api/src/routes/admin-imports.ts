@@ -9,7 +9,9 @@ import type {
   ImportScanScope,
   Language,
   VocalMode,
-  AssetKind
+  AssetKind,
+  TrackRef,
+  TrackRoles
 } from "@home-ktv/domain";
 import type {
   ImportCandidateRepository,
@@ -283,11 +285,59 @@ function parseMetadataPatch(body: unknown): UpdateImportCandidateMetadataInput |
       if (typeof file.proposedAssetKind === "string" && isAssetKind(file.proposedAssetKind)) {
         patch.proposedAssetKind = file.proposedAssetKind;
       }
+      if (Object.prototype.hasOwnProperty.call(file, "trackRoles")) {
+        const parsedTrackRoles = parseTrackRolesPatch(file.trackRoles);
+        if (!parsedTrackRoles) {
+          return null;
+        }
+        patch.trackRoles = parsedTrackRoles;
+      }
       input.files.push(patch);
     }
   }
 
   return input;
+}
+
+function parseTrackRolesPatch(value: unknown): TrackRoles | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const keys = Object.keys(value);
+  if (
+    keys.length !== 2 ||
+    !Object.prototype.hasOwnProperty.call(value, "original") ||
+    !Object.prototype.hasOwnProperty.call(value, "instrumental")
+  ) {
+    return null;
+  }
+
+  const original = parseTrackRoleSlot(value.original);
+  const instrumental = parseTrackRoleSlot(value.instrumental);
+  if (original === undefined || instrumental === undefined) {
+    return null;
+  }
+
+  return { original, instrumental };
+}
+
+function parseTrackRoleSlot(value: unknown): TrackRef | null | undefined {
+  if (value === null) {
+    return null;
+  }
+
+  return isTrackRefPatch(value) ? value : undefined;
+}
+
+function isTrackRefPatch(value: unknown): value is TrackRef {
+  return (
+    isRecord(value) &&
+    typeof value.index === "number" &&
+    Number.isFinite(value.index) &&
+    typeof value.id === "string" &&
+    typeof value.label === "string"
+  );
 }
 
 function parseConflictResolution(body: unknown): ConflictResolution | null {

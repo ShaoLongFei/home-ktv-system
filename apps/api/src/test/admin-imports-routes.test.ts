@@ -107,7 +107,11 @@ describe("admin import review routes", () => {
             candidateFileId: "candidate-file-1",
             selected: true,
             proposedVocalMode: "original",
-            proposedAssetKind: "video"
+            proposedAssetKind: "video",
+            trackRoles: {
+              original: { index: 0, id: "0x1100", label: "Original vocal" },
+              instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+            }
           }
         ]
       }
@@ -124,10 +128,48 @@ describe("admin import review routes", () => {
         releaseYear: 2004
       })
     );
+    expect(importCandidates.updateCandidateMetadata.mock.calls[0]?.[1]).toMatchObject({
+      files: [
+        {
+          candidateFileId: "candidate-file-1",
+          selected: true,
+          proposedVocalMode: "original",
+          proposedAssetKind: "video",
+          trackRoles: {
+            original: { index: 0, id: "0x1100", label: "Original vocal" },
+            instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+          }
+        }
+      ]
+    });
     expect(response.json().candidate.files[0]).toMatchObject({
       rootKind: "imports_pending",
       relativePath: "周杰伦/七里香/original.mp4"
     });
+  });
+
+  it("rejects malformed reviewed trackRoles metadata", async () => {
+    const { server, importCandidates } = await createAdminImportsHarness();
+
+    const response = await server.inject({
+      method: "PATCH",
+      url: "/admin/import-candidates/candidate-1",
+      payload: {
+        files: [
+          {
+            candidateFileId: "candidate-file-1",
+            trackRoles: {
+              original: { index: 0, id: 4352, label: "Original vocal" },
+              instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+            }
+          }
+        ]
+      }
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ error: "INVALID_IMPORT_CANDIDATE_METADATA" });
+    expect(importCandidates.updateCandidateMetadata).not.toHaveBeenCalled();
   });
 
   it("POST /admin/imports/scan enqueues a manual scan and returns accepted", async () => {
