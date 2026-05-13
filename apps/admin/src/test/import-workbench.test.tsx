@@ -178,6 +178,44 @@ describe("import review workbench", () => {
     expect(screen.getByText("sidecar-json-invalid")).toBeTruthy();
   });
 
+  it("saves reviewed real MV original and accompaniment track roles", async () => {
+    const user = userEvent.setup();
+    const { requests } = installFetchMock();
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /想你的夜/u }));
+
+    const originalTrack = await screen.findByLabelText("原唱声轨");
+    const instrumentalTrack = screen.getByLabelText("伴唱声轨");
+    expect(originalTrack).toHaveProperty("value", "0x1100");
+    expect(instrumentalTrack).toHaveProperty("value", "0x1101");
+
+    expect(screen.getAllByText(/#0 Original vocal aac/u).length).toBeGreaterThan(0);
+    await user.selectOptions(instrumentalTrack, "0x1100");
+    await user.click(screen.getByRole("button", { name: "保存元数据" }));
+
+    const patchRequest = await waitFor(() =>
+      requests.find((request) => request.method === "PATCH" && request.url === "/admin/import-candidates/real-mv-candidate")
+    );
+
+    expect(patchRequest?.body).toEqual(
+      expect.objectContaining({
+        files: [
+          {
+            candidateFileId: "candidate-file-real-mv",
+            selected: true,
+            proposedVocalMode: "dual",
+            proposedAssetKind: "dual-track-video",
+            trackRoles: {
+              original: { index: 0, id: "0x1100", label: "Original vocal" },
+              instrumental: { index: 0, id: "0x1100", label: "Original vocal" }
+            }
+          }
+        ]
+      })
+    );
+  });
+
   it("sends the canonical PATCH /admin/import-candidates/:candidateId metadata update request", async () => {
     const user = userEvent.setup();
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
