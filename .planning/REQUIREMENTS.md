@@ -32,9 +32,9 @@
 
 - [ ] **PLAY-01**: User can search and queue approved real MV songs from the mobile controller using the existing Chinese-first search behavior.
 - [ ] **PLAY-02**: Queueing a dual-track real MV defaults to accompaniment when an accompaniment track is confirmed.
-- [ ] **PLAY-03**: TV receives an explicit playback profile and `selectedTrackRef` for real MV assets.
-- [ ] **PLAY-04**: User can switch original/accompaniment during playback only when the TV runtime has verified track-switch capability.
-- [ ] **PLAY-05**: User sees a clear unsupported or needs-preprocessing state when a real MV cannot load, seek, resume, or switch as advertised.
+- [x] **PLAY-03**: TV receives an explicit playback profile and `selectedTrackRef` for real MV assets.
+- [x] **PLAY-04**: User can switch original/accompaniment during playback only when the TV runtime has verified track-switch capability.
+- [x] **PLAY-05**: User sees a clear unsupported or needs-preprocessing state when a real MV cannot load, seek, resume, or switch as advertised.
 
 ### Policy And Hardening
 
@@ -96,9 +96,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REVIEW-05 | Phase 14 | Complete |
 | PLAY-01 | Phase 15 | Pending |
 | PLAY-02 | Phase 15 | Pending |
-| PLAY-03 | Phase 15 | Pending |
-| PLAY-04 | Phase 15 | Pending |
-| PLAY-05 | Phase 15 | Pending |
+| PLAY-03 | Phase 15 | Complete |
+| PLAY-04 | Phase 15 | Complete |
+| PLAY-05 | Phase 15 | Complete |
 | HARD-01 | Phase 16 | Pending |
 | HARD-02 | Phase 16 | Pending |
 | HARD-03 | Phase 16 | Pending |

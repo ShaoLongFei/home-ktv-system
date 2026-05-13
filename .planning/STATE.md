@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
 status: executing
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-05-13T08:38:48.840Z"
-last_activity: "2026-05-13 -- Phase 15 Plan 02 completed"
+stopped_at: Completed 15-03-PLAN.md
+last_updated: "2026-05-13T09:01:06.809Z"
+last_activity: "2026-05-13 -- Phase 15 Plan 03 completed"
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 20
-  completed_plans: 17
-  percent: 85
+  completed_plans: 18
+  percent: 90
 ---
 
 # Project State
@@ -27,11 +27,11 @@ See: `.planning/PROJECT.md` (updated 2026-05-13)
 
 Milestone: v1.2 真实 MV 歌库
 Phase: 15 (search-queue-playback-and-switching) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
-Last activity: 2026-05-13 -- Phase 15 Plan 02 completed
+Last activity: 2026-05-13 -- Phase 15 Plan 03 completed
 
-Progress: [█████████░] 85%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Progress: [█████████░] 85%
 | Phase 14 P05 | 15 min | 2 tasks | 2 files |
 | Phase 15 P01 | 35 min | 2 tasks | 3 files |
 | Phase 15 P02 | 19 min | 2 tasks | 4 files |
+| Phase 15 P03 | 20 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,8 @@ Progress: [█████████░] 85%
 - [Phase 14-05]: API and Admin regression coverage now prove reviewed real-MV admission, song.json validation, and UI review guidance without Phase 15 runtime assertions.
 - [Phase 14-05]: Optional exact typing in regression helpers is satisfied by supplying explicit real-MV defaults rather than undefined placeholders.
 - [Phase 14-05]: Test-only source guards keep excluded mobile, queue, TV playback, switching, transcode, and Android TV concerns out of Phase 14 regression coverage.
+- [Phase 15-03]: Real-MV switching stays on switch-vocal-mode and uses SwitchTarget.switchKind=audio_track. — Reuses existing transition, snapshot, rollback, and telemetry semantics without creating a separate real-MV command path.
+- [Phase 15-03]: TV switch_committed telemetry is the only server-side commit point for real-MV preferredVocalMode. — Failed switch attempts must not change queue playbackOptions, so server state advances only after TV confirms playback.
 
 ### Pending Todos
 
@@ -121,6 +124,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T08:38:48.836Z
-Stopped at: Completed 15-02-PLAN.md
-Resume file: .planning/phases/15-search-queue-playback-and-switching/15-03-PLAN.md
+Last session: 2026-05-13T09:01:06.809Z
+Stopped at: Completed 15-03-PLAN.md
+Resume file: .planning/phases/15-search-queue-playback-and-switching/15-04-PLAN.md
