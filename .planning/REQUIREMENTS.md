@@ -38,9 +38,9 @@
 
 ### Policy And Hardening
 
-- [ ] **HARD-01**: Review-first admission remains the default policy, while auto-admit eligibility is stored only as a reserved capability.
-- [ ] **HARD-02**: Real MV import, playback, and switch behavior is covered by fixtures or tests using representative two-track and unsupported media cases.
-- [ ] **HARD-03**: Existing demo/local songs, online supplement tasks, queue controls, and admin maintenance remain compatible after real MV schema changes.
+- [x] **HARD-01**: Review-first admission remains the default policy, while auto-admit eligibility is stored only as a reserved capability.
+- [x] **HARD-02**: Real MV import, playback, and switch behavior is covered by fixtures or tests using representative two-track and unsupported media cases.
+- [x] **HARD-03**: Existing demo/local songs, online supplement tasks, queue controls, and admin maintenance remain compatible after real MV schema changes.
 
 ## Future Requirements
 
@@ -99,9 +99,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PLAY-03 | Phase 15 | Complete |
 | PLAY-04 | Phase 15 | Complete |
 | PLAY-05 | Phase 15 | Complete |
-| HARD-01 | Phase 16 | Pending |
-| HARD-02 | Phase 16 | Pending |
-| HARD-03 | Phase 16 | Pending |
+| HARD-01 | Phase 16 | Complete |
+| HARD-02 | Phase 16 | Complete |
+| HARD-03 | Phase 16 | Complete |
 
 **Coverage:**
 

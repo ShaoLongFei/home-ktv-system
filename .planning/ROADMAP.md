@@ -24,7 +24,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 - [x] **Phase 13: MediaInfo Probe, Scanner, and Sidecars** - Scan stable MKV/MPG/MPEG files with MediaInfo facts, same-stem covers, and same-stem `song.json` metadata (completed 2026-05-12)
 - [x] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with a single real-MV asset (completed 2026-05-13)
 - [x] **Phase 15: Search, Queue, Playback, and Switching** - Make approved real MV songs searchable, queueable, playable, and switchable only when runtime capability is verified (completed 2026-05-13)
-- [ ] **Phase 16: Policy Seam, Android Reservation, and Hardening** - Preserve review-first policy, future Android boundaries, regression coverage, and compatibility with existing flows
+- [x] **Phase 16: Policy Seam, Android Reservation, and Hardening** - Preserve review-first policy, future Android boundaries, regression coverage, and compatibility with existing flows (completed 2026-05-13)
 
 ## Phase Details
 
@@ -113,7 +113,7 @@ Plans:
 - [x] 16-01-PLAN.md - Review-first policy seam and reserved auto-admit metadata
 - [x] 16-02-PLAN.md - Compatibility regression hardening for demo/local/online/admin flows
 - [x] 16-03-PLAN.md - Local real-media hardening report using samples and optional index cross-check
-- [ ] 16-04-PLAN.md - Android boundary source guards and final regression gate
+- [x] 16-04-PLAN.md - Android boundary source guards and final regression gate
 
 ## Progress
 
@@ -126,4 +126,4 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
 | 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
 | 15. Search, Queue, Playback, and Switching | 5/5 | Complete    | 2026-05-13 |
-| 16. Policy Seam, Android Reservation, and Hardening | 3/4 | In Progress|  |
+| 16. Policy Seam, Android Reservation, and Hardening | 4/4 | Complete   | 2026-05-13 |

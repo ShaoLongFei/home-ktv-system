@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-05-13T13:17:47.796Z"
+stopped_at: Completed 16-04-PLAN.md
+last_updated: "2026-05-13T13:41:00.250Z"
 last_activity: 2026-05-13
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 24
-  completed_plans: 23
+  completed_plans: 24
   percent: 100
 ---
 
@@ -26,9 +26,9 @@ See: `.planning/PROJECT.md` (updated 2026-05-13)
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 16 (policy-seam-android-reservation-and-hardening) — EXECUTING
-Plan: 3 of 4 completed (parallel execution)
-Status: Ready to execute
+Phase: 16 (policy-seam-android-reservation-and-hardening) — COMPLETE
+Plan: 4 of 4 completed (parallel execution)
+Status: Phase complete, ready for milestone verification
 Last activity: 2026-05-13
 
 Progress: [██████████] 100%
@@ -69,6 +69,7 @@ Progress: [██████████] 100%
 | Phase 16-policy-seam-android-reservation-and-hardening P02 | 9 min | 2 tasks | 5 files |
 | Phase 16-policy-seam-android-reservation-and-hardening P01 | 17 min | 2 tasks | 5 files |
 | Phase 16 P03 | 8 min | 2 tasks | 3 files |
+| Phase 16-policy-seam-android-reservation-and-hardening P04 | 18 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -130,6 +131,9 @@ Progress: [██████████] 100%
 - [Phase 16]: The Phase 16 report keeps the old controlled fixture path while adding explicit --sample-* flags and MEDIA_ROOT default sample resolution.
 - [Phase 16]: The optional database/index cross-check is read-only and best-effort; missing pg support, unavailable tables, or connection errors are reported in Markdown instead of failing report generation.
 - [Phase 16]: Legacy --mkv and --mpeg flags remain aliases for the new sample flags to avoid breaking existing local spike usage.
+- [Phase 16-policy-seam-android-reservation-and-hardening]: Phase 16 Android reservation remains test-only and source-based; no Android runtime import, native package seam, or contract field was added.
+- [Phase 16-policy-seam-android-reservation-and-hardening]: Final real-MV regression coverage checks serialized platform-neutral contracts rather than introducing Android-specific placeholders.
+- [Phase 16-policy-seam-android-reservation-and-hardening]: Admin review copy treats auto-admit and native-app language as forbidden outside the existing negative guard.
 
 ### Pending Todos
 
@@ -142,6 +146,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T13:17:21.052Z
-Stopped at: Completed 16-03-PLAN.md
+Last session: 2026-05-13T13:41:00.246Z
+Stopped at: Completed 16-04-PLAN.md
 Resume file: None
