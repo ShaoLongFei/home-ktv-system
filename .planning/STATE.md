@@ -4,8 +4,8 @@ milestone: v1.2
 milestone_name: 真实 MV 歌库
 status: planning
 stopped_at: Phase 15 verification passed
-last_updated: "2026-05-13T11:21:59Z"
-last_activity: "2026-05-13 -- Phase 15 verification passed"
+last_updated: "2026-05-13T12:18:53Z"
+last_activity: "2026-05-13 -- Phase 16 research and plan docs drafted"
 progress:
   total_phases: 5
   completed_phases: 4
@@ -26,10 +26,10 @@ See: `.planning/PROJECT.md` (updated 2026-05-13)
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 16 (policy-seam-android-reservation-and-hardening) — NOT STARTED
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-05-13 -- Phase 15 verification passed
+Phase: 16 (policy-seam-android-reservation-and-hardening) — PLANNING IN PROGRESS
+Plan: 4 plans drafted
+Status: Planning in progress
+Last activity: 2026-05-13 -- Phase 16 research and plan docs drafted
 
 Progress: [██████████] 100%
 

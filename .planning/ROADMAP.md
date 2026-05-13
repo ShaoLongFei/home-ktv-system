@@ -108,7 +108,12 @@ Plans:
   2. Real MV import, playback, and switch behavior is covered by fixtures or tests using representative two-track and unsupported media cases.
   3. Existing demo/local songs, online supplement tasks, queue controls, and admin maintenance remain compatible after real MV schema changes.
   4. Future Android TV expectations remain captured as catalog/player boundaries only, with no native Android TV app entering v1.2.
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 16-01-PLAN.md - Review-first policy seam and reserved auto-admit metadata
+- [ ] 16-02-PLAN.md - Compatibility regression hardening for demo/local/online/admin flows
+- [ ] 16-03-PLAN.md - Local real-media hardening report using samples and optional index cross-check
+- [ ] 16-04-PLAN.md - Android boundary source guards and final regression gate
 
 ## Progress
 
@@ -121,4 +126,4 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
 | 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
 | 15. Search, Queue, Playback, and Switching | 5/5 | Complete    | 2026-05-13 |
-| 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
+| 16. Policy Seam, Android Reservation, and Hardening | 0/4 | Planned | - |
