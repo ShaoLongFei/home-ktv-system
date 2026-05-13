@@ -458,6 +458,7 @@ describe("mobile controller runtime", () => {
         rollbackAssetId: "asset-original",
         roomId: switchTarget.roomId,
         sessionVersion: switchTarget.sessionVersion,
+        switchKind: "asset",
         switchFamily: switchTarget.switchFamily,
         fromAssetId: "asset-original",
         toAssetId: "asset-instrumental",
@@ -576,6 +577,95 @@ describe("mobile controller runtime", () => {
       songId: "song-sunny",
       assetId: "asset-sunny-main"
     });
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).not.toHaveProperty(
+      "vocalMode"
+    );
+  });
+
+  it("keeps disabled real MV search results visible without queueing them", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: (query) => ({
+        query,
+        local: [
+          {
+            songId: "song-real-mv-needs-preprocess",
+            title: "真实 MV 样本",
+            artistName: "样本歌手",
+            language: "mandarin",
+            matchReason: "title",
+            queueState: "not_queued",
+            versions: [
+              {
+                assetId: "asset-real-mv-needs-preprocess",
+                displayName: "MKV 双声轨",
+                sourceType: "local",
+                sourceLabel: "本地",
+                durationMs: 60000,
+                qualityLabel: "需处理",
+                isRecommended: true,
+                queueState: "needs_preprocess",
+                canQueue: false,
+                disabledLabel: "需预处理"
+              }
+            ]
+          }
+        ],
+        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("真实 MV 样本");
+    expect(screen.getAllByText("需预处理").length).toBeGreaterThanOrEqual(1);
+    const disabledButton = screen.getByRole("button", { name: "需预处理" }) as HTMLButtonElement;
+    expect(disabledButton.disabled).toBe(true);
+    await user.click(disabledButton);
+
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
+  });
+
+  it("falls back to a short disabled real MV search label", async () => {
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: (query) => ({
+        query,
+        local: [
+          {
+            songId: "song-real-mv-disabled",
+            title: "暂不可播 MV",
+            artistName: "样本歌手",
+            language: "mandarin",
+            matchReason: "title",
+            queueState: "not_queued",
+            versions: [
+              {
+                assetId: "asset-real-mv-disabled",
+                displayName: "MPG 双声轨",
+                sourceType: "local",
+                sourceLabel: "本地",
+                durationMs: 60000,
+                qualityLabel: "未知兼容性",
+                isRecommended: false,
+                queueState: "temporarily_unavailable",
+                canQueue: false,
+                disabledLabel: null
+              }
+            ]
+          }
+        ],
+        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("暂不可播 MV");
+    expect(screen.getByRole("button", { name: "暂不可播放" })).toBeTruthy();
   });
 
   it("confirms queued multi-version duplicate add before sending the selected assetId", async () => {
@@ -600,6 +690,75 @@ describe("mobile controller runtime", () => {
       songId: "song-qlx",
       assetId: "asset-qlx-live"
     });
+  });
+
+  it("keeps real MV vocal switching available when the source asset has no switch family", async () => {
+    const user = userEvent.setup();
+    const realMvSnapshot = realMvControlSnapshot();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(realMvSnapshot))],
+      commandResponses: {
+        "/rooms/living-room/commands/switch-vocal-mode": json({
+          status: "accepted",
+          snapshot: {
+            ...realMvSnapshot,
+            sessionVersion: 2
+          }
+        })
+      }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("电视在线");
+    const switchButton = screen.getByRole("button", { name: "切到原唱" }) as HTMLButtonElement;
+    expect(switchButton.disabled).toBe(false);
+    await user.click(switchButton);
+    await flush();
+
+    expect(requests.some((request) => request.url === "/rooms/living-room/commands/switch-vocal-mode")).toBe(true);
+  });
+
+  it("shows a Chinese switch unavailable error without permanently disabling the switch", async () => {
+    const user = userEvent.setup();
+    const realMvSnapshot = realMvControlSnapshot();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(realMvSnapshot))],
+      commandResponses: {
+        "/rooms/living-room/commands/switch-vocal-mode": json({ code: "SWITCH_TARGET_NOT_AVAILABLE" }, 409)
+      }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    const switchButton = (await screen.findByRole("button", { name: "切到原唱" })) as HTMLButtonElement;
+    await user.click(switchButton);
+
+    expect(await screen.findByText("当前歌曲暂不支持切换原唱/伴唱")).toBeTruthy();
+    expect(switchButton.disabled).toBe(false);
+  });
+
+  it("renders switch failure notices from the room snapshot", async () => {
+    installControllerFetchMock({
+      restoreResponses: [
+        json(
+          sessionResponse({
+            ...roomSnapshot(),
+            notice: {
+              kind: "switch_failed_reverted",
+              message: "原唱/伴唱切换失败，已保持当前播放。"
+            }
+          })
+        )
+      ]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    expect(await screen.findByText("原唱/伴唱切换失败，已保持当前播放。")).toBeTruthy();
   });
 
   it("shows local empty state before actionable online supplement candidates without disabled duplicate controls", async () => {
@@ -1109,6 +1268,33 @@ function readySupplementTask() {
   };
 }
 
+function realMvControlSnapshot(): RoomControlSnapshot {
+  const snapshot = roomSnapshot();
+  return {
+    ...snapshot,
+    currentTarget: {
+      ...snapshot.currentTarget!,
+      assetId: "asset-real-mv",
+      playbackUrl: "http://ktv.local/media/asset-real-mv",
+      vocalMode: "instrumental",
+      switchFamily: null,
+      playbackProfile: {
+        kind: "single_file_audio_tracks",
+        container: "matroska",
+        videoCodec: "mpeg2video",
+        audioCodecs: ["aac", "aac"],
+        requiresAudioTrackSelection: true
+      },
+      selectedTrackRef: {
+        index: 1,
+        id: "0x1101",
+        label: "伴唱"
+      }
+    },
+    switchTarget: null
+  };
+}
+
 function deferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (reason?: unknown) => void;
@@ -1156,6 +1342,7 @@ function roomSnapshot(options: {
       roomId: "living-room",
       sessionVersion: options.sessionVersion ?? 1,
       queueEntryId: "queue-current",
+      switchKind: "asset",
       fromAssetId: "asset-current",
       toAssetId: "asset-original",
       playbackUrl: "http://ktv.local/media/asset-original",

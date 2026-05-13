@@ -375,9 +375,19 @@ export function useRoomControllerRuntime(): RoomControllerState {
     },
     submitSongSearch,
     switchVocalMode: async () => {
-      await runCommand((input) =>
-        switchVocalMode({ ...input, playbackPositionMs: snapshotRef.current?.currentTarget?.resumePositionMs ?? 0 })
-      );
+      try {
+        await runCommand((input) =>
+          switchVocalMode({ ...input, playbackPositionMs: snapshotRef.current?.currentTarget?.resumePositionMs ?? 0 })
+        );
+        setErrorMessage(null);
+      } catch (error) {
+        if (isApiCode(error, "SWITCH_TARGET_NOT_AVAILABLE")) {
+          setErrorMessage("当前歌曲暂不支持切换原唱/伴唱");
+          return;
+        }
+
+        setErrorMessage(errorMessageFrom(error, "切换原唱/伴唱失败"));
+      }
     },
     undoDelete: async (queueEntryId) => {
       setPendingUndo(null);

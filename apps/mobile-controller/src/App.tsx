@@ -26,9 +26,14 @@ function ControllerApp() {
   const current = snapshot?.currentTarget;
   const online = controller.songSearch?.online;
   const switchTarget = snapshot?.switchTarget;
-  const switchLabel = switchTarget?.vocalMode === "original" ? t("button.switchToOriginal") : t("button.switchToInstrumental");
+  const targetVocalMode =
+    switchTarget?.vocalMode ??
+    snapshot?.targetVocalMode ??
+    (current?.vocalMode === "instrumental" ? "original" : "instrumental");
+  const switchLabel = targetVocalMode === "original" ? t("button.switchToOriginal") : t("button.switchToInstrumental");
   const currentModeLabel = vocalModeName(current?.vocalMode ?? "unknown", t);
   const playbackLabel = snapshot ? playbackStateName(snapshot?.state, t) : t("current.connecting");
+  const noticeMessage = snapshot?.notice?.message;
 
   return (
     <main className="app-shell" aria-label={t("app.aria")}>
@@ -50,6 +55,7 @@ function ControllerApp() {
       ) : null}
 
       {controller.errorMessage ? <div className="error-banner">{controller.errorMessage}</div> : null}
+      {noticeMessage ? <div className="error-banner">{noticeMessage}</div> : null}
 
       <section className="panel current-panel" aria-label={t("current.aria")}>
         <div>
@@ -66,7 +72,7 @@ function ControllerApp() {
           <span className={`mode-summary-value ${current?.vocalMode ?? "unknown"}`}>{currentModeLabel}</span>
         </div>
         <div className="command-row">
-          <button className="primary-button" type="button" disabled={!switchTarget} onClick={() => void controller.switchVocalMode()}>
+          <button className="primary-button" type="button" disabled={!current} onClick={() => void controller.switchVocalMode()}>
             {switchLabel}
           </button>
           <button className="danger-button" type="button" disabled={!current} onClick={controller.requestSkip}>
@@ -102,6 +108,9 @@ function ControllerApp() {
           {controller.songSearch?.local.map((result) => {
             const isQueued = result.queueState === "queued";
             const statusLabel = isQueued ? t("search.queued") : t("search.localPlayable");
+            const primaryVersion = result.versions[0] ?? null;
+            const primaryCanQueue = primaryVersion ? primaryVersion.canQueue !== false : false;
+            const primaryDisabledLabel = primaryVersion ? disabledVersionLabel(primaryVersion) : "暂不可播放";
 
             return (
               <article className="song-row search-result-row" key={result.songId}>
@@ -111,48 +120,65 @@ function ControllerApp() {
                   <div className="result-meta">
                     <span className={isQueued ? "queued-badge" : "local-badge"}>{statusLabel}</span>
                     <span>{t("search.versionCount", { count: result.versions.length })}</span>
+                    {primaryVersion && !primaryCanQueue ? (
+                      <span className="version-option__status">{primaryDisabledLabel}</span>
+                    ) : null}
                   </div>
                 </div>
 
-                {result.versions.length === 1 && result.versions[0] ? (
+                {result.versions.length === 1 && primaryVersion ? (
                   <button
                     className="primary-button"
                     type="button"
+                    disabled={!primaryCanQueue}
                     onClick={() =>
-                      controller.requestAddSongVersion(
-                        result.songId,
-                        result.versions[0]!.assetId,
-                        result.title,
-                        result.queueState
-                      )
+                      primaryCanQueue
+                        ? controller.requestAddSongVersion(
+                            result.songId,
+                            primaryVersion.assetId,
+                            result.title,
+                            result.queueState
+                          )
+                        : undefined
                     }
                   >
-                    {isQueued ? t("button.addAgain") : t("button.add")}
+                    {primaryCanQueue ? (isQueued ? t("button.addAgain") : t("button.add")) : primaryDisabledLabel}
                   </button>
                 ) : null}
 
                 {result.versions.length > 1 ? (
                   <div className="version-list">
-                    {result.versions.map((version) => (
-                      <div className="version-row" key={version.assetId}>
-                        <div>
-                          <strong>{version.displayName}</strong>
-                          <p>
-                            {version.sourceLabel} · {formatDuration(version.durationMs)} · {version.qualityLabel}
-                            {version.isRecommended ? <span className="recommended-mark">{t("search.recommended")}</span> : null}
-                          </p>
+                    {result.versions.map((version) => {
+                      const canQueue = version.canQueue !== false;
+                      const disabledLabel = disabledVersionLabel(version);
+
+                      return (
+                        <div className="version-row" key={version.assetId}>
+                          <div>
+                            <strong>{version.displayName}</strong>
+                            <div className="result-meta">
+                              <span>{version.sourceLabel}</span>
+                              <span>{formatDuration(version.durationMs)}</span>
+                              <span>{version.qualityLabel}</span>
+                              {version.isRecommended ? <span className="recommended-mark">{t("search.recommended")}</span> : null}
+                              {!canQueue ? <span className="version-option__status">{disabledLabel}</span> : null}
+                            </div>
+                          </div>
+                          <button
+                            className="primary-button"
+                            type="button"
+                            disabled={!canQueue}
+                            onClick={() =>
+                              canQueue
+                                ? controller.requestAddSongVersion(result.songId, version.assetId, result.title, result.queueState)
+                                : undefined
+                            }
+                          >
+                            {canQueue ? t("button.addVersion") : disabledLabel}
+                          </button>
                         </div>
-                        <button
-                          className="primary-button"
-                          type="button"
-                          onClick={() =>
-                            controller.requestAddSongVersion(result.songId, version.assetId, result.title, result.queueState)
-                          }
-                        >
-                          {t("button.addVersion")}
-                        </button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : null}
               </article>
@@ -302,4 +328,8 @@ function formatDuration(durationMs: number): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+function disabledVersionLabel(version: { disabledLabel?: string | null }): string {
+  return version.disabledLabel ?? "暂不可播放";
 }
