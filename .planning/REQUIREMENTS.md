@@ -24,9 +24,9 @@
 
 - [ ] **REVIEW-01**: Admin can review title, artist, language, cover, MediaInfo facts, filename-derived fields, sidecar fields, and conflicts before admission.
 - [x] **REVIEW-02**: Admin can map detected audio tracks to original vocal and accompaniment roles, with raw track facts still preserved.
-- [ ] **REVIEW-03**: Admin can approve a real MV candidate into the formal catalog as one song with one real-MV asset that stores original/accompaniment `trackRoles`.
+- [x] **REVIEW-03**: Admin can approve a real MV candidate into the formal catalog as one song with one real-MV asset that stores original/accompaniment `trackRoles`.
 - [x] **REVIEW-04**: Approved real MV songs write and validate formal `song.json` including media path, cover path, assets, track indexes, codecs, and compatibility status.
-- [ ] **REVIEW-05**: Unsupported or incomplete candidates remain visible with repair/preprocess guidance and do not block other candidates from admission.
+- [x] **REVIEW-05**: Unsupported or incomplete candidates remain visible with repair/preprocess guidance and do not block other candidates from admission.
 
 ### Search Queue Playback
 
@@ -91,9 +91,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCAN-05 | Phase 13 | Complete |
 | REVIEW-01 | Phase 14 | Pending |
 | REVIEW-02 | Phase 14 | Complete |
-| REVIEW-03 | Phase 14 | Pending |
+| REVIEW-03 | Phase 14 | Complete |
 | REVIEW-04 | Phase 14 | Complete |
-| REVIEW-05 | Phase 14 | Pending |
+| REVIEW-05 | Phase 14 | Complete |
 | PLAY-01 | Phase 15 | Pending |
 | PLAY-02 | Phase 15 | Pending |
 | PLAY-03 | Phase 15 | Pending |
@@ -111,4 +111,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-05-10*
-*Last updated: 2026-05-10 after v1.2 roadmap creation*
+*Last updated: 2026-05-13 after Phase 14 Plan 03 completion*

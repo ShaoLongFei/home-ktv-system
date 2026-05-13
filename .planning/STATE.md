@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
 status: executing
-stopped_at: Wave 1 complete for Phase 14
-last_updated: "2026-05-13T03:15:40.183Z"
-last_activity: "2026-05-13 -- Phase 14 Wave 1 complete"
+stopped_at: Completed 14-03-PLAN.md
+last_updated: "2026-05-13T03:39:05.799Z"
+last_activity: "2026-05-13 -- Plan 14-03 complete"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 15
-  completed_plans: 12
-  percent: 80
+  completed_plans: 13
+  percent: 87
 ---
 
 # Project State
@@ -27,11 +27,11 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 
 Milestone: v1.2 真实 MV 歌库
 Phase: 14 (admin-review-and-catalog-admission) — EXECUTING WAVE 2
-Plan: 14-02 and 14-03 next
+Plan: 14-02 and 14-05 remaining
 Status: Executing
-Last activity: 2026-05-13 -- Phase 14 Wave 1 complete
+Last activity: 2026-05-13 -- Plan 14-03 complete
 
-Progress: [████████░░] 80%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [████████░░] 80%
 | Phase 13 P03 | 60 min | 4 tasks | 5 files |
 | Phase 14 P01 | 14 min | 2 tasks | 3 files |
 | Phase 14 P04 | 17 min | 2 tasks | 4 files |
+| Phase 14 P03 | 20min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,9 @@ Progress: [████████░░] 80%
 - [Phase 14-04]: Formal song.json now mirrors durable real-MV Asset fields without adding any database dependency to the writer.
 - [Phase 14-04]: Validator treats playbackProfile.kind=single_file_audio_tracks as a one-asset real-MV contract and skips legacy switch-pair validation for it.
 - [Phase 14-04]: Missing real-MV original/instrumental role refs are review warnings; invalid refs remain hard validation errors.
+- [Phase 14-03]: Real-MV admission bypasses legacy pair evaluation and creates exactly one dual-track-video Asset.
+- [Phase 14-03]: Scanner compatibility controls formal readiness, while real-MV switchQualityStatus remains review_required until runtime switching is verified later.
+- [Phase 14-03]: Unsupported real-MV candidates stay review_required with repair metadata instead of being force-promoted or hidden.
 
 ### Pending Todos
 
@@ -107,6 +111,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T03:15:40.180Z
-Stopped at: Wave 1 complete for Phase 14
+Last session: 2026-05-13T03:39:05.796Z
+Stopped at: Completed 14-03-PLAN.md
 Resume file: .planning/phases/14-admin-review-and-catalog-admission/14-02-PLAN.md
