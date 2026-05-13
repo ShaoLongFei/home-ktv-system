@@ -64,3 +64,29 @@ test("local sample mode writes representative filenames and skips index cross-ch
   assert.match(report, /蔡依林-BECAUSE OF YOU\(演唱会\)-国语-流行\.mpg/u);
   assert.match(report, /index cross-check skipped/u);
 });
+
+test("MEDIA_ROOT defaults resolve the representative songs-sample files", async () => {
+  const mediaRoot = await mkdtemp(path.join(tmpdir(), "real-mv-media-root-"));
+  const sampleDir = path.join(mediaRoot, "songs-sample");
+  const mkvRelativePath = "songs-sample/关喆-想你的夜(MTV)-国语-流行.mkv";
+  const mpgRelativePath = "songs-sample/蔡依林-BECAUSE OF YOU(演唱会)-国语-流行.mpg";
+  const mkv = path.join(mediaRoot, ...mkvRelativePath.split("/"));
+  const mpg = path.join(mediaRoot, ...mpgRelativePath.split("/"));
+  const output = path.join(mediaRoot, "risk.md");
+  await mkdir(sampleDir);
+  await writeFile(mkv, "");
+  await writeFile(mpg, "");
+
+  const result = spawnSync(process.execPath, [scriptPath, "--output", output], {
+    encoding: "utf8",
+    env: { ...process.env, MEDIA_ROOT: mediaRoot }
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  const report = await readFile(output, "utf8");
+  assert.match(report, /sampleResolution: MEDIA_ROOT default sample files/u);
+  assert.match(report, new RegExp(mkvRelativePath.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
+  assert.match(report, new RegExp(mpgRelativePath.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
+  assert.match(report, /关喆-想你的夜\(MTV\)-国语-流行\.mkv/u);
+  assert.match(report, /蔡依林-BECAUSE OF YOU\(演唱会\)-国语-流行\.mpg/u);
+});
