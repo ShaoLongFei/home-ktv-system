@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: 真实 MV 歌库
+milestone: v1.0
+milestone_name: milestone
 status: executing
-stopped_at: Completed 16-01-PLAN.md
-last_updated: "2026-05-13T12:58:03.142Z"
-last_activity: 2026-05-13 -- Phase 16 Plan 01 completed
+stopped_at: Completed 16-03-PLAN.md
+last_updated: "2026-05-13T13:17:47.796Z"
+last_activity: 2026-05-13
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 24
-  completed_plans: 22
+  completed_plans: 23
   percent: 100
 ---
 
@@ -27,9 +27,9 @@ See: `.planning/PROJECT.md` (updated 2026-05-13)
 
 Milestone: v1.2 真实 MV 歌库
 Phase: 16 (policy-seam-android-reservation-and-hardening) — EXECUTING
-Plan: 2 of 4 completed (parallel execution)
-Status: Executing Phase 16
-Last activity: 2026-05-13 -- Phase 16 Plan 01 completed
+Plan: 3 of 4 completed (parallel execution)
+Status: Ready to execute
+Last activity: 2026-05-13
 
 Progress: [██████████] 100%
 
@@ -68,6 +68,7 @@ Progress: [██████████] 100%
 | Phase 15 P05 | 89 min | 4 tasks | 4 files |
 | Phase 16-policy-seam-android-reservation-and-hardening P02 | 9 min | 2 tasks | 5 files |
 | Phase 16-policy-seam-android-reservation-and-hardening P01 | 17 min | 2 tasks | 5 files |
+| Phase 16 P03 | 8 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,9 @@ Progress: [██████████] 100%
 - [Phase 16-01]: Reserved auto-admit eligibility is stored under candidateMeta.realMv.admissionPolicy and remains informational.
 - [Phase 16-01]: CatalogAdmissionService does not read reservedAutoAdmit, so manual approval remains the only admission action.
 - [Phase 16-01]: Admin detail may expose policy as candidate metadata, but file realMv preview and UI controls stay policy-free.
+- [Phase 16]: The Phase 16 report keeps the old controlled fixture path while adding explicit --sample-* flags and MEDIA_ROOT default sample resolution.
+- [Phase 16]: The optional database/index cross-check is read-only and best-effort; missing pg support, unavailable tables, or connection errors are reported in Markdown instead of failing report generation.
+- [Phase 16]: Legacy --mkv and --mpeg flags remain aliases for the new sample flags to avoid breaking existing local spike usage.
 
 ### Pending Todos
 
@@ -138,6 +142,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T12:58:03.139Z
-Stopped at: Completed 16-01-PLAN.md
+Last session: 2026-05-13T13:17:21.052Z
+Stopped at: Completed 16-03-PLAN.md
 Resume file: None
