@@ -4,12 +4,15 @@ import type {
   AssetKind,
   AssetSourceType,
   Language,
+  PlaybackProfile,
   Song,
   SongId,
   SongSearchMatchReason,
   SongSearchQueueState,
+  SongSearchVersionQueueState,
   SongSearchVersionOption,
-  SongStatus
+  SongStatus,
+  TrackRoles
 } from "@home-ktv/domain";
 import type { QueryExecutor } from "../../../db/query-executor.js";
 import type { AssetRow, SongRow } from "../../../db/schema.js";
@@ -78,6 +81,12 @@ interface SearchFormalSongRow extends SongRow {
   asset_vocal_mode: string;
   asset_switch_family: string | null;
   asset_updated_at: Date;
+  asset_status: string;
+  asset_compatibility_status: string;
+  asset_track_roles: TrackRoles | null;
+  asset_playback_profile: PlaybackProfile | null;
+  asset_switch_quality_status: string;
+  asset_option_group_key?: string;
   family_quality_rank: number;
   family_newest_at: Date;
 }
@@ -264,22 +273,43 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
     const queuedSongIds = new Set(input.queuedSongIds ?? []);
 
     const result = await this.db.query<SearchFormalSongRow>(
-      `WITH eligible_assets AS (
-         SELECT a.*
+      `WITH candidate_assets AS (
+         SELECT a.*,
+                CASE
+                  WHEN a.playback_profile->>'kind' = 'single_file_audio_tracks'
+                    OR a.asset_kind = 'dual-track-video'
+                  THEN true
+                  ELSE false
+                END AS is_real_mv,
+                CASE
+                  WHEN a.playback_profile->>'kind' = 'single_file_audio_tracks'
+                    OR a.asset_kind = 'dual-track-video'
+                  THEN a.id
+                  ELSE a.switch_family
+                END AS option_group_key
          FROM assets a
-         WHERE a.status = 'ready'
-           AND a.source_type <> 'online_ephemeral'
-           AND a.switch_quality_status = 'verified'
-           AND a.switch_family IS NOT NULL
-           AND EXISTS (
-             SELECT 1
-             FROM assets counterpart
-             WHERE counterpart.song_id = a.song_id
-               AND counterpart.switch_family = a.switch_family
-               AND counterpart.vocal_mode <> a.vocal_mode
-               AND counterpart.status = 'ready'
-               AND counterpart.source_type <> 'online_ephemeral'
-               AND counterpart.switch_quality_status = 'verified'
+         WHERE (
+             a.status = 'ready'
+             AND a.source_type <> 'online_ephemeral'
+             AND a.switch_quality_status = 'verified'
+             AND a.switch_family IS NOT NULL
+             AND EXISTS (
+               SELECT 1
+               FROM assets counterpart
+               WHERE counterpart.song_id = a.song_id
+                 AND counterpart.switch_family = a.switch_family
+                 AND counterpart.vocal_mode <> a.vocal_mode
+                 AND counterpart.status = 'ready'
+                 AND counterpart.source_type <> 'online_ephemeral'
+                 AND counterpart.switch_quality_status = 'verified'
+             )
+           )
+           OR (
+             a.source_type <> 'online_ephemeral'
+             AND (
+               a.playback_profile->>'kind' = 'single_file_audio_tracks'
+               OR a.asset_kind = 'dual-track-video'
+             )
            )
        ),
        scored_songs AS (
@@ -329,8 +359,19 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
                   ELSE 'default'
                 END AS match_reason
          FROM songs s
-         WHERE s.status = 'ready'
-           AND EXISTS (SELECT 1 FROM eligible_assets ea WHERE ea.song_id = s.id)
+         WHERE (
+             s.status = 'ready'
+             OR (
+               s.status = 'review_required'
+               AND EXISTS (
+                 SELECT 1
+                 FROM candidate_assets ca
+                 WHERE ca.song_id = s.id
+                   AND ca.is_real_mv
+               )
+             )
+           )
+           AND EXISTS (SELECT 1 FROM candidate_assets ca WHERE ca.song_id = s.id)
            AND (
              $1 = ''
              OR s.normalized_title = $1
@@ -355,11 +396,11 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
        ),
        family_stats AS (
          SELECT ea.song_id,
-                ea.switch_family,
-                max(CASE WHEN ea.asset_kind = 'video' THEN 2 ELSE 1 END) AS family_quality_rank,
+                ea.option_group_key,
+                max(CASE WHEN ea.asset_kind IN ('video', 'dual-track-video') THEN 2 ELSE 1 END) AS family_quality_rank,
                 max(ea.updated_at) AS family_newest_at
-         FROM eligible_assets ea
-         GROUP BY ea.song_id, ea.switch_family
+         FROM candidate_assets ea
+         GROUP BY ea.song_id, ea.option_group_key
        )
        SELECT ls.*,
               ea.id AS asset_id,
@@ -370,11 +411,17 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
               ea.vocal_mode AS asset_vocal_mode,
               ea.switch_family AS asset_switch_family,
               ea.updated_at AS asset_updated_at,
+              ea.status AS asset_status,
+              ea.compatibility_status AS asset_compatibility_status,
+              ea.track_roles AS asset_track_roles,
+              ea.playback_profile AS asset_playback_profile,
+              ea.switch_quality_status AS asset_switch_quality_status,
+              ea.option_group_key AS asset_option_group_key,
               fs.family_quality_rank,
               fs.family_newest_at
        FROM limited_songs ls
-       JOIN eligible_assets ea ON ea.song_id = ls.id
-       JOIN family_stats fs ON fs.song_id = ea.song_id AND fs.switch_family = ea.switch_family
+       JOIN candidate_assets ea ON ea.song_id = ls.id
+       JOIN family_stats fs ON fs.song_id = ea.song_id AND fs.option_group_key = ea.option_group_key
        ORDER BY score DESC, ls.search_weight DESC, ls.updated_at DESC, ls.title ASC,
                 fs.family_quality_rank DESC, fs.family_newest_at DESC, ea.display_name ASC`,
       [normalizedQuery, likeQuery, limit]
@@ -465,12 +512,10 @@ export class PgSongRepository implements SongRepository, AdminCatalogSongReposit
 function buildVersionOptions(rows: readonly SearchFormalSongRow[]): SongSearchVersionOption[] {
   const byFamily = new Map<string, SearchFormalSongRow[]>();
   for (const row of rows) {
-    if (!row.asset_switch_family) {
-      continue;
-    }
-    const familyRows = byFamily.get(row.asset_switch_family) ?? [];
+    const optionGroupKey = searchOptionGroupKey(row);
+    const familyRows = byFamily.get(optionGroupKey) ?? [];
     familyRows.push(row);
-    byFamily.set(row.asset_switch_family, familyRows);
+    byFamily.set(optionGroupKey, familyRows);
   }
 
   const options = Array.from(byFamily.values()).map((familyRows) => {
@@ -481,6 +526,7 @@ function buildVersionOptions(rows: readonly SearchFormalSongRow[]): SongSearchVe
       (newest, row) => (row.asset_updated_at > newest ? row.asset_updated_at : newest),
       familyRows[0]!.asset_updated_at
     );
+    const queueState = queueStateForSearchRow(representative);
 
     return {
       option: {
@@ -490,7 +536,10 @@ function buildVersionOptions(rows: readonly SearchFormalSongRow[]): SongSearchVe
         sourceLabel: sourceLabelFor(representative.asset_source_type as AssetSourceType),
         durationMs: representative.asset_duration_ms,
         qualityLabel: `${representative.asset_kind} / ${Math.round(representative.asset_duration_ms / 1000)}s`,
-        isRecommended: false
+        isRecommended: false,
+        queueState,
+        canQueue: queueState === "queueable",
+        disabledLabel: disabledLabelForQueueState(queueState)
       },
       familyQualityRank,
       familyNewestAt
@@ -512,6 +561,51 @@ function buildVersionOptions(rows: readonly SearchFormalSongRow[]): SongSearchVe
     ...entry.option,
     isRecommended: index === 0
   }));
+}
+
+function searchOptionGroupKey(row: SearchFormalSongRow): string {
+  return row.asset_option_group_key ?? row.asset_switch_family ?? row.asset_id;
+}
+
+function isRealMvSearchRow(row: SearchFormalSongRow): boolean {
+  return row.asset_playback_profile?.kind === "single_file_audio_tracks" || row.asset_kind === "dual-track-video";
+}
+
+function queueStateForSearchRow(row: SearchFormalSongRow): SongSearchVersionQueueState {
+  if (!isRealMvSearchRow(row)) {
+    return "queueable";
+  }
+
+  if (row.asset_compatibility_status === "unsupported") {
+    return "needs_preprocess";
+  }
+
+  if (!row.asset_track_roles?.instrumental) {
+    return "missing_track_role";
+  }
+
+  if (
+    row.asset_status === "ready" &&
+    row.asset_source_type !== "online_ephemeral" &&
+    row.asset_compatibility_status === "playable"
+  ) {
+    return "queueable";
+  }
+
+  return "temporarily_unavailable";
+}
+
+function disabledLabelForQueueState(state: SongSearchVersionQueueState): string | null {
+  if (state === "needs_preprocess") {
+    return "需预处理";
+  }
+  if (state === "temporarily_unavailable") {
+    return "暂不可播放";
+  }
+  if (state === "missing_track_role") {
+    return "缺少伴唱声轨";
+  }
+  return null;
 }
 
 function compareRepresentativeAssets(left: SearchFormalSongRow, right: SearchFormalSongRow): number {

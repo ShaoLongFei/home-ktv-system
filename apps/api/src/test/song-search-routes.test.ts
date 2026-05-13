@@ -1,10 +1,13 @@
 import Fastify from "fastify";
-import type { QueueEntry, Room, SongSearchVersionOption } from "@home-ktv/domain";
+import type { AssetId, QueueEntry, Room, SongId, SongSearchVersionOption, TrackRoles } from "@home-ktv/domain";
+import type { QueryExecutor } from "../db/query-executor.js";
+import type { AssetRow, SongRow } from "../db/schema.js";
 import type {
   AdminCatalogSongRepository,
   SearchFormalSongsInput,
   SearchFormalSongRecord
 } from "../modules/catalog/repositories/song-repository.js";
+import { PgSongRepository } from "../modules/catalog/repositories/song-repository.js";
 import type { CandidateTaskService } from "../modules/online/candidate-task-service.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
@@ -168,6 +171,111 @@ describe("song search routes", () => {
     expect(response.statusCode).toBe(200);
     expect(songs.searchCalls[0]?.limit).toBe(50);
   });
+
+  it("returns ready playable real-MV songs as queueable search versions", async () => {
+    const { server } = await createRepositoryHarness({
+      rows: createRepositorySearchRows({
+        song: createSongRow({
+          id: "song-real-mv",
+          title: "后来",
+          normalized_title: "后来",
+          title_pinyin: "houlai",
+          title_initials: "hl",
+          default_asset_id: "asset-real-mv"
+        }),
+        assets: [
+          createRealMvAssetRow({
+            id: "asset-real-mv",
+            track_roles: createReviewedTrackRoles()
+          })
+        ]
+      })
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/songs/search?q=%E5%90%8E%E6%9D%A5"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().local[0]?.versions[0]).toMatchObject({
+      assetId: "asset-real-mv",
+      canQueue: true,
+      queueState: "queueable",
+      qualityLabel: expect.stringContaining("dual-track-video"),
+      disabledLabel: null
+    });
+  });
+
+  it("returns unsupported real-MV songs as preprocess-required disabled versions", async () => {
+    const { server } = await createRepositoryHarness({
+      rows: createRepositorySearchRows({
+        song: createSongRow({
+          id: "song-unsupported-real-mv",
+          title: "不能播的歌",
+          normalized_title: "不能播的歌",
+          default_asset_id: "asset-unsupported-real-mv"
+        }),
+        assets: [
+          createRealMvAssetRow({
+            id: "asset-unsupported-real-mv",
+            compatibility_status: "unsupported",
+            track_roles: createReviewedTrackRoles()
+          })
+        ]
+      })
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/songs/search?q=%E4%B8%8D%E8%83%BD%E6%92%AD%E7%9A%84%E6%AD%8C"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().local[0]?.versions[0]).toMatchObject({
+      assetId: "asset-unsupported-real-mv",
+      canQueue: false,
+      queueState: "needs_preprocess",
+      disabledLabel: "需预处理"
+    });
+  });
+
+  it("returns review-required real-MV songs missing instrumental roles as disabled versions", async () => {
+    const { server } = await createRepositoryHarness({
+      rows: createRepositorySearchRows({
+        song: createSongRow({
+          id: "song-missing-role-real-mv",
+          title: "缺伴奏的歌",
+          normalized_title: "缺伴奏的歌",
+          default_asset_id: "asset-missing-role-real-mv"
+        }),
+        assets: [
+          createRealMvAssetRow({
+            id: "asset-missing-role-real-mv",
+            compatibility_status: "review_required",
+            switch_quality_status: "review_required",
+            track_roles: {
+              original: { index: 0, id: "track-original", label: "原声" },
+              instrumental: null
+            }
+          })
+        ]
+      })
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/songs/search?q=%E7%BC%BA%E4%BC%B4%E5%A5%8F%E7%9A%84%E6%AD%8C"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().local[0]?.versions[0]).toMatchObject({
+      assetId: "asset-missing-role-real-mv",
+      canQueue: false,
+      queueState: "missing_track_role",
+      disabledLabel: "缺少伴唱声轨"
+    });
+  });
 });
 
 async function createHarness(input: {
@@ -186,6 +294,21 @@ async function createHarness(input: {
     songs,
     queueEntries,
     ...(input.online ? { online: input.online } : {})
+  });
+
+  return { server, rooms, songs, queueEntries };
+}
+
+async function createRepositoryHarness(input: { rows: RepositorySearchFixtureRow[] }) {
+  const server = Fastify({ logger: false });
+  const rooms = new FakeRoomRepository(createRoom());
+  const songs = new PgSongRepository(new FakeRepositorySearchDb(input.rows));
+  const queueEntries = new FakeQueueEntryRepository([]);
+
+  await registerSongSearchRoutes(server, {
+    rooms,
+    songs,
+    queueEntries
   });
 
   return { server, rooms, songs, queueEntries };
@@ -363,5 +486,143 @@ function createQueueEntry(input: { songId: string }): QueueEntry {
     removedAt: null,
     removedByControlSessionId: null,
     undoExpiresAt: null
+  };
+}
+
+interface RepositorySearchFixtureRow extends SongRow {
+  score: number;
+  match_reason: string;
+  asset_id: string;
+  asset_source_type: string;
+  asset_kind: string;
+  asset_display_name: string;
+  asset_duration_ms: number;
+  asset_vocal_mode: string;
+  asset_switch_family: string | null;
+  asset_updated_at: Date;
+  asset_status: string;
+  asset_compatibility_status: string;
+  asset_track_roles: TrackRoles;
+  asset_playback_profile: AssetRow["playback_profile"];
+  asset_switch_quality_status: string;
+  family_quality_rank: number;
+  family_newest_at: Date;
+}
+
+class FakeRepositorySearchDb implements QueryExecutor {
+  constructor(private readonly rows: RepositorySearchFixtureRow[]) {}
+
+  async query<TRow>(text: string): Promise<{ rows: TRow[] }> {
+    if (text.includes("WHERE (artist_pinyin = '' OR artist_initials = '')")) {
+      return { rows: [] };
+    }
+    if (text.includes("FROM songs s")) {
+      return { rows: this.rows as TRow[] };
+    }
+    return { rows: [] };
+  }
+}
+
+function createRepositorySearchRows(input: { song?: SongRow; assets?: AssetRow[] } = {}): RepositorySearchFixtureRow[] {
+  const song = input.song ?? createSongRow();
+  const assets = input.assets ?? [createRealMvAssetRow()];
+
+  return assets.map((asset) => ({
+    ...song,
+    score: 800,
+    match_reason: "normalized_title",
+    asset_id: asset.id,
+    asset_source_type: asset.source_type,
+    asset_kind: asset.asset_kind,
+    asset_display_name: asset.display_name,
+    asset_duration_ms: asset.duration_ms,
+    asset_vocal_mode: asset.vocal_mode,
+    asset_switch_family: asset.switch_family,
+    asset_updated_at: asset.updated_at,
+    asset_status: asset.status,
+    asset_compatibility_status: asset.compatibility_status,
+    asset_track_roles: asset.track_roles,
+    asset_playback_profile: asset.playback_profile,
+    asset_switch_quality_status: asset.switch_quality_status,
+    family_quality_rank: asset.asset_kind === "video" || asset.asset_kind === "dual-track-video" ? 2 : 1,
+    family_newest_at: asset.updated_at
+  }));
+}
+
+function createSongRow(input: Partial<SongRow> = {}): SongRow {
+  return {
+    id: "song-qilixiang" as SongId,
+    title: "七里香",
+    normalized_title: "七里香",
+    title_pinyin: "qilixiang",
+    title_initials: "qlx",
+    artist_id: "artist-jay",
+    artist_name: "周杰伦",
+    artist_pinyin: "zhoujielun",
+    artist_initials: "zjl",
+    language: "mandarin",
+    status: "ready",
+    genre: [],
+    tags: [],
+    aliases: [],
+    search_hints: [],
+    release_year: 2004,
+    canonical_duration_ms: 180000,
+    search_weight: 10,
+    default_asset_id: "asset-main" as AssetId,
+    created_at: new Date(now),
+    updated_at: new Date(now),
+    ...input
+  };
+}
+
+function createRealMvAssetRow(input: Partial<AssetRow> = {}): AssetRow {
+  return {
+    id: "asset-real-mv",
+    song_id: "song-real-mv",
+    source_type: "local",
+    asset_kind: "dual-track-video",
+    display_name: "真实 MV",
+    file_path: "/media/real-mv.mkv",
+    duration_ms: 180000,
+    lyric_mode: "hard_sub",
+    vocal_mode: "dual",
+    status: "ready",
+    switch_family: null,
+    switch_quality_status: "verified",
+    compatibility_status: "playable",
+    compatibility_reasons: [],
+    media_info_summary: {
+      container: "matroska",
+      durationMs: 180000,
+      videoCodec: "h264",
+      resolution: { width: 1920, height: 1080 },
+      fileSizeBytes: 1024,
+      audioTracks: []
+    },
+    media_info_provenance: {
+      source: "ffprobe",
+      sourceVersion: "8.1",
+      probedAt: now,
+      importedFrom: "/imports/real-mv.mkv"
+    },
+    track_roles: createReviewedTrackRoles(),
+    playback_profile: {
+      kind: "single_file_audio_tracks",
+      container: "matroska",
+      videoCodec: "h264",
+      audioCodecs: ["aac", "aac"],
+      requiresAudioTrackSelection: true
+    },
+    created_at: new Date(now),
+    updated_at: new Date(now),
+    ...input
+  };
+}
+
+function createReviewedTrackRoles(): TrackRoles {
+  return {
+    original: { index: 0, id: "track-original", label: "原声" },
+    instrumental: { index: 1, id: "track-instrumental", label: "伴唱" }
   };
 }
