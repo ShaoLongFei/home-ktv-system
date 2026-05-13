@@ -169,6 +169,8 @@ async function resolveSamples(args, env) {
       mode: "local",
       source: "media-root",
       mediaRoot: resolvedRoot,
+      mkvRelativePath: DEFAULT_SAMPLE_PATHS.mkv,
+      mpgRelativePath: DEFAULT_SAMPLE_PATHS.mpg,
       mkvPath,
       mpgPath
     };
@@ -308,8 +310,11 @@ function buildLocalHardeningSection({ sampleResolution, indexCrossCheck }) {
   return [
     "## Local hardening samples",
     "",
+    `- sampleResolution: ${sampleResolution.source === "media-root" ? "MEDIA_ROOT default sample files" : "explicit sample files"}`,
     `- sampleSource: ${sampleResolution.source === "explicit" ? "explicit sample paths" : "default sample paths"}`,
     sampleResolution.mediaRoot ? `- mediaRoot: ${sampleResolution.mediaRoot}` : null,
+    sampleResolution.mkvRelativePath ? `- sampleMkvDefaultPath: ${sampleResolution.mkvRelativePath}` : null,
+    sampleResolution.mpgRelativePath ? `- sampleMpgDefaultPath: ${sampleResolution.mpgRelativePath}` : null,
     `- sampleMkvPath: ${sampleResolution.mkvPath}`,
     `- sampleMkvFilename: ${path.basename(sampleResolution.mkvPath)}`,
     `- sampleMpgPath: ${sampleResolution.mpgPath}`,
