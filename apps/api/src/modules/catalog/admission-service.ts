@@ -495,8 +495,8 @@ export class CatalogAdmissionService {
         durationMs: file.durationMs ?? file.probeDurationMs ?? mediaInfoSummary.durationMs ?? 0,
         switchFamily: null,
         switchQualityStatus: readiness.switchQualityStatus,
-        compatibilityStatus: file.compatibilityStatus,
-        compatibilityReasons: file.compatibilityReasons,
+        compatibilityStatus: file.compatibilityStatus ?? "unknown",
+        compatibilityReasons: file.compatibilityReasons ?? [],
         mediaInfoSummary,
         mediaInfoProvenance: file.mediaInfoProvenance ?? defaultMediaInfoProvenance(),
         trackRoles: file.trackRoles ?? defaultTrackRoles(),
@@ -516,10 +516,10 @@ export class CatalogAdmissionService {
         coverPath,
         defaultVocalMode: "instrumental",
         sameVersionConfirmed: record.candidate.sameVersionConfirmed,
-        genre: record.candidate.genre,
-        tags: record.candidate.tags,
-        aliases: record.candidate.aliases,
-        searchHints: record.candidate.searchHints,
+        genre: [...record.candidate.genre],
+        tags: [...record.candidate.tags],
+        aliases: [...record.candidate.aliases],
+        searchHints: [...record.candidate.searchHints],
         releaseYear: record.candidate.releaseYear,
         source: { importCandidateId: record.candidate.id },
         assets: [asset]
@@ -754,6 +754,16 @@ export function defaultTrackRoles(): TrackRoles {
   return { original: null, instrumental: null };
 }
 
+function defaultPlaybackProfile(): PlaybackProfile {
+  return {
+    kind: "separate_asset_pair",
+    container: null,
+    videoCodec: null,
+    audioCodecs: [],
+    requiresAudioTrackSelection: false
+  };
+}
+
 function defaultMediaInfoSummary(): MediaInfoSummary {
   return { container: null, durationMs: null, videoCodec: null, resolution: null, fileSizeBytes: 0, audioTracks: [] };
 }
@@ -768,6 +778,7 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
   async promoteApprovedCandidate(input: PromoteApprovedCandidateInput): Promise<void> {
     const titleKeys = buildPinyinSearchKeys(input.title);
     const artistKeys = buildPinyinSearchKeys(input.artistName);
+    const songStatus = input.songStatus ?? "ready";
 
     await this.db.query(
       `INSERT INTO songs (
@@ -776,7 +787,7 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
          language, status, genre, tags, aliases, search_hints, release_year,
          canonical_duration_ms, default_asset_id
        )
-       VALUES ($1, $2, lower($2), $3, $4, $5, $6, $7, $8, $9, 'ready', '{}', '{}', '{}', '{}', $10, $11, NULL)
+       VALUES ($1, $2, lower($2), $3, $4, $5, $6, $7, $8, $9, $10, '{}', '{}', '{}', '{}', $11, $12, NULL)
        ON CONFLICT(id)
        DO UPDATE SET title = EXCLUDED.title,
                      normalized_title = EXCLUDED.normalized_title,
@@ -786,7 +797,7 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
                      artist_pinyin = EXCLUDED.artist_pinyin,
                      artist_initials = EXCLUDED.artist_initials,
                      language = EXCLUDED.language,
-                     status = 'ready',
+                     status = EXCLUDED.status,
                      release_year = EXCLUDED.release_year,
                      canonical_duration_ms = EXCLUDED.canonical_duration_ms,
                      default_asset_id = NULL,
@@ -801,34 +812,65 @@ export class PgCatalogAdmissionWriter implements CatalogAdmissionWriter {
         artistKeys.pinyin,
         artistKeys.initials,
         input.language,
+        songStatus,
         input.releaseYear,
         input.assets[0]?.durationMs ?? null
       ]
     );
 
     for (const asset of input.assets) {
+      const assetKind = asset.assetKind ?? "video";
+      const assetStatus = asset.status ?? "ready";
+      const switchFamily = asset.switchFamily === undefined ? input.switchFamily : asset.switchFamily;
+      const switchQualityStatus = asset.switchQualityStatus ?? "verified";
+      const compatibilityStatus = asset.compatibilityStatus ?? "playable";
+      const compatibilityReasons = asset.compatibilityReasons ?? [];
+      const mediaInfoSummary = asset.mediaInfoSummary ?? defaultMediaInfoSummary();
+      const mediaInfoProvenance = asset.mediaInfoProvenance ?? defaultMediaInfoProvenance();
+      const trackRoles = asset.trackRoles ?? defaultTrackRoles();
+      const playbackProfile = asset.playbackProfile ?? defaultPlaybackProfile();
+
       await this.db.query(
         `INSERT INTO assets (
            id, song_id, source_type, asset_kind, display_name, file_path, duration_ms,
-           lyric_mode, vocal_mode, status, switch_family, switch_quality_status
+           lyric_mode, vocal_mode, status, switch_family, switch_quality_status,
+           compatibility_status, compatibility_reasons, media_info_summary,
+           media_info_provenance, track_roles, playback_profile
          )
-         VALUES ($1, $2, 'local', 'video', $3, $4, $5, 'none', $6, 'ready', $7, 'verified')
+         VALUES ($1, $2, 'local', $3, $4, $5, $6, 'none', $7, $8, $9, $10, $11, $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb)
          ON CONFLICT(id)
-         DO UPDATE SET file_path = EXCLUDED.file_path,
+         DO UPDATE SET asset_kind = EXCLUDED.asset_kind,
+                       display_name = EXCLUDED.display_name,
+                       file_path = EXCLUDED.file_path,
                        duration_ms = EXCLUDED.duration_ms,
                        vocal_mode = EXCLUDED.vocal_mode,
-                       status = 'ready',
+                       status = EXCLUDED.status,
                        switch_family = EXCLUDED.switch_family,
-                       switch_quality_status = 'verified',
+                       switch_quality_status = EXCLUDED.switch_quality_status,
+                       compatibility_status = EXCLUDED.compatibility_status,
+                       compatibility_reasons = EXCLUDED.compatibility_reasons,
+                       media_info_summary = EXCLUDED.media_info_summary,
+                       media_info_provenance = EXCLUDED.media_info_provenance,
+                       track_roles = EXCLUDED.track_roles,
+                       playback_profile = EXCLUDED.playback_profile,
                        updated_at = now()`,
         [
           asset.assetId,
           input.songId,
+          assetKind,
           `${input.title} ${asset.vocalMode}`,
           asset.filePath,
           asset.durationMs,
           asset.vocalMode,
-          input.switchFamily
+          assetStatus,
+          switchFamily,
+          switchQualityStatus,
+          compatibilityStatus,
+          compatibilityReasons,
+          mediaInfoSummary,
+          mediaInfoProvenance,
+          trackRoles,
+          playbackProfile
         ]
       );
       await this.db.query(
