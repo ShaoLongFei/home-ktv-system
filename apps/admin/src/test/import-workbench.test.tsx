@@ -176,6 +176,16 @@ describe("import review workbench", () => {
     expect(screen.getByText("filename")).toBeTruthy();
     expect(screen.getAllByText("需要确认").length).toBeGreaterThan(0);
     expect(screen.getByText("sidecar-json-invalid")).toBeTruthy();
+    expect(screen.getByText("原始音轨")).toBeTruthy();
+    expect(screen.getByText("#0")).toBeTruthy();
+    expect(screen.getAllByText("Original vocal").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("aac").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("zh").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("2").length).toBeGreaterThan(0);
+    expect(screen.getByText("元数据冲突")).toBeTruthy();
+    expect(screen.getByText("filename: 想你的夜")).toBeTruthy();
+    expect(screen.getByText("sidecar: 想你的夜 Live")).toBeTruthy();
+    expect(screen.getByText("歌名和歌手完整后可入库为需复核。")).toBeTruthy();
   });
 
   it("saves reviewed real MV original and accompaniment track roles", async () => {
@@ -214,6 +224,27 @@ describe("import review workbench", () => {
         ]
       })
     );
+  });
+
+  it("only disables approval when title or artist is blank", async () => {
+    const user = userEvent.setup();
+    installFetchMock();
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /想你的夜/u }));
+
+    const approveButton = screen.getByRole("button", { name: "批准入库" }) as HTMLButtonElement;
+    expect(approveButton.disabled).toBe(false);
+
+    await user.clear(screen.getByLabelText("歌名"));
+    expect(approveButton.disabled).toBe(true);
+    expect(screen.getByText("批准入库前必须填写歌名和歌手。")).toBeTruthy();
+
+    await user.type(screen.getByLabelText("歌名"), "想你的夜");
+    expect(approveButton.disabled).toBe(false);
+
+    await user.clear(screen.getByLabelText("歌手"));
+    expect(approveButton.disabled).toBe(true);
   });
 
   it("sends the canonical PATCH /admin/import-candidates/:candidateId metadata update request", async () => {
