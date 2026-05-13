@@ -233,6 +233,30 @@ async function ensureCurrentPlayback(
   }
 
   if (result.status === "blocked") {
+    if (isPlaybackCapabilityBlockedMessage(result.message)) {
+      setFirstPlayBlocked(false);
+      setLocalNotice({
+        kind: "playback_failed_skipped",
+        message: `unsupported: ${result.message}`
+      });
+      await client.sendTelemetry({
+        roomSlug: snapshot.roomSlug,
+        deviceId: client.deviceId,
+        eventType: "failed",
+        sessionVersion: target.sessionVersion,
+        queueEntryId: target.queueEntryId,
+        assetId: target.assetId,
+        playbackPositionMs: target.resumePositionMs,
+        vocalMode: target.vocalMode,
+        switchFamily: target.switchFamily,
+        rollbackAssetId: null,
+        message: result.message,
+        errorCode: "TV_PLAYBACK_CAPABILITY_BLOCKED",
+        stage: "playback_capability_blocked"
+      });
+      return;
+    }
+
     setFirstPlayBlocked(true);
     setLocalNotice({
       kind: "loading",
@@ -385,4 +409,8 @@ function playbackPositionFromVideo(video: KtvVideoElement, fallbackMs: number): 
 function endedPlaybackPositionMs(video: HTMLVideoElement): number {
   const positionSeconds = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : video.currentTime;
   return Math.max(0, Math.trunc(positionSeconds * 1000));
+}
+
+function isPlaybackCapabilityBlockedMessage(message: string): boolean {
+  return /audio-track switching|media-not-supported|cannot-play|preprocess|unsupported/iu.test(message);
 }

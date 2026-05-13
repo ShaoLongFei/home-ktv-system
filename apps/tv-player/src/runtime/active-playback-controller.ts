@@ -33,6 +33,20 @@ export class ActivePlaybackController {
       this.videoPool.primeActive(snapshot.currentTarget);
     }
 
+    const shouldSelectAudioTrack =
+      targetChanged &&
+      (snapshot.currentTarget.playbackProfile?.requiresAudioTrackSelection === true ||
+        snapshot.currentTarget.selectedTrackRef != null);
+    if (shouldSelectAudioTrack) {
+      const selectionResult = this.videoPool.selectActiveAudioTrack(snapshot.currentTarget);
+      if (selectionResult.status !== "selected") {
+        return {
+          status: "blocked",
+          message: selectionResult.message
+        };
+      }
+    }
+
     if (!targetChanged && this.videoPool.activeVideo.paused === false) {
       return { status: "playing" };
     }

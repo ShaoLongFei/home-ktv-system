@@ -17,7 +17,7 @@ describe("PlaybackStatusBanner", () => {
     render(<PlaybackStatusBanner notice={notice} />);
 
     expect(screen.getByRole("status")).toBeTruthy();
-    expect(screen.getByText("播放失败，已跳到下一首")).toBeTruthy();
+    expect(screen.getByText("当前歌曲播放失败，已切到下一首或返回空闲。")).toBeTruthy();
   });
 
   it("shows fallback copy for reverted switch notices", () => {
@@ -29,6 +29,6 @@ describe("PlaybackStatusBanner", () => {
     render(<PlaybackStatusBanner notice={notice} />);
 
     expect(screen.getByRole("status")).toBeTruthy();
-    expect(screen.getByText("切换失败，已恢复到原模式")).toBeTruthy();
+    expect(screen.getByText("原唱/伴唱切换失败，已保持当前播放。")).toBeTruthy();
   });
 });

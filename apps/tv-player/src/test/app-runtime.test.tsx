@@ -223,6 +223,41 @@ describe("tv app runtime", () => {
 
     await waitFor(() => expect(screen.queryByText("点击电视开始播放")).toBeNull());
   });
+
+  it("reports failed telemetry and shows Chinese copy when required audio-track playback is unsupported", async () => {
+    const playbackSnapshot = snapshot({ state: "loading", targetVocalMode: "instrumental" });
+    mocks.roomSnapshot.mockImplementation(() => playbackSnapshot);
+    mocks.activePlaybackEnsurePlaying.mockResolvedValueOnce({
+      status: "blocked",
+      message: "current device does not support audio-track switching"
+    });
+    const sendTelemetry = vi.fn(async () => {});
+    mocks.createBrowserPlayerClient.mockReturnValue(createClient({ sendTelemetry }));
+    mocks.createBrowserVideoPool.mockReturnValue(createPool({ activeTarget: playbackSnapshot.currentTarget }));
+
+    render(<App />);
+
+    await screen.findByText("当前 MV 暂不可播放，请先预处理后再重试。");
+
+    await waitFor(() =>
+      expect(sendTelemetry).toHaveBeenCalledWith({
+        roomSlug: "living-room",
+        deviceId: "tv-player-1",
+        eventType: "failed",
+        sessionVersion: 5,
+        queueEntryId: "queue-current",
+        assetId: "asset-original",
+        playbackPositionMs: 1234,
+        vocalMode: "original",
+        switchFamily: "family-main",
+        rollbackAssetId: null,
+        message: "current device does not support audio-track switching",
+        errorCode: "TV_PLAYBACK_CAPABILITY_BLOCKED",
+        stage: "playback_capability_blocked"
+      })
+    );
+    expect(screen.queryByText("点击电视开始播放")).toBeNull();
+  });
 });
 
 function createClient(overrides: Record<string, unknown> = {}) {

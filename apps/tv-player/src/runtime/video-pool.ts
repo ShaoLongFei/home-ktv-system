@@ -1,6 +1,26 @@
 import type { PlaybackTarget, SwitchTarget } from "@home-ktv/player-contracts";
+import { AUDIO_TRACK_SWITCH_UNSUPPORTED_MESSAGE } from "./playback-capability.js";
+
+type TrackRef = NonNullable<PlaybackTarget["selectedTrackRef"]>;
+
+export interface SelectableAudioTrack {
+  id?: string;
+  label?: string;
+  enabled: boolean;
+}
+
+export interface SelectableAudioTrackList {
+  readonly length: number;
+  [index: number]: SelectableAudioTrack | undefined;
+}
+
+export type AudioTrackSelectionResult =
+  | { status: "selected"; previousEnabledIndexes: readonly number[] }
+  | { status: "unsupported"; message: string }
+  | { status: "missing_track"; message: string };
 
 export interface KtvVideoElement {
+  audioTracks?: SelectableAudioTrackList;
   currentTime: number;
   duration: number;
   hidden: boolean | "until-found";
@@ -39,6 +59,10 @@ export class DualVideoPool {
     this.activeVideo.load();
   }
 
+  selectActiveAudioTrack(target: PlaybackTarget): AudioTrackSelectionResult {
+    return selectAudioTrack(this.activeVideo, target.selectedTrackRef);
+  }
+
   async playActiveUntilReady(): Promise<void> {
     await this.activeVideo.play();
     await waitForReadyPlayback(this.activeVideo);
@@ -75,6 +99,11 @@ export class DualVideoPool {
     return this.activeTarget;
   }
 
+  commitActiveAudioTrackSwitch(target: SwitchTarget): PlaybackTarget | null {
+    this.activeTarget = playbackTargetFromSwitchTarget(target, this.activeTarget);
+    return this.activeTarget;
+  }
+
   rollback(): void {
     this.standbyVideo.pause();
     this.standbyVideo.hidden = true;
@@ -98,6 +127,61 @@ export class DualVideoPool {
 
 export function createBrowserVideoPool(activeVideo: HTMLVideoElement, standbyVideo: HTMLVideoElement): DualVideoPool {
   return new DualVideoPool(activeVideo, standbyVideo);
+}
+
+export function selectAudioTrack(
+  video: KtvVideoElement,
+  trackRef: TrackRef | null | undefined
+): AudioTrackSelectionResult {
+  const audioTracks = getSelectableAudioTracks(video);
+  const previousEnabledIndexes = audioTracks ? enabledIndexes(audioTracks) : [];
+
+  if (!trackRef) {
+    return { status: "selected", previousEnabledIndexes };
+  }
+
+  if (!audioTracks) {
+    return { status: "unsupported", message: AUDIO_TRACK_SWITCH_UNSUPPORTED_MESSAGE };
+  }
+
+  const targetIndex = findAudioTrackIndex(audioTracks, trackRef);
+  if (targetIndex == null) {
+    return { status: "missing_track", message: "requested audio track is not available" };
+  }
+
+  try {
+    for (let index = 0; index < audioTracks.length; index += 1) {
+      const track = audioTracks[index];
+      if (track) {
+        track.enabled = index === targetIndex;
+      }
+    }
+  } catch {
+    restoreAudioTracks(video, previousEnabledIndexes);
+    return { status: "unsupported", message: AUDIO_TRACK_SWITCH_UNSUPPORTED_MESSAGE };
+  }
+
+  if (audioTracks[targetIndex]?.enabled !== true) {
+    restoreAudioTracks(video, previousEnabledIndexes);
+    return { status: "unsupported", message: AUDIO_TRACK_SWITCH_UNSUPPORTED_MESSAGE };
+  }
+
+  return { status: "selected", previousEnabledIndexes };
+}
+
+export function restoreAudioTracks(video: KtvVideoElement, previousEnabledIndexes: readonly number[]): void {
+  const audioTracks = getSelectableAudioTracks(video);
+  if (!audioTracks) {
+    return;
+  }
+
+  const enabledSet = new Set(previousEnabledIndexes);
+  for (let index = 0; index < audioTracks.length; index += 1) {
+    const track = audioTracks[index];
+    if (track) {
+      track.enabled = enabledSet.has(index);
+    }
+  }
 }
 
 export async function waitForReadyPlayback(video: KtvVideoElement): Promise<void> {
@@ -136,8 +220,43 @@ function playbackTargetFromSwitchTarget(target: SwitchTarget, previousTarget: Pl
     resumePositionMs: target.resumePositionMs,
     vocalMode: target.vocalMode,
     switchFamily: target.switchFamily,
+    ...(target.playbackProfile ? { playbackProfile: target.playbackProfile } : {}),
+    ...(target.selectedTrackRef ? { selectedTrackRef: target.selectedTrackRef } : {}),
     nextQueueEntryPreview: previousTarget?.nextQueueEntryPreview ?? null
   };
+}
+
+function getSelectableAudioTracks(video: KtvVideoElement): SelectableAudioTrackList | null {
+  const audioTracks = video.audioTracks;
+  return isSelectableAudioTrackList(audioTracks) ? audioTracks : null;
+}
+
+function isSelectableAudioTrackList(value: unknown): value is SelectableAudioTrackList {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  return typeof (value as { length?: unknown }).length === "number";
+}
+
+function enabledIndexes(audioTracks: SelectableAudioTrackList): number[] {
+  const indexes: number[] = [];
+  for (let index = 0; index < audioTracks.length; index += 1) {
+    if (audioTracks[index]?.enabled === true) {
+      indexes.push(index);
+    }
+  }
+  return indexes;
+}
+
+function findAudioTrackIndex(audioTracks: SelectableAudioTrackList, trackRef: TrackRef): number | null {
+  for (let index = 0; index < audioTracks.length; index += 1) {
+    if (audioTracks[index]?.id === trackRef.id) {
+      return index;
+    }
+  }
+
+  return audioTracks[trackRef.index] ? trackRef.index : null;
 }
 
 function msToSeconds(positionMs: number): number {

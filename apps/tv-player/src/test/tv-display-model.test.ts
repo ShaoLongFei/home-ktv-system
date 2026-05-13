@@ -16,8 +16,8 @@ describe("tv display model", () => {
   it("exposes Chinese first-play and notice copy", () => {
     expect(firstPlayPromptCopy.heading).toBe("点击电视开始播放");
     expect(firstPlayPromptCopy.body).toContain("浏览器需要一次点击授权播放声音");
-    expect(noticeCopyFor({ kind: "playback_failed_skipped", message: "" })).toBe("播放失败，已跳到下一首");
-    expect(noticeCopyFor({ kind: "switch_failed_reverted", message: "" })).toBe("切换失败，已恢复到原模式");
+    expect(noticeCopyFor({ kind: "playback_failed_skipped", message: "" })).toBe("当前歌曲播放失败，已切到下一首或返回空闲。");
+    expect(noticeCopyFor({ kind: "switch_failed_reverted", message: "" })).toBe("原唱/伴唱切换失败，已保持当前播放。");
   });
 
   it("derives booting and offline states without exposing raw errors as headings", () => {

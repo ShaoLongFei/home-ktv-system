@@ -4,7 +4,8 @@ import type {
   SwitchTarget,
   SwitchTransitionResult
 } from "@home-ktv/player-contracts";
-import type { DualVideoPool } from "./video-pool.js";
+import type { AudioTrackSelectionResult, DualVideoPool } from "./video-pool.js";
+import { selectAudioTrack } from "./video-pool.js";
 
 type VocalMode = NonNullable<RoomSnapshot["currentTarget"]>["vocalMode"];
 
@@ -75,6 +76,10 @@ export class SwitchController {
       };
     }
 
+    if (transition.switchTarget.switchKind === "audio_track") {
+      return this.commitAudioTrackSwitch(snapshot, transition.switchTarget);
+    }
+
     try {
       this.videoPool.prepareStandby(transition.switchTarget);
       await this.videoPool.playStandbyUntilReady();
@@ -95,7 +100,33 @@ export class SwitchController {
     }
   }
 
-  private async reportSwitchFailure(snapshot: RoomSnapshot, switchTarget: SwitchTarget, error: unknown): Promise<void> {
+  private async commitAudioTrackSwitch(snapshot: RoomSnapshot, switchTarget: SwitchTarget): Promise<SwitchRuntimeResult> {
+    const previousPositionMs = Math.max(0, Math.trunc(this.videoPool.activeVideo.currentTime * 1000));
+    const result = selectAudioTrack(this.videoPool.activeVideo, switchTarget.selectedTrackRef);
+    if (result.status !== "selected") {
+      await this.reportSwitchFailure(snapshot, switchTarget, new Error(result.message), "audio_track", previousPositionMs);
+      return {
+        status: "reverted",
+        switchTarget,
+        message: revertedMessageForAudioTrackSelection(result)
+      };
+    }
+
+    this.videoPool.commitActiveAudioTrackSwitch(switchTarget);
+    await this.reportSwitchCommitted(snapshot, switchTarget);
+    return {
+      status: "committed",
+      switchTarget
+    };
+  }
+
+  private async reportSwitchFailure(
+    snapshot: RoomSnapshot,
+    switchTarget: SwitchTarget,
+    error: unknown,
+    stage = "standby",
+    playbackPositionMs = switchTarget.resumePositionMs
+  ): Promise<void> {
     await this.client.sendTelemetry({
       roomSlug: snapshot.roomSlug,
       deviceId: this.deviceId,
@@ -103,12 +134,12 @@ export class SwitchController {
       sessionVersion: switchTarget.sessionVersion,
       queueEntryId: switchTarget.queueEntryId,
       assetId: switchTarget.toAssetId,
-      playbackPositionMs: switchTarget.resumePositionMs,
+      playbackPositionMs,
       vocalMode: snapshot.currentTarget?.vocalMode ?? switchTarget.vocalMode,
       switchFamily: switchTarget.switchFamily,
       rollbackAssetId: switchTarget.rollbackAssetId,
       message: error instanceof Error ? error.message : "standby playback failed",
-      stage: "standby"
+      stage
     });
   }
 
@@ -127,6 +158,12 @@ export class SwitchController {
       stage: "switch_committed"
     });
   }
+}
+
+function revertedMessageForAudioTrackSelection(result: Exclude<AudioTrackSelectionResult, { status: "selected" }>): string {
+  return result.status === "missing_track"
+    ? "未找到请求的音轨，已保持当前播放。"
+    : "当前电视浏览器不支持切换原唱/伴唱，已保持当前播放。";
 }
 
 export function canAttemptRuntimePlayback(snapshot: RoomSnapshot | null): boolean {

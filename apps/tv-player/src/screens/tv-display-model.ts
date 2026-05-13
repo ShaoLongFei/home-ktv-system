@@ -30,8 +30,8 @@ const hiddenFirstPlayPrompt: FirstPlayPromptModel = {
 const noticeFallbackCopy: Record<PlaybackNotice["kind"], string> = {
   loading: "正在准备播放",
   recovering: "正在恢复播放",
-  switch_failed_reverted: "切换失败，已恢复到原模式",
-  playback_failed_skipped: "播放失败，已跳到下一首",
+  switch_failed_reverted: "原唱/伴唱切换失败，已保持当前播放。",
+  playback_failed_skipped: "当前歌曲播放失败，已切到下一首或返回空闲。",
   recovery_fallback_start_over: "已恢复播放，本首从头开始"
 };
 
@@ -44,11 +44,23 @@ export function noticeCopyFor(notice: PlaybackNotice | null): string | null {
     return null;
   }
 
+  if (notice.kind === "playback_failed_skipped" && isNeedsPreprocessMessage(notice.message)) {
+    return "当前 MV 暂不可播放，请先预处理后再重试。";
+  }
+
+  if (notice.kind === "playback_failed_skipped" || notice.kind === "switch_failed_reverted") {
+    return noticeFallbackCopy[notice.kind];
+  }
+
   if (notice.message.trim() && /[\u4E00-\u9FFF]/u.test(notice.message)) {
     return notice.message;
   }
 
   return noticeFallbackCopy[notice.kind];
+}
+
+function isNeedsPreprocessMessage(message: string): boolean {
+  return /unsupported|cannot-play|media-not-supported|preprocess/iu.test(message);
 }
 
 export function deriveTvDisplayState(input: {
