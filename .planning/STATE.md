@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
-status: planning
-stopped_at: Phase 15 verification passed
-last_updated: "2026-05-13T12:18:53Z"
-last_activity: "2026-05-13 -- Phase 16 research and plan docs drafted"
+status: executing
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-05-13T12:46:14Z"
+last_activity: 2026-05-13 -- Phase 16 Plan 02 completed
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 24
+  completed_plans: 21
   percent: 100
 ---
 
@@ -26,10 +26,10 @@ See: `.planning/PROJECT.md` (updated 2026-05-13)
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 16 (policy-seam-android-reservation-and-hardening) — PLANNING IN PROGRESS
-Plan: 4 plans drafted
-Status: Planning in progress
-Last activity: 2026-05-13 -- Phase 16 research and plan docs drafted
+Phase: 16 (policy-seam-android-reservation-and-hardening) — EXECUTING
+Plan: 02 of 4 completed (parallel execution)
+Status: Executing Phase 16
+Last activity: 2026-05-13 -- Phase 16 Plan 02 completed
 
 Progress: [██████████] 100%
 
@@ -66,6 +66,7 @@ Progress: [██████████] 100%
 | Phase 15 P03 | 20 min | 3 tasks | 8 files |
 | Phase 15 P04 | 32 min | 4 tasks | 11 files |
 | Phase 15 P05 | 89 min | 4 tasks | 4 files |
+| Phase 16-policy-seam-android-reservation-and-hardening P02 | 9 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,8 @@ Progress: [██████████] 100%
 - [Phase 15-05]: Mobile real-MV search queueability is server-authoritative through canQueue/disabledLabel, while nonqueueable candidates stay visible with Chinese disabled labels.
 - [Phase 15-05]: Mobile add-queue payload remains songId/assetId only; vocal mode intent is resolved by the server from current room playback state.
 - [Phase 15-05]: Phase 15 verification passed with automated evidence across Mobile search UI, API queue/playback/switch contracts, TV audio-track runtime, and unsupported failure states.
+- [Phase 16-02]: HARD-03 hardening stays test-only and does not change queue, online task, demo import, or Admin runtime semantics.
+- [Phase 16-02]: Admin compatibility is proven by rendering a real-MV catalog entry beside the legacy 七里香 song while asserting existing maintenance controls remain visible.
 
 ### Pending Todos
 
@@ -131,6 +134,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T11:21:59Z
-Stopped at: Phase 15 verification passed
+Last session: 2026-05-13T12:46:14Z
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None

@@ -111,7 +111,7 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [ ] 16-01-PLAN.md - Review-first policy seam and reserved auto-admit metadata
-- [ ] 16-02-PLAN.md - Compatibility regression hardening for demo/local/online/admin flows
+- [x] 16-02-PLAN.md - Compatibility regression hardening for demo/local/online/admin flows
 - [ ] 16-03-PLAN.md - Local real-media hardening report using samples and optional index cross-check
 - [ ] 16-04-PLAN.md - Android boundary source guards and final regression gate
 
@@ -126,4 +126,4 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
 | 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
 | 15. Search, Queue, Playback, and Switching | 5/5 | Complete    | 2026-05-13 |
-| 16. Policy Seam, Android Reservation, and Hardening | 0/4 | Planned | - |
+| 16. Policy Seam, Android Reservation, and Hardening | 1/4 | Executing | - |
