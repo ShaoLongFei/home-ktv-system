@@ -127,6 +127,149 @@ describe("room queue commands", () => {
     expect(rejectedSkip.code).toBe("SKIP_CONFIRMATION_REQUIRED");
   });
 
+  it("keeps legacy queue commands and switch validation working while real MV assets are present", async () => {
+    const harness = createHarness({
+      queueEntries: [createQueueEntry("queue-current", 1, "playing"), createQueueEntry("queue-queued", 2, "queued")],
+      targetVocalMode: "original"
+    });
+    await expect(harness.assetRepository.findById("asset-real-mv")).resolves.toMatchObject({
+      assetKind: "dual-track-video",
+      playbackProfile: { kind: "single_file_audio_tracks" }
+    });
+
+    const added = expectAccepted(
+      await executeRoomCommand({
+        commandId: "legacy-command-add",
+        roomSlug: harness.room.slug,
+        sessionVersion: 1,
+        type: "add-queue-entry",
+        payload: { songId: "song-ready" },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+    const addedQueueEntryId = added.snapshot.queue.find((entry) => entry.songId === "song-ready")?.queueEntryId;
+    expect(addedQueueEntryId).toBeDefined();
+    await expect(harness.queueEntries.listEffectiveQueue(harness.room.id)).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: addedQueueEntryId,
+          songId: "song-ready",
+          assetId: "asset-ready-instrumental",
+          status: "queued"
+        })
+      ])
+    );
+
+    const deleted = expectAccepted(
+      await executeRoomCommand({
+        commandId: "legacy-command-delete",
+        roomSlug: harness.room.slug,
+        sessionVersion: added.sessionVersion,
+        type: "delete-queue-entry",
+        payload: { queueEntryId: addedQueueEntryId },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+    expect(deleted.undo?.queueEntryId).toBe(addedQueueEntryId);
+    await expect(harness.queueEntries.findById(addedQueueEntryId!)).resolves.toMatchObject({ status: "removed" });
+
+    const undone = expectAccepted(
+      await executeRoomCommand({
+        commandId: "legacy-command-undo",
+        roomSlug: harness.room.slug,
+        sessionVersion: deleted.sessionVersion,
+        type: "undo-delete-queue-entry",
+        payload: { queueEntryId: addedQueueEntryId },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now: new Date(now.getTime() + 1000)
+      })
+    );
+    await expect(harness.queueEntries.findById(addedQueueEntryId!)).resolves.toMatchObject({ status: "queued" });
+
+    const promoted = expectAccepted(
+      await executeRoomCommand({
+        commandId: "legacy-command-promote",
+        roomSlug: harness.room.slug,
+        sessionVersion: undone.sessionVersion,
+        type: "promote-queue-entry",
+        payload: { queueEntryId: addedQueueEntryId },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+    expect(promoted.snapshot.queue.map((entry) => entry.queueEntryId)).toEqual([
+      "queue-current",
+      addedQueueEntryId,
+      "queue-queued"
+    ]);
+
+    const switched = expectAccepted(
+      await executeRoomCommand({
+        commandId: "legacy-command-switch-vocal-mode",
+        roomSlug: harness.room.slug,
+        sessionVersion: promoted.sessionVersion,
+        type: "switch-vocal-mode",
+        payload: { playbackPositionMs: 12_345 },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+    expect(switched.snapshot.targetVocalMode).toBe("original");
+
+    const skipped = expectAccepted(
+      await executeRoomCommand({
+        commandId: "legacy-command-skip",
+        roomSlug: harness.room.slug,
+        sessionVersion: switched.sessionVersion,
+        type: "skip-current",
+        payload: { confirmSkip: true },
+        controlSession: harness.controlSession,
+        repositories: harness.repositories,
+        assetGateway: harness.assetGateway,
+        config: harness.config,
+        now
+      })
+    );
+    expect(skipped.snapshot.currentTarget?.queueEntryId).toBe(addedQueueEntryId);
+
+    const idleHarness = createHarness({ queueEntries: [] });
+    await expect(idleHarness.assetRepository.findById("asset-real-mv")).resolves.toMatchObject({
+      assetKind: "dual-track-video"
+    });
+    const rejectedSwitch = expectRejected(
+      await executeRoomCommand({
+        commandId: "legacy-command-switch-rejected",
+        roomSlug: idleHarness.room.slug,
+        sessionVersion: 1,
+        type: "switch-vocal-mode",
+        payload: { playbackPositionMs: 0 },
+        controlSession: idleHarness.controlSession,
+        repositories: idleHarness.repositories,
+        assetGateway: idleHarness.assetGateway,
+        config: idleHarness.config,
+        now
+      })
+    );
+    expect(rejectedSwitch.code).toBe("SWITCH_TARGET_NOT_AVAILABLE");
+  });
+
   it("starts playback when a song is added to an idle room", async () => {
     const harness = createHarness({
       queueEntries: []

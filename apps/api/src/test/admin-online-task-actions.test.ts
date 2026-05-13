@@ -52,6 +52,7 @@ describe("admin online task actions", () => {
     expect(harness.onlineTasks.retryTask).toHaveBeenCalledWith({ roomId: "living-room", taskId: "task-failed" });
     expect(harness.onlineTasks.purgeTask).toHaveBeenCalledWith({ roomId: "living-room", taskId: "task-stale" });
     expect(harness.onlineTasks.promoteTask).toHaveBeenCalledWith({ roomId: "living-room", taskId: "task-ready" });
+    expect(harness.queueEntries.append).toHaveBeenCalledTimes(0);
     expect(harness.queueEntries.append).not.toHaveBeenCalled();
   });
 

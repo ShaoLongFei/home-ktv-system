@@ -32,8 +32,10 @@ describe("seedDemoSongs", () => {
       }
     });
 
+    const demoSongTitles = result.songs.map((song) => song.song.title);
     expect(result.songs).toHaveLength(2);
-    expect(result.songs.map((song) => song.song.title)).toEqual(["Demo Song Sunrise", "Demo Song Night Drive"]);
+    expect(demoSongTitles).toEqual(["Demo Song Sunrise", "Demo Song Night Drive"]);
+    expect(new Set(demoSongTitles).size).toBe(2);
     expect(state.commands).toHaveLength(4);
     expect(state.scanned).toBe(true);
     expect(state.approveCalls).toEqual(["candidate-demo-aurora", "candidate-demo-midnight"]);

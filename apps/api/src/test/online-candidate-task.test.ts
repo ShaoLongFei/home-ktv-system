@@ -56,14 +56,20 @@ describe("online candidate task contracts", () => {
       status: "available",
       message: "找到在线补歌候选",
       requestSupplement: {
-        visible: false,
+        visible: true,
         label: "请求补歌"
       },
       candidates: [candidate]
     } satisfies SongSearchOnlineResult;
 
+    expect(online.requestSupplement).toMatchObject({
+      visible: true,
+      label: "请求补歌"
+    });
     expect(online.candidates[0]?.sourceLabel).toBe("Demo Provider");
-    expect(online.candidates[0]?.taskState).toBe("discovered");
+    expect(online.candidates[0]).toMatchObject({
+      taskState: "discovered"
+    });
   });
 });
 
