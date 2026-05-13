@@ -4,7 +4,7 @@
 
 - [x] **v1.0 MVP** - 单房间家庭 KTV 可唱闭环，Phases 1-5，shipped 2026-05-08. Archive: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **v1.1 Polish** - TV 播放体验、产品化 UI、代码结构与逻辑打磨，Phases 6-11，shipped 2026-05-10. Archive: `.planning/milestones/v1.1-ROADMAP.md`
-- [ ] **v1.2 真实 MV 歌库** - 真实 MKV/MPG MV 文件接入，Phases 12-16
+- [ ] **v1.2 真实 MV 歌库** - 真实 MKV/MPG MV 文件接入，Phases 12-17
 
 ## Overview
 
@@ -17,7 +17,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 **Phase Numbering:**
 - v1.0 completed Phases 1-5.
 - v1.1 completed Phases 6-11.
-- v1.2 continues with Phases 12-16.
+- v1.2 continues with Phases 12-17.
 - Decimal phases remain reserved for urgent insertions.
 
 - [x] **Phase 12: Contract, Schema, and Playback-Risk Spike** - Define real-MV catalog/player contracts, compatibility states, provenance, and platform-neutral playback boundaries
@@ -25,6 +25,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 - [x] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with a single real-MV asset (completed 2026-05-13)
 - [x] **Phase 15: Search, Queue, Playback, and Switching** - Make approved real MV songs searchable, queueable, playable, and switchable only when runtime capability is verified (completed 2026-05-13)
 - [x] **Phase 16: Policy Seam, Android Reservation, and Hardening** - Preserve review-first policy, future Android boundaries, regression coverage, and compatibility with existing flows (completed 2026-05-13)
+- [ ] **Phase 17: Phase 12 Verification and Traceability Closure** - Close v1.2 audit gaps by verifying MEDIA-01..04 and correcting milestone traceability
 
 ## Phase Details
 
@@ -60,7 +61,7 @@ Plans:
 - [x] 13-01-PLAN.md - Scanner extension, sidecar/cover discovery, artifact-aware quick hash, and unstable-file guard
 - [x] 13-02-PLAN.md - Sidecar schema, filename parser, metadata draft, provenance, and conflict preservation
 - [x] 13-03-PLAN.md - Sidecar metadata wiring, single-file real MV candidate integration, track roles, playback profile, and compatibility status
-- [ ] 13-04-PLAN.md - Admin import serialization, safe cover preview route, and minimal real MV preview UI
+- [x] 13-04-PLAN.md - Admin import serialization, safe cover preview route, and minimal real MV preview UI
 **UI hint**: yes
 
 ### Phase 14: Admin Review and Catalog Admission
@@ -115,15 +116,28 @@ Plans:
 - [x] 16-03-PLAN.md - Local real-media hardening report using samples and optional index cross-check
 - [x] 16-04-PLAN.md - Android boundary source guards and final regression gate
 
+### Phase 17: Phase 12 Verification and Traceability Closure
+**Goal**: Close v1.2 milestone audit gaps by producing aggregate Phase 12 verification evidence for MEDIA-01 through MEDIA-04 and synchronizing roadmap/requirements traceability.
+**Depends on**: Phase 16
+**Requirements**: MEDIA-01, MEDIA-02, MEDIA-03, MEDIA-04
+**Gap Closure**: Closes gaps from `.planning/v1.2-MILESTONE-AUDIT.md`
+**Success Criteria** (what must be TRUE):
+  1. Phase 12 has an aggregate `12-VERIFICATION.md` that verifies MEDIA-01 through MEDIA-04 against actual contracts, schema/repository mapping, playback target payloads, compatibility evidence, and playback-risk spike outputs.
+  2. `REQUIREMENTS.md` marks MEDIA-01 through MEDIA-04 complete only after Phase 12 verification evidence exists.
+  3. Phase 13 roadmap drift is corrected so `13-04-PLAN.md` and the Phase 13 progress table match the existing `13-04-SUMMARY.md` and passed `13-VERIFICATION.md`.
+  4. Re-running milestone audit no longer reports orphaned MEDIA requirements or Phase 13 progress drift.
+**Plans**: 0 plans
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
+Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16 -> 17
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
-| 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
+| 13. MediaInfo Probe, Scanner, and Sidecars | 4/4 | Complete    | 2026-05-12 |
 | 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
 | 15. Search, Queue, Playback, and Switching | 5/5 | Complete    | 2026-05-13 |
 | 16. Policy Seam, Android Reservation, and Hardening | 4/4 | Complete    | 2026-05-13 |
+| 17. Phase 12 Verification and Traceability Closure | 0/0 | Planned    | - |

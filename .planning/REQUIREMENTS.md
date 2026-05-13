@@ -80,10 +80,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEDIA-01 | Phase 12 | Pending |
-| MEDIA-02 | Phase 12 | Pending |
-| MEDIA-03 | Phase 12 | Pending |
-| MEDIA-04 | Phase 12 | Pending |
+| MEDIA-01 | Phase 17 | Pending |
+| MEDIA-02 | Phase 17 | Pending |
+| MEDIA-03 | Phase 17 | Pending |
+| MEDIA-04 | Phase 17 | Pending |
 | SCAN-01 | Phase 13 | Complete |
 | SCAN-02 | Phase 13 | Complete |
 | SCAN-03 | Phase 13 | Complete |
@@ -111,4 +111,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-05-10*
-*Last updated: 2026-05-13 after Phase 16 completion*
+*Last updated: 2026-05-13 after planning v1.2 milestone gap closure*
