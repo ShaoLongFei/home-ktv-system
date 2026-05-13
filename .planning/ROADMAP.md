@@ -91,7 +91,12 @@ Plans:
   3. TV receives an explicit playback profile and `selectedTrackRef` for real MV assets.
   4. User can switch original/accompaniment during playback only when the TV runtime has verified track-switch capability.
   5. User sees a clear unsupported or needs-preprocessing state when a real MV cannot load, seek, resume, or switch as advertised.
-**Plans**: TBD
+**Plans**:
+- [ ] 15-01-PLAN.md - Search visibility and queueability metadata for real-MV songs
+- [ ] 15-02-PLAN.md - Queue-time vocal-mode resolution and playback target selected track intent
+- [ ] 15-03-PLAN.md - Same-asset switch target contract and switch commit persistence
+- [ ] 15-04-PLAN.md - TV runtime audio-track selection, capability gating, and Chinese failure notices
+- [ ] 15-05-PLAN.md - Mobile disabled-state UI and cross-surface real-MV playback regression coverage
 **UI hint**: yes
 
 ### Phase 16: Policy Seam, Android Reservation, and Hardening
@@ -115,5 +120,5 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
 | 14. Admin Review and Catalog Admission | 5/5 | Complete    | 2026-05-13 |
-| 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |
+| 15. Search, Queue, Playback, and Switching | 0/5 | Planned | - |
 | 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
