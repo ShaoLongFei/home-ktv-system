@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
 status: executing
-stopped_at: Completed 15-03-PLAN.md
-last_updated: "2026-05-13T09:01:06.809Z"
-last_activity: "2026-05-13 -- Phase 15 Plan 03 completed"
+stopped_at: Completed 15-04-PLAN.md
+last_updated: "2026-05-13T09:37:49.545Z"
+last_activity: "2026-05-13 -- Phase 15 Plan 04 completed"
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 20
-  completed_plans: 18
-  percent: 90
+  completed_plans: 19
+  percent: 95
 ---
 
 # Project State
@@ -27,11 +27,11 @@ See: `.planning/PROJECT.md` (updated 2026-05-13)
 
 Milestone: v1.2 真实 MV 歌库
 Phase: 15 (search-queue-playback-and-switching) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
-Last activity: 2026-05-13 -- Phase 15 Plan 03 completed
+Last activity: 2026-05-13 -- Phase 15 Plan 04 completed
 
-Progress: [█████████░] 90%
+Progress: [██████████] 95%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [█████████░] 90%
 | Phase 15 P01 | 35 min | 2 tasks | 3 files |
 | Phase 15 P02 | 19 min | 2 tasks | 4 files |
 | Phase 15 P03 | 20 min | 3 tasks | 8 files |
+| Phase 15 P04 | 32 min | 4 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,8 @@ Progress: [█████████░] 90%
 - [Phase 14-05]: Test-only source guards keep excluded mobile, queue, TV playback, switching, transcode, and Android TV concerns out of Phase 14 regression coverage.
 - [Phase 15-03]: Real-MV switching stays on switch-vocal-mode and uses SwitchTarget.switchKind=audio_track. — Reuses existing transition, snapshot, rollback, and telemetry semantics without creating a separate real-MV command path.
 - [Phase 15-03]: TV switch_committed telemetry is the only server-side commit point for real-MV preferredVocalMode. — Failed switch attempts must not change queue playbackOptions, so server state advances only after TV confirms playback.
+- [Phase 15-04]: TV runtime derives TrackRef from PlaybackTarget instead of importing @home-ktv/domain directly. — Keeps tv-player package boundaries clean while preserving the shared player-contract payload shape.
+- [Phase 15-04]: Audio-track playback capability failures send failed telemetry with stage=playback_capability_blocked. — Unsupported real-MV playback should reuse backend failure recovery and show preprocessing copy instead of the autoplay prompt.
 
 ### Pending Todos
 
@@ -124,6 +127,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T09:01:06.809Z
-Stopped at: Completed 15-03-PLAN.md
-Resume file: .planning/phases/15-search-queue-playback-and-switching/15-04-PLAN.md
+Last session: 2026-05-13T09:37:26.492Z
+Stopped at: Completed 15-04-PLAN.md
+Resume file: .planning/phases/15-search-queue-playback-and-switching/15-05-PLAN.md
