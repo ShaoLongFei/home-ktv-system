@@ -70,6 +70,7 @@ Each task was committed atomically:
 
 1. **Task 1: Add a source-guard suite for the shared contracts and TV runtime** - `631dffc` (test)
 2. **Task 2: Extend the final regression assertions for platform-neutral real-MV contracts and UI** - `eb23565` (test)
+3. **Post-task hardening: Normalize forbidden term matching in boundary guard** - `4aa57d0` (test)
 
 **Plan metadata:** recorded in the final docs commit after state and roadmap updates.
 
@@ -100,6 +101,7 @@ None. The API test script ran the full API suite when file filters were supplied
 - `pnpm -F @home-ktv/admin test -- src/test/real-mv-review-ui.test.tsx` - 7 files / 39 tests passed. Non-fatal existing `--localstorage-file` warnings were emitted.
 - `pnpm -F @home-ktv/api typecheck` - passed.
 - `pnpm -F @home-ktv/admin typecheck` - passed.
+- `pnpm -F @home-ktv/api test -- src/test/phase-16-boundary-guards.test.ts` - passed after guard casing hardening; Vitest executed 38 files / 241 tests.
 
 ## Known Stubs
 
@@ -119,6 +121,7 @@ Phase 16 is complete. v1.2 real-MV work is ready for milestone-level verificatio
 - Found `apps/api/src/test/phase-16-boundary-guards.test.ts`.
 - Found task commit `631dffc`.
 - Found task commit `eb23565`.
+- Re-ran the boundary guard after fixing case-normalized `autoAdmit` matching.
 
 ---
 *Phase: 16-policy-seam-android-reservation-and-hardening*
