@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
-status: executing
-stopped_at: Completed 14-02-PLAN.md
-last_updated: "2026-05-13T03:43:57Z"
-last_activity: 2026-05-13 -- Plan 14-02 complete
+status: completed
+stopped_at: Completed 14-05-PLAN.md
+last_updated: "2026-05-13T04:06:28Z"
+last_activity: 2026-05-13 -- Plan 14-05 complete
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 15
-  completed_plans: 14
-  percent: 93
+  completed_plans: 15
+  percent: 100
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 14 (admin-review-and-catalog-admission) — EXECUTING WAVE 2
-Plan: 14-05 remaining
-Status: Executing
-Last activity: 2026-05-13 -- Plan 14-02 complete
+Phase: 14 (admin-review-and-catalog-admission) — COMPLETE
+Plan: 14-05 complete
+Status: Completed
+Last activity: 2026-05-13 -- Plan 14-05 complete
 
-Progress: [█████████░] 93%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [█████████░] 93%
 | Phase 14 P04 | 17 min | 2 tasks | 4 files |
 | Phase 14 P03 | 20min | 2 tasks | 2 files |
 | Phase 14-admin-review-and-catalog-admission P02 | 15 min | 2 tasks | 5 files |
+| Phase 14 P05 | 15 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,9 @@ Progress: [█████████░] 93%
 - [Phase 14-02]: Admin real-MV track-role review stores full TrackRef refs from raw MediaInfo audio tracks in files[].trackRoles.
 - [Phase 14-02]: Approval blockers remain limited to non-empty title and artist; compatibility and track-role issues are review guidance.
 - [Phase 14-02]: Real-MV review evidence stays inside the existing dense Admin CandidateEditor instead of a separate review wizard.
+- [Phase 14-05]: API and Admin regression coverage now prove reviewed real-MV admission, song.json validation, and UI review guidance without Phase 15 runtime assertions.
+- [Phase 14-05]: Optional exact typing in regression helpers is satisfied by supplying explicit real-MV defaults rather than undefined placeholders.
+- [Phase 14-05]: Test-only source guards keep excluded mobile, queue, TV playback, switching, transcode, and Android TV concerns out of Phase 14 regression coverage.
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T03:42:04.978Z
-Stopped at: Completed 14-02-PLAN.md
+Last session: 2026-05-13T04:06:28Z
+Stopped at: Completed 14-05-PLAN.md
 Resume file: None

@@ -22,7 +22,7 @@ Explicitly out of scope for this roadmap: hot-song candidate generation, chart s
 
 - [x] **Phase 12: Contract, Schema, and Playback-Risk Spike** - Define real-MV catalog/player contracts, compatibility states, provenance, and platform-neutral playback boundaries
 - [x] **Phase 13: MediaInfo Probe, Scanner, and Sidecars** - Scan stable MKV/MPG/MPEG files with MediaInfo facts, same-stem covers, and same-stem `song.json` metadata (completed 2026-05-12)
-- [ ] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with a single real-MV asset
+- [x] **Phase 14: Admin Review and Catalog Admission** - Let Admin review metadata and track roles, then admit one physical MV as one formal song with a single real-MV asset (completed 2026-05-13)
 - [ ] **Phase 15: Search, Queue, Playback, and Switching** - Make approved real MV songs searchable, queueable, playable, and switchable only when runtime capability is verified
 - [ ] **Phase 16: Policy Seam, Android Reservation, and Hardening** - Preserve review-first policy, future Android boundaries, regression coverage, and compatibility with existing flows
 
@@ -78,7 +78,7 @@ Plans:
 - [x] 14-02-PLAN.md - Admin review UI for metadata, media facts, track roles, and repair guidance
 - [x] 14-03-PLAN.md - Real-MV formal admission branch, compatibility readiness, and cover sidecar promotion
 - [x] 14-04-PLAN.md - Durable real-MV `song.json` writing and consistency validation
-- [ ] 14-05-PLAN.md - Cross-surface real-MV admission and review regression coverage
+- [x] 14-05-PLAN.md - Cross-surface real-MV admission and review regression coverage
 **UI hint**: yes
 
 ### Phase 15: Search, Queue, Playback, and Switching
@@ -114,6 +114,6 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 |-------|----------------|--------|-----------|
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
-| 14. Admin Review and Catalog Admission | 4/5 | In Progress|  |
+| 14. Admin Review and Catalog Admission | 5/5 | Completed 2026-05-13 | 2026-05-13 |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |
 | 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
