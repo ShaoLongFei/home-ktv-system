@@ -84,7 +84,10 @@ describe("song search routes", () => {
               sourceLabel: "本地",
               durationMs: 180000,
               qualityLabel: "video / 180s",
-              isRecommended: true
+              isRecommended: true,
+              queueState: "queueable",
+              canQueue: true,
+              disabledLabel: null
             }
           ]
         }
