@@ -22,6 +22,7 @@ describe("buildSwitchTarget", () => {
       roomId: "living-room",
       sessionVersion: 7,
       queueEntryId: "queue-current",
+      switchKind: "asset",
       fromAssetId: "asset-original",
       toAssetId: "asset-instrumental",
       playbackUrl: "http://ktv.local/media/asset-instrumental",
@@ -30,6 +31,74 @@ describe("buildSwitchTarget", () => {
       rollbackAssetId: "asset-original",
       resumePositionMs: 81234
     });
+  });
+
+  it("builds audio-track switch target for formal real MV from accompaniment to original", async () => {
+    const currentAsset = createRealMvAsset({
+      id: "asset-real-mv",
+      trackRoles: createRealMvTrackRoles()
+    });
+    const context = createSwitchContext([currentAsset], {
+      activeAssetId: currentAsset.id,
+      queueEntry: createQueueEntry({
+        assetId: currentAsset.id,
+        playbackOptions: { preferredVocalMode: "instrumental" }
+      })
+    });
+
+    const target = await buildSwitchTarget(context);
+
+    expect(target).toMatchObject({
+      switchKind: "audio_track",
+      fromAssetId: "asset-real-mv",
+      toAssetId: "asset-real-mv",
+      rollbackAssetId: "asset-real-mv",
+      vocalMode: "original",
+      selectedTrackRef: { id: "0x1100" }
+    });
+  });
+
+  it("builds audio-track switch target for formal real MV from original to accompaniment", async () => {
+    const currentAsset = createRealMvAsset({
+      id: "asset-real-mv",
+      trackRoles: createRealMvTrackRoles()
+    });
+    const context = createSwitchContext([currentAsset], {
+      activeAssetId: currentAsset.id,
+      queueEntry: createQueueEntry({
+        assetId: currentAsset.id,
+        playbackOptions: { preferredVocalMode: "original" }
+      })
+    });
+
+    const target = await buildSwitchTarget(context);
+
+    expect(target).toMatchObject({
+      switchKind: "audio_track",
+      fromAssetId: "asset-real-mv",
+      toAssetId: "asset-real-mv",
+      vocalMode: "instrumental",
+      selectedTrackRef: { id: "0x1101" }
+    });
+  });
+
+  it("returns null when real MV target role is missing", async () => {
+    const currentAsset = createRealMvAsset({
+      id: "asset-real-mv",
+      trackRoles: {
+        original: null,
+        instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+      }
+    });
+    const context = createSwitchContext([currentAsset], {
+      activeAssetId: currentAsset.id,
+      queueEntry: createQueueEntry({
+        assetId: currentAsset.id,
+        playbackOptions: { preferredVocalMode: "instrumental" }
+      })
+    });
+
+    await expect(buildSwitchTarget(context)).resolves.toBeNull();
   });
 
   it("returns null when a switch counterpart is missing", async () => {
@@ -56,8 +125,8 @@ describe("buildSwitchTarget", () => {
   });
 });
 
-function createSwitchContext(assets: Asset[]) {
-  const repositories = createRepositories(assets);
+function createSwitchContext(assets: Asset[], options: { activeAssetId?: string; queueEntry?: QueueEntry } = {}) {
+  const repositories = createRepositories(assets, options);
   return {
     roomSlug: "living-room",
     repositories,
@@ -65,7 +134,10 @@ function createSwitchContext(assets: Asset[]) {
   };
 }
 
-function createRepositories(assets: Asset[]): BuildSwitchTargetRepositories {
+function createRepositories(
+  assets: Asset[],
+  options: { activeAssetId?: string; queueEntry?: QueueEntry } = {}
+): BuildSwitchTargetRepositories {
   const assetRepository: AssetRepository = {
     async findById(assetId) {
       return assets.find((asset) => asset.id === assetId) ?? null;
@@ -86,21 +158,21 @@ function createRepositories(assets: Asset[]): BuildSwitchTargetRepositories {
     },
     playbackSessions: {
       async findByRoomId(roomId) {
-        return roomId === livingRoom.id ? createPlaybackSession() : null;
+        return roomId === livingRoom.id ? createPlaybackSession({ activeAssetId: options.activeAssetId }) : null;
       },
       async startQueueEntry() {
-        return createPlaybackSession();
+        return createPlaybackSession({ activeAssetId: options.activeAssetId });
       },
       async setIdle() {
-        return createPlaybackSession();
+        return createPlaybackSession({ activeAssetId: options.activeAssetId });
       },
       async requestSwitchTarget() {
-        return createPlaybackSession();
+        return createPlaybackSession({ activeAssetId: options.activeAssetId });
       }
     },
     queueEntries: {
       async findById(queueEntryId) {
-        return queueEntryId === "queue-current" ? createQueueEntry() : null;
+        return queueEntryId === "queue-current" ? options.queueEntry ?? createQueueEntry() : null;
       },
       async listEffectiveQueue() {
         return [];
@@ -171,12 +243,12 @@ function createRoom(slug: string): Room {
   };
 }
 
-function createPlaybackSession(): PlaybackSession {
+function createPlaybackSession(input: { activeAssetId?: string } = {}): PlaybackSession {
   return {
     roomId: livingRoom.id,
     currentQueueEntryId: "queue-current",
     nextQueueEntryId: null,
-    activeAssetId: "asset-original",
+    activeAssetId: input.activeAssetId ?? "asset-original",
     targetVocalMode: "original",
     playerState: "playing",
     playerPositionMs: 81234,
@@ -186,12 +258,12 @@ function createPlaybackSession(): PlaybackSession {
   };
 }
 
-function createQueueEntry(): QueueEntry {
+function createQueueEntry(input: { assetId?: string; playbackOptions?: Partial<QueueEntry["playbackOptions"]> } = {}): QueueEntry {
     return {
       id: "queue-current",
       roomId: livingRoom.id,
       songId: "song-main",
-      assetId: "asset-original",
+      assetId: input.assetId ?? "asset-original",
     requestedBy: "mobile",
     queuePosition: 1,
     status: "playing",
@@ -199,7 +271,8 @@ function createQueueEntry(): QueueEntry {
     playbackOptions: {
       preferredVocalMode: "original",
       pitchSemitones: 0,
-      requireReadyAsset: true
+      requireReadyAsset: true,
+      ...input.playbackOptions
     },
       requestedAt: now,
       startedAt: now,
@@ -231,5 +304,41 @@ function createAsset(
     switchQualityStatus,
     createdAt: now,
     updatedAt: now
+  };
+}
+
+function createRealMvTrackRoles(): NonNullable<Asset["trackRoles"]> {
+  return {
+    original: { index: 0, id: "0x1100", label: "Original" },
+    instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+  };
+}
+
+function createRealMvAsset(overrides: Partial<Asset> = {}): Asset {
+  return {
+    id: "asset-real-mv",
+    songId: "song-main",
+    sourceType: "local",
+    assetKind: "dual-track-video",
+    displayName: "real mv",
+    filePath: "real-mv.mkv",
+    durationMs: 180000,
+    lyricMode: "hard_sub",
+    vocalMode: "dual",
+    status: "ready",
+    switchFamily: null,
+    switchQualityStatus: "review_required",
+    compatibilityStatus: "playable",
+    trackRoles: createRealMvTrackRoles(),
+    playbackProfile: {
+      kind: "single_file_audio_tracks",
+      container: "matroska",
+      videoCodec: "h264",
+      audioCodecs: ["aac", "aac"],
+      requiresAudioTrackSelection: true
+    },
+    createdAt: now,
+    updatedAt: now,
+    ...overrides
   };
 }

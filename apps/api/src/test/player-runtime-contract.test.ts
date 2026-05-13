@@ -132,6 +132,62 @@ describe("player runtime contract", () => {
     ]);
   });
 
+  it("commits real MV current vocal mode after switch_committed telemetry", async () => {
+    const eventRepository = new FakePlaybackEventRepository();
+    const playbackSessions = new FakePlaybackSessionRepository(createPlaybackSession(81234));
+    const queueEntry = createQueueEntry("asset-real-mv", { preferredVocalMode: "instrumental" });
+
+    await ingestPlayerTelemetry({
+      telemetry: {
+        eventType: "playing",
+        room,
+        deviceId: "tv-active",
+        sessionVersion: 4,
+        queueEntryId: "queue-current",
+        assetId: "asset-real-mv",
+        playbackPositionMs: 82400,
+        vocalMode: "original",
+        switchFamily: "real-mv-audio-track",
+        rollbackAssetId: "asset-real-mv",
+        stage: "switch_committed",
+        emittedAt: now.toISOString()
+      },
+      playbackEvents: eventRepository,
+      playbackSessions,
+      queueEntries: new FakeQueueEntryRepository(queueEntry)
+    });
+
+    expect(queueEntry.playbackOptions.preferredVocalMode).toBe("original");
+  });
+
+  it("does not commit preferred vocal mode on switch_failed telemetry", async () => {
+    const eventRepository = new FakePlaybackEventRepository();
+    const playbackSessions = new FakePlaybackSessionRepository(createPlaybackSession(81234));
+    const queueEntry = createQueueEntry("asset-real-mv", { preferredVocalMode: "instrumental" });
+
+    await ingestPlayerTelemetry({
+      telemetry: {
+        eventType: "switch_failed",
+        room,
+        deviceId: "tv-active",
+        sessionVersion: 4,
+        queueEntryId: "queue-current",
+        assetId: "asset-real-mv",
+        playbackPositionMs: 82400,
+        vocalMode: "original",
+        switchFamily: "real-mv-audio-track",
+        rollbackAssetId: "asset-real-mv",
+        stage: "switch_failed",
+        emittedAt: now.toISOString()
+      },
+      playbackEvents: eventRepository,
+      playbackSessions,
+      queueEntries: new FakeQueueEntryRepository(queueEntry)
+    });
+
+    expect(queueEntry.playbackOptions.preferredVocalMode).toBe("instrumental");
+  });
+
   it("reconnect recovery resumes near the stored player_position_ms when the asset can honor it", async () => {
     const eventRepository = new FakePlaybackEventRepository();
     const repositories = createRecoveryRepositories({
@@ -355,6 +411,22 @@ class FakePlaybackSessionRepository {
   }
 }
 
+class FakeQueueEntryRepository {
+  constructor(private readonly queueEntry: QueueEntry) {}
+
+  async markPlaybackState(): Promise<QueueEntry | null> {
+    return this.queueEntry;
+  }
+
+  async updatePreferredVocalMode(input: { preferredVocalMode: "original" | "instrumental" }): Promise<QueueEntry | null> {
+    this.queueEntry.playbackOptions = {
+      ...this.queueEntry.playbackOptions,
+      preferredVocalMode: input.preferredVocalMode
+    };
+    return this.queueEntry;
+  }
+}
+
 function createRoom(): Room {
   return {
     id: "living-room",
@@ -396,7 +468,7 @@ function createPlaybackSession(playerPositionMs: number): PlaybackSession {
   };
 }
 
-function createQueueEntry(assetId: string): QueueEntry {
+function createQueueEntry(assetId: string, playbackOptions: Partial<QueueEntry["playbackOptions"]> = {}): QueueEntry {
     return {
       id: "queue-current",
       roomId: room.id,
@@ -409,7 +481,8 @@ function createQueueEntry(assetId: string): QueueEntry {
     playbackOptions: {
       preferredVocalMode: "original",
       pitchSemitones: 0,
-      requireReadyAsset: true
+      requireReadyAsset: true,
+      ...playbackOptions
     },
       requestedAt: now.toISOString(),
       startedAt: now.toISOString(),
