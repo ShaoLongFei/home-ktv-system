@@ -13,10 +13,11 @@ import type {
   TrackRef,
   TrackRoles
 } from "@home-ktv/domain";
-import type {
-  ImportCandidateRepository,
-  ImportCandidateWithFiles,
-  UpdateImportCandidateMetadataInput
+import {
+  ImportCandidateMetadataError,
+  type ImportCandidateRepository,
+  type ImportCandidateWithFiles,
+  type UpdateImportCandidateMetadataInput
 } from "../modules/ingest/repositories/import-candidate-repository.js";
 import type { ScanScheduler } from "../modules/ingest/scan-scheduler.js";
 import type { CatalogAdmissionService, ConflictResolution } from "../modules/catalog/admission-service.js";
@@ -122,7 +123,15 @@ export async function registerAdminImportRoutes(
       return reply.code(400).send({ error: "INVALID_IMPORT_CANDIDATE_METADATA" });
     }
 
-    const record = await dependencies.importCandidates.updateCandidateMetadata(candidateId, metadata);
+    let record: ImportCandidateWithFiles | null;
+    try {
+      record = await dependencies.importCandidates.updateCandidateMetadata(candidateId, metadata);
+    } catch (error) {
+      if (error instanceof ImportCandidateMetadataError && error.code === "INVALID_TRACK_ROLE_REF") {
+        return reply.code(400).send({ error: "INVALID_TRACK_ROLE_REF" });
+      }
+      throw error;
+    }
     if (!record) {
       return reply.code(404).send({ error: "IMPORT_CANDIDATE_NOT_FOUND" });
     }

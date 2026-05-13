@@ -64,6 +64,7 @@ export interface UpdateImportCandidateMetadataInput {
     selected?: boolean;
     proposedVocalMode?: VocalMode;
     proposedAssetKind?: AssetKind;
+    trackRoles?: TrackRoles;
   }>;
 }
 
@@ -221,6 +222,39 @@ function defaultPlaybackProfile(): PlaybackProfile {
   };
 }
 
+export class ImportCandidateMetadataError extends Error {
+  constructor(
+    readonly code: "INVALID_TRACK_ROLE_REF",
+    message: string,
+    readonly details: Record<string, unknown> = {}
+  ) {
+    super(message);
+    this.name = "ImportCandidateMetadataError";
+  }
+}
+
+export function validateTrackRolesAgainstAudioTracks(
+  file: ImportCandidateFileDetail,
+  trackRoles: TrackRoles
+): void {
+  const audioTracks = file.mediaInfoSummary?.audioTracks ?? [];
+  for (const role of ["original", "instrumental"] as const) {
+    const trackRef = trackRoles[role];
+    if (!trackRef) {
+      continue;
+    }
+
+    const matched = audioTracks.some((track) => track.id === trackRef.id && track.index === trackRef.index);
+    if (!matched) {
+      throw new ImportCandidateMetadataError(
+        "INVALID_TRACK_ROLE_REF",
+        "Track role ref does not match candidate audio tracks",
+        { candidateFileId: file.id, role, trackRef }
+      );
+    }
+  }
+}
+
 export class PgImportCandidateRepository implements ImportCandidateRepository {
   constructor(private readonly db: QueryExecutor) {}
 
@@ -263,6 +297,12 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
         return null;
       }
 
+      const filePatches = input.files ?? [];
+      const currentFiles = filePatches.some((file) => file.trackRoles !== undefined)
+        ? await this.listCandidateFileDetailsForDb(db, candidateId)
+        : [];
+      const currentFilesById = new Map(currentFiles.map((file) => [file.id, file]));
+
       const candidateMeta = {
         ...existing.candidateMeta,
         ...(input.defaultVocalMode ? { defaultVocalMode: input.defaultVocalMode } : {})
@@ -303,15 +343,35 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
         ]
       );
 
-      for (const file of input.files ?? []) {
+      for (const file of filePatches) {
+        if (file.trackRoles !== undefined) {
+          const currentFile = currentFilesById.get(file.candidateFileId);
+          if (!currentFile) {
+            throw new ImportCandidateMetadataError(
+              "INVALID_TRACK_ROLE_REF",
+              "Candidate file does not belong to the import candidate",
+              { candidateFileId: file.candidateFileId }
+            );
+          }
+          validateTrackRolesAgainstAudioTracks(currentFile, file.trackRoles);
+        }
+
         await db.query(
           `UPDATE import_candidate_files
            SET selected = COALESCE($2, selected),
                proposed_vocal_mode = COALESCE($3, proposed_vocal_mode),
                proposed_asset_kind = COALESCE($4, proposed_asset_kind),
+               track_roles = COALESCE($5::jsonb, track_roles),
                updated_at = now()
-           WHERE id = $1 AND candidate_id = $5`,
-          [file.candidateFileId, file.selected ?? null, file.proposedVocalMode ?? null, file.proposedAssetKind ?? null, candidateId]
+           WHERE id = $1 AND candidate_id = $6`,
+          [
+            file.candidateFileId,
+            file.selected ?? null,
+            file.proposedVocalMode ?? null,
+            file.proposedAssetKind ?? null,
+            file.trackRoles ?? null,
+            candidateId
+          ]
         );
       }
 
@@ -413,7 +473,14 @@ export class PgImportCandidateRepository implements ImportCandidateRepository {
   }
 
   async listCandidateFileDetails(candidateId: ImportCandidateId): Promise<ImportCandidateFileDetail[]> {
-    const result = await this.db.query<ImportCandidateFileDetailRow>(
+    return this.listCandidateFileDetailsForDb(this.db, candidateId);
+  }
+
+  private async listCandidateFileDetailsForDb(
+    db: QueryExecutor,
+    candidateId: ImportCandidateId
+  ): Promise<ImportCandidateFileDetail[]> {
+    const result = await db.query<ImportCandidateFileDetailRow>(
       `SELECT icf.id AS candidate_file_id,
               icf.candidate_id,
               icf.import_file_id,

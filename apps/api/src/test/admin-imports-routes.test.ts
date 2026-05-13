@@ -10,6 +10,7 @@ import type {
 } from "@home-ktv/domain";
 import { describe, expect, it, vi } from "vitest";
 import { resolveLibraryPaths, type LibraryPaths } from "../modules/ingest/library-paths.js";
+import { ImportCandidateMetadataError } from "../modules/ingest/repositories/import-candidate-repository.js";
 import { registerAdminImportRoutes } from "../routes/admin-imports.js";
 
 describe("admin import review routes", () => {
@@ -170,6 +171,32 @@ describe("admin import review routes", () => {
     expect(response.statusCode).toBe(400);
     expect(response.json()).toEqual({ error: "INVALID_IMPORT_CANDIDATE_METADATA" });
     expect(importCandidates.updateCandidateMetadata).not.toHaveBeenCalled();
+  });
+
+  it("returns INVALID_TRACK_ROLE_REF when reviewed trackRoles do not match raw audio tracks", async () => {
+    const { server, importCandidates } = await createAdminImportsHarness();
+    importCandidates.updateCandidateMetadata.mockRejectedValueOnce(
+      new ImportCandidateMetadataError("INVALID_TRACK_ROLE_REF", "bad ref")
+    );
+
+    const response = await server.inject({
+      method: "PATCH",
+      url: "/admin/import-candidates/candidate-1",
+      payload: {
+        files: [
+          {
+            candidateFileId: "candidate-file-1",
+            trackRoles: {
+              original: { index: 99, id: "0x9999", label: "Missing" },
+              instrumental: null
+            }
+          }
+        ]
+      }
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ error: "INVALID_TRACK_ROLE_REF" });
   });
 
   it("POST /admin/imports/scan enqueues a manual scan and returns accepted", async () => {
