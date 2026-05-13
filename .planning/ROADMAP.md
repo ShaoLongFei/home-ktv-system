@@ -75,7 +75,7 @@ Plans:
   5. Unsupported or incomplete candidates remain visible with repair or preprocessing guidance and do not block other candidates from admission.
 **Plans**:
 - [x] 14-01-PLAN.md - API contract for reviewed real-MV track role persistence
-- [ ] 14-02-PLAN.md - Admin review UI for metadata, media facts, track roles, and repair guidance
+- [x] 14-02-PLAN.md - Admin review UI for metadata, media facts, track roles, and repair guidance
 - [x] 14-03-PLAN.md - Real-MV formal admission branch, compatibility readiness, and cover sidecar promotion
 - [x] 14-04-PLAN.md - Durable real-MV `song.json` writing and consistency validation
 - [ ] 14-05-PLAN.md - Cross-surface real-MV admission and review regression coverage
@@ -114,6 +114,6 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 |-------|----------------|--------|-----------|
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
-| 14. Admin Review and Catalog Admission | 3/5 | In Progress | - |
+| 14. Admin Review and Catalog Admission | 4/5 | In Progress|  |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |
 | 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
