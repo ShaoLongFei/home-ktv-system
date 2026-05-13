@@ -198,6 +198,81 @@ describe("room queue commands", () => {
     });
   });
 
+  it("defaults real MV queueing to accompaniment when no current playback mode exists", async () => {
+    const harness = createHarness({
+      queueEntries: [],
+      targetVocalMode: "unknown"
+    });
+
+    const result = expectAccepted(
+      await executeAddQueueEntry(harness, {
+        commandId: "command-add-real-mv-default-instrumental",
+        payload: { songId: "song-real-mv", assetId: "asset-real-mv" }
+      })
+    );
+
+    expect(result.snapshot.currentTarget).toMatchObject({
+      assetId: "asset-real-mv",
+      vocalMode: "instrumental",
+      selectedTrackRef: { id: "0x1101" }
+    });
+    await expect(harness.queueEntries.listEffectiveQueue(harness.room.id)).resolves.toMatchObject([
+      {
+        songId: "song-real-mv",
+        assetId: "asset-real-mv",
+        playbackOptions: {
+          preferredVocalMode: "instrumental"
+        }
+      }
+    ]);
+  });
+
+  it("queues real MV original when the room target mode is original", async () => {
+    const harness = createHarness({
+      queueEntries: [createQueueEntry("queue-current", 1, "playing")],
+      targetVocalMode: "original"
+    });
+
+    expectAccepted(
+      await executeAddQueueEntry(harness, {
+        commandId: "command-add-real-mv-original",
+        payload: { songId: "song-real-mv", assetId: "asset-real-mv" }
+      })
+    );
+
+    const queue = await harness.queueEntries.listEffectiveQueue(harness.room.id);
+    expect(queue.find((entry) => entry.songId === "song-real-mv")).toMatchObject({
+      assetId: "asset-real-mv",
+      status: "queued",
+      playbackOptions: {
+        preferredVocalMode: "original"
+      }
+    });
+  });
+
+  it("rejects real MV queueing when the selected role is missing", async () => {
+    const harness = createHarness({
+      queueEntries: [],
+      targetVocalMode: "unknown",
+      realMvAssetOverrides: {
+        trackRoles: {
+          original: { index: 0, id: "0x1100", label: "Original" },
+          instrumental: null
+        }
+      }
+    });
+
+    const result = expectRejected(
+      await executeAddQueueEntry(harness, {
+        commandId: "command-add-real-mv-missing-role",
+        payload: { songId: "song-real-mv", assetId: "asset-real-mv" }
+      })
+    );
+
+    expect(result.code).toBe("SONG_NOT_QUEUEABLE");
+    await expect(harness.queueEntries.listEffectiveQueue(harness.room.id)).resolves.toEqual([]);
+  });
+
 
   it("falls back to the song default assetId when add-queue-entry omits assetId", async () => {
     const harness = createHarness({
@@ -441,13 +516,14 @@ describe("room queue commands", () => {
   });
 });
 
-function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVocalMode?: VocalMode }) {
+function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVocalMode?: VocalMode; realMvAssetOverrides?: Partial<Asset> }) {
   const room = createRoom();
   const songs = new Map<string, Song>([
     ["song-current", createSong("song-current", "Current", "Artist A", "asset-current-instrumental")],
     ["song-queued", createSong("song-queued", "Queued", "Artist B", "asset-queued-instrumental")],
     ["song-ready", createSong("song-ready", "Ready Song", "Artist Ready", "asset-ready-instrumental")],
-    ["song-other", createSong("song-other", "Other Song", "Artist Other", "asset-other-instrumental")]
+    ["song-other", createSong("song-other", "Other Song", "Artist Other", "asset-other-instrumental")],
+    ["song-real-mv", createSong("song-real-mv", "Real MV", "Artist MV", "asset-real-mv")]
   ]);
   const assets = new Map<string, Asset>([
     ["asset-current-instrumental", createAsset("asset-current-instrumental", "song-current", "instrumental", "family-current")],
@@ -493,7 +569,8 @@ function createHarness(options: { queueEntries: readonly QueueEntry[]; targetVoc
       })
     ],
     ["asset-ready-unverified-original", createAsset("asset-ready-unverified-original", "song-ready", "original", "family-ready-unverified")],
-    ["asset-ready-solo-instrumental", createAsset("asset-ready-solo-instrumental", "song-ready", "instrumental", "family-ready-solo")]
+    ["asset-ready-solo-instrumental", createAsset("asset-ready-solo-instrumental", "song-ready", "instrumental", "family-ready-solo")],
+    ["asset-real-mv", createRealMvAsset(options.realMvAssetOverrides)]
   ]);
   const playbackSession = new FakePlaybackSessionRepository({
     roomId: room.id,
@@ -848,6 +925,38 @@ function createAsset(
     status: "ready",
     switchFamily,
     switchQualityStatus: "verified",
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+    ...overrides
+  };
+}
+
+function createRealMvAsset(overrides: Partial<Asset> = {}): Asset {
+  return {
+    id: "asset-real-mv",
+    songId: "song-real-mv",
+    sourceType: "local",
+    assetKind: "dual-track-video",
+    displayName: "Real MV",
+    filePath: "real-mv.mkv",
+    durationMs: 180000,
+    lyricMode: "hard_sub",
+    vocalMode: "dual",
+    status: "ready",
+    switchFamily: null,
+    switchQualityStatus: "review_required",
+    compatibilityStatus: "playable",
+    trackRoles: {
+      original: { index: 0, id: "0x1100", label: "Original" },
+      instrumental: { index: 1, id: "0x1101", label: "Instrumental" }
+    },
+    playbackProfile: {
+      kind: "single_file_audio_tracks",
+      container: "matroska",
+      videoCodec: "h264",
+      audioCodecs: ["aac", "aac"],
+      requiresAudioTrackSelection: true
+    },
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
     ...overrides
