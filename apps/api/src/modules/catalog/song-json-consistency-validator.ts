@@ -3,11 +3,17 @@ import path from "node:path";
 import type {
   Asset,
   AssetStatus,
+  CompatibilityReason,
+  CompatibilityStatus,
   Language,
   LyricMode,
+  MediaInfoProvenance,
+  MediaInfoSummary,
+  PlaybackProfile,
   Song,
   SongStatus,
   SwitchQualityStatus,
+  TrackRoles,
   VocalMode
 } from "@home-ktv/domain";
 import { readSongJson } from "./song-json.js";
@@ -46,6 +52,15 @@ interface FormalSongJsonAsset {
   switchFamily?: string | null;
   switchQualityStatus?: SwitchQualityStatus;
   durationMs?: number;
+  compatibilityStatus?: CompatibilityStatus;
+  compatibilityReasons?: readonly CompatibilityReason[];
+  mediaInfoSummary?: MediaInfoSummary | null;
+  mediaInfoProvenance?: MediaInfoProvenance | null;
+  trackRoles?: TrackRoles;
+  playbackProfile?: PlaybackProfile;
+  container?: string | null;
+  videoCodec?: string | null;
+  audioCodecs?: readonly string[];
 }
 
 interface FormalSongJsonDocument {
@@ -53,6 +68,7 @@ interface FormalSongJsonDocument {
   artistName?: string;
   language?: Language;
   status?: SongStatus;
+  coverPath?: string | null;
   defaultAssetId?: string | null;
   defaultAssetPath?: string | null;
   assets?: FormalSongJsonAsset[];
@@ -64,6 +80,7 @@ const assetStatuses: AssetStatus[] = ["ready", "caching", "failed", "unavailable
 const vocalModes: VocalMode[] = ["original", "instrumental", "dual", "unknown"];
 const lyricModes: LyricMode[] = ["hard_sub", "soft_sub", "external_lrc", "none"];
 const switchQualityStatuses: SwitchQualityStatus[] = ["verified", "review_required", "rejected", "unknown"];
+const compatibilityStatuses: CompatibilityStatus[] = ["unknown", "review_required", "playable", "unsupported"];
 
 export async function validateSongJsonConsistency(
   input: ValidateSongJsonConsistencyInput
@@ -129,8 +146,14 @@ export async function validateSongJsonConsistency(
 
   validateDocumentShape(document, issues);
   validateDocumentAgainstDatabase(document, input.song, input.assets, issues);
+  await validateCoverPath(songsRoot, songDirectory, document.coverPath, issues);
   await validateReferencedFiles(songsRoot, songDirectory, document.assets ?? [], issues);
-  validateSwitchPair(input.assets, issues);
+  const realMvAssets = input.assets.filter((asset) => asset.playbackProfile?.kind === "single_file_audio_tracks");
+  if (realMvAssets.length > 0) {
+    validateSingleRealMvAsset(realMvAssets, issues);
+  } else {
+    validateSwitchPair(input.assets, issues);
+  }
 
   return {
     status: statusFromIssues(issues),
@@ -261,8 +284,87 @@ function isMalformedJsonAsset(value: unknown): boolean {
     (value.lyricMode !== undefined && !isLyricMode(value.lyricMode)) ||
     (value.status !== undefined && !isAssetStatus(value.status)) ||
     (value.switchQualityStatus !== undefined && !isSwitchQualityStatus(value.switchQualityStatus)) ||
+    (value.compatibilityStatus !== undefined && !isCompatibilityStatus(value.compatibilityStatus)) ||
     (durationMs !== undefined && (typeof durationMs !== "number" || !Number.isInteger(durationMs) || durationMs < 0))
   );
+}
+
+async function validateCoverPath(
+  songsRoot: string,
+  songDirectory: string,
+  coverPath: string | null | undefined,
+  issues: SongJsonConsistencyIssue[]
+): Promise<void> {
+  if (coverPath === undefined || coverPath === null || coverPath.trim().length === 0) {
+    return;
+  }
+
+  const absolutePath = resolveCoverPath(songsRoot, songDirectory, coverPath);
+  if (!absolutePath) {
+    issues.push({
+      code: "UNSAFE_COVER_PATH",
+      severity: "error",
+      message: "song.json cover path escapes the songs root",
+      path: coverPath
+    });
+    return;
+  }
+
+  if (!(await pathExists(absolutePath))) {
+    issues.push({
+      code: "MISSING_COVER_FILE",
+      severity: "warning",
+      message: "song.json references a missing cover file",
+      path: coverPath
+    });
+  }
+}
+
+function validateSingleRealMvAsset(assets: Asset[], issues: SongJsonConsistencyIssue[]): void {
+  if (assets.length !== 1) {
+    issues.push({
+      code: "REAL_MV_ASSET_COUNT_INVALID",
+      severity: "error",
+      message: "Real MV song.json validation requires exactly one single-file audio-track asset"
+    });
+    return;
+  }
+
+  const asset = assets[0] as Asset;
+  if (asset.assetKind !== "dual-track-video" || asset.vocalMode !== "dual") {
+    issues.push({
+      code: "REAL_MV_ASSET_SHAPE_INVALID",
+      severity: "error",
+      message: "Real MV assets must be dual-track-video assets with dual vocal mode",
+      assetId: asset.id
+    });
+  }
+
+  const audioTracks = asset.mediaInfoSummary?.audioTracks ?? [];
+  for (const role of ["original", "instrumental"] as const) {
+    const trackRef = asset.trackRoles?.[role];
+    if (!trackRef) {
+      issues.push({
+        code: "REAL_MV_TRACK_ROLES_MISSING",
+        severity: "warning",
+        message: "Real MV asset is missing a confirmed audio track role",
+        assetId: asset.id,
+        reason: role
+      });
+      continue;
+    }
+
+    const matched = audioTracks.some((track) => track.id === trackRef.id && track.index === trackRef.index);
+    if (!matched) {
+      issues.push({
+        code: "REAL_MV_TRACK_ROLE_REF_INVALID",
+        severity: "error",
+        message: "Real MV track role does not match the asset MediaInfo audio tracks",
+        assetId: asset.id,
+        reason: role
+      });
+    }
+  }
 }
 
 function validateSwitchPair(assets: Asset[], issues: SongJsonConsistencyIssue[]): void {
@@ -318,6 +420,22 @@ function resolveAssetPath(songsRoot: string, songDirectory: string, filePath: st
   }
 
   const normalized = filePath.replace(/\\/gu, "/");
+  const relativePath = normalized.startsWith("songs/")
+    ? stripSongsPrefix(normalized)
+    : path.posix.join(songDirectory, normalized);
+  return safeResolve(songsRoot, relativePath);
+}
+
+function resolveCoverPath(songsRoot: string, songDirectory: string, coverPath: string): string | null {
+  if (path.isAbsolute(coverPath)) {
+    return null;
+  }
+
+  const normalized = coverPath.replace(/\\/gu, "/");
+  if (normalized.split("/").includes("..")) {
+    return null;
+  }
+
   const relativePath = normalized.startsWith("songs/")
     ? stripSongsPrefix(normalized)
     : path.posix.join(songDirectory, normalized);
@@ -392,6 +510,10 @@ function isLyricMode(value: unknown): value is LyricMode {
 
 function isSwitchQualityStatus(value: unknown): value is SwitchQualityStatus {
   return typeof value === "string" && switchQualityStatuses.includes(value as SwitchQualityStatus);
+}
+
+function isCompatibilityStatus(value: unknown): value is CompatibilityStatus {
+  return typeof value === "string" && compatibilityStatuses.includes(value as CompatibilityStatus);
 }
 
 function sanitizeSegment(value: string): string {
