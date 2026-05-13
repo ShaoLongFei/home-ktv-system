@@ -1,4 +1,4 @@
-import type { Asset, PlaybackProfile, QueueEntry, Room, Song, TrackRef } from "@home-ktv/domain";
+import type { Asset, PlaybackProfile, QueueEntry, Room, Song, TrackRef, VocalMode } from "@home-ktv/domain";
 import type { PlaybackTarget, QueueEntryPreview } from "@home-ktv/player-contracts";
 import type { AssetGateway } from "../assets/asset-gateway.js";
 import type { AssetRepository } from "../catalog/repositories/asset-repository.js";
@@ -46,6 +46,8 @@ export async function buildPlaybackTarget(input: BuildPlaybackTargetInput): Prom
     return null;
   }
 
+  const effectiveVocalMode = effectiveVocalModeForPlayback(asset, queueEntry);
+
   return {
     roomId: room.id,
     sessionVersion: session.version,
@@ -54,10 +56,10 @@ export async function buildPlaybackTarget(input: BuildPlaybackTargetInput): Prom
     currentQueueEntryPreview: queuePreview(queueEntry, currentSong),
     playbackUrl: input.assetGateway.createPlaybackUrl(asset.id),
     resumePositionMs: session.playerPositionMs,
-    vocalMode: asset.vocalMode,
+    vocalMode: effectiveVocalMode,
     switchFamily: asset.switchFamily,
     playbackProfile: buildPlaybackProfileForAsset(asset),
-    selectedTrackRef: selectedTrackRefForAsset(asset),
+    selectedTrackRef: selectedTrackRefForResolvedMode(asset, effectiveVocalMode),
     nextQueueEntryPreview: await buildNextQueueEntryPreview(room, session.nextQueueEntryId, input.repositories)
   };
 }
@@ -76,11 +78,19 @@ function buildPlaybackProfileForAsset(asset: Asset): PlaybackProfile {
   };
 }
 
-function selectedTrackRefForAsset(asset: Asset): TrackRef | null {
-  if (asset.vocalMode === "original") {
+function effectiveVocalModeForPlayback(asset: Asset, queueEntry: QueueEntry): VocalMode {
+  if (asset.playbackProfile?.kind === "single_file_audio_tracks" || asset.assetKind === "dual-track-video") {
+    return queueEntry.playbackOptions.preferredVocalMode ?? "instrumental";
+  }
+
+  return asset.vocalMode;
+}
+
+function selectedTrackRefForResolvedMode(asset: Asset, vocalMode: VocalMode): TrackRef | null {
+  if (vocalMode === "original") {
     return asset.trackRoles?.original ?? null;
   }
-  if (asset.vocalMode === "instrumental") {
+  if (vocalMode === "instrumental") {
     return asset.trackRoles?.instrumental ?? null;
   }
   return null;
@@ -125,6 +135,8 @@ export function buildPlaybackTargetFromResolvedState(input: {
   playbackUrl: string;
   nextQueueEntryPreview: QueueEntryPreview | null;
 }): PlaybackTarget {
+  const effectiveVocalMode = effectiveVocalModeForPlayback(input.asset, input.queueEntry);
+
   return {
     roomId: input.room.id,
     sessionVersion: input.sessionVersion,
@@ -139,10 +151,10 @@ export function buildPlaybackTargetFromResolvedState(input: {
         },
     playbackUrl: input.playbackUrl,
     resumePositionMs: input.resumePositionMs,
-    vocalMode: input.asset.vocalMode,
+    vocalMode: effectiveVocalMode,
     switchFamily: input.asset.switchFamily,
     playbackProfile: buildPlaybackProfileForAsset(input.asset),
-    selectedTrackRef: selectedTrackRefForAsset(input.asset),
+    selectedTrackRef: selectedTrackRefForResolvedMode(input.asset, effectiveVocalMode),
     nextQueueEntryPreview: input.nextQueueEntryPreview
   };
 }

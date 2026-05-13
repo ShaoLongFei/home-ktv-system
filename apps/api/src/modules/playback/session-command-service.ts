@@ -1,11 +1,13 @@
 import type { AssetGateway } from "../assets/asset-gateway.js";
 import type { ApiConfig } from "../../config.js";
 import type {
+  Asset,
   ControlCommandType,
   ControlSession,
   PlaybackSession,
   QueueEntry,
-  Room
+  Room,
+  VocalMode
 } from "@home-ktv/domain";
 import type { ControlSessionInfo, RoomControlSnapshot } from "@home-ktv/player-contracts";
 import type { PlaybackNotice } from "@home-ktv/player-contracts";
@@ -114,7 +116,15 @@ export interface RejectedCommandResult {
 
 interface QueueMutationContext {
   room: Room;
-  session: { currentQueueEntryId: string | null; nextQueueEntryId: string | null; version: number; playerPositionMs: number; targetVocalMode: string; activeAssetId: string | null; playerState: string };
+  session: {
+    currentQueueEntryId: string | null;
+    nextQueueEntryId: string | null;
+    version: number;
+    playerPositionMs: number;
+    targetVocalMode: VocalMode;
+    activeAssetId: string | null;
+    playerState: string;
+  };
   now: Date;
 }
 
@@ -371,6 +381,7 @@ export async function advanceToNext(input: AdvanceToNextInput): Promise<{
   }
 
   const nextAsset = await input.repositories.assets.findById(nextEntry.assetId);
+  const nextTargetVocalMode = nextAsset ? targetVocalModeForQueueEntry(nextAsset, nextEntry) : null;
   await markQueueEntryPlaybackState(input.repositories, {
     roomId: input.room.id,
     queueEntryId: nextEntry.id,
@@ -385,7 +396,7 @@ export async function advanceToNext(input: AdvanceToNextInput): Promise<{
     playerPositionMs: 0,
     nextQueueEntryId: currentIndex >= 0 ? effectiveQueue[currentIndex + 2]?.id ?? null : null,
     mediaStartedAt: null,
-    ...(nextAsset ? { targetVocalMode: nextAsset.vocalMode } : {})
+    ...(nextTargetVocalMode ? { targetVocalMode: nextTargetVocalMode } : {})
   });
 
   const snapshot = await buildRoomControlSnapshot({
@@ -463,14 +474,24 @@ async function addQueueEntry(
     return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
   }
 
-  const selectedAssetSourceIsQueueable = selectedAsset.sourceType !== "online_ephemeral";
-  if (!selectedAssetSourceIsQueueable || selectedAsset.switchQualityStatus !== "verified") {
-    return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
-  }
+  const resolvedMode = isSingleFileRealMvAsset(selectedAsset)
+    ? resolveRealMvQueueVocalMode({ asset: selectedAsset, sessionTargetVocalMode: context.session.targetVocalMode })
+    : null;
 
-  const counterparts = await input.repositories.assets.findVerifiedSwitchCounterparts(selectedAsset);
-  if (counterparts.length === 0) {
-    return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
+  if (isSingleFileRealMvAsset(selectedAsset)) {
+    if (!resolvedMode || !isQueueableRealMvAsset(selectedAsset, resolvedMode)) {
+      return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
+    }
+  } else {
+    const selectedAssetSourceIsQueueable = selectedAsset.sourceType !== "online_ephemeral";
+    if (!selectedAssetSourceIsQueueable || selectedAsset.switchQualityStatus !== "verified") {
+      return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
+    }
+
+    const counterparts = await input.repositories.assets.findVerifiedSwitchCounterparts(selectedAsset);
+    if (counterparts.length === 0) {
+      return rejected(input.commandId, input.sessionVersion, "SONG_NOT_QUEUEABLE");
+    }
   }
 
   const effectiveQueue = await input.repositories.queueEntries.listEffectiveQueue(context.room.id);
@@ -480,7 +501,8 @@ async function addQueueEntry(
     songId: song.id,
     assetId: selectedAsset.id,
     requestedBy: input.controlSession.deviceId,
-    queuePosition: queuePosition + 1
+    queuePosition: queuePosition + 1,
+    ...(resolvedMode ? { playbackOptions: { preferredVocalMode: resolvedMode } } : {})
   });
 
   const snapshot = await finishAcceptedCommand(input, context);
@@ -719,12 +741,46 @@ async function syncPlaybackSessionAfterQueueMutation(
     roomId: context.room.id,
     queueEntryId: targetQueueEntry.id,
     activeAssetId: targetAsset.id,
-    targetVocalMode: shouldPreservePlaybackState ? session.targetVocalMode : targetAsset.vocalMode,
+    targetVocalMode: shouldPreservePlaybackState ? session.targetVocalMode : targetVocalModeForQueueEntry(targetAsset, targetQueueEntry),
     playerState: shouldPreservePlaybackState ? session.playerState : "loading",
     playerPositionMs: shouldPreservePlaybackState ? session.playerPositionMs : 0,
     nextQueueEntryId,
     mediaStartedAt: shouldPreservePlaybackState && session.mediaStartedAt ? new Date(session.mediaStartedAt) : null
   });
+}
+
+function isSingleFileRealMvAsset(asset: Asset): boolean {
+  return asset.playbackProfile?.kind === "single_file_audio_tracks" || asset.assetKind === "dual-track-video";
+}
+
+function resolveRealMvQueueVocalMode(input: {
+  asset: Asset;
+  sessionTargetVocalMode: VocalMode | string | null;
+}): "original" | "instrumental" | null {
+  const selectedMode = input.sessionTargetVocalMode === "original" ? "original" : "instrumental";
+  return hasTrackForVocalMode(input.asset, selectedMode) ? selectedMode : null;
+}
+
+function hasTrackForVocalMode(asset: Asset, vocalMode: "original" | "instrumental"): boolean {
+  return vocalMode === "original" ? Boolean(asset.trackRoles?.original) : Boolean(asset.trackRoles?.instrumental);
+}
+
+function isQueueableRealMvAsset(asset: Asset, vocalMode: "original" | "instrumental"): boolean {
+  return (
+    asset.status === "ready" &&
+    asset.sourceType !== "online_ephemeral" &&
+    asset.compatibilityStatus === "playable" &&
+    hasTrackForVocalMode(asset, vocalMode)
+  );
+}
+
+function targetVocalModeForQueueEntry(asset: Asset, queueEntry: QueueEntry): VocalMode {
+  if (!isSingleFileRealMvAsset(asset)) {
+    return asset.vocalMode;
+  }
+
+  const preferredVocalMode = queueEntry.playbackOptions.preferredVocalMode;
+  return preferredVocalMode === "original" || preferredVocalMode === "instrumental" ? preferredVocalMode : "instrumental";
 }
 
 async function markQueueEntryPlaybackState(
