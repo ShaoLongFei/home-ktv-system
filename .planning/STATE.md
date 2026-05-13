@@ -57,7 +57,7 @@ Progress: [████████░░] 80%
 | Phase 13 P02 | 20 min | 3 tasks | 2 files |
 | Phase 13 P03 | 60 min | 4 tasks | 5 files |
 | Phase 14 P01 | 14 min | 2 tasks | 3 files |
-| Phase 14-admin-review-and-catalog-admission P04 | 17 min | 2 tasks | 4 files |
+| Phase 14 P04 | 17 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -92,9 +92,9 @@ Progress: [████████░░] 80%
 - [Phase 14-01]: Reviewed trackRoles are accepted only as a complete original/instrumental object whose slots are TrackRef or null.
 - [Phase 14-01]: Candidate metadata updates validate reviewed trackRoles against current candidate file MediaInfo audioTracks inside the update transaction.
 - [Phase 14-01]: Invalid reviewed track refs return INVALID_TRACK_ROLE_REF from the Admin metadata PATCH route.
-- [Phase 14-admin-review-and-catalog-admission]: Formal song.json now mirrors durable real-MV Asset fields without adding any database dependency to the writer.
-- [Phase 14-admin-review-and-catalog-admission]: Validator treats playbackProfile.kind=single_file_audio_tracks as a one-asset real-MV contract and skips legacy switch-pair validation for it.
-- [Phase 14-admin-review-and-catalog-admission]: Missing real-MV original/instrumental role refs are review warnings; invalid refs remain hard validation errors.
+- [Phase 14-04]: Formal song.json now mirrors durable real-MV Asset fields without adding any database dependency to the writer.
+- [Phase 14-04]: Validator treats playbackProfile.kind=single_file_audio_tracks as a one-asset real-MV contract and skips legacy switch-pair validation for it.
+- [Phase 14-04]: Missing real-MV original/instrumental role refs are review warnings; invalid refs remain hard validation errors.
 
 ### Pending Todos
 
