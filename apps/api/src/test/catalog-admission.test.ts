@@ -338,6 +338,77 @@ describe("CatalogAdmissionService", () => {
     );
   });
 
+  it("persists real-MV asset fields when promoting formal songs", async () => {
+    const queries: Array<{ text: string; values: readonly unknown[] | undefined }> = [];
+    const db: QueryExecutor = {
+      async query<TRow>(text: string, values?: readonly unknown[]) {
+        queries.push({ text, values });
+        return { rows: [] as TRow[] };
+      }
+    };
+    const trackRoles = createRealMvTrackRoles();
+
+    await new PgCatalogAdmissionWriter(db).promoteApprovedCandidate({
+      candidateId: "candidate-1",
+      songId: "song-candidate-1",
+      title: "七里香",
+      artistName: "周杰伦",
+      language: "mandarin",
+      releaseYear: 2004,
+      switchFamily: "candidate-candidate-1",
+      defaultAssetId: "asset-candidate-1-real-mv",
+      songStatus: "review_required",
+      assets: [
+        {
+          assetId: "asset-candidate-1-real-mv",
+          importFileId: "import-real-mv",
+          filePath: "songs/mandarin/周杰伦/七里香/七里香.mkv",
+          vocalMode: "dual",
+          durationMs: 180000,
+          assetKind: "dual-track-video",
+          status: "promoted",
+          switchFamily: null,
+          switchQualityStatus: "review_required",
+          compatibilityStatus: "review_required",
+          compatibilityReasons: [
+            {
+              code: "runtime-switch-unverified",
+              severity: "warning",
+              message: "Runtime audio track switching still needs verification.",
+              source: "scanner"
+            }
+          ],
+          mediaInfoSummary: createRealMvMediaInfoSummary(),
+          mediaInfoProvenance: {
+            source: "mediainfo",
+            sourceVersion: "24.01",
+            probedAt: "2026-05-13T00:00:00.000Z",
+            importedFrom: "scanner"
+          },
+          trackRoles,
+          playbackProfile: createRealMvPlaybackProfile()
+        }
+      ]
+    });
+
+    const assetWrite = queries.find((query) => query.text.includes("INSERT INTO assets"));
+    expect(assetWrite?.text).toContain("compatibility_status");
+    expect(assetWrite?.text).toContain("track_roles");
+    expect(assetWrite?.text).toContain("playback_profile");
+    expect(assetWrite?.values).toEqual(
+      expect.arrayContaining([
+        "dual-track-video",
+        "review_required",
+        expect.objectContaining({
+          instrumental: expect.objectContaining({ id: "0x1101" })
+        }),
+        expect.objectContaining({
+          kind: "single_file_audio_tracks"
+        })
+      ])
+    );
+  });
+
   it("mirrors catalog search columns and indexes in migration and schemaSql", async () => {
     const migrationSql = await readFile(new URL("../db/migrations/0005_catalog_search.sql", import.meta.url), "utf8");
 
