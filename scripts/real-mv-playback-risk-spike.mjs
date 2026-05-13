@@ -7,8 +7,12 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const UNSUPPORTED_SWITCH_MESSAGE = "current device does not support audio-track switching";
-const SAMPLE_REQUIRED_MESSAGE = "Phase 12 real sample spike requires both --mkv and --mpeg sample files";
+const SAMPLE_REQUIRED_MESSAGE = "Phase 16 local hardening report requires both --sample-mkv and --sample-mpg sample files";
 const DEFAULT_CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const DEFAULT_SAMPLE_PATHS = {
+  mkv: "songs-sample/关喆-想你的夜(MTV)-国语-流行.mkv",
+  mpg: "songs-sample/蔡依林-BECAUSE OF YOU(演唱会)-国语-流行.mpg"
+};
 
 export async function main(argv = process.argv.slice(2), io = process) {
   const args = parseArgs(argv);
@@ -17,8 +21,9 @@ export async function main(argv = process.argv.slice(2), io = process) {
     return 0;
   }
 
-  if (!args.controlledOnly && (!(await isFile(args.mkv)) || !(await isFile(args.mpeg)))) {
-    io.stderr.write(`${SAMPLE_REQUIRED_MESSAGE}\n`);
+  const sampleResolution = await resolveSamples(args, process.env);
+  if (!sampleResolution.ok) {
+    io.stderr.write(`${sampleResolution.message}\n`);
     return 1;
   }
 
@@ -41,25 +46,28 @@ export async function main(argv = process.argv.slice(2), io = process) {
     })
   ];
 
-  if (!args.controlledOnly) {
+  if (sampleResolution.mode === "local") {
+    const indexCrossCheck = await buildIndexCrossCheck(args.databaseUrl, sampleResolution);
     sections.push(
+      buildLocalHardeningSection({ sampleResolution, indexCrossCheck }),
       buildSampleSection({
         heading: "Real sample - MKV sample",
         contentType: "video/x-matroska",
         browser,
-        summary: await probeSampleSummary(args.mkv, "matroska,webm")
+        summary: await probeSampleSummary(sampleResolution.mkvPath, "matroska,webm")
       }),
       buildSampleSection({
         heading: "Real sample - MPEG sample",
         contentType: "video/mpeg",
         browser,
-        summary: await probeSampleSummary(args.mpeg, "mpeg")
-      })
+        summary: await probeSampleSummary(sampleResolution.mpgPath, "mpeg")
+      }),
+      buildIndexCrossCheckSection(indexCrossCheck)
     );
   }
 
   const report = [
-    "# Phase 12 Real MV Playback Risk Spike",
+    "# Phase 16 Real MV Playback Hardening Report",
     "",
     `Generated at: ${new Date().toISOString()}`,
     "",
@@ -86,27 +94,91 @@ function usage() {
 
 Usage:
   pnpm real-mv:risk-spike -- --controlled-only --output <report.md>
-  pnpm real-mv:risk-spike -- --mkv <sample.mkv> --mpeg <sample.mpg|sample.mpeg> --output <report.md>
+  pnpm real-mv:risk-spike -- --sample-mkv <sample.mkv> --sample-mpg <sample.mpg|sample.mpeg> --output <report.md>
+  MEDIA_ROOT=/media/library pnpm real-mv:risk-spike -- --output <report.md>
 
 Options:
-  --help             Show this help
-  --controlled-only  Run controlled fixture checks without real samples
-  --mkv <path>       Real MKV sample path
-  --mpeg <path>      Real MPG/MPEG sample path
-  --output <path>    Markdown report path`;
+  --help                 Show this help
+  --controlled-only      Run controlled fixture checks without local samples
+  --media-root <path>    Root that contains the default songs-sample files
+  --sample-mkv <path>    Local MKV representative sample path
+  --sample-mpg <path>    Local MPG/MPEG representative sample path
+  --database-url <url>   Optional Postgres URL for read-only catalog index cross-check
+  --mkv <path>           Backward-compatible alias for --sample-mkv
+  --mpeg <path>          Backward-compatible alias for --sample-mpg
+  --output <path>        Markdown report path`;
 }
 
 function parseArgs(argv) {
-  const args = { controlledOnly: false, help: false, mkv: null, mpeg: null, output: null };
+  const args = {
+    controlledOnly: false,
+    help: false,
+    mediaRoot: null,
+    sampleMkv: null,
+    sampleMpg: null,
+    databaseUrl: null,
+    output: null
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--help" || arg === "-h") args.help = true;
     else if (arg === "--controlled-only") args.controlledOnly = true;
-    else if (arg === "--mkv") args.mkv = argv[++index] ?? null;
-    else if (arg === "--mpeg") args.mpeg = argv[++index] ?? null;
+    else if (arg === "--media-root") args.mediaRoot = argv[++index] ?? null;
+    else if (arg === "--sample-mkv" || arg === "--mkv") args.sampleMkv = argv[++index] ?? null;
+    else if (arg === "--sample-mpg" || arg === "--mpeg") args.sampleMpg = argv[++index] ?? null;
+    else if (arg === "--database-url") args.databaseUrl = argv[++index] ?? null;
     else if (arg === "--output") args.output = argv[++index] ?? null;
   }
   return args;
+}
+
+async function resolveSamples(args, env) {
+  if (args.controlledOnly) {
+    return { ok: true, mode: "controlled-only" };
+  }
+
+  if (args.sampleMkv || args.sampleMpg) {
+    if (!(await isFile(args.sampleMkv)) || !(await isFile(args.sampleMpg))) {
+      return { ok: false, message: SAMPLE_REQUIRED_MESSAGE };
+    }
+    return {
+      ok: true,
+      mode: "local",
+      source: "explicit",
+      mkvPath: path.resolve(args.sampleMkv),
+      mpgPath: path.resolve(args.sampleMpg)
+    };
+  }
+
+  const mediaRoot = (args.mediaRoot ?? env.MEDIA_ROOT ?? "").trim();
+  if (mediaRoot) {
+    const resolvedRoot = path.resolve(mediaRoot);
+    const mkvPath = resolveUnderMediaRoot(resolvedRoot, DEFAULT_SAMPLE_PATHS.mkv);
+    const mpgPath = resolveUnderMediaRoot(resolvedRoot, DEFAULT_SAMPLE_PATHS.mpg);
+    const missing = [];
+    if (!(await isFile(mkvPath))) missing.push(DEFAULT_SAMPLE_PATHS.mkv);
+    if (!(await isFile(mpgPath))) missing.push(DEFAULT_SAMPLE_PATHS.mpg);
+    if (missing.length > 0) {
+      return {
+        ok: false,
+        message: `Missing default local sample file: ${missing.join(", ")} under ${resolvedRoot}`
+      };
+    }
+    return {
+      ok: true,
+      mode: "local",
+      source: "media-root",
+      mediaRoot: resolvedRoot,
+      mkvPath,
+      mpgPath
+    };
+  }
+
+  return { ok: true, mode: "controlled-fixtures" };
+}
+
+function resolveUnderMediaRoot(mediaRoot, relativePath) {
+  return path.join(mediaRoot, ...relativePath.split("/"));
 }
 
 async function isFile(filePath) {
@@ -230,6 +302,124 @@ function buildSampleSection({ heading, contentType, browser, summary, fixtureNot
     `- compatibilityReasons: ${reasonsJson}`,
     ""
   ].filter((line) => line !== null);
+}
+
+function buildLocalHardeningSection({ sampleResolution, indexCrossCheck }) {
+  return [
+    "## Local hardening samples",
+    "",
+    `- sampleSource: ${sampleResolution.source === "explicit" ? "explicit sample paths" : "default sample paths"}`,
+    sampleResolution.mediaRoot ? `- mediaRoot: ${sampleResolution.mediaRoot}` : null,
+    `- sampleMkvPath: ${sampleResolution.mkvPath}`,
+    `- sampleMkvFilename: ${path.basename(sampleResolution.mkvPath)}`,
+    `- sampleMpgPath: ${sampleResolution.mpgPath}`,
+    `- sampleMpgFilename: ${path.basename(sampleResolution.mpgPath)}`,
+    indexCrossCheck.status === "skipped" ? "- index cross-check skipped" : "- index cross-check requested",
+    ""
+  ].filter((line) => line !== null);
+}
+
+async function buildIndexCrossCheck(databaseUrl, sampleResolution) {
+  if (!databaseUrl) {
+    return { status: "skipped" };
+  }
+
+  let client = null;
+  try {
+    const pg = await import("pg");
+    const Client = pg.Client ?? pg.default?.Client;
+    if (!Client) {
+      return { status: "unavailable", reason: "pg Client export unavailable" };
+    }
+    client = new Client({ connectionString: databaseUrl });
+    await client.connect();
+
+    const songs = await countTable(client, "songs");
+    const assets = await countTable(client, "assets");
+    const sourceRecords = await countTable(client, "source_records");
+    const matches = await findAssetMatches(client, sampleResolution);
+
+    return { status: "ok", songs, assets, sourceRecords, matches };
+  } catch (error) {
+    return { status: "unavailable", reason: error instanceof Error ? error.message : String(error) };
+  } finally {
+    if (client) {
+      await client.end().catch(() => undefined);
+    }
+  }
+}
+
+async function countTable(client, tableName) {
+  try {
+    const result = await client.query(`SELECT COUNT(*)::int AS count FROM ${tableName}`);
+    return typeof result.rows[0]?.count === "number" ? result.rows[0].count : Number(result.rows[0]?.count ?? 0);
+  } catch (error) {
+    return { unavailable: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+async function findAssetMatches(client, sampleResolution) {
+  try {
+    const candidatePaths = [
+      sampleResolution.mkvPath,
+      sampleResolution.mpgPath,
+      DEFAULT_SAMPLE_PATHS.mkv,
+      DEFAULT_SAMPLE_PATHS.mpg
+    ];
+    const filenamePatterns = [
+      `%${path.basename(sampleResolution.mkvPath)}`,
+      `%${path.basename(sampleResolution.mpgPath)}`
+    ];
+    const result = await client.query(
+      `SELECT file_path, display_name, compatibility_status
+       FROM assets
+       WHERE file_path = ANY($1::text[]) OR file_path LIKE ANY($2::text[])
+       ORDER BY updated_at DESC
+       LIMIT 10`,
+      [candidatePaths, filenamePatterns]
+    );
+    return result.rows.map((row) => ({
+      filePath: row.file_path,
+      displayName: row.display_name,
+      compatibilityStatus: row.compatibility_status
+    }));
+  } catch (error) {
+    return { unavailable: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+function buildIndexCrossCheckSection(indexCrossCheck) {
+  if (indexCrossCheck.status === "skipped") {
+    return [];
+  }
+  if (indexCrossCheck.status !== "ok") {
+    return [
+      "## Index cross-check",
+      "",
+      "- status: unavailable",
+      `- reason: ${indexCrossCheck.reason}`,
+      ""
+    ];
+  }
+
+  const matchLines = Array.isArray(indexCrossCheck.matches) && indexCrossCheck.matches.length > 0
+    ? indexCrossCheck.matches.map((match) => `- match: ${match.filePath} (${match.compatibilityStatus})`)
+    : ["- matches: none"];
+  return [
+    "## Index cross-check",
+    "",
+    "- status: ok",
+    `- songs: ${formatCount(indexCrossCheck.songs)}`,
+    `- assets: ${formatCount(indexCrossCheck.assets)}`,
+    `- sourceRecords: ${formatCount(indexCrossCheck.sourceRecords)}`,
+    ...matchLines,
+    ""
+  ];
+}
+
+function formatCount(value) {
+  if (typeof value === "number") return String(value);
+  return `unavailable (${value.unavailable})`;
 }
 
 function evaluateCompatibility({ summary, trackRoles, currentWebCanPlayType }) {
