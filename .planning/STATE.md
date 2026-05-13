@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: 真实 MV 歌库
-status: planning
-stopped_at: Phase 14 planned
-last_updated: "2026-05-12T16:07:19Z"
-last_activity: "2026-05-12 -- Phase 14 planned and verified"
+status: executing
+stopped_at: Wave 1 complete for Phase 14
+last_updated: "2026-05-13T03:15:40.183Z"
+last_activity: "2026-05-13 -- Phase 14 Wave 1 complete"
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 10
-  completed_plans: 10
-  percent: 100
+  total_plans: 15
+  completed_plans: 12
+  percent: 80
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: `.planning/PROJECT.md` (updated 2026-05-10)
 ## Current Position
 
 Milestone: v1.2 真实 MV 歌库
-Phase: 14 (admin-review-and-catalog-admission) — READY TO EXECUTE
-Plan: 14-01 through 14-05 created
-Status: Ready to execute
-Last activity: 2026-05-12 -- Phase 14 planned and verified
+Phase: 14 (admin-review-and-catalog-admission) — EXECUTING WAVE 2
+Plan: 14-02 and 14-03 next
+Status: Executing
+Last activity: 2026-05-13 -- Phase 14 Wave 1 complete
 
-Progress: [██████████] 100%
+Progress: [████████░░] 80%
 
 ## Performance Metrics
 
@@ -56,6 +56,8 @@ Progress: [██████████] 100%
 *Updated after each plan completion*
 | Phase 13 P02 | 20 min | 3 tasks | 2 files |
 | Phase 13 P03 | 60 min | 4 tasks | 5 files |
+| Phase 14 P01 | 14 min | 2 tasks | 3 files |
+| Phase 14-admin-review-and-catalog-admission P04 | 17 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -87,6 +89,12 @@ Progress: [██████████] 100%
 - [Milestone v1.1]: TV playback polish, productized Chinese UI, paired Mobile visual coverage, runtime boundaries, and traceability audit are archived.
 - [Phase 13]: Invalid real MV sidecar JSON and schema mismatches become scanner warnings with stable reason codes instead of scan failures. — Plan 13-02 keeps malformed song.json retryable and visible for later Admin review.
 - [Phase 13]: Real MV filename fallback stays conservative and records provenance/conflicts for Admin review. — Plan 13-02 avoids aggressive identity guesses while preserving MediaInfo, filename, and sidecar source labels.
+- [Phase 14-01]: Reviewed trackRoles are accepted only as a complete original/instrumental object whose slots are TrackRef or null.
+- [Phase 14-01]: Candidate metadata updates validate reviewed trackRoles against current candidate file MediaInfo audioTracks inside the update transaction.
+- [Phase 14-01]: Invalid reviewed track refs return INVALID_TRACK_ROLE_REF from the Admin metadata PATCH route.
+- [Phase 14-admin-review-and-catalog-admission]: Formal song.json now mirrors durable real-MV Asset fields without adding any database dependency to the writer.
+- [Phase 14-admin-review-and-catalog-admission]: Validator treats playbackProfile.kind=single_file_audio_tracks as a one-asset real-MV contract and skips legacy switch-pair validation for it.
+- [Phase 14-admin-review-and-catalog-admission]: Missing real-MV original/instrumental role refs are review warnings; invalid refs remain hard validation errors.
 
 ### Pending Todos
 
@@ -99,6 +107,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-12T16:07:19Z
-Stopped at: Phase 14 planned
-Resume file: .planning/phases/14-admin-review-and-catalog-admission/14-01-PLAN.md
+Last session: 2026-05-13T03:15:40.180Z
+Stopped at: Wave 1 complete for Phase 14
+Resume file: .planning/phases/14-admin-review-and-catalog-admission/14-02-PLAN.md

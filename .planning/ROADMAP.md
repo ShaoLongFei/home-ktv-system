@@ -74,10 +74,10 @@ Plans:
   4. Approved real MV songs write and validate formal `song.json` with media path, cover path, one asset, track role refs, codecs, and compatibility status.
   5. Unsupported or incomplete candidates remain visible with repair or preprocessing guidance and do not block other candidates from admission.
 **Plans**:
-- [ ] 14-01-PLAN.md - API contract for reviewed real-MV track role persistence
+- [x] 14-01-PLAN.md - API contract for reviewed real-MV track role persistence
 - [ ] 14-02-PLAN.md - Admin review UI for metadata, media facts, track roles, and repair guidance
 - [ ] 14-03-PLAN.md - Real-MV formal admission branch, compatibility readiness, and cover sidecar promotion
-- [ ] 14-04-PLAN.md - Durable real-MV `song.json` writing and consistency validation
+- [x] 14-04-PLAN.md - Durable real-MV `song.json` writing and consistency validation
 - [ ] 14-05-PLAN.md - Cross-surface real-MV admission and review regression coverage
 **UI hint**: yes
 
@@ -114,6 +114,6 @@ Phases execute in numeric order: 12 -> 13 -> 14 -> 15 -> 16
 |-------|----------------|--------|-----------|
 | 12. Contract, Schema, and Playback-Risk Spike | 6/6 | Completed | 2026-05-12 |
 | 13. MediaInfo Probe, Scanner, and Sidecars | 3/4 | Complete    | 2026-05-12 |
-| 14. Admin Review and Catalog Admission | 0/TBD | Not started | - |
+| 14. Admin Review and Catalog Admission | 2/5 | In Progress | - |
 | 15. Search, Queue, Playback, and Switching | 0/TBD | Not started | - |
 | 16. Policy Seam, Android Reservation, and Hardening | 0/TBD | Not started | - |
