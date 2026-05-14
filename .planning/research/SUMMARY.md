@@ -1,101 +1,62 @@
 # Project Research Summary
 
-**Project:** 家庭包厢式 KTV 系统
-**Domain:** v1.2 真实 MKV/MPG MV 歌库接入
-**Researched:** 2026-05-10
-**Confidence:** Medium-high
+**Project:** 家庭包厢式 KTV 系统  
+**Domain:** v1.3 真实场景接入、部署和验证  
+**Researched:** 2026-05-14  
+**Confidence:** High
 
 ## Executive Summary
 
-v1.2 should extend the existing scan -> review -> formal catalog -> search/queue -> TV playback flow. A real MKV/MPG file becomes one song candidate. Optional same-stem cover image and `song.json` enrich the candidate. MediaInfo supplies primary technical metadata, filename parsing fills gaps, and Admin review remains the default trust boundary.
+v1.3 should connect the already-built full KTV index and NAS media library to the product runtime. The safest architecture is a hybrid path: search reads `ktv_*` directly, but queueing an indexed result first promotes that selected asset into the existing canonical `songs/assets` tables, then reuses the existing queue, playback target, TV, room snapshot, and telemetry flows.
 
-The selected model is one physical MV file -> one formal `Song` -> one real-MV `Asset` with `trackRoles` for original/accompaniment. Playback targets should gain a platform-neutral `playbackProfile` and `selectedTrackRef` so the current web TV and future Android TV can both understand the intent.
-
-The hard risks are playback compatibility and track semantics. MKV/MPG extension support does not guarantee browser playback, and browser audio-track switching is not reliable enough to assume. v1.2 should mark compatibility explicitly, keep unsupported files out of search/queue, and only show switching where runtime capability is verified.
+This milestone should also make deployment and validation repeatable. The API must prove that PostgreSQL is reachable, active indexed assets exist, NAS paths can be mapped and read, services start with consistent environment variables, and a real user can search, queue, play, skip, and recover using actual library songs.
 
 ## Stack Additions
 
-- MediaInfo probe wrapper for container, duration, codecs, and audio-track metadata.
-- Scanner support for `.mkv`, `.mpg`, and `.mpeg`.
-- Same-stem sidecar resolver for cover image and `song.json`.
-- Compatibility evaluator with explicit unsupported reasons.
-- Domain/catalog/player-contract fields for media profile, audio-track selection, provenance, cover path, and compatibility.
-- Asset gateway MIME/range handling for large real MV files.
-- Representative real-media fixtures and TV runtime smoke tests.
+- KTV index read repository.
+- Idempotent indexed-asset-to-canonical-catalog sync service.
+- Media path resolver and preflight checks for NAS paths.
+- Admin diagnostics for index status, latest run, counts, and path health.
+- Real-mode deployment script/profile with per-service logs.
+- Real-scene smoke checks and UAT guide.
 
 ## Table Stakes
 
-- Scan real MV files as reviewable candidates.
-- Preserve metadata provenance from MediaInfo, filename, sidecar, and Admin edits.
-- Show detected audio tracks and require reviewable original/accompaniment mapping.
-- Promote approved candidate into one song plus one real-MV asset with reviewed track role refs.
-- Write/validate formal `song.json` with media, cover, track, and compatibility information.
-- Search, queue, play, and switch only verified/queueable real MV assets.
-- Mark unsupported or uncertain files clearly and keep them out of normal user flows.
+- Mobile search finds real indexed songs.
+- Search results show whether an item is already formal or comes from the real index.
+- Queueing an indexed song creates/reuses canonical Song/Asset and then uses the existing queue command path.
+- TV receives existing PlaybackTarget payloads for promoted real assets.
+- Unreadable or unsupported real files are disabled or fail with clear guidance.
+- Deployment can be started and debugged with one documented command path.
+- User can run a concrete real-scene verification checklist.
 
-## Architecture Approach
+## Recommended Roadmap Shape
 
-Extend the existing architecture:
-
-1. Scanner discovers real MV files.
-2. Sidecar resolver attaches cover and `song.json`.
-3. MediaInfo probe extracts technical facts.
-4. Candidate builder merges metadata and provenance.
-5. Admin review confirms user-facing metadata and track roles.
-6. Catalog admission writes one song plus one real-MV asset with track role refs.
-7. Search/queue selects verified assets.
-8. TV playback receives an explicit profile and track selection.
-
-## Key Risks
-
-- Extension is not playback proof.
-- Web TV may not expose usable audio-track switching.
-- Track index and vocal role can be confused.
-- Sidecar, filename, MediaInfo, and Admin edits can conflict.
-- Large file copy/scanning can race.
-- Android TV assumptions can leak into v1.2.
-
-## v1.2 Scope
-
-- MKV/MPG/MPEG discovery.
-- Optional sibling cover and `song.json`.
-- MediaInfo-first metadata and track extraction.
-- Filename and sidecar fallback metadata.
-- Review-first import.
-- One physical MV represented as one real-MV asset with original/accompaniment `trackRoles`.
-- Direct playback only with explicit compatibility marking.
-- Web TV contract updates and capability-gated track switching.
-- Android TV contract reservation only.
+1. KTV index read model and media path preflight.
+2. Mobile search and queue-time catalog sync.
+3. Real media streaming and playback target verification.
+4. Deployment, diagnostics, and operator workflow.
+5. Real-scene UAT hardening and milestone verification.
 
 ## Out Of Scope
 
-- Automatic transcoding/remuxing.
-- Android TV native player.
-- Auto-admit enabled by default.
-- Online provider/OpenList acquisition and downloads.
-- Hot-song charts or recommendation generation.
-- OCR, scoring, DSP, AI separation, and multi-room expansion.
-
-## Roadmap Implications
-
-1. Contract, schema, and playback-risk spike.
-2. MediaInfo probe, scanner, and sidecars.
-3. Admin review and catalog admission.
-4. Search, queue, playback, and switching.
-5. Policy seam, Android reservation, and hardening.
+- Android TV native app.
+- Mandatory transcoding/remuxing.
+- Bulk syncing every indexed row into canonical catalog upfront.
+- Multi-room library partitioning.
+- Online provider acquisition or hot-song ranking.
 
 ## Sources
 
-- [PROJECT.md](../PROJECT.md)
-- [STACK.md](./STACK.md)
-- [FEATURES.md](./FEATURES.md)
-- [ARCHITECTURE.md](./ARCHITECTURE.md)
-- [PITFALLS.md](./PITFALLS.md)
-- MediaInfo: https://mediaarea.net/en/MediaInfo
-- MDN `canPlayType()`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType
-- MDN `audioTracks`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/audioTracks
-- Android Media3 supported formats: https://developer.android.com/media/media3/exoplayer/supported-formats
+- `.planning/PROJECT.md`
+- `.planning/MILESTONES.md`
+- `docs/KTV-FULL-INDEX.md`
+- `docs/KTV-FULL-INDEX-INTEGRATION.md`
+- `apps/api/src/modules/ingest/ktv-full-index.ts`
+- `apps/api/src/routes/song-search.ts`
+- `apps/api/src/modules/catalog/repositories/song-repository.ts`
+- `apps/api/src/modules/catalog/repositories/asset-repository.ts`
 
 ---
-*Research completed: 2026-05-10*
+*Research completed: 2026-05-14*
 *Ready for requirements: yes*

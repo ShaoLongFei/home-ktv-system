@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成并归档：真实 MV 的合同、扫描、旁路元数据、后台审核、正式歌库准入、搜索点歌、TV 播放、音轨切换、评审优先策略、既有 demo/local/online 兼容性和 Android TV 预留边界回归硬化均已收口。下一步是在新的 milestone 中定义后续方向。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成并归档：真实 MV 的合同、扫描、旁路元数据、后台审核、正式歌库准入、搜索点歌、TV 播放、音轨切换、评审优先策略、既有 demo/local/online 兼容性和 Android TV 预留边界回归硬化均已收口。v1.3 正在启动，目标是把已建立的真实 KTV 索引和 NAS 媒体库接入产品实际运行链路，并完成真实部署和验证。
 
 Milestone archives:
 
@@ -33,13 +33,20 @@ Milestone archives:
 - `.planning/milestones/v1.2-REQUIREMENTS.md`
 - `.planning/milestones/v1.2-MILESTONE-AUDIT.md`
 
-## Current Milestone
+## Current Milestone: v1.3 真实场景接入、部署和验证
 
-No active milestone is currently defined.
+**Goal:** 让手机搜索、点歌、后台诊断和 TV 播放实际使用已建立的 `ktv_*` 索引与 `/mnt/nas/KTV歌曲` 真实媒体库，并形成可重复部署与真实场景验证流程。
 
-Use `$gsd-new-milestone` to define the next version. The most likely next direction is wiring the existing real KTV index and NAS media library into the product runtime read path, then deciding whether media processing or Android TV native playback should follow.
+**Target features:**
 
-Recent shipped milestone: v1.2 真实 MV 歌库, shipped and audit-passed on 2026-05-14.
+- Mobile 搜索能查到真实索引库中的歌曲，并能区分正式歌库结果和 KTV 索引结果。
+- 用户点选索引歌曲时，系统把选中的 `ktv_song_assets` 幂等同步成现有 `songs/assets` 正式运行记录，再复用现有队列和播放链路。
+- API 能验证 PostgreSQL、`ktv_*` 表、NAS 路径映射、文件可读性和代表性媒体可服务状态。
+- Admin 能查看真实索引状态、最新索引运行、有效资产数量、路径健康和真实部署诊断。
+- 本地真实场景部署能通过一个清晰命令/profile 启动 API/Admin/TV/Mobile，并保留各端日志。
+- 用户可以按 UAT 清单完成真实搜索、点歌、TV 播放、切歌、失败提示和恢复验证。
+
+**Status:** defining requirements and roadmap on 2026-05-14.
 
 ## Requirements
 
@@ -67,7 +74,11 @@ Recent shipped milestone: v1.2 真实 MV 歌库, shipped and audit-passed on 202
 
 ### Active
 
-None. Fresh active requirements will be created by `$gsd-new-milestone`.
+- [ ] 真实索引搜索接入：产品搜索能读取 `ktv_*` active assets，不再只依赖 demo/formal catalog。
+- [ ] 索引歌曲点歌接入：KTV indexed asset 能安全、幂等进入现有 `songs/assets -> queue -> playback` 链路。
+- [ ] 真实媒体路径接入：API 能解析并验证 NAS 路径，清楚区分索引可查、文件可读、浏览器可播和音轨可切。
+- [ ] 真实部署接入：四端服务能用真实数据库和真实媒体库一键/单 profile 启动，日志和健康检查可排查。
+- [ ] 真实场景验证：形成可重复 smoke/UAT 流程，证明搜索、点歌、播放、切歌和故障反馈闭环。
 
 ### Out of Scope
 
@@ -85,6 +96,8 @@ None. Fresh active requirements will be created by `$gsd-new-milestone`.
 v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分、实时音频 DSP 或真实在线 provider。v1.2 的重点是让真实 MV 文件进入既有“扫描 -> 审核 -> 正式歌库 -> 搜索点歌 -> TV 播放”链路。
 
 用户可以提供 MKV、MPG 格式的 MV 文件。每个 MV 文件代表一首歌，文件内通常包含两条音轨，分别用于原声和伴奏。歌曲信息优先从 MediaInfo 读取；文件旁边可以放封面图和 `song.json`，用于预览、补充和修正元数据。播放兼容性不通过系统强制转码解决：系统直接播放可播资源，不能播的文件由用户在服务端提前处理成浏览器或未来 Android TV 可支持的格式。
+
+v1.3 的真实库基础已经存在：PostgreSQL 容器 `home-ktv-postgres` 中有 `ktv_index_runs`、`ktv_artists`、`ktv_songs`、`ktv_song_artists`、`ktv_song_assets`，真实媒体仍位于 NAS `/mnt/nas/KTV歌曲`。当前产品 runtime 仍主要依赖正式 `songs/assets` 表，因此 v1.3 的核心架构是“搜索读 `ktv_*`，点歌时按需同步到正式 `songs/assets`，播放继续复用现有队列和 TV 链路”。
 
 ## Constraints
 
@@ -121,6 +134,8 @@ v1.1 已完成体验和质量打磨，不引入多房间、账号体系、评分
 | 原声/伴奏使用审核后的 TrackRef 保存 | 保留 MediaInfo 原始证据，并给 Phase 15 runtime playback payload 留出稳定边界 | Good |
 | 真实 MV 点歌不在手机端选择原声/伴奏 | 点歌沿用当前房间播放状态，服务端解析为 selectedTrackRef，避免手机点歌流程增加额外决策 | Good |
 | 浏览器 TV 端音轨切换必须运行时确认 | 不假设所有 MKV/MPG 都可切音轨，成功后才提交状态，失败时回退并提示预处理 | Good |
+| v1.3 搜索可读 `ktv_*`，但队列和播放继续使用正式 `songs/assets` | 避免让 `queue_entries`、TV snapshot、播放遥测和回退链路混入第二套 ID 体系 | Pending |
+| v1.3 部署必须显式验证 NAS 路径可读性 | 数据库中的 `/mnt/nas/KTV歌曲` 路径不保证在所有 API 运行环境都可访问 | Pending |
 
 ## Evolution
 
@@ -143,4 +158,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-14 after archiving v1.2 milestone*
+*Last updated: 2026-05-14 after starting v1.3 milestone*

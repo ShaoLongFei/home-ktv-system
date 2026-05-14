@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: none
-milestone_name: none
-status: ready_for_new_milestone
-stopped_at: Archived v1.2 milestone
-last_updated: "2026-05-14T00:54:42.767Z"
-last_activity: 2026-05-14 -- v1.2 archived; ready for next milestone
+milestone: v1.3
+milestone_name: 真实场景接入、部署和验证
+status: defining_requirements
+stopped_at: Started v1.3 milestone
+last_updated: "2026-05-14T01:30:00.000Z"
+last_activity: 2026-05-14 -- v1.3 started for real-world runtime integration, deployment, and verification
 progress:
   total_phases: 0
   completed_phases: 0
@@ -21,15 +21,15 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-05-14)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Ready to define the next milestone
+**Current focus:** v1.3 真实场景接入、部署和验证
 
 ## Current Position
 
-Milestone: none
-Phase: none
-Plan: none
-Status: Ready to start `$gsd-new-milestone`
-Last activity: 2026-05-14 -- v1.2 archived; ready for next milestone
+Milestone: v1.3 真实场景接入、部署和验证
+Phase: Not started
+Plan: —
+Status: Defining requirements and roadmap
+Last activity: 2026-05-14 -- v1.3 started for real-world runtime integration, deployment, and verification
 
 Progress: [----------] 0%
 
@@ -76,6 +76,8 @@ Progress: [----------] 0%
 
 ### Decisions
 
+- [Milestone v1.3]: Search may read `ktv_*` directly, but queue/playback should continue using canonical `songs/assets` by syncing selected indexed assets at queue time.
+- [Milestone v1.3]: Real deployment must validate PostgreSQL index health, NAS path mapping, file readability, API streaming, and browser playback separately.
 - [Milestone v1.2]: Real MV library work uses one MKV/MPG/MPEG file as one song, with optional sibling cover image and `song.json` metadata.
 - [Milestone v1.2]: MediaInfo is the primary metadata source; filename and sibling `song.json` fill gaps before Admin review.
 - [Milestone v1.2]: v1.2 preserves Android TV playback boundaries but does not build a native Android TV app.
@@ -142,11 +144,13 @@ None.
 
 ### Blockers/Concerns
 
+- Product runtime does not yet consume `ktv_*` search/read paths.
+- Indexed NAS paths may not be readable from the API process without explicit mount/path mapping.
 - Browser playback and audio-track switching support must be verified before exposing real MV switching as available.
 - v1.2 does not transcode or remux unsupported files; users preprocess those files outside the system.
 
 ## Session Continuity
 
-Last session: 2026-05-14T00:54:42.767Z
-Stopped at: Archived v1.2 milestone
+Last session: 2026-05-14T01:30:00.000Z
+Stopped at: Started v1.3 milestone
 Resume file: None

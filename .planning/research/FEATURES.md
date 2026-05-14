@@ -1,75 +1,47 @@
-# Feature Research: v1.2 真实 MV 歌库
+# Feature Research: v1.3 Real-World Runtime Integration
 
-**Researched:** 2026-05-10
-**Scope:** Product behavior for real MKV/MPG MV ingestion
-**Confidence:** High for product scope, medium for web playback support until real media testing
-
-## Product Shape
-
-v1.2 should extend the existing scan -> review -> formal catalog -> search/queue -> TV playback path. It should not introduce a separate file browser or one-off import tool. A real MV file becomes useful only after it passes the same trust boundary as the existing formal song catalog.
+**Project:** 家庭包厢式 KTV 系统  
+**Milestone:** v1.3 真实场景接入、部署和验证  
+**Researched:** 2026-05-14  
 
 ## Table Stakes
 
-### File Discovery
+### Real Library Visibility
 
-- User can place `.mkv`, `.mpg`, or `.mpeg` files under the media root.
-- Each media file is treated as one song candidate.
-- Sibling cover image and `song.json` files are associated with the media file by same-stem naming.
-- Partial or unstable files are not probed until stable.
+- Admin can see whether the full KTV index is connected, how many active assets exist, latest run status, and whether NAS paths are reachable.
+- Mobile search can find songs from the real indexed library by title, artist, pinyin, initials, and category-sensitive version metadata.
+- Search results distinguish already-formal catalog songs from indexed real-library songs.
 
-### Metadata Prefill
+### Real Queue And Playback
 
-- Candidate title, artist, duration, language, codecs, and stream facts are prefilled from MediaInfo where available.
-- Filename parsing fills gaps when MediaInfo lacks usable title/artist.
-- Sibling `song.json` can supply or override user-facing song metadata, but conflicts remain visible.
-- Admin can edit all user-facing metadata before admission.
+- User can queue a real indexed song from Mobile without manually importing it first.
+- Queue command idempotently promotes the selected indexed asset into canonical `songs/assets`.
+- Existing queue, skip, promote, delete, TV snapshot, playback target, and room status flows continue to work with promoted real songs.
+- If the media path is unreadable or unsupported, the user sees a clear disabled or failed state instead of a broken queue.
 
-### Track Mapping
+### Deployment
 
-- Candidates show all detected audio tracks with index, language, label, codec, channel count, and confidence.
-- Admin maps detected tracks to original vocal and accompaniment roles.
-- The system preserves raw source-track facts separately from reviewed KTV roles.
-- One admitted song can produce one real-MV asset with `trackRoles` for original and accompaniment over the same physical file.
+- One documented real-mode deployment path starts API, Admin, TV, and Mobile with the right database URL, public URL, and media path mapping.
+- Logs remain per-service and easy to tail.
+- Startup/preflight output tells the user whether PostgreSQL, index tables, NAS mount, and sample media reads are healthy.
 
-### Review And Admission
+### Verification
 
-- Review-first import is the default.
-- Unsupported or uncertain files remain candidates with clear reasons and do not enter search/queue.
-- Approved candidates write a formal catalog entry and durable `song.json`.
-- Auto-admit is only a reserved policy seam, not default behavior.
+- A repeatable UAT checklist proves search -> queue -> TV playback -> skip -> recovery against real indexed songs.
+- A machine-readable smoke test verifies core API paths before manual TV testing.
+- Verification explicitly separates index availability, NAS readability, browser playback support, and vocal switching support.
 
-### Playback Use
+## Differentiators
 
-- Verified real MV songs appear in mobile search and can be queued.
-- Queue defaults to accompaniment when available.
-- TV receives explicit playback target information, including profile and audio track.
-- Original/accompaniment switching is shown only when the current runtime reports capability.
-- Playback failures surface actionable unsupported/preprocess messages.
-
-## Useful Differentiators
-
-- Cover preview in Admin review.
-- Track-role confidence labels.
-- Batch approval for clean candidates.
-- Duplicate detection against existing formal catalog.
-- Clear "needs preprocessing" state for files that are ingestable but not playable.
-
-## Anti-Features
-
-- Silent auto-import of every file.
-- Treating MKV/MPG extension as enough to mark a song playable.
-- Hiding track role decisions in filename conventions only.
-- Requiring mandatory transcoding before the rest of the library flow can work.
-- Building Android TV native playback inside v1.2.
+- Just-in-time formal catalog sync keeps the large real library searchable without forcing a bulk import into runtime tables.
+- Admin recovery views can explain whether failures come from DB index state, file path reachability, media compatibility, or browser runtime.
+- Real-mode deployment can become the default operator experience once stable.
 
 ## Deferred
 
-- Android TV native player.
-- Automatic transcoding/remuxing.
-- Online file acquisition and OpenList matching.
-- OCR metadata extraction from covers or video frames.
-- Multi-room policies.
+- Native Android TV player.
+- Automatic transcoding/remuxing pipeline.
+- Background full sync of all `ktv_*` songs into canonical `songs/assets`.
+- Multi-room library partitioning.
+- Recommendation/ranking from hot-song data.
 
-## Requirements Implications
-
-Requirements should be grouped around media contracts, scan/probe/sidecars, admin review/admission, search/queue/playback, and hardening/future policy seams.

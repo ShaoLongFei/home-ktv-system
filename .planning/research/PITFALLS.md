@@ -1,70 +1,40 @@
-# Pitfalls Research: v1.2 真实 MV 歌库
+# Pitfalls Research: v1.3 Real-World Runtime Integration
 
-**Researched:** 2026-05-10
-**Scope:** Risks when adding real MKV/MPG MV ingestion
-**Confidence:** High for risk categories, medium for actual file-library conventions
+**Project:** 家庭包厢式 KTV 系统  
+**Milestone:** v1.3 真实场景接入、部署和验证  
+**Researched:** 2026-05-14  
 
-## Critical Pitfalls
+## Main Risks
 
-### Treating Extension As Playback Proof
+### Mixing ID Spaces
 
-**Risk:** MKV/MPG files can be scanned but still fail in the browser TV runtime because of container, codec, MIME, byte-range, seek, or device limitations.
+If `queue_entries` starts storing `ktv_song_assets.id` directly, playback target construction, Admin room status, TV telemetry, and rollback paths will all need special cases. Prefer queue-time sync into canonical `songs/assets`.
 
-**Prevention:** Store separate ingest, compatibility, and queueability states. Validate MIME/range serving. Add representative playback smoke tests before marking assets playable.
+### Path Reachability Drift
 
-### Assuming Browser Track Switching Works
+The database stores NAS paths such as `/mnt/nas/KTV歌曲/...`, but the API process may run on macOS, inside Docker, or on a server with a different mount path. Every deployment must validate mapping and file readability.
 
-**Risk:** `HTMLMediaElement.audioTracks` is not consistently available across browsers, so in-file original/accompaniment switching may not work on the web TV.
+### Search Flooding
 
-**Prevention:** Treat audio-track switching as a runtime capability. Hide switch controls or show a clear unsupported state when the TV runtime cannot switch tracks. Keep reviewed track role refs in the asset metadata so Android TV can later implement this cleanly.
+The real library has more than 34k active assets. Search must use normalized indexed fields, limits, ranking, and active-asset filters. Do not load all rows into memory.
 
-### Confusing Track Index With Vocal Role
+### Duplicate Catalog Rows
 
-**Risk:** Track 0/1 order, language, and labels vary by source. Automatically assuming "track 0 original, track 1 accompaniment" can admit wrong songs.
+Multiple queues of the same indexed asset should reuse the same canonical Song/Asset. Store a durable source link or deterministic external key so sync is idempotent.
 
-**Prevention:** Preserve raw track facts and require Admin confirmation for role mapping unless confidence is explicit and reviewable.
+### Browser Playback Assumptions
 
-### Sidecar Conflict
+Finding a file and reading it does not prove the TV browser can decode it or switch audio tracks. UAT must separate path/stream success from actual media support.
 
-**Risk:** MediaInfo, filename, sibling `song.json`, and Admin edits can disagree.
+### Deployment Hidden State
 
-**Prevention:** Define precedence and provenance. Show conflicts in Admin review. Make Admin-confirmed fields the formal catalog truth.
+Manual exports across four terminals caused earlier test confusion. v1.3 should make real-mode env explicit and scriptable.
 
-### Partial Copy And Heavy Scan
+## Prevention
 
-**Risk:** Large MV files may be copied into the media root while the scanner is watching, causing failed or expensive probes.
+- Keep queue/playback canonical.
+- Add KTV index source metadata before queueing.
+- Add path preflight and Admin diagnostics before broad Mobile exposure.
+- Use API tests for search/sync/queue and a real smoke script for deployment.
+- Keep unsupported or unreadable indexed assets visible only with clear disabled states.
 
-**Prevention:** Require file stability before probing, cache probe output by file identity, cap probe concurrency/timeouts, and keep manual rescan/reconcile available.
-
-### False Android Readiness
-
-**Risk:** Adding track and media profile fields may be mistaken for Android TV support.
-
-**Prevention:** Store Android compatibility as unknown/candidate only. Keep Android TV native playback explicitly out of v1.2.
-
-## Phase Implications
-
-| Phase | Pitfall To Address | Acceptance Signal |
-|-------|--------------------|-------------------|
-| Contract/schema spike | Browser playback and track switching uncertainty | Fixtures prove load/seek and clearly mark unsupported switching |
-| Scan/probe/sidecars | Partial files, sidecar misattachment, MediaInfo ambiguity | Candidate provenance and stability checks are visible |
-| Admin review/admission | Wrong title/artist/track-role admission | Admin can correct and confirm before catalog entry |
-| Playback integration | Controls shown without capability | Mobile/TV only expose switching when supported |
-| Hardening | Auto-admit and Android assumptions leak into scope | Policies default to review-first and Android remains reserved |
-
-## Looks Done But Is Not
-
-- Files appear in the candidate list but cannot be played or seeked.
-- TV can play a file once but cannot switch or recover after skip.
-- Admin shows two tracks but does not preserve which source track maps to which KTV role.
-- Search exposes unsupported files.
-- `song.json` writes a pretty title but loses technical metadata needed to reproduce admission.
-- Auto-admit imports files without review by default.
-
-## Sources
-
-- MDN `audioTracks`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/audioTracks
-- MDN `canPlayType()`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType
-- Node.js `fs.watch`: https://nodejs.org/api/fs.html
-- MediaInfo: https://mediaarea.net/en/MediaInfo
-- Android Media3 supported formats: https://developer.android.com/media/media3/exoplayer/supported-formats

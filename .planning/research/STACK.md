@@ -1,49 +1,42 @@
-# Stack Research: v1.2 真实 MV 歌库
+# Stack Research: v1.3 Real-World Runtime Integration
 
-**Researched:** 2026-05-10
-**Scope:** MKV/MPG real MV ingestion for the existing Home KTV system
-**Confidence:** Medium-high
+**Project:** 家庭包厢式 KTV 系统  
+**Milestone:** v1.3 真实场景接入、部署和验证  
+**Researched:** 2026-05-14  
 
-## Recommendation
+## Current Stack
 
-Keep the existing TypeScript monorepo, Fastify API, PostgreSQL catalog, React Admin/Mobile/TV apps, shared domain/player-contract packages, and controlled asset gateway. v1.2 should add media probing, sidecar discovery, compatibility marking, and explicit audio-track contracts. It should not add transcoding workers, online providers, Android TV native code, or a parallel media pipeline.
+- TypeScript monorepo with Fastify API, React Admin, React Mobile Controller, React TV Player, shared domain/protocol/player-contract packages.
+- PostgreSQL is the durable store for formal catalog, queue, playback state, and the new `ktv_*` full-library index.
+- Existing runtime queue and playback code expects canonical `songs` and `assets` records.
+- Existing dev deployment uses `pnpm dev:local` with per-service logs.
+- Real full-library index already exists in the local PostgreSQL container and points to NAS paths under `/mnt/nas/KTV歌曲`.
 
-## Stack Additions
+## Stack Additions For v1.3
 
-| Area | Recommendation | Why |
-|------|----------------|-----|
-| Media probing | Add a MediaInfo CLI wrapper and keep existing ffprobe behavior as fallback/cross-check | MediaInfo exposes container, stream, codec, language, duration, and track metadata that Admin needs for review |
-| File formats | Extend scanner recognition to `.mkv`, `.mpg`, and `.mpeg` | User's real MV library uses these formats |
-| Sidecars | Add deterministic sibling `song.json` and cover resolver | Single-file-per-song stays simple while allowing rich preview and manual metadata |
-| Compatibility | Store direct-play compatibility status and unsupported reasons | File extension alone does not prove browser playback |
-| Player contract | Add `playbackProfile`, `selectedTrackRef`, source track facts, and capability flags | The TV player and future Android TV need explicit instructions instead of implicit URL tricks |
-| Gateway | Ensure MKV/MPG MIME and byte-range behavior are preserved | Large real MV files need seek/resume and browser media loading support |
-| Test fixtures | Add representative two-track MKV and unsupported/uncertain MPG fixtures | Requirements must be verified against real media characteristics, not demo MP4 assumptions |
+- A read-only KTV index repository over `ktv_songs`, `ktv_artists`, `ktv_song_artists`, and `ktv_song_assets`.
+- A catalog sync/admission service that can promote one indexed `ktv_song_assets` row into existing `songs` and `assets` tables idempotently.
+- Runtime media path mapping and preflight checks so an indexed NAS path can be proven readable before queue/playback.
+- Real-mode deployment script or `dev:local` profile that exports database, media-root, public URL, and optional index/NAS variables consistently.
+- Real-world verification scripts that check database counts, path reachability, API health, search, queue, TV snapshot, and playback target construction.
+
+## Recommended Approach
+
+Use the existing formal runtime path for queue and playback. Search can read `ktv_*`, but the moment the user queues an indexed asset, the API should ensure a canonical `Song` plus `Asset` exists, then enqueue the canonical IDs.
+
+This avoids introducing a second ID universe into `queue_entries`, `buildPlaybackTarget`, room snapshots, TV telemetry, switch rollback, and Admin room status.
 
 ## What Not To Add
 
-- Mandatory transcoding/remuxing.
-- Android TV native app or Media3 integration.
-- Online MV discovery, OpenList matching, provider downloads, or chart scraping.
-- New background worker architecture unless the existing scanner/probe flow proves insufficient.
-- Auto-admit enabled by default.
-- AI vocal separation, OCR, scoring, DSP, or multi-room expansion.
+- Do not build Android TV in v1.3.
+- Do not make transcoding/remuxing mandatory for this milestone.
+- Do not replace the existing formal catalog repositories wholesale.
+- Do not assume `/mnt/nas/KTV歌曲` is readable from every deployment environment; verify and surface it.
 
-## Integration Points
+## Verification Commands To Preserve
 
-- `packages/domain`: media profile, asset kind, track metadata, compatibility status, provenance fields.
-- `packages/player-contracts`: playback target profile and selected audio track.
-- `apps/api`: scanner, candidate builder, MediaInfo probe, sidecar resolver, catalog admission, asset gateway MIME/range serving.
-- `apps/admin`: import review UI for metadata provenance, cover preview, compatibility, and track-role mapping.
-- `apps/tv-player`: direct-play smoke, load/seek checks, and capability-gated audio-track switching.
+- `pnpm -F @home-ktv/api typecheck`
+- targeted API tests around KTV index search, catalog sync, queue command, playback target, and path preflight
+- `pnpm dev:local start` or a real-mode equivalent
+- SQL checks against `ktv_song_assets where missing_at is null`
 
-## Open Technical Risk
-
-Browser support for MKV/MPG playback and `HTMLMediaElement.audioTracks` is inconsistent. v1.2 must test capability on the actual web TV runtime and store results explicitly. Android Media3 is a good future target, but v1.2 should only reserve platform-neutral fields.
-
-## Sources
-
-- MediaInfo official site: https://mediaarea.net/en/MediaInfo
-- MDN `canPlayType()`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/canPlayType
-- MDN `audioTracks`: https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/audioTracks
-- Android Media3 supported formats: https://developer.android.com/media/media3/exoplayer/supported-formats
