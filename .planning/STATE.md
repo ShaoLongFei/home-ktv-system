@@ -1,37 +1,37 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: 真实 MV 歌库
-status: planning
-stopped_at: Planned Phase 17 gap closure
-last_updated: "2026-05-13T14:32:14.800Z"
-last_activity: 2026-05-13 -- Phase 17 gap closure phase created
+milestone: none
+milestone_name: none
+status: ready_for_new_milestone
+stopped_at: Archived v1.2 milestone
+last_updated: "2026-05-14T00:54:42.767Z"
+last_activity: 2026-05-14 -- v1.2 archived; ready for next milestone
 progress:
-  total_phases: 6
-  completed_phases: 5
-  total_plans: 24
-  completed_plans: 24
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-05-13)
+See: `.planning/PROJECT.md` (updated 2026-05-14)
 
 **Core value:** 在家庭单电视场景下，让用户用手机完成全部点歌与控制，并稳定地把歌唱起来。
-**Current focus:** Phase 17 — phase-12-verification-and-traceability-closure
+**Current focus:** Ready to define the next milestone
 
 ## Current Position
 
-Milestone: v1.2 真实 MV 歌库
-Phase: 17 (phase-12-verification-and-traceability-closure) — PLANNED
-Plan: 0 of 0
-Status: Ready to plan Phase 17
-Last activity: 2026-05-13 -- Phase 17 gap closure phase created
+Milestone: none
+Phase: none
+Plan: none
+Status: Ready to start `$gsd-new-milestone`
+Last activity: 2026-05-14 -- v1.2 archived; ready for next milestone
 
-Progress: [██████████] 100%
+Progress: [----------] 0%
 
 ## Performance Metrics
 
@@ -47,11 +47,12 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | v1.0 Phases 1-5 | 25 | archived | archived |
 | v1.1 Phases 6-11 | 12 | archived | archived |
+| v1.2 Phases 12-17 | 25 | archived | archived |
 
 **Recent Trend:**
 
-- Last 5 plans: See `.planning/milestones/v1.1-ROADMAP.md`
-- Trend: Stable
+- Last milestone: See `.planning/milestones/v1.2-ROADMAP.md`
+- Trend: Stable; ready for next milestone definition
 
 *Updated after each plan completion*
 | Phase 13 P02 | 20 min | 3 tasks | 2 files |
@@ -146,6 +147,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-05-13T13:41:00.246Z
-Stopped at: Completed 16-04-PLAN.md
+Last session: 2026-05-14T00:54:42.767Z
+Stopped at: Archived v1.2 milestone
 Resume file: None

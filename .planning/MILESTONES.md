@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.2 真实 MV 歌库 (Shipped: 2026-05-14)
+
+**Phases completed:** 6 phases, 25 plans, 58 tasks
+
+**Key accomplishments:**
+
+- Real MV contract support now models one MKV/MPG/MPEG file as one dual-track asset with compatibility, MediaInfo provenance, track roles, and platform-neutral playback profile fields.
+- Scanner and Admin review now support real MV files, same-stem covers, same-stem `song.json`, MediaInfo-first metadata, safe preview, conflict evidence, and explicit repair guidance.
+- Formal admission now promotes one real MV candidate into one Song plus one dual-track-video Asset and writes a durable `song.json` with media, cover, codec, compatibility, and track-role facts.
+- Mobile search, queueing, TV playback targets, and original/accompaniment switching now handle approved real MV songs with server-authored `selectedTrackRef` and runtime capability gates.
+- Review-first policy, demo/local/online compatibility, Android boundary guards, and representative real/unsupported media regressions are covered.
+- Phase 17 closed the milestone audit gap by adding aggregate Phase 12 verification and syncing requirements traceability.
+
+---
+
 ## v1.1 Polish (Shipped: 2026-05-10)
 
 **Phases completed:** 6 phases, 12 plans, 29 tasks

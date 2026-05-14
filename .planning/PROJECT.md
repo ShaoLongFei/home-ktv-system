@@ -19,7 +19,7 @@ v1.1 Polish 已于 2026-05-10 shipped。系统已经具备：
 - 在线补歌候选、先缓存后播放任务流、失败回退、后台恢复视图和任务级重试/清理/转正。
 - Admin 和 Mobile 默认中文界面，并保留语言切换能力。
 
-v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成真实 MV 的合同、扫描、旁路元数据、后台审核、正式歌库准入、搜索点歌、TV 播放、音轨切换、评审优先策略、既有 demo/local/online 兼容性和 Android TV 预留边界回归硬化。下一步是 v1.2 milestone 审计与归档。
+v1.1 Polish phases 6-11 已完成并验证：TV 播放体验、三端中文产品化 UI、运行时边界、回归测试、可视化验证和审计追踪缺口均已收口。v1.2 已完成并归档：真实 MV 的合同、扫描、旁路元数据、后台审核、正式歌库准入、搜索点歌、TV 播放、音轨切换、评审优先策略、既有 demo/local/online 兼容性和 Android TV 预留边界回归硬化均已收口。下一步是在新的 milestone 中定义后续方向。
 
 Milestone archives:
 
@@ -29,19 +29,17 @@ Milestone archives:
 - `.planning/milestones/v1.1-ROADMAP.md`
 - `.planning/milestones/v1.1-REQUIREMENTS.md`
 - `.planning/milestones/v1.1-MILESTONE-AUDIT.md`
+- `.planning/milestones/v1.2-ROADMAP.md`
+- `.planning/milestones/v1.2-REQUIREMENTS.md`
+- `.planning/milestones/v1.2-MILESTONE-AUDIT.md`
 
-## Current Milestone: v1.2 真实 MV 歌库
+## Current Milestone
 
-**Goal:** 让系统能接入已有的真实 MKV/MPG MV 文件，并从文件、MediaInfo、旁边的 `song.json` 和封面图生成可审核、可播放、可切换原声/伴奏的正式歌库。
+No active milestone is currently defined.
 
-**Target features:**
+Use `$gsd-new-milestone` to define the next version. The most likely next direction is wiring the existing real KTV index and NAS media library into the product runtime read path, then deciding whether media processing or Android TV native playback should follow.
 
-- 单个 MKV/MPG MV 文件就是一首歌，文件旁边可放封面图和对应 `song.json`。
-- MediaInfo 优先读取标题、歌手、时长、编码、音轨等信息；缺失时用文件名和旁边 `song.json` 兜底，后台允许编辑确认。
-- 默认扫描后审核入库，同时预留可信目录或自动入库能力。
-- 保留一个 MV 文件，通过音轨索引识别并切换原声/伴奏。
-- 不在 v1.2 内强制转码；系统直接播放可播资源，不能播的文件由用户在服务端提前处理成支持格式。
-- Android TV 原生端不纳入 v1.2，只预留播放合同和媒体信息边界，作为后续 milestone 候选。
+Recent shipped milestone: v1.2 真实 MV 歌库, shipped and audit-passed on 2026-05-14.
 
 ## Requirements
 
@@ -60,10 +58,16 @@ Milestone archives:
 - v1.2 validated Admin real-MV review and catalog admission: metadata editing, raw MediaInfo review, original/accompaniment track-role mapping, one Song plus one real-MV Asset, formal `song.json`, and repair guidance for unsupported or incomplete candidates.
 - v1.2 validated real-MV Mobile search and queueing, backend-resolved vocal intent, explicit TV playback profiles and selected audio tracks, runtime-gated original/accompaniment switching, and clear preprocessing/failure states.
 - v1.2 validated review-first hardening after real-MV integration: reserved auto-admit metadata stays inert, demo/local/online/Admin compatibility remains covered, local media hardening reports are portable, and Android TV remains a contract boundary only.
+- v1.2 audit traceability gap was closed by Phase 17 with an aggregate Phase 12 verification and synced milestone metadata.
+
+## Next Milestone Goals
+
+- Use `$gsd-new-milestone` to define the next version once the real post-v1.2 priority is decided.
+- Likely directions include actual real-song consumption/read paths, media processing support, or operational polish around the real library.
 
 ### Active
 
-None for the current v1.2 phase set. The milestone is ready for audit and archive preparation.
+None. Fresh active requirements will be created by `$gsd-new-milestone`.
 
 ### Out of Scope
 
@@ -139,4 +143,4 @@ After each milestone:
 5. Update Current State and Key Decisions.
 
 ---
-*Last updated: 2026-05-13 after completing Phase 16*
+*Last updated: 2026-05-14 after archiving v1.2 milestone*
