@@ -46,7 +46,7 @@ Milestone archives:
 - 本地真实场景部署能通过一个清晰命令/profile 启动 API/Admin/TV/Mobile，并保留各端日志。
 - 用户可以按 UAT 清单完成真实搜索、点歌、TV 播放、切歌、失败提示和恢复验证。
 
-**Status:** defining requirements and roadmap on 2026-05-14.
+**Status:** requirements and roadmap created on 2026-05-14; ready for Phase 18 discussion.
 
 ## Requirements
 
