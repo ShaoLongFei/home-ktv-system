@@ -44,7 +44,23 @@ MEDIA_PATH_MAPPINGS=/mnt/nas/KTV歌曲=/mnt/nas/KTV歌曲
 TV_ROOM_SLUG=living-room
 ```
 
-如果 PostgreSQL 继续由旧 Docker Compose 提供，只保留 PostgreSQL 服务可达即可。源码部署的 API、Admin、Controller、Web TV 会占用 4000、5174、5176、5173 端口，所以旧 Docker 应用容器必须停止，避免端口冲突。
+PostgreSQL 当前使用 `lxc-dev` 原生 Debian PostgreSQL 17，由 systemd 管理，只监听本机 `127.0.0.1:5432` 和 `::1:5432`。旧 Docker PostgreSQL 容器 `home-ktv-postgres-1` 已停用但暂未删除，作为迁移后的短期回滚点保留。源码部署的 API、Admin、Controller、Web TV 会占用 4000、5174、5176、5173 端口，所以旧 Docker 应用容器必须停止，避免端口冲突。
+
+数据库常用检查：
+
+```bash
+pg_lsclusters
+systemctl status postgresql --no-pager
+PGPASSWORD=ktv psql -h 127.0.0.1 -p 5432 -U ktv -d home_ktv -c 'select count(*) from ktv_songs;'
+docker ps -a --format '{{.Names}} {{.Status}} {{.Ports}}' | grep home-ktv-postgres || true
+```
+
+迁移到原生 PostgreSQL 前的备份保存在：
+
+```bash
+/opt/home-ktv-system/runtime/backups/postgres-native-migration-20260604-134843/
+/opt/home-ktv-system/runtime/backups/postgres-native-final-cutover-20260604-135714/
+```
 
 ## 部署
 

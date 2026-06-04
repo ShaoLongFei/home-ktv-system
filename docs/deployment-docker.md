@@ -38,6 +38,8 @@ Controller: https://ktv-controller.shaolongfei.com/controller?room=living-room
 Web TV:     https://ktv-tv.shaolongfei.com/?apiBaseUrl=https://ktv-api.shaolongfei.com&roomSlug=living-room&deviceName=Web%20TV
 ```
 
+这个 `lxc-dev` 部署当前优先使用源码部署和原生 PostgreSQL 17。Docker Compose 文档仍保留作为可选部署方式；不要把旧 `home-ktv-postgres-1` 容器当作当前主数据库，它已停用并只作为迁移回滚点保留。
+
 `lxc-dev` 需要能读到 NAS 曲库。当前通过 PVE bind mount 将宿主机 `/hdd-pool/nas` 只读挂载到容器 `/mnt/nas`：
 
 ```bash
