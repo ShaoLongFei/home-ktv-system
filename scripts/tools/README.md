@@ -15,6 +15,7 @@
 | `deploy-doctor.mjs` | 部署环境自检，检查 env、CORS、媒体路径、服务状态和公开 URL。 | `pnpm deploy:doctor` / `bash deploy/source/ktv.sh doctor` |
 | `web-deploy-smoke.mjs` | 部署后的公开入口 smoke，验证 CORS、TV bootstrap、heartbeat、控制端看到 TV 在线、推荐列表非空。 | `pnpm deploy:smoke` / `bash deploy/source/ktv.sh smoke` |
 | `repo-hygiene-check.mjs` | 提交前仓库卫生检查，区分 tracked dirty、高风险未跟踪文件和本地运行产物。 | `pnpm repo:hygiene` |
+| `music_metadata_sidecar.mjs` | 本地 Node 元数据 sidecar，统一查询 `netease / tencent / kugou / kuwo` 的歌曲候选元数据，并查询网易云/酷狗歌单证据，供封面抓取和标签批处理复用。 | `node scripts/tools/music_metadata_sidecar.mjs` |
 | `fetch_song_covers.py` | 批量查询、下载并缓存歌曲封面，也支持单首歌封面探测；把本地公开封面 URL 写回 `ktv_songs.cover_image_url`。 | `bash deploy/source/ktv.sh fetch-covers -- ...` / `python3 scripts/tools/fetch_song_covers.py probe 夜之光 花姐` |
 | `run_style_tagging_llm_batch.py` | 离线批量给歌曲补风格标签，先生成 JSONL，再导入 `ktv_songs.style_tags`。 | `pnpm ktv:tags:llm-batch:py -- ...` |
 | `ui-visual-check.mjs` | 控制端和 Admin 的 Chrome 截图检查。 | `pnpm ui:visual-check` |
@@ -31,6 +32,7 @@
 | `deploy-doctor.test.mjs` | 部署 doctor 的 env 解析、CORS、媒体路径、网络重试、服务状态和 KTV 索引诊断输出。 |
 | `web-deploy-smoke.test.mjs` | Web smoke 的 CORS、页面可达性、TV bootstrap/heartbeat、控制端 session 和 discovery 检查。 |
 | `repo-hygiene-check.test.mjs` | Git 状态解析、高风险未跟踪路径识别和 dirty 报告。 |
+| `music_metadata_sidecar.test.mjs` | 元数据 sidecar 的 JSONL 协议、provider 归一化、候选缓存和最佳匹配选择。 |
 | `fetch_song_covers_test.py` | 封面路径、公开 URL、并发调度、图片校验、历史跳过、匹配评分、provider fallback、单首探测和 JSONL 历史读取。 |
 | `run_style_tagging_llm_batch_test.py` | LLM 标签批处理的短 ID prompt、返回校验、标签过滤和导入 SQL。 |
 | `ui-visual-check.test.mjs` | 控制端视觉截图 URL 的 pairing token 刷新和错误处理。 |
@@ -144,10 +146,11 @@ node --test scripts/tools/repo-hygiene-check.test.mjs
 3. 如果本地已有封面文件但数据库 URL 不一致，只修复数据库 URL。
 4. 如果数据库已有外部图片 URL，优先尝试下载该外链。
 5. 否则按 provider 顺序查询：`netease`、`cloud`、`tencent`、`kugou`、`kuwo`、`spotify`。
-6. 候选结果先在全部 provider 中按歌名和歌手严格匹配；严格匹配都没有命中时，再按 provider 顺序退回只按歌名匹配。
-7. 下载图片到 `$MEDIA_ROOT/covers/nas/<song-id>.jpg`。
-8. 写回 `ktv_songs.cover_image_url` 和 `cover_updated_at`。
-9. 每首歌向 JSONL 追加一行结果，并周期性刷新 state 文件。
+6. 默认会先尝试启动本地 `music_metadata_sidecar.mjs`，统一为 `netease / tencent / kugou / kuwo` 提供候选元数据；如果 sidecar 启动失败或单次查询失败，脚本会自动退回原来的 Python provider 逻辑。
+7. 候选结果先在全部 provider 中按歌名和歌手严格匹配；严格匹配都没有命中时，再按 provider 顺序退回只按歌名匹配。
+8. 下载图片到 `$MEDIA_ROOT/covers/nas/<song-id>.jpg`。
+9. 写回 `ktv_songs.cover_image_url` 和 `cover_updated_at`。
+10. 每首歌向 JSONL 追加一行结果，并周期性刷新 state 文件。
 
 子命令：
 
@@ -165,6 +168,7 @@ bash deploy/source/ktv.sh fetch-covers -- --limit 1000 --concurrency 4 --delay-m
 python3 scripts/tools/fetch_song_covers.py probe 冲动的惩罚 刀郎 --providers netease,cloud --netease-base-url http://127.0.0.1:4300
 python3 scripts/tools/fetch_song_covers.py probe 夜之光 花姐 --providers cloud --download runtime/probes/night-light.jpg
 bash deploy/source/ktv.sh cover-coverage -- --providers netease,cloud,spotify --limit 100 --delay-ms 100
+python3 scripts/tools/fetch_song_covers.py coverage --metadata-sidecar-providers netease,tencent,kugou,kuwo --limit 50
 ```
 
 `spotify` provider 会优先使用 `SpotifyScraper` 的公开接口读取 track 信息和专辑图片。如果当前 Python 环境未安装该库，脚本仍可使用 Spotify 搜索结果里的封面 URL 作为兜底；需要启用完整能力时安装：
@@ -193,12 +197,15 @@ python3 scripts/tools/fetch_song_covers_test.py
 
 核心逻辑：
 
-1. 从 `ktv_songs` 选择当前标签数量少于阈值的歌曲。
-2. 按 batch 组装给 LLM 的 prompt。
-3. prompt 内使用短 ID，避免把真实 song id 暴露给模型或让模型回写错误长 ID。
-4. 校验 LLM 返回 JSON，只保留预定义 taxonomy 里的标签。
-5. 把结果追加到 JSONL，并刷新 state 文件。
-6. `import` 阶段验证 JSONL 后，把标签写入 `ktv_songs.style_tags`。
+1. 从 `ktv_songs` 选择当前标签数量少于阈值的歌曲，同时带上 `artist_names / file_name / relative_path`。
+2. 默认尝试启动本地 `music_metadata_sidecar.mjs`。
+3. 先按歌名查询网易云/酷狗歌单证据，从歌单标题、描述和平台标签中聚合标签；证据分数足够时直接写 `playlist-style-v1` 结果。
+4. 歌单证据不足时，再按 `netease / tencent / kugou / kuwo` 查询最匹配的歌曲元数据；元数据能直接给出足够标签时写 `provider-style-v1` 结果。
+5. 歌单证据和歌曲元数据都不足时，按 batch 组装给 LLM 的 prompt，并把短 ID、本地路径线索、sidecar 命中的专辑/歌手信息、歌单证据、以及从标题路径里提取的弱提示一起送给模型。
+6. prompt 内使用短 ID，避免把真实 song id 暴露给模型或让模型回写错误长 ID。
+7. 校验 LLM 返回 JSON，只保留预定义 taxonomy 里的标签。
+8. 把结果追加到 JSONL，并刷新 state 文件。
+9. `import` 阶段验证 JSONL 后，把标签写入 `ktv_songs.style_tags`。
 
 子命令：
 
@@ -212,9 +219,20 @@ python3 scripts/tools/fetch_song_covers_test.py
 ```bash
 python3 scripts/tools/run_style_tagging_llm_batch.py status --env-file deploy/source/.env
 python3 scripts/tools/run_style_tagging_llm_batch.py run --env-file deploy/source/.env --max-existing-tags 1 --batch-size 30
+python3 scripts/tools/run_style_tagging_llm_batch.py run --env-file deploy/source/.env --metadata-sidecar-providers netease,tencent,kugou,kuwo --metadata-search-limit 5
+python3 scripts/tools/run_style_tagging_llm_batch.py run --env-file deploy/source/.env --playlist-evidence-providers netease,kugou --playlist-evidence-limit 10 --min-playlist-tag-score 2
 python3 scripts/tools/run_style_tagging_llm_batch.py import --env-file deploy/source/.env --dry-run
 python3 scripts/tools/run_style_tagging_llm_batch.py import --env-file deploy/source/.env --apply
 ```
+
+默认策略：
+
+- `--concurrency 10`：并行处理 10 个 batch。
+- `--playlist-evidence-first`：默认开启，先用歌单证据打标签。
+- `--playlist-evidence-providers netease,kugou`：当前歌单证据源只启用网易云和酷狗。
+- `--min-playlist-tag-score 2`：普通标签至少 2 分；`热门 / 网络歌曲 / 伤感 / 甜蜜 / 浪漫` 等弱标签需要更高证据分。
+- `--provider-first`：默认开启，歌单证据不足时用平台歌曲元数据补一次。
+- LLM 兜底：歌单证据和平台元数据都不足时才调用。
 
 相关测试：
 

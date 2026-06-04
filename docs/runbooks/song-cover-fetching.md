@@ -31,6 +31,22 @@ python3 scripts/tools/fetch_song_covers.py probe 冲动的惩罚 刀郎 --provid
 
 `probe` 子命令只查询并输出候选封面 URL，不写数据库；需要确认图片可下载时传 `--download`。正式批量缓存同样由 `fetch_song_covers.py` 负责，当前默认 provider 已包含 `netease`。
 
+## 本地元数据 sidecar
+
+为了减少各平台元数据逻辑在 Python 里重复维护，`fetch_song_covers.py` 现在会默认尝试启动本地 Node sidecar：
+
+```text
+scripts/tools/music_metadata_sidecar.mjs
+```
+
+当前 sidecar 负责统一查询：
+
+```text
+netease / tencent / kugou / kuwo
+```
+
+`cloud` 和 `spotify` 仍然走脚本内原有实现。sidecar 启动失败、退出或单次查询失败时，封面脚本会自动退回原来的 Python provider 逻辑，不会中断整批任务。
+
 ## 当前实现
 
 核心代码：
@@ -113,9 +129,10 @@ python3 -m pip install --user spotifyscraper
 python3 -m pip install --user --break-system-packages spotifyscraper
 ```
 
-6. 全部 provider 会先按歌名和歌手做严格匹配；严格匹配全都没有命中后，再按 provider 顺序退回歌名兜底匹配；同时降低 DJ、Live、Remix、翻唱、现场等版本的分数。
-7. 命中后下载图片到本地缓存，再写入本地公开 URL。
-8. 未命中或失败时不写 `cover_image_url`，只更新 `cover_updated_at` 并写入进度文件。
+6. 默认会先把 `netease / tencent / kugou / kuwo` 的候选查询交给本地 sidecar；若 sidecar 不可用，再退回脚本内的 Python provider 实现。
+7. 全部 provider 会先按歌名和歌手做严格匹配；严格匹配全都没有命中后，再按 provider 顺序退回歌名兜底匹配；同时降低 DJ、Live、Remix、翻唱、现场等版本的分数。
+8. 命中后下载图片到本地缓存，再写入本地公开 URL。
+9. 未命中或失败时不写 `cover_image_url`，只更新 `cover_updated_at` 并写入进度文件。
 
 ## 进度文件
 
@@ -145,6 +162,7 @@ bash deploy/source/ktv.sh cover-status
 bash deploy/source/ktv.sh cover-coverage -- --limit 100 --concurrency 4 --delay-ms 200
 bash deploy/source/ktv.sh fetch-covers -- --limit 300 --concurrency 4 --delay-ms 200
 python3 scripts/tools/fetch_song_covers.py probe 夜之光 花姐 --providers netease,cloud --netease-base-url http://127.0.0.1:4300
+python3 scripts/tools/fetch_song_covers.py probe 夜之光 花姐 --metadata-sidecar-providers netease,tencent,kugou,kuwo
 ```
 
 Docker 部署：
@@ -174,6 +192,9 @@ pnpm covers:songs -- --limit 300 --delay-ms 300
 --delay-ms <n>              每首歌之间的延迟，默认 600
 --concurrency <n>           并发处理数量，默认 1；建议从 3 到 4 开始
 --progress-every <n>        进度输出间隔，默认 20
+--metadata-sidecar-command  本地 sidecar 启动命令；默认 node scripts/tools/music_metadata_sidecar.mjs
+--metadata-sidecar-providers sidecar 接管的 provider，默认 netease,tencent,kugou,kuwo
+--disable-metadata-sidecar  关闭 sidecar，全部退回 Python provider 实现
 --retry-failed              重新处理上次 failed 的歌曲
 --retry-not-found           重新处理上次 not_found 的歌曲
 --force                     忽略本地缓存和历史记录，强制重新查询并覆盖缓存

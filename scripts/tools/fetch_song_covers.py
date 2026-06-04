@@ -20,8 +20,16 @@ from pathlib import Path
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+from music_metadata_sidecar_client import create_metadata_sidecar_client, default_metadata_sidecar_command
+
+
 DEFAULT_NETEASE_BASE_URL = "http://127.0.0.1:4300"
 DEFAULT_PROVIDERS = ["netease", "cloud", "tencent", "kugou", "kuwo", "spotify"]
+DEFAULT_METADATA_SIDECAR_PROVIDERS = ["netease", "tencent", "kugou", "kuwo"]
 DEFAULT_IMAGE_SIZE = 300
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
 SAFE_SONG_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
@@ -78,14 +86,31 @@ def parse_args(argv):
             sub.add_argument("--search-limit", type=positive_int, default=8)
             sub.add_argument("--request-timeout-ms", type=positive_int, default=8000)
             sub.add_argument("--delay-ms", type=non_negative_int, default=600)
-            sub.add_argument("--concurrency", type=positive_int, default=1)
+            sub.add_argument("--concurrency", type=positive_int, default=10)
             sub.add_argument("--progress-every", type=positive_int, default=20)
+            sub.add_argument(
+                "--metadata-sidecar-command",
+                default=os.environ.get("KTV_METADATA_SIDECAR_COMMAND", default_metadata_sidecar_command()),
+            )
+            sub.add_argument(
+                "--metadata-sidecar-providers",
+                default=os.environ.get(
+                    "KTV_METADATA_SIDECAR_PROVIDERS",
+                    ",".join(DEFAULT_METADATA_SIDECAR_PROVIDERS),
+                ),
+            )
+            sub.add_argument("--disable-metadata-sidecar", action="store_true")
             if command == "probe":
                 sub.add_argument("--download", default="")
         if command == "fetch":
             sub.add_argument("--retry-failed", action="store_true")
             sub.add_argument("--retry-not-found", action="store_true")
             sub.add_argument("--force", action="store_true")
+            sub.add_argument(
+                "--full-scan",
+                action="store_true",
+                help="Scan all active songs instead of only songs still missing a normalized local cover URL.",
+            )
 
     return parser.parse_args(argv)
 
@@ -112,7 +137,7 @@ def fetch_covers(args):
     ensure_parent(output)
     ensure_parent(state_path)
 
-    songs = select_candidate_songs(args, random_order=False)
+    songs = select_candidate_songs(args, random_order=False, public_base_url=public_base_url)
     history = read_history(output)
     stats = {
         "selected": len(songs),
@@ -126,35 +151,49 @@ def fetch_covers(args):
     print(f"selected={len(songs)} concurrency={args.concurrency} coverRoot={cover_root} output={output}", flush=True)
 
     providers = read_provider_list(args.providers)
-    worker = lambda song: process_fetch_song(args, song, history, cover_root, public_base_url, providers)
-    for index, result in enumerate(iter_song_task_results(songs, worker, args.concurrency, args.delay_ms), start=1):
-        stat_key = fetch_status_stat_key(result.get("status"))
-        if stat_key:
-            stats[stat_key] += 1
-        append_jsonl(output, result)
+    sidecar_providers = read_metadata_sidecar_provider_set(args.metadata_sidecar_providers)
+    sidecar_client = try_create_metadata_sidecar_client(args, default_timeout_seconds=max(10, args.request_timeout_ms // 1000 + 2))
+    try:
+        worker = lambda song: process_fetch_song(
+            args,
+            song,
+            history,
+            cover_root,
+            public_base_url,
+            providers,
+            sidecar_client=sidecar_client,
+            sidecar_providers=sidecar_providers,
+        )
+        for index, result in enumerate(iter_song_task_results(songs, worker, args.concurrency, args.delay_ms), start=1):
+            stat_key = fetch_status_stat_key(result.get("status"))
+            if stat_key:
+                stats[stat_key] += 1
+            append_jsonl(output, result)
 
-        if index % args.progress_every == 0 or index == len(songs):
-            remaining = len(songs) - index
-            print(
-                f"processed={index}/{len(songs)} remaining={remaining} "
-                f"found={stats['found']} repaired={stats['repaired']} "
-                f"notFound={stats['notFound']} failed={stats['failed']} skipped={stats['skipped']}",
-                flush=True,
-            )
-            write_state(
-                state_path,
-                {
-                    **stats,
-                    "status": "running" if remaining else "completed",
-                    "processed": index,
-                    "pending": remaining,
-                    "updatedAt": now_iso(),
-                    "output": str(output),
-                },
-            )
+            if index % args.progress_every == 0 or index == len(songs):
+                remaining = len(songs) - index
+                print(
+                    f"processed={index}/{len(songs)} remaining={remaining} "
+                    f"found={stats['found']} repaired={stats['repaired']} "
+                    f"notFound={stats['notFound']} failed={stats['failed']} skipped={stats['skipped']}",
+                    flush=True,
+                )
+                write_state(
+                    state_path,
+                    {
+                        **stats,
+                        "status": "running" if remaining else "completed",
+                        "processed": index,
+                        "pending": remaining,
+                        "updatedAt": now_iso(),
+                        "output": str(output),
+                    },
+                )
+    finally:
+        close_metadata_sidecar_client(sidecar_client)
 
 
-def process_fetch_song(args, song, history, cover_root, public_base_url, providers):
+def process_fetch_song(args, song, history, cover_root, public_base_url, providers, sidecar_client=None, sidecar_providers=None):
     decision = decide_song_action(
         song,
         history,
@@ -193,6 +232,8 @@ def process_fetch_song(args, song, history, cover_root, public_base_url, provide
                 args.request_timeout_ms,
                 DEFAULT_IMAGE_SIZE,
                 args.netease_base_url,
+                sidecar_client=sidecar_client,
+                sidecar_providers=sidecar_providers,
             )
         if not cover:
             touch_cover_processed(args, song["id"])
@@ -234,28 +275,35 @@ def fetch_status_stat_key(status):
 def run_coverage(args):
     songs = select_candidate_songs(args, random_order=True)
     providers = read_provider_list(args.providers)
+    sidecar_providers = read_metadata_sidecar_provider_set(args.metadata_sidecar_providers)
     stats = {"sample": len(songs), "found": 0, "notFound": 0, "failed": 0, "providerHits": {}}
     print(f"sample={len(songs)} concurrency={args.concurrency} providers={','.join(providers)}", flush=True)
 
-    worker = lambda song: process_coverage_song(
-        song,
-        providers,
-        args.search_limit,
-        args.request_timeout_ms,
-        args.netease_base_url,
-    )
-    for index, result in enumerate(iter_song_task_results(songs, worker, args.concurrency, args.delay_ms), start=1):
-        if result["status"] == "found":
-            stats["found"] += 1
-            provider = result["provider"]
-            stats["providerHits"][provider] = stats["providerHits"].get(provider, 0) + 1
-        elif result["status"] == "not_found":
-            stats["notFound"] += 1
-        else:
-            stats["failed"] += 1
+    sidecar_client = try_create_metadata_sidecar_client(args, default_timeout_seconds=max(10, args.request_timeout_ms // 1000 + 2))
+    try:
+        worker = lambda song: process_coverage_song(
+            song,
+            providers,
+            args.search_limit,
+            args.request_timeout_ms,
+            args.netease_base_url,
+            sidecar_client=sidecar_client,
+            sidecar_providers=sidecar_providers,
+        )
+        for index, result in enumerate(iter_song_task_results(songs, worker, args.concurrency, args.delay_ms), start=1):
+            if result["status"] == "found":
+                stats["found"] += 1
+                provider = result["provider"]
+                stats["providerHits"][provider] = stats["providerHits"].get(provider, 0) + 1
+            elif result["status"] == "not_found":
+                stats["notFound"] += 1
+            else:
+                stats["failed"] += 1
 
-        if index % args.progress_every == 0 or index == len(songs):
-            print(json.dumps(stats, ensure_ascii=False, sort_keys=True), flush=True)
+            if index % args.progress_every == 0 or index == len(songs):
+                print(json.dumps(stats, ensure_ascii=False, sort_keys=True), flush=True)
+    finally:
+        close_metadata_sidecar_client(sidecar_client)
 
     hit_rate = 0 if stats["sample"] == 0 else round(stats["found"] / stats["sample"] * 100, 1)
     print(json.dumps({**stats, "hitRate": hit_rate}, ensure_ascii=False, sort_keys=True), flush=True)
@@ -263,15 +311,22 @@ def run_coverage(args):
 
 def probe_single_cover(args):
     providers = read_provider_list(args.providers)
-    result = probe_cover(
-        title=args.title,
-        artist=args.artist,
-        providers=providers,
-        search_limit=args.search_limit,
-        timeout_ms=args.request_timeout_ms,
-        image_size=DEFAULT_IMAGE_SIZE,
-        netease_base_url=args.netease_base_url,
-    )
+    sidecar_providers = read_metadata_sidecar_provider_set(args.metadata_sidecar_providers)
+    sidecar_client = try_create_metadata_sidecar_client(args, default_timeout_seconds=max(10, args.request_timeout_ms // 1000 + 2))
+    try:
+        result = probe_cover(
+            title=args.title,
+            artist=args.artist,
+            providers=providers,
+            search_limit=args.search_limit,
+            timeout_ms=args.request_timeout_ms,
+            image_size=DEFAULT_IMAGE_SIZE,
+            netease_base_url=args.netease_base_url,
+            sidecar_client=sidecar_client,
+            sidecar_providers=sidecar_providers,
+        )
+    finally:
+        close_metadata_sidecar_client(sidecar_client)
     if args.download and result.get("best", {}).get("imageUrl"):
         download_image(result["best"]["imageUrl"], resolve_path(args.download), args.request_timeout_ms)
         result["downloadedTo"] = str(resolve_path(args.download))
@@ -280,9 +335,26 @@ def probe_single_cover(args):
         raise SystemExit(2)
 
 
-def process_coverage_song(song, providers, search_limit, request_timeout_ms, netease_base_url=DEFAULT_NETEASE_BASE_URL):
+def process_coverage_song(
+    song,
+    providers,
+    search_limit,
+    request_timeout_ms,
+    netease_base_url=DEFAULT_NETEASE_BASE_URL,
+    sidecar_client=None,
+    sidecar_providers=None,
+):
     try:
-        cover = find_cover(song, providers, search_limit, request_timeout_ms, DEFAULT_IMAGE_SIZE, netease_base_url)
+        cover = find_cover(
+            song,
+            providers,
+            search_limit,
+            request_timeout_ms,
+            DEFAULT_IMAGE_SIZE,
+            netease_base_url,
+            sidecar_client=sidecar_client,
+            sidecar_providers=sidecar_providers,
+        )
         if cover:
             return {"status": "found", "provider": cover["provider"]}
         return {"status": "not_found"}
@@ -397,13 +469,57 @@ def looks_like_external_image_url(url, desired_url):
     return (url.startswith("http://") or url.startswith("https://")) and url != desired_url
 
 
-def find_cover(song, providers, search_limit, timeout_ms, image_size, netease_base_url=DEFAULT_NETEASE_BASE_URL):
+def invoke_search_provider(
+    provider,
+    song,
+    search_limit,
+    timeout_ms,
+    netease_base_url,
+    sidecar_client=None,
+    sidecar_providers=None,
+):
+    if sidecar_client is None and sidecar_providers is None:
+        return search_provider(provider, song, search_limit, timeout_ms, netease_base_url)
+    try:
+        return search_provider(
+            provider,
+            song,
+            search_limit,
+            timeout_ms,
+            netease_base_url,
+            sidecar_client=sidecar_client,
+            sidecar_providers=sidecar_providers,
+        )
+    except TypeError as error:
+        if "unexpected keyword argument" not in str(error):
+            raise
+        return search_provider(provider, song, search_limit, timeout_ms, netease_base_url)
+
+
+def find_cover(
+    song,
+    providers,
+    search_limit,
+    timeout_ms,
+    image_size,
+    netease_base_url=DEFAULT_NETEASE_BASE_URL,
+    sidecar_client=None,
+    sidecar_providers=None,
+):
     last_error = None
     completed_provider_count = 0
     searched = []
     for provider in providers:
         try:
-            candidates = search_provider(provider, song, search_limit, timeout_ms, netease_base_url)
+            candidates = invoke_search_provider(
+                provider,
+                song,
+                search_limit,
+                timeout_ms,
+                netease_base_url,
+                sidecar_client,
+                sidecar_providers,
+            )
             completed_provider_count += 1
             searched.append({"provider": provider, "candidates": candidates})
             cover = resolve_best_cover_for_modes(song, provider, candidates, ("title_artist",), image_size, timeout_ms)
@@ -429,13 +545,31 @@ def find_cover(song, providers, search_limit, timeout_ms, image_size, netease_ba
     return None
 
 
-def probe_cover(title, artist, providers, search_limit, timeout_ms, image_size, netease_base_url=DEFAULT_NETEASE_BASE_URL):
+def probe_cover(
+    title,
+    artist,
+    providers,
+    search_limit,
+    timeout_ms,
+    image_size,
+    netease_base_url=DEFAULT_NETEASE_BASE_URL,
+    sidecar_client=None,
+    sidecar_providers=None,
+):
     song = {"title": title, "artistName": artist}
     candidates_by_provider = []
     provider_errors = {}
     for provider in providers:
         try:
-            candidates = search_provider(provider, song, search_limit, timeout_ms, netease_base_url)
+            candidates = invoke_search_provider(
+                provider,
+                song,
+                search_limit,
+                timeout_ms,
+                netease_base_url,
+                sidecar_client,
+                sidecar_providers,
+            )
             candidates_by_provider.append({"provider": provider, "candidates": candidates})
             cover = resolve_best_cover_for_modes(song, provider, candidates, ("title_artist",), image_size, timeout_ms)
             if cover:
@@ -474,7 +608,31 @@ def probe_cover(title, artist, providers, search_limit, timeout_ms, image_size, 
     }
 
 
-def search_provider(provider, song, search_limit, timeout_ms, netease_base_url=DEFAULT_NETEASE_BASE_URL):
+def search_provider(
+    provider,
+    song,
+    search_limit,
+    timeout_ms,
+    netease_base_url=DEFAULT_NETEASE_BASE_URL,
+    sidecar_client=None,
+    sidecar_providers=None,
+):
+    if sidecar_client and provider in (sidecar_providers or set()):
+        try:
+            result = sidecar_client.request(
+                "searchCandidates",
+                {
+                    "provider": provider,
+                    "title": song.get("title") or "",
+                    "artist": song.get("artistName") or "",
+                    "limit": search_limit,
+                },
+            )
+            candidates = result.get("candidates") or []
+            if isinstance(candidates, list):
+                return candidates
+        except Exception:
+            pass
     if provider == "netease":
         return search_netease(song, search_limit, timeout_ms, netease_base_url)
     if provider == "cloud":
@@ -1141,9 +1299,22 @@ def kuwo_headers():
     }
 
 
-def select_candidate_songs(args, random_order=False):
+def select_candidate_songs(args, random_order=False, public_base_url=""):
     limit_sql = "" if args.limit == 0 else f"LIMIT {int(args.limit)}"
     order_sql = "ORDER BY random()" if random_order else "ORDER BY cover_updated_at ASC NULLS FIRST, updated_at DESC, id ASC"
+    fetch_where_sql = ""
+    if getattr(args, "command", "") == "fetch" and not getattr(args, "full_scan", False):
+        desired_prefix = clean(public_base_url).rstrip("/")
+        if not desired_prefix:
+            raise ValueError("PUBLIC_BASE_URL or --public-base-url is required for fetch candidate selection")
+        fetch_where_sql = f"""
+  AND (
+    cover_updated_at IS NULL
+    OR cover_image_url IS NULL
+    OR trim(cover_image_url) = ''
+    OR cover_image_url <> {sql_literal(f"{desired_prefix}/media/covers/nas/")} || id || '.jpg'
+  )
+""".rstrip()
     sql = f"""
 SELECT json_build_object(
   'id', id,
@@ -1155,6 +1326,7 @@ FROM ktv_songs
 WHERE missing_at IS NULL
   AND trim(title) <> ''
   AND trim(primary_artist_name) <> ''
+{fetch_where_sql}
 {order_sql}
 {limit_sql}
 """.strip()
@@ -1363,6 +1535,37 @@ def read_provider_list(value):
         if provider not in DEFAULT_PROVIDERS:
             raise ValueError(f"Unsupported provider: {provider}")
     return providers or list(DEFAULT_PROVIDERS)
+
+
+def read_metadata_sidecar_provider_set(value):
+    providers = [item.strip() for item in clean(value).split(",") if item.strip()]
+    for provider in providers:
+        if provider not in DEFAULT_METADATA_SIDECAR_PROVIDERS:
+            raise ValueError(f"Unsupported metadata sidecar provider: {provider}")
+    return set(providers or DEFAULT_METADATA_SIDECAR_PROVIDERS)
+
+
+def try_create_metadata_sidecar_client(args, default_timeout_seconds):
+    if getattr(args, "disable_metadata_sidecar", False):
+        return None
+    try:
+        return create_metadata_sidecar_client(
+            args.metadata_sidecar_command,
+            cwd=ROOT_DIR,
+            default_timeout_seconds=default_timeout_seconds,
+        )
+    except Exception as error:
+        print(f"metadata-sidecar disabled: {error}", file=sys.stderr, flush=True)
+        return None
+
+
+def close_metadata_sidecar_client(client):
+    if client is None:
+        return
+    try:
+        client.close()
+    except Exception:
+        return
 
 
 def normalize_image_template(value, size):

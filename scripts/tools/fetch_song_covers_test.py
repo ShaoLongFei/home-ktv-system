@@ -44,6 +44,8 @@ class FetchSongCoversTest(unittest.TestCase):
 
         self.assertEqual(covers.parse_args(["fetch"]).limit, 0)
         self.assertEqual(covers.parse_args(["coverage"]).limit, 100)
+        self.assertEqual(covers.parse_args(["fetch"]).concurrency, 10)
+        self.assertEqual(covers.parse_args(["coverage"]).concurrency, 10)
         self.assertIn("netease", covers.parse_args(["coverage"]).providers.split(","))
         self.assertIn("cloud", covers.parse_args(["coverage"]).providers.split(","))
         self.assertEqual(covers.parse_args(["coverage"]).providers.split(",")[-1], "spotify")
@@ -53,6 +55,8 @@ class FetchSongCoversTest(unittest.TestCase):
 
         self.assertEqual(covers.parse_args(["fetch", "--concurrency", "4"]).concurrency, 4)
         self.assertEqual(covers.parse_args(["coverage", "--concurrency", "3"]).concurrency, 3)
+        self.assertFalse(covers.parse_args(["fetch"]).full_scan)
+        self.assertTrue(covers.parse_args(["fetch", "--full-scan"]).full_scan)
 
     def test_runs_song_tasks_concurrently(self):
         covers = load_module()
@@ -88,6 +92,62 @@ class FetchSongCoversTest(unittest.TestCase):
         self.assertEqual(args.title, "夜之光")
         self.assertEqual(args.artist, "花姐")
         self.assertEqual(args.providers, "cloud,kugou")
+
+    def test_cover_commands_accept_metadata_sidecar_flags(self):
+        covers = load_module()
+
+        args = covers.parse_args(
+            [
+                "coverage",
+                "--metadata-sidecar-command",
+                "node scripts/tools/music_metadata_sidecar.mjs",
+                "--metadata-sidecar-providers",
+                "netease,kugou",
+            ]
+        )
+
+        self.assertEqual(args.metadata_sidecar_command, "node scripts/tools/music_metadata_sidecar.mjs")
+        self.assertEqual(args.metadata_sidecar_providers, "netease,kugou")
+        self.assertFalse(args.disable_metadata_sidecar)
+
+    def test_fetch_selection_defaults_to_songs_needing_local_cover(self):
+        covers = load_module()
+        args = covers.parse_args(["fetch"])
+        args.public_base_url = "https://ktv.example.com"
+        captured = {}
+
+        original_run_psql_lines = covers.run_psql_lines
+        def fake_run_psql_lines(sql, passed_args):
+            captured["sql"] = sql
+            return []
+        covers.run_psql_lines = fake_run_psql_lines
+        try:
+            covers.select_candidate_songs(args, public_base_url=args.public_base_url)
+        finally:
+            covers.run_psql_lines = original_run_psql_lines
+
+        sql = captured["sql"]
+        self.assertIn("cover_updated_at IS NULL", sql)
+        self.assertIn("cover_image_url IS NULL", sql)
+        self.assertIn("cover_image_url <> 'https://ktv.example.com/media/covers/nas/' || id || '.jpg'", sql)
+
+    def test_fetch_selection_can_full_scan_all_songs(self):
+        covers = load_module()
+        args = covers.parse_args(["fetch", "--full-scan"])
+        args.public_base_url = "https://ktv.example.com"
+        captured = {}
+
+        original_run_psql_lines = covers.run_psql_lines
+        def fake_run_psql_lines(sql, passed_args):
+            captured["sql"] = sql
+            return []
+        covers.run_psql_lines = fake_run_psql_lines
+        try:
+            covers.select_candidate_songs(args, public_base_url=args.public_base_url)
+        finally:
+            covers.run_psql_lines = original_run_psql_lines
+
+        self.assertNotIn("cover_image_url <>", captured["sql"])
 
     def test_image_validation_uses_bytes_not_only_content_type(self):
         covers = load_module()
@@ -227,6 +287,72 @@ class FetchSongCoversTest(unittest.TestCase):
 
         self.assertEqual(match["providerSongId"], "wrong-artist")
         self.assertEqual(match["matchMode"], "title")
+
+    def test_search_provider_uses_metadata_sidecar_when_configured(self):
+        covers = load_module()
+        calls = []
+
+        class FakeSidecarClient:
+            def request(self, command, payload):
+                calls.append((command, payload))
+                return {
+                    "provider": "netease",
+                    "candidates": [
+                        {
+                            "provider": "netease",
+                            "providerSongId": "1",
+                            "title": "夜曲",
+                            "artistNames": ["周杰伦"],
+                            "albumName": "十一月的萧邦",
+                            "imageUrl": "https://example.com/cover.jpg",
+                        }
+                    ],
+                }
+
+        rows = covers.search_provider(
+            "netease",
+            {"title": "夜曲", "artistName": "周杰伦"},
+            search_limit=3,
+            timeout_ms=5000,
+            sidecar_client=FakeSidecarClient(),
+            sidecar_providers={"netease"},
+        )
+
+        self.assertEqual(calls[0][0], "searchCandidates")
+        self.assertEqual(calls[0][1]["provider"], "netease")
+        self.assertEqual(rows[0]["imageUrl"], "https://example.com/cover.jpg")
+
+    def test_search_provider_falls_back_to_python_fetch_when_sidecar_fails(self):
+        covers = load_module()
+
+        class FailingSidecarClient:
+            def request(self, command, payload):
+                raise RuntimeError("sidecar unavailable")
+
+        original_search_netease = covers.search_netease
+        covers.search_netease = lambda song, search_limit, timeout_ms, base_url: [
+            {
+                "provider": "netease",
+                "providerSongId": "fallback",
+                "title": "晴天",
+                "artistNames": ["周杰伦"],
+                "albumName": "叶惠美",
+                "imageUrl": "https://example.com/fallback.jpg",
+            }
+        ]
+        try:
+            rows = covers.search_provider(
+                "netease",
+                {"title": "晴天", "artistName": "周杰伦"},
+                search_limit=3,
+                timeout_ms=5000,
+                sidecar_client=FailingSidecarClient(),
+                sidecar_providers={"netease"},
+            )
+        finally:
+            covers.search_netease = original_search_netease
+
+        self.assertEqual(rows[0]["providerSongId"], "fallback")
 
     def test_search_netease_extracts_album_cover(self):
         covers = load_module()
