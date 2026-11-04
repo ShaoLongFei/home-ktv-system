@@ -1,7 +1,7 @@
 # ige8（爱歌吧 / ig8）在线补歌源设计方案
 
 - 日期：2026-11-04
-- 状态：P1/P2 已落地（搜索合并 + 缓存导入 + 媒体流），P3/P4 待做
+- 状态：P1/P2 + 队列接入已落地（搜索合并 + 缓存导入 + 提升入队 + 媒体流），P3/P4 待做
 - 目标读者：API / Worker 开发者、部署维护者
 - 关联：`docs/KTV-ARCHITECTURE.md`、`docs/database-schema.md`、`docs/KTV-FULL-INDEX.md`、`docs/runbooks/online-song-source.md`
 
@@ -391,4 +391,23 @@ python3 scripts/igeba_probe.py selfcheck 海阔天空 --count 5
 | `apps/api/src/db/migrations/0025_online_catalog_cache.sql` | 缓存字节数、音轨数、失败原因等列与索引 |
 | `apps/api/src/test/online-*.test.ts`、`song-search-online-merge.test.ts` | 客户端重试/下载、导入状态机、路由、搜索合并 |
 
-与第 6 节设计的差异：**v1 不做 `queue_entries` 关联**。`0023` 迁移已经把 `queue_entries` 收紧为只引用 `ktv_songs`，为了不改动既有播放状态机，在线歌曲先以「缓存 + `/media/online/:id` 可播」的形态提供；等确认产品需要把在线歌曲排进队列时，再单独设计队列来源扩展。
+### 14.1 队列接入（v1 已补齐）
+
+`0023` 把 `queue_entries` 收紧为只引用 `ktv_songs`，因此没有反向拆约束，而是采用**提升（promotion）**：
+
+1. 缓存完成后把歌曲写入 `ktv_songs`，id 固定为 `ktv-online-{provider}-{SongNumber}`，`file_path` 指向缓存文件，`source_root='online:{provider}'`；
+2. 队列、会话、播放全部复用现有 NAS 流程，状态机零改动；
+3. `MediaGateway` 识别 `ktv-online-` 前缀，优先从在线缓存取文件，绕过 ffprobe 未执行时的「不可播」判定；
+4. NAS 索引的 `markMissingAssets` 排除 `source_root LIKE 'online:%'`，避免缓存歌曲被误标 missing；
+5. `POST /rooms/:roomSlug/online/queue` 实现「点歌即排队」：已缓存同步返回 `queueEntryId`，未缓存先 202、就绪后自动入队，重复请求幂等。
+
+新增文件与改动：
+
+| 文件 | 作用 |
+| --- | --- |
+| `modules/online/online-catalog-promoter.ts` | 在线歌曲提升为 `ktv_songs` 条目（含技术元数据兜底） |
+| `routes/online-catalog.ts` | 新增 `online/queue`；排队前按 `ktv-online-*` 去重 |
+| `modules/media/media-gateway.ts` | `ktv-online-` 前缀走在线缓存 |
+| `modules/ingest/ktv-full-index.ts` | missing 标记排除在线来源 |
+| `db/migrations/0026_online_queue_promotion.sql` | 重建 `online_songs` / `online_song_assets`，补 `catalog_song_id` 等列 |
+| `test/media-gateway-online-cache.test.ts`、`test/online-catalog-promoter.test.ts` | 覆盖提升与播放路径 |

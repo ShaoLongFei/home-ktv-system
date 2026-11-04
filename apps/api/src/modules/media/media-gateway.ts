@@ -33,7 +33,11 @@ export interface OnlineCachedAssetLookup {
 
 export interface OnlineCachedAssetRepository {
   findAssetById(assetId: string): Promise<OnlineCachedAssetLookup | null>;
+  findAssetByCatalogSongId?(catalogSongId: string): Promise<OnlineCachedAssetLookup | null>;
 }
+
+/** 在线歌曲提升成本地条目后使用的 id 前缀，播放时优先走在线缓存。 */
+export const ONLINE_CATALOG_SONG_PREFIX = "ktv-online-";
 
 export interface MediaGatewayOptions {
   playableMedia: PlayableMediaRepository;
@@ -54,6 +58,13 @@ export class MediaGateway {
   async resolveForStreaming(source: PlayableMediaLookup): Promise<MediaGatewayResolution> {
     if (source.sourceType === "online") {
       return this.resolveOnlineCachedAsset(source.assetId);
+    }
+
+    if (source.assetId.startsWith(ONLINE_CATALOG_SONG_PREFIX)) {
+      const cached = await this.resolvePromotedOnlineAsset(source.assetId);
+      if (cached) {
+        return cached;
+      }
     }
 
     const asset = await this.options.playableMedia.findPlayableBySource(source);
@@ -77,6 +88,39 @@ export class MediaGateway {
       filePath: resolved.filePath,
       contentLength: resolved.sizeBytes,
       contentType: inferVideoContentType(asset.filePath)
+    };
+  }
+
+  /**
+   * 提升后的在线歌曲（ktv-online-*）绕过 NAS 探测状态，直接用缓存文件，
+   * 避免 ffprobe 尚未执行时被判定为不可播。
+   */
+  private async resolvePromotedOnlineAsset(assetId: AssetId): Promise<MediaGatewayResolution | null> {
+    const repository = this.options.onlineAssets;
+    if (!repository?.findAssetByCatalogSongId) {
+      return null;
+    }
+
+    const asset = await repository.findAssetByCatalogSongId(assetId);
+    if (!asset) {
+      return null;
+    }
+    if (asset.status !== "ready" || !asset.cachePath) {
+      return { ok: false, statusCode: 409, code: "ONLINE_ASSET_NOT_READY" };
+    }
+
+    const resolved = await this.options.mediaPathResolver.resolveAssetFile(asset.cachePath);
+    if (!resolved.ok) {
+      return this.mapPathResolutionFailure(resolved);
+    }
+
+    return {
+      ok: true,
+      sourceType: "nas",
+      assetId,
+      filePath: resolved.filePath,
+      contentLength: resolved.sizeBytes,
+      contentType: inferVideoContentType(asset.cachePath)
     };
   }
 

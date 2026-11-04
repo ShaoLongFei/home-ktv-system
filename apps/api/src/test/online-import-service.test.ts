@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { OnlineCatalogProvider } from "../modules/online/igeba/igeba-provider.js";
+import { InMemoryOnlineCatalogPromoter } from "../modules/online/online-catalog-promoter.js";
 import { InMemoryOnlineCatalogRepository } from "../modules/online/online-catalog-repository.js";
 import { OnlineImportService } from "../modules/online/online-import-service.js";
 
@@ -44,9 +45,11 @@ describe("OnlineImportService", () => {
 
   it("downloads, probes and marks the asset ready", async () => {
     const repository = new InMemoryOnlineCatalogRepository();
+    const promoter = new InMemoryOnlineCatalogPromoter();
     const service = new OnlineImportService({
       provider: createProvider(),
       repository,
+      promoter,
       cacheDir,
       logger: silentLogger,
       probeMedia: async () => ({ durationMs: 269000, audioTrackCount: 2 })
@@ -63,6 +66,14 @@ describe("OnlineImportService", () => {
     expect(asset?.cachePath).toBe(join(cacheDir, "20039643.mkv"));
     expect(asset?.cacheBytes).toBe(9);
     expect(asset?.audioTrackCount).toBe(2);
+    expect(asset?.catalogSongId).toBe("ktv-online-igeba-20039643");
+    expect(promoter.promoted[0]).toMatchObject({
+      provider: "igeba",
+      providerSongId: "20039643",
+      title: "孤勇者",
+      artistName: "陈奕迅",
+      sizeBytes: 9
+    });
     expect(await readFile(join(cacheDir, "20039643.mkv"), "utf8")).toBe("012345678");
 
     const again = await service.requestImport({ songNumber: "20039643" });
@@ -70,6 +81,32 @@ describe("OnlineImportService", () => {
 
     const stats = await service.status();
     expect(stats.stats).toMatchObject({ total: 1, ready: 1, caching: 0 });
+  });
+
+  it("reuses an already cached file after a restart instead of downloading again", async () => {
+    const repository = new InMemoryOnlineCatalogRepository();
+    let downloads = 0;
+    const service = new OnlineImportService({
+      provider: createProvider({
+        download: async () => {
+          downloads += 1;
+          throw new Error("should not download");
+        }
+      }),
+      repository,
+      cacheDir,
+      logger: silentLogger,
+      probeMedia: async () => ({ durationMs: 1000, audioTrackCount: 1 })
+    });
+
+    await writeFile(join(cacheDir, "20039643.mkv"), "012345678");
+    const queued = await service.requestImport({ songNumber: "20039643" });
+    await service.whenIdle();
+
+    const asset = await service.getAsset(queued.asset.id);
+    expect(downloads).toBe(0);
+    expect(asset?.status).toBe("ready");
+    expect(asset?.cacheBytes).toBe(9);
   });
 
   it("marks rights-less songs as unavailable instead of retrying forever", async () => {

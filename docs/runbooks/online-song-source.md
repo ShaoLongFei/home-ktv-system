@@ -24,6 +24,7 @@ IGEBA_CONCURRENCY=1
 | --- | --- |
 | 搜索（自动合并在线候选） | `GET /rooms/:roomSlug/songs/search?q=孤勇者`，返回 `online.candidates[]` |
 | 预载单曲 | `POST /rooms/:roomSlug/online/import` `{ "songNumber": "20039643", "title": "孤勇者" }` |
+| 点歌（缓存好就排队） | `POST /rooms/:roomSlug/online/queue` `{ "songNumber": "20039643", "requestedBy": "phone-1" }` |
 | 查询准备状态 | `GET /rooms/:roomSlug/online/assets/:assetId` |
 | 播放（缓存就绪后） | `GET /media/online/:assetId`（支持 Range；未就绪返回 409） |
 | 后台概览 | `GET /admin/online/sources` |
@@ -31,6 +32,20 @@ IGEBA_CONCURRENCY=1
 | 后台批量预载 | `POST /admin/online/import` `{ "query": "周杰伦", "limit": 10 }` |
 
 点歌/预载是异步的：`POST` 先返回 `202 + assetId`，下载完成后 `GET .../online/assets/:assetId` 变成 `ready`，此时 `playbackUrl` 才有值。
+
+`online/queue` 的语义：
+
+- 已缓存 → 同步入队，`200 + queueEntryId`；
+- 未缓存 → `202 + assetId`，后台下载完成后**自动入队**，手机端轮询房间快照即可看到队列变化；
+- 同一首歌重复请求/重试是幂等的，不会重复排队。
+
+## 缓存与曲库的关系
+
+缓存完成后，歌曲会被提升为本地曲库条目（`ktv_songs.id = ktv-online-{provider}-{SongNumber}`）：
+
+- 之后 NAS 搜索能直接搜到它，走标准点歌命令也能排队；
+- 播放地址统一为 `/media/nas/ktv-online-...`，媒体网关识别 `ktv-online-` 前缀后直接读在线缓存文件，不依赖 ffprobe 探测结果；
+- `source_root = online:igeba`，NAS 索引扫描不会把它标记为 missing。
 
 ## 批量导入（命令行）
 
@@ -49,7 +64,7 @@ pnpm -F @home-ktv/api igeba:load -- --query "海阔天空" --limit 5 --dry-run
 | `status=failed`，`errorReason` 含 `Url Expired` | ige8 双门户 token 不匹配或限流 | 等 1–3 分钟重试；不要提高 `IGEBA_CONCURRENCY` |
 | `status=unavailable`，含 `no playable url` | 该曲下架或需付费会员 | 不会自动重试，换其他版本 |
 | `/media/online/:id` 返回 409 | 缓存未完成 | 轮询 asset 状态；`ready` 后再取 |
-| `audioTrackCount=null` | 服务器没装 ffprobe | 安装 ffmpeg/ffprobe 后重新预载即可 |
+| `audioTrackCount=null` | 服务器没装 ffprobe | 不影响播放（网关走在线缓存分支）；装上 ffprobe 后重新预载可补全音轨信息 |
 | 磁盘增长 | 缓存文件累积 | 手动清理 `IGEBA_CACHE_DIR`，并同步删除数据库里对应 asset |
 
 ## 边界

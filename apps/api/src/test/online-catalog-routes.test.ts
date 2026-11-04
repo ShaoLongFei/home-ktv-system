@@ -1,8 +1,9 @@
 import Fastify from "fastify";
 import type { Room } from "@home-ktv/domain";
 import { describe, expect, it } from "vitest";
+import type { QueueEntry } from "@home-ktv/domain";
 import type { OnlineAssetRecord } from "../modules/online/online-catalog-repository.js";
-import type { OnlineImportService } from "../modules/online/online-import-service.js";
+import type { OnlineImportService, RequestImportOptions } from "../modules/online/online-import-service.js";
 import { registerOnlineCatalogRoutes } from "../routes/online-catalog.js";
 
 const room: Room = {
@@ -23,6 +24,7 @@ function createAsset(overrides: Partial<OnlineAssetRecord> = {}): OnlineAssetRec
     providerAssetId: "20039643",
     mediaUrl: "",
     cachePath: "/media/online-cache/igeba/20039643.mkv",
+    catalogSongId: null,
     status: "caching",
     durationMs: null,
     cacheBytes: null,
@@ -35,6 +37,7 @@ function createAsset(overrides: Partial<OnlineAssetRecord> = {}): OnlineAssetRec
 
 function createHarness(importService: Partial<OnlineImportService> = {}) {
   const server = Fastify();
+  const appended: Array<Record<string, unknown>> = [];
   const service = {
     status: async () => ({
       provider: "igeba",
@@ -45,10 +48,18 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
       stats: { total: 1, ready: 1, caching: 0, failed: 0, unavailable: 0, bytes: 1024 }
     }),
     listAssets: async () => [createAsset({ status: "ready", cacheBytes: 1024 })],
-    requestImport: async (input: { songNumber: string }) => ({
-      asset: createAsset({ providerAssetId: input.songNumber }),
-      cached: false
-    }),
+    requestImport: async (input: { songNumber: string }, options: RequestImportOptions = {}) => {
+      if (options.onReady) {
+        const ready = createAsset({
+          providerAssetId: input.songNumber,
+          status: "ready",
+          catalogSongId: `ktv-online-igeba-${input.songNumber}`
+        });
+        await options.onReady(ready);
+        return { asset: ready, cached: true };
+      }
+      return { asset: createAsset({ providerAssetId: input.songNumber }), cached: false };
+    },
     importByQuery: async () => [
       { asset: createAsset({ id: "online-asset-a", providerAssetId: "1" }), cached: false },
       { asset: createAsset({ id: "online-asset-b", providerAssetId: "2" }), cached: true }
@@ -63,9 +74,16 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
       findById: async (roomId) => (roomId === room.id ? room : null),
       findBySlug: async (slug) => (slug === room.slug ? room : null)
     },
-    onlineImport: service
+    onlineImport: service,
+    queueEntries: {
+      listEffectiveQueue: async () => [] as QueueEntry[],
+      append: async (input) => {
+        appended.push(input as unknown as Record<string, unknown>);
+        return { id: "queue-entry-1" } as QueueEntry;
+      }
+    }
   });
-  return { server };
+  return { server, appended };
 }
 
 describe("online catalog routes", () => {
@@ -123,6 +141,47 @@ describe("online catalog routes", () => {
 
     expect(response.statusCode).toBe(202);
     expect(response.json()).toMatchObject({ queued: 2 });
+    await server.close();
+  });
+
+  it("queues an already cached online song immediately", async () => {
+    const { server, appended } = createHarness();
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/queue",
+      payload: { songNumber: "20039643", requestedBy: "phone-1" }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({ queued: true, queueEntryId: "queue-entry-1" });
+    expect(appended).toHaveLength(1);
+    expect(appended[0]).toMatchObject({
+      roomId: "living-room",
+      songId: "ktv-online-igeba-20039643",
+      assetId: "ktv-online-igeba-20039643",
+      requestedBy: "phone-1",
+      queuePosition: 1,
+      status: "queued"
+    });
+    await server.close();
+  });
+
+  it("returns 202 while the online song is still caching", async () => {
+    const { server } = createHarness({
+      requestImport: (async () => ({
+        asset: createAsset({ status: "caching" }),
+        cached: false
+      })) as unknown as OnlineImportService["requestImport"]
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/queue",
+      payload: { songNumber: "20039643" }
+    });
+
+    expect(response.statusCode).toBe(202);
+    expect(response.json()).toMatchObject({ queued: false, queueEntryId: null, status: "caching" });
     await server.close();
   });
 

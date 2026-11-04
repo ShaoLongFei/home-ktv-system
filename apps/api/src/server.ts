@@ -17,6 +17,11 @@ import {
   type OnlineCatalogRepository
 } from "./modules/online/online-catalog-repository.js";
 import { OnlineImportService } from "./modules/online/online-import-service.js";
+import {
+  InMemoryOnlineCatalogPromoter,
+  PgOnlineCatalogPromoter,
+  type OnlineCatalogPromoter
+} from "./modules/online/online-catalog-promoter.js";
 import type { PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
 import {
   InMemoryControlSessionRepository,
@@ -106,7 +111,10 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   const onlineRepository: OnlineCatalogRepository = pool
     ? new PgOnlineCatalogRepository(pool)
     : new InMemoryOnlineCatalogRepository();
-  const onlineImport = createOnlineImportService(resolvedConfig, onlineRepository);
+  const onlinePromoter: OnlineCatalogPromoter = pool
+    ? new PgOnlineCatalogPromoter(pool)
+    : new InMemoryOnlineCatalogPromoter();
+  const onlineImport = createOnlineImportService(resolvedConfig, onlineRepository, onlinePromoter);
   const mediaGateway = new MediaGateway({
     playableMedia: repositories.playableMedia ?? { findPlayableBySource: async () => null },
     mediaPathResolver,
@@ -193,7 +201,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   if (onlineImport) {
     await registerOnlineCatalogRoutes(server, {
       rooms: repositories.rooms,
-      onlineImport
+      onlineImport,
+      queueEntries: repositories.queueEntries
     });
   }
   await registerSongDiscoveryRoutes(server, {
@@ -219,7 +228,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
 
 function createOnlineImportService(
   config: ApiConfig,
-  repository: OnlineCatalogRepository
+  repository: OnlineCatalogRepository,
+  promoter: OnlineCatalogPromoter
 ): OnlineImportService | undefined {
   const igeba = config.igeba;
   if (!igeba?.enabled || !igeba.cacheDir) {
@@ -237,6 +247,7 @@ function createOnlineImportService(
   return new OnlineImportService({
     provider: createIgebaProvider(client),
     repository,
+    promoter,
     cacheDir: igeba.cacheDir,
     concurrency: igeba.concurrency
   });

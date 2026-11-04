@@ -20,6 +20,7 @@ export interface OnlineAssetRecord {
   providerAssetId: string;
   mediaUrl: string;
   cachePath: string | null;
+  catalogSongId: string | null;
   status: OnlineAssetStatus;
   durationMs: number | null;
   cacheBytes: number | null;
@@ -49,6 +50,7 @@ export interface UpsertOnlineAssetInput {
 export interface UpdateOnlineAssetPatch {
   status?: OnlineAssetStatus;
   cachePath?: string | null;
+  catalogSongId?: string | null;
   mediaUrl?: string;
   durationMs?: number | null;
   cacheBytes?: number | null;
@@ -72,6 +74,7 @@ export interface OnlineCatalogRepository {
   upsertAsset(input: UpsertOnlineAssetInput): Promise<OnlineAssetRecord>;
   findAssetById(assetId: string): Promise<OnlineAssetRecord | null>;
   findAssetByProviderId(provider: string, providerAssetId: string): Promise<OnlineAssetRecord | null>;
+  findAssetByCatalogSongId(catalogSongId: string): Promise<OnlineAssetRecord | null>;
   updateAsset(assetId: string, patch: UpdateOnlineAssetPatch): Promise<OnlineAssetRecord | null>;
   listAssets(limit: number): Promise<OnlineAssetRecord[]>;
   stats(): Promise<OnlineAssetStats>;
@@ -94,6 +97,7 @@ interface OnlineAssetRow {
   provider_asset_id: string;
   media_url: string;
   cache_path: string | null;
+  catalog_song_id: string | null;
   status: OnlineAssetStatus;
   duration_ms: number | null;
   cache_bytes: string | number | null;
@@ -102,7 +106,7 @@ interface OnlineAssetRow {
   metadata: Record<string, unknown>;
 }
 
-const assetSelect = `a.id, a.song_id, a.provider, a.provider_asset_id, a.media_url, a.cache_path,
+const assetSelect = `a.id, a.song_id, a.provider, a.provider_asset_id, a.media_url, a.cache_path, a.catalog_song_id,
             a.status, a.duration_ms, a.cache_bytes, a.audio_track_count, a.error_reason, a.metadata`;
 
 export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
@@ -180,6 +184,18 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
     return row ? mapAssetRow(row) : null;
   }
 
+  async findAssetByCatalogSongId(catalogSongId: string): Promise<OnlineAssetRecord | null> {
+    const result = await this.db.query<OnlineAssetRow>(
+      `SELECT ${assetSelect}
+       FROM online_song_assets a
+       WHERE a.catalog_song_id = $1
+       LIMIT 1`,
+      [catalogSongId]
+    );
+    const row = result.rows[0];
+    return row ? mapAssetRow(row) : null;
+  }
+
   async updateAsset(assetId: string, patch: UpdateOnlineAssetPatch): Promise<OnlineAssetRecord | null> {
     const sets: string[] = ["updated_at = now()"];
     const values: unknown[] = [assetId];
@@ -190,6 +206,7 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
 
     if (patch.status !== undefined) push("status", patch.status);
     if (patch.cachePath !== undefined) push("cache_path", patch.cachePath);
+    if (patch.catalogSongId !== undefined) push("catalog_song_id", patch.catalogSongId);
     if (patch.mediaUrl !== undefined) push("media_url", patch.mediaUrl);
     if (patch.durationMs !== undefined) push("duration_ms", patch.durationMs);
     if (patch.cacheBytes !== undefined) push("cache_bytes", patch.cacheBytes);
@@ -201,7 +218,7 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
     const result = await this.db.query<OnlineAssetRow>(
       `UPDATE online_song_assets SET ${sets.join(", ")}
        WHERE id = $1
-       RETURNING id, song_id, provider, provider_asset_id, media_url, cache_path,
+       RETURNING id, song_id, provider, provider_asset_id, media_url, cache_path, catalog_song_id,
                  status, duration_ms, cache_bytes, audio_track_count, error_reason, metadata`,
       values
     );
@@ -281,6 +298,7 @@ export class InMemoryOnlineCatalogRepository implements OnlineCatalogRepository 
       providerAssetId: input.providerAssetId,
       mediaUrl: input.mediaUrl,
       cachePath: existing?.cachePath ?? null,
+      catalogSongId: existing?.catalogSongId ?? null,
       status: existing?.status ?? "caching",
       durationMs: existing?.durationMs ?? null,
       cacheBytes: existing?.cacheBytes ?? null,
@@ -300,6 +318,10 @@ export class InMemoryOnlineCatalogRepository implements OnlineCatalogRepository 
     return this.assets.get(`${provider}:${providerAssetId}`) ?? null;
   }
 
+  async findAssetByCatalogSongId(catalogSongId: string): Promise<OnlineAssetRecord | null> {
+    return [...this.assets.values()].find((asset) => asset.catalogSongId === catalogSongId) ?? null;
+  }
+
   async updateAsset(assetId: string, patch: UpdateOnlineAssetPatch): Promise<OnlineAssetRecord | null> {
     const entry = [...this.assets.entries()].find(([, asset]) => asset.id === assetId);
     if (!entry) {
@@ -310,6 +332,7 @@ export class InMemoryOnlineCatalogRepository implements OnlineCatalogRepository 
       ...asset,
       ...(patch.status !== undefined ? { status: patch.status } : {}),
       ...(patch.cachePath !== undefined ? { cachePath: patch.cachePath } : {}),
+      ...(patch.catalogSongId !== undefined ? { catalogSongId: patch.catalogSongId } : {}),
       ...(patch.mediaUrl !== undefined ? { mediaUrl: patch.mediaUrl } : {}),
       ...(patch.durationMs !== undefined ? { durationMs: patch.durationMs } : {}),
       ...(patch.cacheBytes !== undefined ? { cacheBytes: patch.cacheBytes } : {}),
@@ -358,6 +381,7 @@ function mapAssetRow(row: OnlineAssetRow): OnlineAssetRecord {
     providerAssetId: row.provider_asset_id,
     mediaUrl: row.media_url,
     cachePath: row.cache_path,
+    catalogSongId: row.catalog_song_id,
     status: row.status,
     durationMs: row.duration_ms,
     cacheBytes: row.cache_bytes === null ? null : toNumber(row.cache_bytes),

@@ -1,10 +1,13 @@
 import type { FastifyInstance } from "fastify";
+import type { RoomId } from "@home-ktv/domain";
+import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 import type { OnlineImportService } from "../modules/online/online-import-service.js";
 
 export interface OnlineCatalogRouteDependencies {
   rooms: RoomRepository;
   onlineImport: OnlineImportService;
+  queueEntries: Pick<QueueEntryRepository, "listEffectiveQueue" | "append">;
 }
 
 interface ImportBody {
@@ -13,6 +16,9 @@ interface ImportBody {
   artistName?: unknown;
   query?: unknown;
   limit?: unknown;
+  requestedBy?: unknown;
+  requestedByName?: unknown;
+  requestedByUserPhone?: unknown;
 }
 
 interface AssetsQuery {
@@ -99,6 +105,65 @@ export async function registerOnlineCatalogRoutes(
     }
   );
 
+  /**
+   * 点歌即排队：未缓存的先进入准备，缓存就绪后自动入队。
+   * 已缓存时同步入队并返回 queueEntryId。
+   */
+  server.post<{ Params: { roomSlug: string }; Body: ImportBody }>(
+    "/rooms/:roomSlug/online/queue",
+    async (request, reply) => {
+      const room = await dependencies.rooms.findBySlug(request.params.roomSlug);
+      if (!room) {
+        await reply.code(404).send({ code: "ROOM_NOT_FOUND" });
+        return;
+      }
+
+      const body = request.body ?? {};
+      const songNumber = typeof body.songNumber === "string" ? body.songNumber.trim() : "";
+      if (!songNumber) {
+        await reply.code(400).send({ code: "ONLINE_SONG_NUMBER_REQUIRED" });
+        return;
+      }
+
+      const requestedBy = typeof body.requestedBy === "string" && body.requestedBy.trim()
+        ? body.requestedBy.trim()
+        : "controller";
+
+      let queueEntryId: string | null = null;
+      const result = await dependencies.onlineImport.requestImport(
+        {
+          songNumber,
+          ...(typeof body.title === "string" ? { title: body.title } : {}),
+          ...(typeof body.artistName === "string" ? { artistName: body.artistName } : {})
+        },
+        {
+          onReady: async (asset) => {
+            if (!asset.catalogSongId) {
+              throw new Error(`online asset ${asset.id} has no catalog song id`);
+            }
+            queueEntryId = await appendToQueue(dependencies.queueEntries, {
+              roomId: room.id,
+              catalogSongId: asset.catalogSongId,
+              requestedBy,
+              requestedByName: typeof body.requestedByName === "string" ? body.requestedByName : null,
+              requestedByUserPhone: typeof body.requestedByUserPhone === "string" ? body.requestedByUserPhone : null
+            });
+          }
+        }
+      );
+
+      const statusCode = queueEntryId ? 200 : 202;
+      await reply.code(statusCode).send({
+        assetId: result.asset.id,
+        songNumber,
+        status: result.asset.status,
+        cached: result.cached,
+        queued: queueEntryId !== null,
+        queueEntryId
+      });
+    }
+  );
+
   server.get<{ Params: { roomSlug: string; assetId: string } }>(
     "/rooms/:roomSlug/online/assets/:assetId",
     async (request, reply) => {
@@ -120,6 +185,7 @@ export async function registerOnlineCatalogRoutes(
           provider: asset.provider,
           providerAssetId: asset.providerAssetId,
           status: asset.status,
+          catalogSongId: asset.catalogSongId,
           durationMs: asset.durationMs,
           cacheBytes: asset.cacheBytes,
           audioTrackCount: asset.audioTrackCount,
@@ -129,6 +195,36 @@ export async function registerOnlineCatalogRoutes(
       });
     }
   );
+}
+
+async function appendToQueue(
+  queueEntries: Pick<QueueEntryRepository, "listEffectiveQueue" | "append">,
+  input: {
+    roomId: RoomId;
+    catalogSongId: string;
+    requestedBy: string;
+    requestedByName: string | null;
+    requestedByUserPhone: string | null;
+  }
+): Promise<string> {
+  const queue = await queueEntries.listEffectiveQueue(input.roomId);
+  const existing = queue.find(
+    (entry) => (entry.source?.assetId ?? entry.assetId) === input.catalogSongId
+  );
+  if (existing) {
+    return existing.id;
+  }
+  const entry = await queueEntries.append({
+    roomId: input.roomId,
+    songId: input.catalogSongId,
+    assetId: input.catalogSongId,
+    requestedBy: input.requestedBy,
+    requestedByName: input.requestedByName,
+    requestedByUserPhone: input.requestedByUserPhone,
+    queuePosition: queue.length + 1,
+    status: "queued"
+  });
+  return entry.id;
 }
 
 function toImportResponse(result: {

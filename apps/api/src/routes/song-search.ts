@@ -6,6 +6,7 @@ import type {
   SongSearchOnlineResult,
   SongSearchResponse
 } from "@home-ktv/domain";
+import { normalizeSearchText } from "../modules/catalog/search-normalization.js";
 import type { OnlineCatalogCandidate } from "../modules/online/igeba/igeba-provider.js";
 import type { KtvIndexReadRepository } from "../modules/ktv-index/ktv-index-read-repository.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
@@ -55,7 +56,10 @@ export async function registerSongSearchRoutes(
           queuedIndexedAssetIds: queuedNasAssetIds,
           unreadableIndexedAssetIds: []
         })) ?? [];
-      const onlineCandidates = await loadOnlineCandidates(dependencies, query, limit);
+      const onlineCandidates = dropDuplicates(
+        await loadOnlineCandidates(dependencies, query, limit),
+        indexedResults
+      );
       const response: SongSearchResponse = {
         query,
         nas: {
@@ -107,6 +111,21 @@ function buildOnlineSection(
     },
     candidates: candidates.map(toOnlineCandidateCard)
   };
+}
+
+function dropDuplicates(
+  candidates: readonly OnlineCatalogCandidate[],
+  nasResults: readonly SongSearchIndexedResult[]
+): OnlineCatalogCandidate[] {
+  if (nasResults.length === 0) {
+    return [...candidates];
+  }
+  const localKeys = new Set(
+    nasResults.map((result) => `${normalizeSearchText(result.title)}|${normalizeSearchText(result.artistName)}`)
+  );
+  return candidates.filter(
+    (candidate) => !localKeys.has(`${normalizeSearchText(candidate.title)}|${normalizeSearchText(candidate.artistName)}`)
+  );
 }
 
 function toOnlineCandidateCard(candidate: OnlineCatalogCandidate): OnlineCandidateCard {
