@@ -9,6 +9,14 @@ import { loadConfig, normalizeApiConfig, type ApiConfig, type ApiConfigInput } f
 import { MediaPathResolver } from "./modules/assets/media-path-resolver.js";
 import { MediaGateway } from "./modules/media/media-gateway.js";
 import { NasPlayableMediaRepository } from "./modules/media/nas-playable-media-repository.js";
+import { IgebaClient } from "./modules/online/igeba/igeba-client.js";
+import { createIgebaProvider } from "./modules/online/igeba/igeba-provider.js";
+import {
+  InMemoryOnlineCatalogRepository,
+  PgOnlineCatalogRepository,
+  type OnlineCatalogRepository
+} from "./modules/online/online-catalog-repository.js";
+import { OnlineImportService } from "./modules/online/online-import-service.js";
 import type { PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
 import {
   InMemoryControlSessionRepository,
@@ -45,6 +53,7 @@ import { registerPlayerRoutes } from "./routes/player.js";
 import { registerRealtimeRoutes } from "./routes/realtime.js";
 import { registerRoomInteractionRoutes } from "./routes/room-interactions.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
+import { registerOnlineCatalogRoutes } from "./routes/online-catalog.js";
 import { registerSongDiscoveryRoutes } from "./routes/song-discovery.js";
 import { registerSongSearchRoutes } from "./routes/song-search.js";
 
@@ -94,10 +103,15 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     mediaRoot: resolvedConfig.mediaRoot,
     pathMappings: resolvedConfig.mediaPathMappings
   });
+  const onlineRepository: OnlineCatalogRepository = pool
+    ? new PgOnlineCatalogRepository(pool)
+    : new InMemoryOnlineCatalogRepository();
+  const onlineImport = createOnlineImportService(resolvedConfig, onlineRepository);
   const mediaGateway = new MediaGateway({
     playableMedia: repositories.playableMedia ?? { findPlayableBySource: async () => null },
     mediaPathResolver,
-    publicBaseUrl: resolvedConfig.publicBaseUrl
+    publicBaseUrl: resolvedConfig.publicBaseUrl,
+    onlineAssets: onlineRepository
   });
   const broadcaster = new RoomSnapshotBroadcaster();
 
@@ -173,8 +187,15 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   await registerSongSearchRoutes(server, {
     rooms: repositories.rooms,
     queueEntries: repositories.queueEntries,
-    ...(repositories.ktvIndex ? { ktvIndex: repositories.ktvIndex } : {})
+    ...(repositories.ktvIndex ? { ktvIndex: repositories.ktvIndex } : {}),
+    ...(onlineImport ? { onlineCatalog: { search: (keyword, limit) => onlineImport.search(keyword, limit) } } : {})
   });
+  if (onlineImport) {
+    await registerOnlineCatalogRoutes(server, {
+      rooms: repositories.rooms,
+      onlineImport
+    });
+  }
   await registerSongDiscoveryRoutes(server, {
     rooms: repositories.rooms,
     queueEntries: repositories.queueEntries,
@@ -194,6 +215,31 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   });
 
   return server;
+}
+
+function createOnlineImportService(
+  config: ApiConfig,
+  repository: OnlineCatalogRepository
+): OnlineImportService | undefined {
+  const igeba = config.igeba;
+  if (!igeba?.enabled || !igeba.cacheDir) {
+    return undefined;
+  }
+
+  const client = new IgebaClient({
+    baseUrl: igeba.baseUrl,
+    uid: igeba.uid,
+    minIntervalMs: igeba.minIntervalMs,
+    requestTimeoutMs: igeba.requestTimeoutMs,
+    resolveAttempts: igeba.resolveAttempts
+  });
+
+  return new OnlineImportService({
+    provider: createIgebaProvider(client),
+    repository,
+    cacheDir: igeba.cacheDir,
+    concurrency: igeba.concurrency
+  });
 }
 
 function createPgPool(databaseUrl: string): Pool {

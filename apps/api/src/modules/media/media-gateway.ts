@@ -21,13 +21,25 @@ export type MediaGatewayResolution =
         | "MEDIA_ROOT_NOT_CONFIGURED"
         | "MEDIA_PATH_REJECTED"
         | "MEDIA_FILE_NOT_FOUND"
+        | "ONLINE_ASSET_NOT_FOUND"
+        | "ONLINE_ASSET_NOT_READY"
         | "ONLINE_PLAYBACK_NOT_IMPLEMENTED";
     };
+
+export interface OnlineCachedAssetLookup {
+  status: string;
+  cachePath: string | null;
+}
+
+export interface OnlineCachedAssetRepository {
+  findAssetById(assetId: string): Promise<OnlineCachedAssetLookup | null>;
+}
 
 export interface MediaGatewayOptions {
   playableMedia: PlayableMediaRepository;
   mediaPathResolver: MediaPathResolver;
   publicBaseUrl: string;
+  onlineAssets?: OnlineCachedAssetRepository;
 }
 
 export class MediaGateway {
@@ -41,7 +53,7 @@ export class MediaGateway {
 
   async resolveForStreaming(source: PlayableMediaLookup): Promise<MediaGatewayResolution> {
     if (source.sourceType === "online") {
-      return { ok: false, statusCode: 501, code: "ONLINE_PLAYBACK_NOT_IMPLEMENTED" };
+      return this.resolveOnlineCachedAsset(source.assetId);
     }
 
     const asset = await this.options.playableMedia.findPlayableBySource(source);
@@ -65,6 +77,38 @@ export class MediaGateway {
       filePath: resolved.filePath,
       contentLength: resolved.sizeBytes,
       contentType: inferVideoContentType(asset.filePath)
+    };
+  }
+
+  /**
+   * 在线歌曲永远走本地缓存文件，绝不 302 到第三方 CDN：
+   * 未就绪返回 409，让前端展示「准备中」并轮询。
+   */
+  private async resolveOnlineCachedAsset(assetId: AssetId): Promise<MediaGatewayResolution> {
+    if (!this.options.onlineAssets) {
+      return { ok: false, statusCode: 501, code: "ONLINE_PLAYBACK_NOT_IMPLEMENTED" };
+    }
+
+    const asset = await this.options.onlineAssets.findAssetById(assetId);
+    if (!asset) {
+      return { ok: false, statusCode: 404, code: "ONLINE_ASSET_NOT_FOUND" };
+    }
+    if (asset.status !== "ready" || !asset.cachePath) {
+      return { ok: false, statusCode: 409, code: "ONLINE_ASSET_NOT_READY" };
+    }
+
+    const resolved = await this.options.mediaPathResolver.resolveAssetFile(asset.cachePath);
+    if (!resolved.ok) {
+      return this.mapPathResolutionFailure(resolved);
+    }
+
+    return {
+      ok: true,
+      sourceType: "online",
+      assetId,
+      filePath: resolved.filePath,
+      contentLength: resolved.sizeBytes,
+      contentType: inferVideoContentType(asset.cachePath)
     };
   }
 

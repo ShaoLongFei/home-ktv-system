@@ -1,5 +1,12 @@
 import type { FastifyInstance } from "fastify";
-import type { SongSearchIndexedResult, SongSearchNasResult, SongSearchResponse } from "@home-ktv/domain";
+import type {
+  OnlineCandidateCard,
+  SongSearchIndexedResult,
+  SongSearchNasResult,
+  SongSearchOnlineResult,
+  SongSearchResponse
+} from "@home-ktv/domain";
+import type { OnlineCatalogCandidate } from "../modules/online/igeba/igeba-provider.js";
 import type { KtvIndexReadRepository } from "../modules/ktv-index/ktv-index-read-repository.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
@@ -8,6 +15,9 @@ export interface SongSearchRouteDependencies {
   rooms: RoomRepository;
   queueEntries: QueueEntryRepository;
   ktvIndex?: Pick<KtvIndexReadRepository, "searchIndexedSongs">;
+  onlineCatalog?: {
+    search(keyword: string, limit: number): Promise<OnlineCatalogCandidate[]>;
+  };
 }
 
 interface SongSearchQuery {
@@ -45,6 +55,7 @@ export async function registerSongSearchRoutes(
           queuedIndexedAssetIds: queuedNasAssetIds,
           unreadableIndexedAssetIds: []
         })) ?? [];
+      const onlineCandidates = await loadOnlineCandidates(dependencies, query, limit);
       const response: SongSearchResponse = {
         query,
         nas: {
@@ -52,20 +63,66 @@ export async function registerSongSearchRoutes(
           message: indexedResults.length > 0 ? "找到 NAS 曲库结果" : "未找到 NAS 曲库结果",
           results: indexedResults.map(toNasSearchResult)
         },
-        online: {
-          status: "disabled",
-          message: "暂不启用线上补歌",
-          requestSupplement: {
-            visible: false,
-            label: "请求补歌"
-          },
-          candidates: []
-        }
+        online: buildOnlineSection(dependencies, onlineCandidates)
       };
 
       await reply.send(response);
     }
   );
+}
+
+async function loadOnlineCandidates(
+  dependencies: SongSearchRouteDependencies,
+  query: string,
+  limit: number
+): Promise<OnlineCatalogCandidate[]> {
+  if (!dependencies.onlineCatalog || query.trim().length === 0) {
+    return [];
+  }
+  return dependencies.onlineCatalog.search(query, Math.min(limit, 20));
+}
+
+function buildOnlineSection(
+  dependencies: SongSearchRouteDependencies,
+  candidates: readonly OnlineCatalogCandidate[]
+): SongSearchOnlineResult {
+  if (!dependencies.onlineCatalog) {
+    return {
+      status: "disabled",
+      message: "暂不启用线上补歌",
+      requestSupplement: {
+        visible: false,
+        label: "请求补歌"
+      },
+      candidates: []
+    };
+  }
+
+  return {
+    status: "available",
+    message: candidates.length > 0 ? `找到 ${candidates.length} 首在线曲库结果` : "未找到在线曲库结果",
+    requestSupplement: {
+      visible: false,
+      label: "请求补歌"
+    },
+    candidates: candidates.map(toOnlineCandidateCard)
+  };
+}
+
+function toOnlineCandidateCard(candidate: OnlineCatalogCandidate): OnlineCandidateCard {
+  return {
+    provider: candidate.provider,
+    providerCandidateId: candidate.providerSongId,
+    title: candidate.title,
+    artistName: candidate.artistName,
+    sourceLabel: candidate.sourceLabel,
+    durationMs: candidate.durationMs,
+    candidateType: "mv",
+    reliabilityLabel: "medium",
+    riskLabel: "normal",
+    taskState: "discovered",
+    taskId: null
+  };
 }
 
 function toNasSearchResult(record: SongSearchIndexedResult): SongSearchNasResult {

@@ -23,6 +23,7 @@
 ## 曲库维护
 
 - [真实曲库索引](KTV-FULL-INDEX.md)
+- [在线补歌源（ige8）](runbooks/online-song-source.md)
 - [歌曲导入流程](runbooks/song-importing.md)
 - [歌曲封面缓存](runbooks/song-cover-fetching.md)
 - [热门歌曲工具](../packages/hot-songs/README.md)
