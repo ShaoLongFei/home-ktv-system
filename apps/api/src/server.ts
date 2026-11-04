@@ -115,6 +115,17 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     ? new PgOnlineCatalogPromoter(pool)
     : new InMemoryOnlineCatalogPromoter();
   const onlineImport = createOnlineImportService(resolvedConfig, onlineRepository, onlinePromoter);
+  if (onlineImport) {
+    // 启动对账 + 每小时清理过期缓存与卡住的任务
+    void onlineImport.pruneExpired().catch(() => undefined);
+    const maintenanceTimer = setInterval(() => {
+      void onlineImport.pruneExpired().catch(() => undefined);
+    }, 60 * 60 * 1000);
+    maintenanceTimer.unref?.();
+    server.addHook("onClose", async () => {
+      clearInterval(maintenanceTimer);
+    });
+  }
   const mediaGateway = new MediaGateway({
     playableMedia: repositories.playableMedia ?? { findPlayableBySource: async () => null },
     mediaPathResolver,
@@ -249,7 +260,10 @@ function createOnlineImportService(
     repository,
     promoter,
     cacheDir: igeba.cacheDir,
-    concurrency: igeba.concurrency
+    concurrency: igeba.concurrency,
+    cacheMaxBytes: igeba.cacheMaxBytes,
+    cacheMaxItems: igeba.cacheMaxItems,
+    cacheTtlDays: igeba.cacheTtlDays
   });
 }
 

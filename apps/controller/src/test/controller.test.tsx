@@ -1243,6 +1243,57 @@ describe("mobile controller runtime", () => {
     expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
   });
 
+  it("queues online catalog candidates through the online queue endpoint", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: (query) => ({
+        query,
+        nas: { status: "unavailable", message: "未找到 NAS 曲库结果", results: [] },
+        online: {
+          status: "available",
+          message: "找到 1 首在线曲库结果",
+          requestSupplement: { visible: false, label: "请求补歌" },
+          candidates: [
+            {
+              provider: "igeba",
+              providerCandidateId: "20039643",
+              title: "孤勇者",
+              artistName: "陈奕迅",
+              sourceLabel: "在线曲库",
+              durationMs: 269000,
+              candidateType: "mv",
+              reliabilityLabel: "medium",
+              riskLabel: "normal",
+              taskState: "discovered",
+              taskId: null
+            }
+          ]
+        }
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    const dialog = await typeSearchQuery(user, "孤勇者");
+    const search = within(dialog);
+    await search.findByText("孤勇者", { selector: "strong" });
+    await user.click(search.getByRole("button", { name: "点歌" }));
+
+    await waitFor(() =>
+      expect(
+        requests.some(
+          (request) =>
+            request.url === "/rooms/living-room/online/queue" &&
+            request.method === "POST" &&
+            (request.body as { songNumber?: string } | undefined)?.songNumber === "20039643"
+        )
+      ).toBe(true)
+    );
+    await search.findByRole("button", { name: "已点" });
+  });
+
   it("queues NAS search versions with source asset identity and inline pending state", async () => {
     const user = userEvent.setup();
     const indexedCommand = deferred<Response>();
@@ -1679,6 +1730,8 @@ function installControllerFetchMock(options: {
   commandResponses?: Record<string, MockResponse | MockResponse[]>;
   controllerHistoryResponse?: unknown;
   songSearchResponse?: (query: string) => unknown;
+  onlineQueueResponse?: unknown;
+  onlineAssetResponse?: (assetId: string) => unknown;
   songDiscoveryResponse?: (seed: string) => unknown;
   discoveryArtistSongsResponse?: (artistId: string, offset: number, limit: number) => unknown;
   discoveryGenreSongsResponse?: (genre: string, offset: number, limit: number) => unknown;
@@ -1719,6 +1772,29 @@ function installControllerFetchMock(options: {
 
       if (method === "GET" && requestUrl.pathname === "/controller/me/song-history") {
         return json(options.controllerHistoryResponse ?? { songs: [] });
+      }
+
+      if (method === "POST" && requestUrl.pathname === "/rooms/living-room/online/queue") {
+        return json(
+          options.onlineQueueResponse ?? {
+            assetId: "online-asset-1",
+            songNumber: body?.songNumber ?? "",
+            status: "ready",
+            cached: true,
+            queued: true,
+            queueEntryId: "queue-entry-online"
+          }
+        );
+      }
+
+      if (method === "GET" && requestUrl.pathname.startsWith("/rooms/living-room/online/assets/")) {
+        const assetId = requestUrl.pathname.split("/").pop() ?? "";
+        return json(
+          options.onlineAssetResponse?.(assetId) ?? {
+            asset: { id: assetId, provider: "igeba", providerAssetId: "20039643", status: "ready", catalogSongId: null, durationMs: null, cacheBytes: null, audioTrackCount: null, errorReason: null },
+            playbackUrl: null
+          }
+        );
       }
 
       if (method === "GET" && requestUrl.pathname.endsWith("/control-session")) {

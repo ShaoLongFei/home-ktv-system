@@ -10,6 +10,9 @@ export interface IgebaSourceConfig {
   resolveAttempts: number;
   cacheDir: string;
   concurrency: number;
+  cacheMaxBytes: number;
+  cacheMaxItems: number;
+  cacheTtlDays: number;
 }
 
 export interface ApiConfig {
@@ -55,6 +58,9 @@ const DEFAULT_IGEBA_BASE_URL = "http://app.ige8.net";
 const DEFAULT_IGEBA_MIN_INTERVAL_MS = 1000;
 const DEFAULT_IGEBA_REQUEST_TIMEOUT_MS = 20000;
 const DEFAULT_IGEBA_RESOLVE_ATTEMPTS = 30;
+const DEFAULT_IGEBA_CACHE_MAX_BYTES = 50 * 1024 * 1024 * 1024;
+const DEFAULT_IGEBA_CACHE_MAX_ITEMS = 200;
+const DEFAULT_IGEBA_CACHE_TTL_DAYS = 30;
 
 function readString(value: string | undefined): string {
   return value?.trim() ?? "";
@@ -93,7 +99,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ApiConfig {
       requestTimeoutMs: readPositiveInteger(env.IGEBA_REQUEST_TIMEOUT_MS, DEFAULT_IGEBA_REQUEST_TIMEOUT_MS),
       resolveAttempts: readPositiveInteger(env.IGEBA_RESOLVE_ATTEMPTS, DEFAULT_IGEBA_RESOLVE_ATTEMPTS),
       cacheDir: readString(env.IGEBA_CACHE_DIR) || (mediaRoot ? join(mediaRoot, "online-cache", "igeba") : ""),
-      concurrency: readPositiveInteger(env.IGEBA_CONCURRENCY, 1)
+      concurrency: readPositiveInteger(env.IGEBA_CONCURRENCY, 1),
+      cacheMaxBytes: readPositiveInteger(env.IGEBA_CACHE_MAX_BYTES, DEFAULT_IGEBA_CACHE_MAX_BYTES),
+      cacheMaxItems: readPositiveInteger(env.IGEBA_CACHE_MAX_ITEMS, DEFAULT_IGEBA_CACHE_MAX_ITEMS),
+      cacheTtlDays: readPositiveInteger(env.IGEBA_CACHE_TTL_DAYS, DEFAULT_IGEBA_CACHE_TTL_DAYS)
     },
     mediaPathMappings: parseMediaPathMappings(env.MEDIA_PATH_MAPPINGS),
     mediaRoot,
@@ -146,7 +155,10 @@ export function normalizeApiConfig(config: ApiConfigInput): ApiConfig {
       requestTimeoutMs: DEFAULT_IGEBA_REQUEST_TIMEOUT_MS,
       resolveAttempts: DEFAULT_IGEBA_RESOLVE_ATTEMPTS,
       cacheDir: mediaRoot ? join(mediaRoot, "online-cache", "igeba") : "",
-      concurrency: 1
+      concurrency: 1,
+      cacheMaxBytes: DEFAULT_IGEBA_CACHE_MAX_BYTES,
+      cacheMaxItems: DEFAULT_IGEBA_CACHE_MAX_ITEMS,
+      cacheTtlDays: DEFAULT_IGEBA_CACHE_TTL_DAYS
     },
     mediaPathMappings: config.mediaPathMappings ?? [],
     onlineDemoReadyAssetId: config.onlineDemoReadyAssetId ?? "",

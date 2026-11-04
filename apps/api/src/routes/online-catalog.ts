@@ -19,6 +19,8 @@ interface ImportBody {
   requestedBy?: unknown;
   requestedByName?: unknown;
   requestedByUserPhone?: unknown;
+  packageType?: unknown;
+  packageId?: unknown;
 }
 
 interface AssetsQuery {
@@ -47,9 +49,50 @@ export async function registerOnlineCatalogRoutes(
     await reply.send({ assets });
   });
 
+  server.post<{ Params: { assetId: string } }>("/admin/online/assets/:assetId/evict", async (request, reply) => {
+    const asset = await dependencies.onlineImport.evict(request.params.assetId);
+    if (!asset) {
+      await reply.code(404).send({ code: "ONLINE_ASSET_NOT_FOUND" });
+      return;
+    }
+    await reply.send({
+      assetId: asset.id,
+      status: asset.status,
+      evicted: true
+    });
+  });
+
+  server.post("/admin/online/prune", async (_request, reply) => {
+    const result = await dependencies.onlineImport.pruneExpired();
+    await reply.send(result);
+  });
+
+  server.get("/admin/online/discovery", async (_request, reply) => {
+    try {
+      const discovery = await dependencies.onlineImport.discovery();
+      await reply.send(discovery);
+    } catch (error) {
+      await reply.code(502).send({
+        code: "ONLINE_DISCOVERY_FAILED",
+        message: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
   server.post<{ Body: ImportBody }>("/admin/online/import", async (request, reply) => {
     const body = request.body ?? {};
     const limit = parseLimit(body.limit, 10, 50);
+
+    const packageId = typeof body.packageId === "string" ? body.packageId.trim() : "";
+    if (packageId) {
+      const packageType = parseLimit(body.packageType, 3, 10);
+      const results = await dependencies.onlineImport.importByPackage({ packageType, packageId, limit });
+      await reply.code(202).send({
+        queued: results.length,
+        items: results.map(toImportResponse)
+      });
+      return;
+    }
 
     const query = typeof body.query === "string" ? body.query.trim() : "";
     if (query) {

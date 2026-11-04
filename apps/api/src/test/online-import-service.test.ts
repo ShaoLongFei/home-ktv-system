@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -129,6 +129,82 @@ describe("OnlineImportService", () => {
     const asset = await service.getAsset(queued.asset.id);
     expect(asset?.status).toBe("unavailable");
     expect(asset?.errorReason).toContain("no playable url");
+  });
+
+  it("evicts the least recent cached song when the item quota is exceeded", async () => {
+    const repository = new InMemoryOnlineCatalogRepository();
+    const promoter = new InMemoryOnlineCatalogPromoter();
+    const service = new OnlineImportService({
+      provider: createProvider(),
+      repository,
+      promoter,
+      cacheDir,
+      cacheMaxItems: 1,
+      logger: silentLogger,
+      probeMedia: async () => ({ durationMs: 1000, audioTrackCount: 1 })
+    });
+
+    await service.requestImport({ songNumber: "10000001" });
+    await service.whenIdle();
+    await service.requestImport({ songNumber: "10000002" });
+    await service.whenIdle();
+
+    const assets = await service.listAssets(10);
+    const first = assets.find((asset) => asset.providerAssetId === "10000001");
+    const second = assets.find((asset) => asset.providerAssetId === "10000002");
+    expect(first?.status).toBe("unavailable");
+    expect(second?.status).toBe("ready");
+    expect(promoter.demoted).toHaveLength(1);
+    await expect(access(join(cacheDir, "10000001.mkv"))).rejects.toThrow();
+
+    const status = await service.status();
+    expect(status.quota.usedItems).toBe(1);
+    expect(status.metrics.evictions).toBe(1);
+  });
+
+  it("evict removes the file and demotes the promoted catalog entry", async () => {
+    const repository = new InMemoryOnlineCatalogRepository();
+    const promoter = new InMemoryOnlineCatalogPromoter();
+    const service = new OnlineImportService({
+      provider: createProvider(),
+      repository,
+      promoter,
+      cacheDir,
+      logger: silentLogger,
+      probeMedia: async () => ({ durationMs: 1000, audioTrackCount: 1 })
+    });
+
+    const queued = await service.requestImport({ songNumber: "20039643" });
+    await service.whenIdle();
+
+    const evicted = await service.evict(queued.asset.id);
+    expect(evicted?.status).toBe("unavailable");
+    expect(evicted?.cachePath).toBeNull();
+    expect(promoter.demoted).toEqual(["ktv-online-igeba-20039643"]);
+    await expect(access(join(cacheDir, "20039643.mkv"))).rejects.toThrow();
+  });
+
+  it("does not claim an already ready asset, but can claim a failed one", async () => {
+    const repository = new InMemoryOnlineCatalogRepository();
+    const song = await repository.upsertSong({
+      provider: "igeba",
+      providerSongId: "20039643",
+      title: "孤勇者",
+      artistName: "陈奕迅"
+    });
+    const asset = await repository.upsertAsset({
+      provider: "igeba",
+      providerAssetId: "20039643",
+      songId: song.id,
+      mediaUrl: ""
+    });
+
+    await repository.updateAsset(asset.id, { status: "ready", cachePath: join(cacheDir, "20039643.mkv") });
+    expect(await repository.claimForDownload(asset.id)).toBeNull();
+
+    await repository.updateAsset(asset.id, { status: "failed" });
+    const claimed = await repository.claimForDownload(asset.id);
+    expect(claimed?.status).toBe("caching");
   });
 
   it("keeps search failures from breaking the local catalog", async () => {

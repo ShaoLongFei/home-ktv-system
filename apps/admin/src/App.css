@@ -2302,3 +2302,127 @@ code {
     transition-duration: 0.01ms !important;
   }
 }
+
+.online-notice {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(64, 255, 170, 0.35);
+  background: rgba(64, 255, 170, 0.08);
+  color: #a9f7d2;
+  font-size: 13px;
+}
+
+.online-cache-dir {
+  margin: 8px 0 0;
+  font-size: 12px;
+  opacity: 0.7;
+  word-break: break-all;
+}
+
+.online-import-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.online-import-form .search-input {
+  flex: 1 1 240px;
+  min-width: 180px;
+}
+
+.online-limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.online-limit input {
+  width: 72px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(9, 12, 24, 0.72);
+  color: inherit;
+}
+
+.online-module-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.online-module-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(12, 16, 30, 0.6);
+}
+
+.online-module-list strong {
+  display: block;
+  font-size: 14px;
+}
+
+.online-module-list small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+.online-asset-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.online-asset-table th,
+.online-asset-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  vertical-align: top;
+}
+
+.online-asset-table small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.online-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.online-status--ready {
+  border-color: rgba(64, 255, 170, 0.5);
+  color: #8ef2c4;
+}
+
+.online-status--caching {
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #9cc7ff;
+}
+
+.online-status--failed,
+.online-status--unavailable {
+  border-color: rgba(255, 120, 150, 0.5);
+  color: #ff9db4;
+}

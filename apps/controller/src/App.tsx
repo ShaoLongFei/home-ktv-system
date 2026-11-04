@@ -1,5 +1,6 @@
 import type {
   ControllerSongHistoryEntry,
+  OnlineCandidateCard,
   SongDiscoveryArtist,
   SongDiscoveryGenre,
   SongDiscoverySong,
@@ -1327,6 +1328,9 @@ function SearchResults({
   t: TFunction;
 }) {
   const nas = controller.songSearch?.nas ?? null;
+  const online = controller.songSearch?.online ?? null;
+  const onlineCandidates = online?.status === "available" ? online.candidates : [];
+  const hasNasResults = (nas?.results.length ?? 0) > 0;
 
   return (
     <div className="song-list search-overlay-results">
@@ -1349,10 +1353,78 @@ function SearchResults({
         </section>
       ) : null}
 
-      {controller.songSearch && controller.songSearch.nas.results.length === 0 ? (
+      {onlineCandidates.length > 0 ? (
+        <section className="indexed-panel" aria-label={t("search.onlineTitle")}>
+          <div className="panel-heading">
+            <h3>{t("search.onlineTitle")}</h3>
+            <span className="search-status available">{online?.message ?? ""}</span>
+          </div>
+          <div className="indexed-result-list compact-result-list">
+            {onlineCandidates.map((candidate) => (
+              <SearchOnlineSongRow
+                candidate={candidate}
+                controller={controller}
+                key={`${candidate.provider}:${candidate.providerCandidateId}`}
+                t={t}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {!hasNasResults && onlineCandidates.length === 0 ? (
         <p className="empty-state local-empty">{t("search.localEmpty")}</p>
       ) : null}
     </div>
+  );
+}
+
+function SearchOnlineSongRow({
+  candidate,
+  controller,
+  t
+}: {
+  candidate: OnlineCandidateCard;
+  controller: RoomControllerState;
+  t: TFunction;
+}) {
+  const state = controller.onlineQueueState[candidate.providerCandidateId];
+  const busy = state?.status === "queuing" || state?.status === "preparing" || state?.status === "queued";
+  const label =
+    state?.status === "queuing"
+      ? t("search.onlineQueuing")
+      : state?.status === "preparing"
+        ? t("search.onlinePreparing")
+        : state?.status === "queued"
+          ? t("search.onlineQueued")
+          : state?.status === "failed"
+            ? t("search.onlineFailed")
+            : t("search.onlineQueue");
+
+  return (
+    <article
+      className="song-row indexed-version-row compact-version-row"
+      aria-label={`${candidate.title} - ${candidate.artistName}`}
+    >
+      <div className="compact-version-main">
+        <strong>{candidate.title}</strong>
+        <div className="compact-version-meta">
+          <span>{candidate.artistName}</span>
+          <span>{candidate.sourceLabel}</span>
+          {state?.status === "failed" && state.message ? <span>{state.message}</span> : null}
+        </div>
+      </div>
+      <button
+        className="primary-button compact-queue-button"
+        type="button"
+        disabled={busy}
+        onClick={() =>
+          controller.requestAddOnlineSong(candidate.providerCandidateId, candidate.title, candidate.artistName)
+        }
+      >
+        {label}
+      </button>
+    </article>
   );
 }
 

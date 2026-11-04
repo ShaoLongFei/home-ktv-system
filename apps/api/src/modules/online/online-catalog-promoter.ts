@@ -18,6 +18,8 @@ export interface PromoteOnlineSongInput {
 
 export interface OnlineCatalogPromoter {
   promote(input: PromoteOnlineSongInput): Promise<{ songId: string }>;
+  /** 淘汰缓存时移除对应的本地曲库条目。 */
+  demote(catalogSongId: string): Promise<void>;
 }
 
 export const ONLINE_SOURCE_ROOT_PREFIX = "online:";
@@ -108,6 +110,15 @@ export class PgOnlineCatalogPromoter implements OnlineCatalogPromoter {
 
     return { songId };
   }
+
+  async demote(catalogSongId: string): Promise<void> {
+    await this.db.query(
+      `DELETE FROM ktv_songs
+       WHERE id = $1
+         AND source_root LIKE '${ONLINE_SOURCE_ROOT_PREFIX}%'`,
+      [catalogSongId]
+    );
+  }
 }
 
 function withAudioTracks(
@@ -151,9 +162,14 @@ function withAudioTracks(
 
 export class InMemoryOnlineCatalogPromoter implements OnlineCatalogPromoter {
   readonly promoted: PromoteOnlineSongInput[] = [];
+  readonly demoted: string[] = [];
 
   async promote(input: PromoteOnlineSongInput): Promise<{ songId: string }> {
     this.promoted.push(input);
     return { songId: onlineCatalogSongId(input.provider, input.providerSongId) };
+  }
+
+  async demote(catalogSongId: string): Promise<void> {
+    this.demoted.push(catalogSongId);
   }
 }

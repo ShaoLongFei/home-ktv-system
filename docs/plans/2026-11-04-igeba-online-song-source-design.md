@@ -1,7 +1,7 @@
 # ige8（爱歌吧 / ig8）在线补歌源设计方案
 
 - 日期：2026-11-04
-- 状态：P1/P2 + 队列接入已落地（搜索合并 + 缓存导入 + 提升入队 + 媒体流），P3/P4 待做
+- 状态：P1–P4 全部落地（搜索合并、缓存导入、提升入队、媒体流、缓存治理、前端接入、榜单/歌单）
 - 目标读者：API / Worker 开发者、部署维护者
 - 关联：`docs/KTV-ARCHITECTURE.md`、`docs/database-schema.md`、`docs/KTV-FULL-INDEX.md`、`docs/runbooks/online-song-source.md`
 
@@ -411,3 +411,30 @@ python3 scripts/igeba_probe.py selfcheck 海阔天空 --count 5
 | `modules/ingest/ktv-full-index.ts` | missing 标记排除在线来源 |
 | `db/migrations/0026_online_queue_promotion.sql` | 重建 `online_songs` / `online_song_assets`，补 `catalog_song_id` 等列 |
 | `test/media-gateway-online-cache.test.ts`、`test/online-catalog-promoter.test.ts` | 覆盖提升与播放路径 |
+
+## 15. P3 / P4 落地记录
+
+### 15.1 缓存治理（P3）
+
+| 能力 | 实现 |
+| --- | --- |
+| 配额 | `IGEBA_CACHE_MAX_BYTES` / `IGEBA_CACHE_MAX_ITEMS`，下载前按 LRU 预淘汰 |
+| TTL | `IGEBA_CACHE_TTL_DAYS`，启动 + 每小时清理（`pruneExpired`） |
+| 手动淘汰 | `POST /admin/online/assets/:id/evict`，删文件 + `unavailable` + 删除 `ktv-online-*` 条目 |
+| 对账 | 启动时重置超过 15 分钟的 `caching`；`failStaleCaching` |
+| 多实例 | `claimForDownload` 条件更新（10 分钟租约），跨进程去重 |
+| 指标 | `status()` 暴露配额使用、下载/淘汰/失败计数、最后清理时间 |
+| 调试 | `POST /admin/online/prune` 立即清理 |
+
+### 15.2 曲库发现（P4）
+
+| 能力 | 实现 |
+| --- | --- |
+| 运营位 | `GET_HEADS` → `GET /admin/online/discovery`，解析 `app://Object=&ObjectId=` |
+| 榜单/歌单/专辑 | `GET_SONGS` + `Filter.Package`，`PACKAGE_TYPE`：1 歌手 / 2 专辑 / 3 歌单 / 4 榜单 / 5 私有歌单 |
+| 批量补库 | `POST /admin/online/import { packageType, packageId, limit }`；CLI `--package-type/--package-id` |
+
+### 15.3 前端接入
+
+- 手机控制端搜索弹层新增「在线曲库」分区：点歌 → `POST /rooms/:slug/online/queue`，按钮状态 `点歌 / 提交中 / 准备中 / 已点 / 重试`；准备中每 2s 轮询 asset 状态（最长 3 分钟）。
+- 管理后台新增「在线曲库」页签：状态卡、关键字预载、运营位一键预载、缓存表格与单条淘汰。

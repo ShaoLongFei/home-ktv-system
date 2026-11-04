@@ -9,6 +9,8 @@ import { OnlineImportService, type OnlineImportServiceStatus } from "../modules/
 
 export interface IgebaLibraryLoadOptions {
   query: string;
+  packageType: number | null;
+  packageId: string | null;
   limit: number;
   dryRun: boolean;
   help: boolean;
@@ -16,7 +18,7 @@ export interface IgebaLibraryLoadOptions {
 
 export interface IgebaLibraryLoadDependencies {
   createService?: () => Promise<{
-    service: Pick<OnlineImportService, "importByQuery" | "status" | "whenIdle">;
+    service: Pick<OnlineImportService, "importByQuery" | "importByPackage" | "status" | "whenIdle">;
     close: () => Promise<void>;
   }>;
   env?: Record<string, string | undefined>;
@@ -24,7 +26,14 @@ export interface IgebaLibraryLoadDependencies {
 }
 
 export function parseIgebaLibraryLoadArgs(argv: readonly string[]): IgebaLibraryLoadOptions {
-  const options: IgebaLibraryLoadOptions = { query: "", limit: 10, dryRun: false, help: false };
+  const options: IgebaLibraryLoadOptions = {
+    query: "",
+    packageType: null,
+    packageId: null,
+    limit: 10,
+    dryRun: false,
+    help: false
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     switch (arg) {
@@ -32,6 +41,17 @@ export function parseIgebaLibraryLoadArgs(argv: readonly string[]): IgebaLibrary
       case "-q": {
         const value = argv[index + 1] ?? "";
         options.query = value;
+        index += 1;
+        break;
+      }
+      case "--package-type": {
+        const value = Number.parseInt(argv[index + 1] ?? "", 10);
+        options.packageType = Number.isFinite(value) && value > 0 ? value : null;
+        index += 1;
+        break;
+      }
+      case "--package-id": {
+        options.packageId = argv[index + 1] ?? null;
         index += 1;
         break;
       }
@@ -66,15 +86,22 @@ export async function runIgebaLibraryLoadCli(
   const stdout = dependencies.stdout ?? ((line: string) => console.log(line));
 
   if (options.help) {
-    stdout(`用法: igeba:load -- --query "周杰伦" [--limit 10] [--dry-run]`);
+    stdout(`用法:`);
+    stdout(`  igeba:load -- --query "周杰伦" [--limit 10] [--dry-run]`);
+    stdout(`  igeba:load -- --package-type 3 --package-id 13166 [--limit 20]`);
+    stdout(`  package-type: 1=歌手 2=专辑 3=歌单 4=榜单 5=私有歌单`);
     return 0;
   }
-  if (!options.query.trim()) {
-    stdout(`缺少 --query 参数。用法: igeba:load -- --query "周杰伦" --limit 10`);
+  if (!options.query.trim() && !options.packageId) {
+    stdout(`缺少 --query 或 --package-id 参数。用法见 --help`);
     return 1;
   }
   if (options.dryRun) {
-    stdout(`[dry-run] 将导入关键字 "${options.query}" 的前 ${options.limit} 首`);
+    stdout(
+      options.packageId
+        ? `[dry-run] 将导入 package ${options.packageType ?? 3}:${options.packageId} 的前 ${options.limit} 首`
+        : `[dry-run] 将导入关键字 "${options.query}" 的前 ${options.limit} 首`
+    );
   }
 
   const env = dependencies.env ?? process.env;
@@ -94,7 +121,13 @@ export async function runIgebaLibraryLoadCli(
   }
 
   try {
-    const results = await handle.service.importByQuery(options.query, options.limit);
+    const results = options.packageId
+      ? await handle.service.importByPackage({
+          packageType: options.packageType ?? 3,
+          packageId: options.packageId,
+          limit: options.limit
+        })
+      : await handle.service.importByQuery(options.query, options.limit);
     stdout(`已排队 ${results.length} 首，等待缓存完成…`);
     await handle.service.whenIdle();
     const status = await handle.service.status();

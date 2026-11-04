@@ -70,6 +70,49 @@ describe("IgebaClient", () => {
     expect(calls[0]?.body).toContain("CMD=GET_SONGS");
   });
 
+  it("loads package songs for ranks and playlists", async () => {
+    const { fetchImpl, calls } = createFakeFetch(() => Response.json(searchPayload));
+    const client = new IgebaClient({ fetchImpl, sleep: noSleep, minIntervalMs: 0 });
+
+    const page = await client.packageSongs({ packageType: 4, packageId: "13166", pageSize: 10 });
+
+    expect(page.songs[0]?.songNumber).toBe("20039643");
+    expect(calls[0]?.body).toContain("Package");
+    expect(decodeURIComponent(calls[0]?.body ?? "")).toContain('"Type":4');
+    expect(decodeURIComponent(calls[0]?.body ?? "")).toContain('"Id":"13166"');
+  });
+
+  it("maps hot modules and parses their app links", async () => {
+    const { fetchImpl } = createFakeFetch(() =>
+      Response.json({
+        List: [
+          {
+            HeadId: "26",
+            Title: "团建必点",
+            SubTitle: "团队就是力量",
+            Picture: "http://app.ige8.net/headlines/26.png",
+            Link: "app://Object=Playlist&ObjectId=13166"
+          }
+        ]
+      })
+    );
+    const client = new IgebaClient({ fetchImpl, sleep: noSleep, minIntervalMs: 0 });
+
+    const modules = await client.hotModules();
+
+    expect(modules).toEqual([
+      {
+        headId: "26",
+        title: "团建必点",
+        subTitle: "团队就是力量",
+        pictureUrl: "http://app.ige8.net/headlines/26.png",
+        link: "app://Object=Playlist&ObjectId=13166",
+        objectType: "Playlist",
+        objectId: "13166"
+      }
+    ]);
+  });
+
   it("retries resolve while the file node reports an expired rid", async () => {
     let probeCount = 0;
     const { fetchImpl, calls } = createFakeFetch((call) => {

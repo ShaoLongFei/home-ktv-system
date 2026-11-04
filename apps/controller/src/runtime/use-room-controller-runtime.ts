@@ -14,11 +14,13 @@ import {
   createControlSession,
   deleteQueueEntry,
   fetchControllerSongHistory,
+  fetchOnlineAssetStatus,
   fetchSongDiscovery,
   getCurrentControllerUser,
   loginControllerUser,
   logoutControllerUser,
   promoteQueueEntry,
+  queueOnlineSong,
   registerControllerUser,
   realtimeUrl,
   restoreControlSession,
@@ -48,6 +50,11 @@ interface ControllerCommandResponse {
   undo?: { queueEntryId: string; undoExpiresAt: string };
 }
 
+export type OnlineQueueState = {
+  status: "queuing" | "preparing" | "queued" | "failed";
+  message: string | null;
+};
+
 export interface RoomControllerState {
   authStatus: "checking" | "authenticated" | "unauthenticated";
   authUser: ControllerUser | null;
@@ -59,6 +66,8 @@ export interface RoomControllerState {
     | null;
   errorMessage: string | null;
   pendingNasAssetId: string | null;
+  onlineQueueState: Record<string, OnlineQueueState>;
+  requestAddOnlineSong(songNumber: string, title: string, artistName: string): boolean;
   pendingInteractionKind: RoomInteractionKind | null;
   pendingUndo: { queueEntryId: string; undoExpiresAt: string } | null;
   roomSlug: string;
@@ -116,6 +125,8 @@ export function useRoomControllerRuntime(): RoomControllerState {
   const [songHistory, setSongHistory] = useState<ControllerSongHistoryEntry[]>([]);
   const [songHistoryStatus, setSongHistoryStatus] = useState<RoomControllerState["songHistoryStatus"]>("idle");
   const [pendingNasAssetId, setPendingNasAssetId] = useState<string | null>(null);
+  const [onlineQueueState, setOnlineQueueStateMap] = useState<Record<string, OnlineQueueState>>({});
+  const onlinePollTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const [pendingInteractionKind, setPendingInteractionKind] = useState<RoomInteractionKind | null>(null);
   const [pendingUndo, setPendingUndo] = useState<{ queueEntryId: string; undoExpiresAt: string } | null>(null);
   const [pendingVolumePercent, setPendingVolumePercent] = useState<number | null>(null);
@@ -160,6 +171,13 @@ export function useRoomControllerRuntime(): RoomControllerState {
   useEffect(() => {
     snapshotRef.current = snapshot;
   }, [snapshot]);
+
+  useEffect(() => {
+    const timers = onlinePollTimersRef.current;
+    return () => {
+      Object.values(timers).forEach((timer) => clearTimeout(timer));
+    };
+  }, []);
 
   const clearSearchDebounce = useCallback(() => {
     if (searchDebounceRef.current) {
@@ -575,6 +593,81 @@ export function useRoomControllerRuntime(): RoomControllerState {
     [runCommand]
   );
 
+  const setOnlineQueueState = useCallback((songNumber: string, state: OnlineQueueState) => {
+    setOnlineQueueStateMap((current) => ({ ...current, [songNumber]: state }));
+  }, []);
+
+  const pollOnlineAsset = useCallback(
+    (songNumber: string, assetId: string) => {
+      const startedAt = Date.now();
+      setOnlineQueueState(songNumber, { status: "preparing", message: null });
+
+      const tick = async (): Promise<void> => {
+        try {
+          const response = await fetchOnlineAssetStatus({ roomSlug: initial.roomSlug, assetId });
+          if (response.asset.status === "ready") {
+            setOnlineQueueState(songNumber, { status: "queued", message: null });
+            return;
+          }
+          if (response.asset.status === "failed" || response.asset.status === "unavailable") {
+            setOnlineQueueState(songNumber, {
+              status: "failed",
+              message: response.asset.errorReason
+            });
+            return;
+          }
+          if (Date.now() - startedAt > 180000) {
+            setOnlineQueueState(songNumber, { status: "failed", message: "timeout" });
+            return;
+          }
+          onlinePollTimersRef.current[songNumber] = setTimeout(() => {
+            void tick();
+          }, 2000);
+        } catch {
+          if (Date.now() - startedAt > 180000) {
+            setOnlineQueueState(songNumber, { status: "failed", message: "network" });
+            return;
+          }
+          onlinePollTimersRef.current[songNumber] = setTimeout(() => {
+            void tick();
+          }, 3000);
+        }
+      };
+
+      void tick();
+    },
+    [initial.roomSlug, setOnlineQueueState]
+  );
+
+  const requestAddOnlineSong = useCallback(
+    (songNumber: string, title: string, artistName: string): boolean => {
+      setOnlineQueueState(songNumber, { status: "queuing", message: null });
+      void (async () => {
+        try {
+          const response = await queueOnlineSong({
+            roomSlug: initial.roomSlug,
+            songNumber,
+            title,
+            artistName,
+            ...(authUser ? { requestedByName: authUser.displayName } : {})
+          });
+          if (response.queued) {
+            setOnlineQueueState(songNumber, { status: "queued", message: null });
+            return;
+          }
+          pollOnlineAsset(songNumber, response.assetId);
+        } catch (error) {
+          setOnlineQueueState(songNumber, {
+            status: "failed",
+            message: errorMessageFrom(error, "在线点歌失败")
+          });
+        }
+      })();
+      return true;
+    },
+    [authUser, initial.roomSlug, pollOnlineAsset, setOnlineQueueState]
+  );
+
   return {
     authStatus,
     authUser,
@@ -583,6 +676,8 @@ export function useRoomControllerRuntime(): RoomControllerState {
     duplicateConfirm,
     errorMessage,
     pendingNasAssetId,
+    onlineQueueState,
+    requestAddOnlineSong,
     pendingInteractionKind,
     pendingUndo,
     roomSlug: initial.roomSlug,

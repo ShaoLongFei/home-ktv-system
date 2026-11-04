@@ -64,6 +64,25 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
       { asset: createAsset({ id: "online-asset-a", providerAssetId: "1" }), cached: false },
       { asset: createAsset({ id: "online-asset-b", providerAssetId: "2" }), cached: true }
     ],
+    evict: async (assetId: string) =>
+      assetId === "online-asset-1" ? createAsset({ id: assetId, status: "unavailable", cachePath: null }) : null,
+    pruneExpired: async () => ({ evicted: 2, stale: 1 }),
+    discovery: async () => ({
+      hotModules: [
+        {
+          headId: "26",
+          title: "团建必点",
+          subTitle: "团队就是力量",
+          pictureUrl: null,
+          link: "app://Object=Playlist&ObjectId=13166",
+          objectType: "Playlist",
+          objectId: "13166"
+        }
+      ]
+    }),
+    importByPackage: async () => [
+      { asset: createAsset({ id: "online-asset-pkg", providerAssetId: "30000001" }), cached: false }
+    ],
     getAsset: async (assetId: string) =>
       assetId === "online-asset-1" ? createAsset({ status: "ready", cachePath: "/tmp/x.mkv" }) : null,
     ...importService
@@ -182,6 +201,47 @@ describe("online catalog routes", () => {
 
     expect(response.statusCode).toBe(202);
     expect(response.json()).toMatchObject({ queued: false, queueEntryId: null, status: "caching" });
+    await server.close();
+  });
+
+  it("evicts a cached asset and reports 404 for unknown ones", async () => {
+    const { server } = createHarness();
+
+    const ok = await server.inject({ method: "POST", url: "/admin/online/assets/online-asset-1/evict" });
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json()).toMatchObject({ assetId: "online-asset-1", evicted: true, status: "unavailable" });
+
+    const missing = await server.inject({ method: "POST", url: "/admin/online/assets/nope/evict" });
+    expect(missing.statusCode).toBe(404);
+    await server.close();
+  });
+
+  it("runs cache pruning", async () => {
+    const { server } = createHarness();
+    const response = await server.inject({ method: "POST", url: "/admin/online/prune" });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ evicted: 2, stale: 1 });
+    await server.close();
+  });
+
+  it("exposes discovery modules and imports by package", async () => {
+    const { server } = createHarness();
+
+    const discovery = await server.inject({ method: "GET", url: "/admin/online/discovery" });
+    expect(discovery.statusCode).toBe(200);
+    expect(discovery.json().hotModules[0]).toMatchObject({
+      headId: "26",
+      objectType: "Playlist",
+      objectId: "13166"
+    });
+
+    const imported = await server.inject({
+      method: "POST",
+      url: "/admin/online/import",
+      payload: { packageType: 3, packageId: "13166", limit: 10 }
+    });
+    expect(imported.statusCode).toBe(202);
+    expect(imported.json()).toMatchObject({ queued: 1 });
     await server.close();
   });
 

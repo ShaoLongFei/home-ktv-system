@@ -1,4 +1,4 @@
-import { stat } from "node:fs/promises";
+import { rm, stat } from "node:fs/promises";
 import { basename, extname, join, resolve } from "node:path";
 import { probeMediaFile } from "../ingest/media-probe.js";
 import { InMemoryOnlineCatalogPromoter, type OnlineCatalogPromoter } from "./online-catalog-promoter.js";
@@ -21,6 +21,9 @@ export interface OnlineImportServiceOptions {
   repository: OnlineCatalogRepository;
   cacheDir: string;
   concurrency?: number;
+  cacheMaxBytes?: number;
+  cacheMaxItems?: number;
+  cacheTtlDays?: number;
   promoter?: OnlineCatalogPromoter;
   probeMedia?: (filePath: string) => Promise<OnlineMediaProbeResult>;
   logger?: Pick<Console, "info" | "warn" | "error">;
@@ -51,6 +54,19 @@ export interface OnlineImportServiceStatus {
   pendingJobs: number;
   activeJobs: number;
   stats: OnlineAssetStats;
+  quota: {
+    maxBytes: number;
+    maxItems: number;
+    ttlDays: number;
+    usedBytes: number;
+    usedItems: number;
+  };
+  metrics: {
+    downloads: number;
+    evictions: number;
+    failures: number;
+    lastPruneAt: string | null;
+  };
 }
 
 /**
@@ -65,6 +81,10 @@ export class OnlineImportService {
   private readonly probeMedia: (filePath: string) => Promise<OnlineMediaProbeResult>;
   private readonly promoter: OnlineCatalogPromoter;
   private readonly readyHooks = new Map<string, Array<(asset: OnlineAssetRecord) => void | Promise<void>>>();
+  private readonly metrics = { downloads: 0, evictions: 0, failures: 0, lastPruneAt: null as string | null };
+  private readonly maxBytes: number;
+  private readonly maxItems: number;
+  private readonly ttlDays: number;
   private readonly logger: Pick<Console, "info" | "warn" | "error">;
   private readonly pending: Array<() => void> = [];
   private readonly inFlight = new Map<string, Promise<OnlineAssetRecord>>();
@@ -73,6 +93,9 @@ export class OnlineImportService {
   constructor(private readonly options: OnlineImportServiceOptions) {
     this.cacheRoot = resolve(options.cacheDir);
     this.concurrency = Math.max(1, options.concurrency ?? 1);
+    this.maxBytes = options.cacheMaxBytes ?? 50 * 1024 * 1024 * 1024;
+    this.maxItems = options.cacheMaxItems ?? 200;
+    this.ttlDays = options.cacheTtlDays ?? 30;
     this.promoter = options.promoter ?? new InMemoryOnlineCatalogPromoter();
     this.probeMedia = options.probeMedia ?? (async (filePath) => {
       const probed = await probeMediaFile(filePath);
@@ -152,6 +175,39 @@ export class OnlineImportService {
     return { asset: { ...asset, status: "caching" }, cached: false };
   }
 
+  async discovery(): Promise<{ hotModules: Awaited<ReturnType<NonNullable<OnlineCatalogProvider["hotModules"]>>> }> {
+    const provider = this.options.provider;
+    if (!provider.hotModules) {
+      return { hotModules: [] };
+    }
+    return { hotModules: await provider.hotModules() };
+  }
+
+  async importByPackage(input: {
+    packageType: number;
+    packageId: string;
+    limit: number;
+  }): Promise<RequestImportResult[]> {
+    const provider = this.options.provider;
+    if (!provider.packageSongs) {
+      throw new Error(`provider ${provider.id} does not support package import`);
+    }
+    const candidates = await provider.packageSongs(input);
+    const results: RequestImportResult[] = [];
+    for (const candidate of candidates) {
+      results.push(
+        await this.requestImport({
+          songNumber: candidate.providerSongId,
+          title: candidate.title,
+          artistName: candidate.artistName,
+          durationMs: candidate.durationMs,
+          styleTags: candidate.tags
+        })
+      );
+    }
+    return results;
+  }
+
   async importByQuery(query: string, limit: number): Promise<RequestImportResult[]> {
     const candidates = await this.search(query, limit);
     const results: RequestImportResult[] = [];
@@ -177,14 +233,92 @@ export class OnlineImportService {
   }
 
   async status(): Promise<OnlineImportServiceStatus> {
+    const stats = await this.options.repository.stats();
     return {
       provider: this.options.provider.id,
       enabled: this.options.provider.health().cooldownUntil === null,
       cacheDir: this.cacheRoot,
       pendingJobs: this.pending.length,
       activeJobs: this.activeJobs,
-      stats: await this.options.repository.stats()
+      stats,
+      quota: {
+        maxBytes: this.maxBytes,
+        maxItems: this.maxItems,
+        ttlDays: this.ttlDays,
+        usedBytes: stats.bytes,
+        usedItems: stats.ready
+      },
+      metrics: { ...this.metrics }
     };
+  }
+
+  /** 删除缓存文件并把曲目回退为 unavailable；同时移除本地曲库条目。 */
+  async evict(assetId: string): Promise<OnlineAssetRecord | null> {
+    const asset = await this.options.repository.findAssetById(assetId);
+    if (!asset) {
+      return null;
+    }
+    if (asset.cachePath) {
+      await rm(asset.cachePath, { force: true });
+      await rm(`${asset.cachePath}.part`, { force: true });
+    }
+    if (asset.catalogSongId) {
+      await this.promoter.demote(asset.catalogSongId);
+    }
+    const updated = await this.options.repository.updateAsset(assetId, {
+      status: "unavailable",
+      cachePath: null,
+      cacheBytes: null,
+      catalogSongId: null,
+      errorReason: "evicted"
+    });
+    this.metrics.evictions += 1;
+    this.logger.info?.(`[online] evicted ${asset.providerAssetId} (${asset.cacheBytes ?? 0} bytes)`);
+    return updated;
+  }
+
+  /** 清理超过 TTL 的缓存，并把卡住的 caching 任务重置为 failed。 */
+  async pruneExpired(now = new Date()): Promise<{ evicted: number; stale: number }> {
+    const staleSince = new Date(now.getTime() - 15 * 60 * 1000);
+    const stale = await this.options.repository.failStaleCaching(staleSince);
+
+    const ttlSince = new Date(now.getTime() - this.ttlDays * 24 * 60 * 60 * 1000);
+    const expired = await this.options.repository.listExpiredAssets(ttlSince, 50);
+    let evicted = 0;
+    for (const asset of expired) {
+      await this.evict(asset.id);
+      evicted += 1;
+    }
+    this.metrics.lastPruneAt = now.toISOString();
+    return { evicted, stale };
+  }
+
+  private async enforceQuota(input: { nextBytes: number; excludeAssetId: string }): Promise<void> {
+    const stats = await this.options.repository.stats();
+    let usedBytes = stats.bytes;
+    let usedItems = stats.ready;
+    let guard = 0;
+
+    while (
+      (usedBytes + input.nextBytes > this.maxBytes || usedItems + 1 > this.maxItems) &&
+      guard < 50
+    ) {
+      guard += 1;
+      const candidates = await this.options.repository.listEvictionCandidates({
+        limit: 1,
+        excludeAssetId: input.excludeAssetId
+      });
+      const victim = candidates[0];
+      if (!victim) {
+        break;
+      }
+      const evicted = await this.evict(victim.id);
+      usedBytes -= victim.cacheBytes ?? 0;
+      usedItems -= 1;
+      if (!evicted) {
+        break;
+      }
+    }
   }
 
   /** 测试用：等待所有排队与在途任务结束。 */
@@ -222,7 +356,14 @@ export class OnlineImportService {
   private async runJob(assetId: string, songNumber: string): Promise<void> {
     const { provider, repository } = this.options;
     try {
+      const claimed = await repository.claimForDownload(assetId);
+      if (!claimed) {
+        this.logger.info?.(`[online] ${songNumber} already claimed by another worker, skip`);
+        return;
+      }
+
       const address = await provider.resolve(songNumber);
+      await this.enforceQuota({ nextBytes: address.sizeBytes, excludeAssetId: assetId });
       await repository.updateAsset(assetId, {
         status: "caching",
         mediaUrl: address.fileUrl,
@@ -235,6 +376,7 @@ export class OnlineImportService {
       }
       const targetPath = join(this.cacheRoot, cacheFileName(songNumber, address.fileName));
       const downloaded = await this.downloadOrReuse(songNumber, targetPath, address.sizeBytes);
+      this.metrics.downloads += 1;
 
       let probed: OnlineMediaProbeResult = { durationMs: null, audioTrackCount: null };
       try {
@@ -284,6 +426,7 @@ export class OnlineImportService {
       }
     } catch (error) {
       const message = describeError(error);
+      this.metrics.failures += 1;
       await repository.updateAsset(assetId, {
         status: isPermanentFailure(error) ? "unavailable" : "failed",
         errorReason: message

@@ -33,6 +33,16 @@ export interface IgebaSongAddress {
   attempts: number;
 }
 
+export interface IgebaHotModule {
+  headId: string;
+  title: string;
+  subTitle: string;
+  pictureUrl: string | null;
+  link: string;
+  objectType: string | null;
+  objectId: string | null;
+}
+
 export interface IgebaHealth {
   ok: boolean;
   lastError: string | null;
@@ -154,23 +164,46 @@ export class IgebaClient {
       }
     });
 
-    if (Array.isArray(payload)) {
-      return { songs: [], pageCount: 0, recordCount: 0 };
-    }
-    if (isRecord(payload) && "Result" in payload && !("List" in payload)) {
-      throw new IgebaRequestError(
-        `ige8 search rejected: ${String(payload.Description ?? payload.Result)}`,
-        false
-      );
-    }
+    return parseSongPage(payload, "search");
+  }
 
+  /**
+   * 按「包」取歌：PACKAGE_TYPE = { SINGER:1, ALBUM:2, PLAYLIST:3, RANK:4, PLAYLIST_PRI:5 }。
+   * 用于榜单 / 歌单 / 专辑的一键补库。
+   */
+  async packageSongs(input: {
+    packageType: number;
+    packageId: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<IgebaSearchPage> {
+    const payload = await this.postCloud("GET_SONGS", {
+      UserId: this.uid,
+      Filter: { Package: { Type: input.packageType, Id: input.packageId } },
+      Page: {
+        PageNo: Math.max(1, Math.trunc(input.page ?? 1)),
+        PageSize: Math.min(50, Math.max(1, Math.trunc(input.pageSize ?? 20)))
+      }
+    });
+    return parseSongPage(payload, "package");
+  }
+
+  /** 首页运营位（专题 / 榜单入口）。 */
+  async hotModules(): Promise<IgebaHotModule[]> {
+    const payload = await this.postCloud("GET_HEADS", { UserId: this.uid });
     const list = isRecord(payload) && Array.isArray(payload.List) ? payload.List : [];
-    const page = isRecord(payload) && isRecord(payload.Page) ? payload.Page : {};
-    return {
-      songs: list.filter(isRecord).map((item) => mapSong(item)),
-      pageCount: toInt(page.PageCount),
-      recordCount: toInt(page.RecordCount)
-    };
+    return list.filter(isRecord).map((item) => {
+      const link = asString(item.Link);
+      return {
+        headId: asString(item.HeadId),
+        title: asString(item.Title),
+        subTitle: asString(item.SubTitle),
+        pictureUrl: asString(item.Picture) || null,
+        link,
+        objectType: parseAppLinkParam(link, "Object"),
+        objectId: parseAppLinkParam(link, "ObjectId")
+      };
+    });
   }
 
   /**
@@ -398,6 +431,31 @@ export class IgebaClient {
     }
     return this.fetchImpl(url, init);
   }
+}
+
+function parseSongPage(payload: unknown, label: string): IgebaSearchPage {
+  if (Array.isArray(payload)) {
+    return { songs: [], pageCount: 0, recordCount: 0 };
+  }
+  if (isRecord(payload) && "Result" in payload && !("List" in payload)) {
+    throw new IgebaRequestError(
+      `ige8 ${label} rejected: ${String(payload.Description ?? payload.Result)}`,
+      false
+    );
+  }
+
+  const list = isRecord(payload) && Array.isArray(payload.List) ? payload.List : [];
+  const page = isRecord(payload) && isRecord(payload.Page) ? payload.Page : {};
+  return {
+    songs: list.filter(isRecord).map((item) => mapSong(item)),
+    pageCount: toInt(page.PageCount),
+    recordCount: toInt(page.RecordCount)
+  };
+}
+
+function parseAppLinkParam(link: string, key: string): string | null {
+  const match = new RegExp(`(?:^|[?&/=])${key}=([^&]+)`, "u").exec(link);
+  return match?.[1] ?? null;
 }
 
 function mapSong(item: Record<string, unknown>): IgebaSong {

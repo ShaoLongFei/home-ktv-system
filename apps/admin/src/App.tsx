@@ -2,10 +2,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { AdminDashboardView } from "./dashboard/AdminDashboardView.js";
 import { I18nProvider, LanguageSwitch, useI18n } from "./i18n.js";
+import { OnlineSourceView } from "./online/OnlineSourceView.js";
 import { RoomStatusView } from "./rooms/RoomStatusView.js";
 import { SongCatalogView } from "./songs/SongCatalogView.js";
 
-type AdminView = "dashboard" | "songs" | "rooms";
+type AdminView = "dashboard" | "songs" | "online" | "rooms";
 
 export function App() {
   const [queryClient] = useState(() => new QueryClient());
@@ -41,6 +42,9 @@ function AdminAppContent() {
           <button className={view === "songs" ? "mode-tab active" : "mode-tab"} type="button" onClick={() => setView("songs")}>
             {t("app.nav.songs")}
           </button>
+          <button className={view === "online" ? "mode-tab active" : "mode-tab"} type="button" onClick={() => setView("online")}>
+            {t("app.nav.online")}
+          </button>
           <button className={view === "rooms" ? "mode-tab active" : "mode-tab"} type="button" onClick={() => setView("rooms")}>
             {t("app.nav.rooms")}
           </button>
@@ -54,7 +58,15 @@ function AdminAppContent() {
         </div>
       </nav>
       <div className="admin-view-stage">
-        {view === "dashboard" ? <AdminDashboardView /> : view === "songs" ? <SongCatalogView /> : <RoomStatusView />}
+        {view === "dashboard" ? (
+          <AdminDashboardView />
+        ) : view === "songs" ? (
+          <SongCatalogView />
+        ) : view === "online" ? (
+          <OnlineSourceView />
+        ) : (
+          <RoomStatusView />
+        )}
       </div>
     </div>
   );

@@ -152,6 +152,57 @@ export async function searchSongs(input: {
   );
 }
 
+export interface OnlineQueueResponse {
+  assetId: string;
+  songNumber: string;
+  status: string;
+  cached: boolean;
+  queued: boolean;
+  queueEntryId: string | null;
+}
+
+export interface OnlineAssetStatusResponse {
+  asset: {
+    id: string;
+    provider: string;
+    providerAssetId: string;
+    status: string;
+    catalogSongId: string | null;
+    durationMs: number | null;
+    cacheBytes: number | null;
+    audioTrackCount: number | null;
+    errorReason: string | null;
+  };
+  playbackUrl: string | null;
+}
+
+export async function queueOnlineSong(input: {
+  roomSlug: string;
+  songNumber: string;
+  title?: string;
+  artistName?: string;
+  requestedByName?: string;
+}): Promise<OnlineQueueResponse> {
+  return fetchController<OnlineQueueResponse>(`/rooms/${encodeURIComponent(input.roomSlug)}/online/queue`, {
+    method: "POST",
+    body: JSON.stringify({
+      songNumber: input.songNumber,
+      ...(input.title ? { title: input.title } : {}),
+      ...(input.artistName ? { artistName: input.artistName } : {}),
+      ...(input.requestedByName ? { requestedByName: input.requestedByName } : {})
+    })
+  });
+}
+
+export async function fetchOnlineAssetStatus(input: {
+  roomSlug: string;
+  assetId: string;
+}): Promise<OnlineAssetStatusResponse> {
+  return fetchController<OnlineAssetStatusResponse>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/online/assets/${encodeURIComponent(input.assetId)}`
+  );
+}
+
 export async function fetchSongDiscovery(input: {
   roomSlug: string;
   seed: string;

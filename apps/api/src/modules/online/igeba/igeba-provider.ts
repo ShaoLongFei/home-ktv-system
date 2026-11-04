@@ -1,4 +1,4 @@
-import type { IgebaClient, IgebaHealth, IgebaSong, IgebaSongAddress } from "./igeba-client.js";
+import type { IgebaClient, IgebaHealth, IgebaHotModule, IgebaSong, IgebaSongAddress } from "./igeba-client.js";
 
 export interface OnlineCatalogCandidate {
   provider: string;
@@ -19,6 +19,12 @@ export interface OnlineCatalogProvider {
   search(keyword: string, limit: number): Promise<OnlineCatalogCandidate[]>;
   resolve(providerSongId: string): Promise<IgebaSongAddress>;
   download?(providerSongId: string, targetPath: string): Promise<{ bytes: number; songNumber: string }>;
+  hotModules?(): Promise<IgebaHotModule[]>;
+  packageSongs?(input: {
+    packageType: number;
+    packageId: string;
+    limit: number;
+  }): Promise<OnlineCatalogCandidate[]>;
   health(): IgebaHealth;
   probeHealth?(): Promise<IgebaHealth>;
 }
@@ -46,6 +52,17 @@ export function createIgebaProvider(client: IgebaClient, options: IgebaProviderO
         refresh: () => client.resolveAddress(providerSongId)
       });
       return { bytes: result.bytes, songNumber: providerSongId };
+    },
+    async hotModules() {
+      return client.hotModules();
+    },
+    async packageSongs(input) {
+      const page = await client.packageSongs({
+        packageType: input.packageType,
+        packageId: input.packageId,
+        pageSize: Math.min(50, Math.max(1, input.limit))
+      });
+      return page.songs.map((song) => toCandidate(song, id, sourceLabel));
     },
     health: () => client.health(),
     probeHealth: () => client.probeHealth()

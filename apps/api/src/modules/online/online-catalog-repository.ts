@@ -76,6 +76,11 @@ export interface OnlineCatalogRepository {
   findAssetByProviderId(provider: string, providerAssetId: string): Promise<OnlineAssetRecord | null>;
   findAssetByCatalogSongId(catalogSongId: string): Promise<OnlineAssetRecord | null>;
   updateAsset(assetId: string, patch: UpdateOnlineAssetPatch): Promise<OnlineAssetRecord | null>;
+  /** 跨进程抢占下载任务；返回 null 表示已有其他实例在处理。 */
+  claimForDownload(assetId: string): Promise<OnlineAssetRecord | null>;
+  listEvictionCandidates(input: { limit: number; excludeAssetId?: string | null }): Promise<OnlineAssetRecord[]>;
+  listExpiredAssets(olderThan: Date, limit: number): Promise<OnlineAssetRecord[]>;
+  failStaleCaching(olderThan: Date): Promise<number>;
   listAssets(limit: number): Promise<OnlineAssetRecord[]>;
   stats(): Promise<OnlineAssetStats>;
 }
@@ -226,6 +231,63 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
     return row ? mapAssetRow(row) : null;
   }
 
+  async claimForDownload(assetId: string): Promise<OnlineAssetRecord | null> {
+    const result = await this.db.query<OnlineAssetRow>(
+      `UPDATE online_song_assets
+       SET status = 'caching', updated_at = now()
+       WHERE id = $1
+         AND status IN ('caching', 'failed', 'unavailable')
+         AND (status <> 'caching' OR updated_at < now() - interval '10 minutes')
+       RETURNING id, song_id, provider, provider_asset_id, media_url, cache_path, catalog_song_id,
+                 status, duration_ms, cache_bytes, audio_track_count, error_reason, metadata`,
+      [assetId]
+    );
+    const row = result.rows[0];
+    return row ? mapAssetRow(row) : null;
+  }
+
+  async listEvictionCandidates(input: { limit: number; excludeAssetId?: string | null }): Promise<OnlineAssetRecord[]> {
+    const result = await this.db.query<OnlineAssetRow>(
+      `SELECT ${assetSelect}
+       FROM online_song_assets a
+       WHERE a.status = 'ready'
+         AND a.cache_path IS NOT NULL
+         AND ($2::text IS NULL OR a.id <> $2::text)
+       ORDER BY a.last_played_at NULLS FIRST, a.updated_at ASC
+       LIMIT $1`,
+      [Math.max(1, Math.trunc(input.limit)), input.excludeAssetId ?? null]
+    );
+    return result.rows.map(mapAssetRow);
+  }
+
+  async listExpiredAssets(olderThan: Date, limit: number): Promise<OnlineAssetRecord[]> {
+    const result = await this.db.query<OnlineAssetRow>(
+      `SELECT ${assetSelect}
+       FROM online_song_assets a
+       WHERE a.status = 'ready'
+         AND a.cache_path IS NOT NULL
+         AND a.updated_at < $1
+       ORDER BY a.updated_at ASC
+       LIMIT $2`,
+      [olderThan, Math.max(1, Math.trunc(limit))]
+    );
+    return result.rows.map(mapAssetRow);
+  }
+
+  async failStaleCaching(olderThan: Date): Promise<number> {
+    const result = await this.db.query<{ id: string }>(
+      `UPDATE online_song_assets
+       SET status = 'failed',
+           error_reason = 'stale caching claim',
+           updated_at = now()
+       WHERE status = 'caching'
+         AND updated_at < $1
+       RETURNING id`,
+      [olderThan]
+    );
+    return result.rows.length;
+  }
+
   async listAssets(limit: number): Promise<OnlineAssetRecord[]> {
     const result = await this.db.query<OnlineAssetRow>(
       `SELECT ${assetSelect}
@@ -342,6 +404,35 @@ export class InMemoryOnlineCatalogRepository implements OnlineCatalogRepository 
     };
     this.assets.set(key, updated);
     return updated;
+  }
+
+  async claimForDownload(assetId: string): Promise<OnlineAssetRecord | null> {
+    const entry = [...this.assets.entries()].find(([, asset]) => asset.id === assetId);
+    if (!entry) {
+      return null;
+    }
+    const [key, asset] = entry;
+    if (asset.status === "ready") {
+      return null;
+    }
+    const claimed: OnlineAssetRecord = { ...asset, status: "caching" };
+    this.assets.set(key, claimed);
+    return claimed;
+  }
+
+  async listEvictionCandidates(input: { limit: number; excludeAssetId?: string | null }): Promise<OnlineAssetRecord[]> {
+    return [...this.assets.values()]
+      .filter((asset) => asset.status === "ready" && asset.cachePath !== null && asset.id !== input.excludeAssetId)
+      .slice(0, input.limit);
+  }
+
+  async listExpiredAssets(olderThan: Date, limit: number): Promise<OnlineAssetRecord[]> {
+    void olderThan;
+    return [...this.assets.values()].filter((asset) => asset.status === "ready").slice(0, limit);
+  }
+
+  async failStaleCaching(): Promise<number> {
+    return 0;
   }
 
   async listAssets(limit: number): Promise<OnlineAssetRecord[]> {
