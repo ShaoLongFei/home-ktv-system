@@ -374,20 +374,8 @@ describe("mobile controller runtime", () => {
     await waitFor(() => expect(screen.queryByRole("button", { name: "加载更多" })).toBeNull());
   });
 
-  it("appends the next page of search results when the sentinel comes into view", async () => {
+  it("appends the next page of search results when the list runs out of room", async () => {
     const user = userEvent.setup();
-    const observers: Array<() => void> = [];
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        constructor(private readonly callback: (entries: Array<{ isIntersecting: boolean }>) => void) {}
-        observe() {
-          observers.push(() => this.callback([{ isIntersecting: true }]));
-        }
-        disconnect() {}
-        unobserve() {}
-      }
-    );
 
     const candidate = (id: string, title: string) => ({
       provider: "igeba",
@@ -439,24 +427,13 @@ describe("mobile controller runtime", () => {
     render(<App />);
     const dialog = await typeSearchQuery(user, "六哲");
     await within(dialog).findByText("第一页歌曲");
-    expect(within(dialog).queryByText("第二页歌曲")).toBeNull();
 
-    expect(observers.length).toBeGreaterThan(0);
-    act(() => {
-      // 页面上可能还有别的观察器，全部触发一遍
-      observers.forEach((trigger) => trigger());
-    });
-
-    await waitFor(() =>
-      expect(requests.some((request) => request.url.includes("songs/search") && request.url.includes("offset=20"))).toBe(
-        true
-      )
-    );
+    // 首屏内容不满一屏，不用滚动就应该自动续一页
     await waitFor(() => expect(within(dialog).getByText("第二页歌曲")).toBeTruthy());
     expect(within(dialog).getByText("第一页歌曲")).toBeTruthy();
-    expect(requests.some((request) => request.url.includes("songs/search") && request.url.includes("offset=20"))).toBe(
-      true
-    );
+    expect(
+      requests.some((request) => request.url.includes("songs/search") && request.url.includes("offset=20"))
+    ).toBe(true);
   });
 
   it("loads the next page of a detail list when the sentinel comes into view", async () => {

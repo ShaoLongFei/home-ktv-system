@@ -250,7 +250,9 @@ export function useRoomControllerRuntime(): RoomControllerState {
 
   /** 搜索结果下滑续拉：在当前结果后面追加下一页。 */
   const loadMoreSongSearch = useCallback(async () => {
-    const current = songSearchRef.current;
+    // 直接读 state：ref 的同步 effect 在子组件之后才跑，首屏紧接着续页时
+    // 拿到的还是 null，整页会被丢掉
+    const current = songSearch;
     const query = songSearchQueryRef.current;
     const nextOffset = current?.online.nextOffset ?? null;
     if (!current || !query || nextOffset == null || songSearchLoadingMoreRef.current) {
@@ -271,7 +273,7 @@ export function useRoomControllerRuntime(): RoomControllerState {
       }
       // 用 ref 里的首页结果做基准：setState 的 updater 拿到的 previous 可能
       // 还是 null（首页更新尚未提交），那样这一页会被静默丢掉
-      const base = songSearchRef.current;
+      const base = current;
       if (!base || base.query !== response.query) {
         return;
       }
@@ -288,7 +290,7 @@ export function useRoomControllerRuntime(): RoomControllerState {
       songSearchLoadingMoreRef.current = false;
       setSongSearchLoadingMore(false);
     }
-  }, [initial.roomSlug]);
+  }, [initial.roomSlug, songSearch]);
 
   const runSongDiscovery = useCallback(
     async (seed: string) => {

@@ -1521,32 +1521,33 @@ function SearchResults({
   const nextOffset = online?.nextOffset ?? null;
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const triggeredOffsetRef = useRef<number | null>(null);
+  const loadMoreSongSearch = controller.loadMoreSongSearch;
 
-  // 滑到底部自动取下一页；同一个 offset 只放行一次，避免观察器重建时重复请求
-  useEffect(() => {
+  // 不用 IntersectionObserver：内容不满一屏时根本没有滚动，观察器只在
+  // 交叉状态变化时回调，一次都等不到。改成直接量哨兵位置，滚动和每次
+  // 加载完都检查一次，凑满一屏就停下来。
+  const maybeLoadMore = useCallback(() => {
+    if (nextOffset == null || triggeredOffsetRef.current === nextOffset) {
+      return;
+    }
     const sentinel = sentinelRef.current;
-    if (!sentinel || nextOffset == null) {
+    if (!sentinel) {
       return;
     }
-    if (typeof IntersectionObserver === "undefined") {
+    const rect = sentinel.getBoundingClientRect();
+    if (rect.top > window.innerHeight + 240) {
       return;
     }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) {
-          return;
-        }
-        if (triggeredOffsetRef.current === nextOffset) {
-          return;
-        }
-        triggeredOffsetRef.current = nextOffset;
-        void controller.loadMoreSongSearch();
-      },
-      { rootMargin: "240px" }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [controller, nextOffset]);
+    triggeredOffsetRef.current = nextOffset;
+    void loadMoreSongSearch();
+  }, [loadMoreSongSearch, nextOffset]);
+
+  useEffect(() => {
+    maybeLoadMore();
+    const handleScroll = () => maybeLoadMore();
+    globalThis.addEventListener("scroll", handleScroll, { passive: true });
+    return () => globalThis.removeEventListener("scroll", handleScroll);
+  }, [maybeLoadMore]);
 
   return (
     <div className="search-overlay-results">
