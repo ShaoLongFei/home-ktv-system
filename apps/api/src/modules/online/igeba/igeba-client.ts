@@ -225,6 +225,33 @@ export class IgebaClient {
     };
   }
 
+  /** 榜单列表（PackageType=4）。 */
+  async rankList(): Promise<Array<{ rankId: string; rankTitle: string }>> {
+    const payload = await this.postCloud("GET_PACGS", { PackageType: 4 });
+    const list = isRecord(payload) && Array.isArray(payload.List) ? payload.List : [];
+    return list
+      .filter(isRecord)
+      .map((item) => ({ rankId: asString(item.RankId), rankTitle: asString(item.RankTitle) }))
+      .filter((item) => item.rankId.length > 0);
+  }
+
+  /** 榜单歌曲；Order 传 [{Hot:1}] 或 [{PublishDate:1}]。 */
+  async rankSongs(
+    rankId: string,
+    options: { order?: Array<Record<string, number>>; page?: number; pageSize?: number } = {}
+  ): Promise<IgebaSearchPage> {
+    const payload = await this.postCloud("GET_SONGS", {
+      UserId: this.uid,
+      Filter: { RankId: rankId },
+      Order: options.order ?? [{ Hot: 1 }],
+      Page: {
+        PageNo: Math.max(1, Math.trunc(options.page ?? 1)),
+        PageSize: Math.min(50, Math.max(1, Math.trunc(options.pageSize ?? 20)))
+      }
+    });
+    return parseSongPage(payload, "rank");
+  }
+
   /** 曲风标签（TagType=4 为音乐风格）。 */
   async musicStyles(): Promise<string[]> {
     const payload = await this.postCloud("GET_TAGS", { TagType: 4, TagFor: 1, TagTo: 2 });

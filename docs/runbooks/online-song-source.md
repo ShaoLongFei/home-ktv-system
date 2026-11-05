@@ -75,11 +75,15 @@ IGEBA_CACHE_TTL_DAYS=30
 
 详情接口返回 `source=online` + `providerSongNumber`，手机端点「+」走 `POST /rooms/:slug/online/queue`（缓存好自动入队）。ige8 不可用时自动回退到本地曲库模块。
 
+## 推荐歌曲（在线）
+
+`/songs/discovery` 的 `recommended` 改为 ige8 热歌榜（`GET_PACGS PackageType=4` 取「热歌榜」→ `GET_SONGS Filter.RankId` + `Order:[{Hot:1}]`，最多 30 首），失败时回退本地加权推荐。在线推荐条目点「+」同样走 `online/queue`。
+
 ## 多房间（TV 房主）
 
 - 电视首次打开自动 `POST /rooms` 建房，房间号和配对信息写进 URL（`?room=room-xxxxxx`）与 localStorage；
 - 配对二维码/链接包含 `room`，手机扫哪个房间就进哪个；
-- 手机端点歌台左上角「房间 xxxx」可切换已加入房间，或粘贴房间号/链接加入新房间；列表存 localStorage，一个手机可进多个房间；
+- 手机端不再显示房间按钮，房间完全由 URL（`?room=`）决定；一个手机可以通过不同链接进入多个房间；
 - 房间由电视心跳维持：TV 端 1 小时无心跳（且房间是 TV 创建、`owner_device_id` 非空），服务端每 10 分钟清理一次并级联删除队列/客户端；
 - 电视下次打开发现原房间已不存在会自动重新建房。
 

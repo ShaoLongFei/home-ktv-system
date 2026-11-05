@@ -27,6 +27,7 @@ export interface OnlineCatalogProvider {
     pictureUrl: string | null;
   }>>;
   discoveryStyles?(): Promise<string[]>;
+  recommendedSongs?(limit: number): Promise<OnlineCatalogCandidate[]>;
   songsBySinger?(input: {
     singerId: string;
     page: number;
@@ -84,6 +85,21 @@ export function createIgebaProvider(client: IgebaClient, options: IgebaProviderO
     },
     async discoveryStyles() {
       return client.musicStyles();
+    },
+    async recommendedSongs(limit) {
+      const ranks = await client.rankList();
+      const hotRank =
+        ranks.find((rank) => rank.rankTitle.includes("热歌")) ??
+        ranks.find((rank) => rank.rankTitle.includes("飙升")) ??
+        ranks[0];
+      if (!hotRank) {
+        return [];
+      }
+      const page = await client.rankSongs(hotRank.rankId, {
+        order: [{ Hot: 1 }],
+        pageSize: Math.min(50, Math.max(1, limit))
+      });
+      return page.songs.map((song) => toCandidate(song, id, sourceLabel));
     },
     async songsBySinger({ singerId, page, pageSize }) {
       const result = await client.songsBySingerId(singerId, { page, pageSize });

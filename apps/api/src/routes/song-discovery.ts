@@ -28,7 +28,7 @@ export interface SongDiscoveryRouteDependencies {
   songCovers?: Pick<SongCoverRepository, "findBySongKeys">;
   onlineDiscovery?: Pick<
     OnlineImportService,
-    "discoverySingers" | "discoveryStyles" | "songsBySinger" | "songsByStyle"
+    "discoverySingers" | "discoveryStyles" | "songsBySinger" | "songsByStyle" | "recommendedSongs"
   >;
 }
 
@@ -69,6 +69,7 @@ export async function registerSongDiscoveryRoutes(
       ]);
       const songsWithCovers = await attachCoverImageUrls(songs, dependencies.songCovers);
       const weightedRecommendations = selectWeightedSongs(songsWithCovers, limit, seed);
+      const onlineRecommended = await loadOnlineRecommendations(dependencies, limit);
       const onlineArtists = await loadOnlineArtists(dependencies);
       const onlineGenres = await loadOnlineGenres(dependencies);
       const artists = onlineArtists ?? fullArtists ?? buildArtistModules(songsWithCovers);
@@ -76,7 +77,9 @@ export async function registerSongDiscoveryRoutes(
 
       const response: SongDiscoveryResponse = {
         seed,
-        recommended: surfaceCoveredSongs(weightedRecommendations, songsWithCovers, limit, seed),
+        recommended:
+          onlineRecommended ??
+          surfaceCoveredSongs(weightedRecommendations, songsWithCovers, limit, seed),
         artists,
         genres
       };
@@ -166,6 +169,26 @@ export async function registerSongDiscoveryRoutes(
       await reply.send(response);
     }
   );
+}
+
+async function loadOnlineRecommendations(
+  dependencies: SongDiscoveryRouteDependencies,
+  limit: number
+): Promise<SongDiscoverySong[] | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const candidates = await dependencies.onlineDiscovery.recommendedSongs(Math.min(30, limit));
+    if (candidates.length === 0) {
+      return null;
+    }
+    return candidates.map((candidate) =>
+      onlineDiscoverySong(candidate, { artistId: candidate.artistName, genre: [] })
+    );
+  } catch {
+    return null;
+  }
 }
 
 async function loadOnlineArtists(

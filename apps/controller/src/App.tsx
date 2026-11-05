@@ -129,7 +129,6 @@ function ControllerApp() {
 
   return (
     <main className={`app-shell app-shell--${activeTab}`} aria-label={t("app.aria")}>
-      <RoomSwitcher currentRoom={controller.roomSlug} t={t} />
       <AppNotices controller={controller} noticeMessage={noticeMessage} t={t} />
 
       {activeTab === "home" ? (
@@ -142,6 +141,7 @@ function ControllerApp() {
           openBrowseView={openBrowseView}
           setInteractionComposer={setInteractionComposer}
           setSearchOpen={setSearchOpen}
+          onOpenProfile={() => setActiveTab("my")}
           t={t}
           visibleArtists={visibleArtists}
           visibleGenres={visibleGenres}
@@ -159,10 +159,24 @@ function ControllerApp() {
           switchLabel={switchLabel}
           t={t}
           volumePercent={volumePercent}
+          onBack={() => setActiveTab("home")}
         />
       ) : null}
 
-      {activeTab === "my" ? <MyScreen controller={controller} onQueueAddFeedback={triggerQueueAddFeedback} /> : null}
+      {activeTab === "my" ? (
+        <MyScreen controller={controller} onQueueAddFeedback={triggerQueueAddFeedback} onBack={() => setActiveTab("home")} />
+      ) : null}
+
+      {activeTab === "home" ? (
+        <MusicConsole
+          controller={controller}
+          current={current}
+          queueCount={queueCount}
+          t={t}
+          volumePercent={volumePercent}
+          onOpenQueue={() => setActiveTab("control")}
+        />
+      ) : null}
 
       {searchOpen ? (
         <SearchOverlay
@@ -231,13 +245,6 @@ function ControllerApp() {
         </div>
       ) : null}
 
-      <BottomTabs
-        activeTab={activeTab}
-        queueCount={queueCount}
-        queueFeedbackActive={queueAddFeedback !== null}
-        setActiveTab={setActiveTab}
-        t={t}
-      />
     </main>
   );
 }
@@ -397,14 +404,24 @@ function AccountPanel({ controller }: { controller: RoomControllerState }) {
 
 function MyScreen({
   controller,
-  onQueueAddFeedback
+  onQueueAddFeedback,
+  onBack
 }: {
   controller: RoomControllerState;
   onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onBack(): void;
 }) {
   const history = controller.songHistory;
   return (
     <div className="my-screen">
+      <header className="top-bar">
+        <div className="top-bar__heading">
+          <button className="secondary-button compact-button" type="button" onClick={onBack}>
+            返回
+          </button>
+          <h1>我的</h1>
+        </div>
+      </header>
       <AccountPanel controller={controller} />
       <section className="panel my-history-panel" aria-label="点歌历史">
         <div className="panel-heading">
@@ -502,6 +519,7 @@ function HomeScreen({
   openBrowseView,
   setInteractionComposer,
   setSearchOpen,
+  onOpenProfile,
   t,
   visibleArtists,
   visibleGenres
@@ -514,6 +532,7 @@ function HomeScreen({
   openBrowseView(view: Exclude<BrowseView, { kind: "home" }>): void;
   setInteractionComposer(kind: RoomInteractionKind): void;
   setSearchOpen(open: boolean): void;
+  onOpenProfile(): void;
   t: TFunction;
   visibleArtists: readonly SongDiscoveryArtist[];
   visibleGenres: readonly SongDiscoveryGenre[];
@@ -540,6 +559,9 @@ function HomeScreen({
           <span>{controller.songSearchQuery || t("search.placeholder")}</span>
         </button>
         {controller.songSearchStatus === "loading" ? <span className="search-status">{t("search.loading")}</span> : null}
+        <button className="profile-entry" type="button" aria-label={t("nav.my")} onClick={onOpenProfile}>
+          {t("nav.my")}
+        </button>
       </section>
 
       <section className="home-category-section" aria-label={t("discovery.categories")}>
@@ -995,7 +1017,8 @@ function ControlScreen({
   snapshot,
   switchLabel,
   t,
-  volumePercent
+  volumePercent,
+  onBack
 }: {
   controller: RoomControllerState;
   current: NonNullable<RoomControllerState["snapshot"]>["currentTarget"] | undefined;
@@ -1006,6 +1029,7 @@ function ControlScreen({
   switchLabel: string;
   t: TFunction;
   volumePercent: number;
+  onBack(): void;
 }) {
   const onlineTvCount = snapshot?.tvPresence.onlineCount ?? (snapshot?.tvPresence.online ? 1 : 0);
   const tvStatusLabel =
@@ -1018,7 +1042,10 @@ function ControlScreen({
   return (
     <>
       <header className="top-bar">
-        <div>
+        <div className="top-bar__heading">
+          <button className="secondary-button compact-button" type="button" onClick={onBack}>
+            {t("button.back")}
+          </button>
           <h1>{t("header.title")}</h1>
         </div>
         <div className="top-actions">
@@ -1139,55 +1166,57 @@ function ControlScreen({
   );
 }
 
-function BottomTabs({
-  activeTab,
+function MusicConsole({
+  controller,
+  current,
   queueCount,
-  queueFeedbackActive,
-  setActiveTab,
-  t
+  t,
+  volumePercent,
+  onOpenQueue
 }: {
-  activeTab: ControllerTab;
+  controller: RoomControllerState;
+  current: NonNullable<RoomControllerState["snapshot"]>["currentTarget"] | undefined;
   queueCount: number;
-  queueFeedbackActive: boolean;
-  setActiveTab(tab: ControllerTab): void;
   t: TFunction;
+  volumePercent: number;
+  onOpenQueue(): void;
 }) {
-  const badgeLabel = queueCount > 99 ? "99+" : String(queueCount);
+  const paused = controller.snapshot?.playbackPaused === true;
   return (
-    <nav className="bottom-tabs" aria-label={t("nav.aria")}>
-      <button
-        className={`bottom-tab ${activeTab === "home" ? "active" : ""}`}
-        type="button"
-        aria-current={activeTab === "home" ? "page" : undefined}
-        onClick={() => setActiveTab("home")}
-      >
-        <span className="bottom-tab__icon bottom-tab__icon--home" aria-hidden="true" />
-        <span>{t("nav.home")}</span>
-      </button>
-      <button
-        className={`bottom-tab ${activeTab === "control" ? "active" : ""} ${queueFeedbackActive ? "bottom-tab--queue-pulse" : ""}`}
-        type="button"
-        aria-current={activeTab === "control" ? "page" : undefined}
-        onClick={() => setActiveTab("control")}
-      >
-        <span className="bottom-tab__icon bottom-tab__icon--control" aria-hidden="true" />
-        {queueCount > 0 ? (
-          <span className="bottom-tab__badge" aria-hidden="true">
-            {badgeLabel}
-          </span>
-        ) : null}
-        <span>{t("nav.control")}</span>
-      </button>
-      <button
-        className={`bottom-tab ${activeTab === "my" ? "active" : ""}`}
-        type="button"
-        aria-current={activeTab === "my" ? "page" : undefined}
-        onClick={() => setActiveTab("my")}
-      >
-        <span className="bottom-tab__icon bottom-tab__icon--my" aria-hidden="true" />
-        <span>{t("nav.my")}</span>
-      </button>
-    </nav>
+    <section className="music-console" aria-label={t("console.aria")}>
+      <div className="music-console__track">
+        <strong>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</strong>
+        <span>{current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}</span>
+      </div>
+      <div className="music-console__volume">
+        <input
+          aria-label={t("volume.aria")}
+          max="100"
+          min="0"
+          step="5"
+          type="range"
+          value={volumePercent}
+          onChange={(event) => controller.setVolumePercent(Number(event.currentTarget.value))}
+        />
+      </div>
+      <div className="music-console__actions">
+        <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.replayCurrent()}>
+          {t("button.replay")}
+        </button>
+        <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.togglePause()}>
+          {paused ? t("button.resume") : t("button.pause")}
+        </button>
+        <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.switchVocalMode()}>
+          {t("button.switchVocal")}
+        </button>
+        <button className="danger-button compact-button" disabled={!current} type="button" onClick={controller.requestSkip}>
+          {t("button.skip")}
+        </button>
+        <button className="secondary-button compact-button" type="button" onClick={onOpenQueue}>
+          {t("console.queue", { count: queueCount })}
+        </button>
+      </div>
+    </section>
   );
 }
 
@@ -1742,113 +1771,6 @@ function DiscoverySongRow({
         {canQueue || isOnline ? "+" : "·"}
       </button>
     </article>
-  );
-}
-
-const joinedRoomsStorageKey = "home_ktv_joined_rooms";
-
-function readJoinedRooms(currentRoom: string): string[] {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(joinedRoomsStorageKey) ?? "[]");
-    const rooms = Array.isArray(parsed)
-      ? parsed.filter((room): room is string => typeof room === "string" && room.length > 0)
-      : [];
-    return rooms.includes(currentRoom) ? rooms : [currentRoom, ...rooms];
-  } catch {
-    return [currentRoom];
-  }
-}
-
-function rememberJoinedRoom(room: string): void {
-  try {
-    const rooms = readJoinedRooms(room).filter((item) => item !== room);
-    localStorage.setItem(joinedRoomsStorageKey, JSON.stringify([room, ...rooms].slice(0, 12)));
-  } catch {}
-}
-
-function parseRoomInput(raw: string): string | null {
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return null;
-  }
-  if (/^https?:\/\//iu.test(trimmed)) {
-    try {
-      const url = new URL(trimmed);
-      const fromQuery = url.searchParams.get("room");
-      if (fromQuery) {
-        return fromQuery;
-      }
-      const lastSegment = url.pathname.split("/").filter(Boolean).at(-1);
-      return lastSegment && lastSegment !== "controller" ? lastSegment : null;
-    } catch {
-      return null;
-    }
-  }
-  const normalized = trimmed.toLowerCase().replace(/[^a-z0-9-]/gu, "");
-  return normalized.length >= 2 ? normalized.slice(0, 40) : null;
-}
-
-function RoomSwitcher({ currentRoom, t }: { currentRoom: string; t: TFunction }) {
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const rooms = readJoinedRooms(currentRoom);
-
-  const enterRoom = (room: string) => {
-    rememberJoinedRoom(room);
-    const url = new URL(window.location.href);
-    url.searchParams.set("room", room);
-    url.searchParams.delete("token");
-    window.location.assign(url.toString());
-  };
-
-  return (
-    <div className="room-switcher">
-      <button className="room-switcher__chip" type="button" onClick={() => setOpen((value) => !value)}>
-        {t("rooms.current", { room: currentRoom })}
-      </button>
-      {open ? (
-        <div className="room-switcher__panel" role="dialog" aria-label={t("rooms.switch")}>
-          <div className="room-switcher__header">
-            <strong>{t("rooms.joined")}</strong>
-            <button className="secondary-button compact-button" type="button" onClick={() => setOpen(false)}>
-              {t("button.close")}
-            </button>
-          </div>
-          <div className="room-switcher__list">
-            {rooms.map((room) => (
-              <button
-                className={room === currentRoom ? "room-switcher__room room-switcher__room--active" : "room-switcher__room"}
-                key={room}
-                type="button"
-                onClick={() => enterRoom(room)}
-              >
-                {room}
-              </button>
-            ))}
-          </div>
-          <form
-            className="room-switcher__join"
-            onSubmit={(event) => {
-              event.preventDefault();
-              const room = parseRoomInput(input);
-              if (room) {
-                enterRoom(room);
-              }
-            }}
-          >
-            <input
-              aria-label={t("rooms.joinPlaceholder")}
-              placeholder={t("rooms.joinPlaceholder")}
-              value={input}
-              onChange={(event) => setInput(event.currentTarget.value)}
-            />
-            <button className="primary-button compact-button" type="submit">
-              {t("rooms.join")}
-            </button>
-          </form>
-        </div>
-      ) : null}
-    </div>
   );
 }
 

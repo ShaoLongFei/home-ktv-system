@@ -184,7 +184,6 @@ describe("mobile controller runtime", () => {
 
     expect(screen.getByRole("heading", { name: "KTV controller" })).toBeTruthy();
     expect(screen.getByText("TV online")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Home" })).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "中文" }));
 
@@ -192,7 +191,6 @@ describe("mobile controller runtime", () => {
     expect(screen.getByText("电视在线")).toBeTruthy();
     expect(screen.getByRole("region", { name: "当前播放" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "播放队列" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "首页" })).toBeTruthy();
   });
 
   it("starts on the discovery home and keeps playback controls behind the control tab", async () => {
@@ -370,10 +368,9 @@ describe("mobile controller runtime", () => {
 
     await screen.findByText("歌手点歌");
 
-    const controlTab = screen.getByRole("button", { name: "操控" });
+    const queueButton = screen.getByRole("button", { name: /队列/u });
     await waitFor(() => {
-      const badge = controlTab.querySelector(".bottom-tab__badge");
-      expect(badge?.textContent).toBe("1");
+      expect(queueButton.textContent).toContain("1");
     });
   });
 
@@ -465,14 +462,14 @@ describe("mobile controller runtime", () => {
 
     const recommendations = await screen.findByRole("region", { name: "推荐歌曲" });
     expect(await within(recommendations).findByText("NAS 晴天")).toBeTruthy();
-    const controlTab = screen.getByRole("button", { name: "操控" });
+    const controlTab = screen.getByRole("button", { name: /队列/u });
     await waitFor(() => {
-      expect(controlTab.querySelector(".bottom-tab__badge")?.textContent).toBe("1");
+      expect(controlTab.textContent).toContain("1");
     });
 
     await user.click(within(recommendations).getByRole("button", { name: "点歌 NAS 晴天" }));
 
-    expect(controlTab.querySelector(".bottom-tab__badge")?.textContent).toBe("2");
+    expect(controlTab.textContent).toContain("2");
     await user.click(controlTab);
     const queue = screen.getByRole("region", { name: "播放队列" });
     expect(within(queue).getByText("NAS 晴天")).toBeTruthy();
@@ -480,7 +477,7 @@ describe("mobile controller runtime", () => {
     indexedCommand.resolve(json({ status: "accepted", snapshot: roomSnapshot({ queueLength: 2, sessionVersion: 2 }) }));
     await flush();
     await waitFor(() => {
-      expect(controlTab.querySelector(".bottom-tab__badge")?.textContent).toBe("2");
+      expect(controlTab.textContent).toContain("2");
     });
   });
 
@@ -1756,7 +1753,7 @@ async function flush() {
 
 async function openControlTab() {
   await waitForControllerHome();
-  fireEvent.click(screen.getByRole("button", { name: /操控|Control/u }));
+  fireEvent.click(screen.getByRole("button", { name: /队列|Queue/u }));
   await flush();
   return screen.getByRole("region", { name: /当前播放|Current playback/u });
 }

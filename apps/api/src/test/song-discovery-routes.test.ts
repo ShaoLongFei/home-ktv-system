@@ -258,6 +258,11 @@ describe("song discovery routes", () => {
     });
 
     expect(response.statusCode).toBe(200);
+    expect(response.json().recommended[0]).toMatchObject({
+      source: "online",
+      providerSongNumber: "20039643",
+      title: "晴天"
+    });
     expect(response.json()).toMatchObject({
       artists: [
         { artistId: "1066", artistName: "周杰伦", songCount: 0 },
@@ -331,6 +336,18 @@ async function createHarness(input: {
   onlineDiscovery?: {
     discoverySingers(limit: number): Promise<Array<{ singerId: string; singerName: string; mark: string; pictureUrl: string | null }>>;
     discoveryStyles(): Promise<string[]>;
+    recommendedSongs(limit: number): Promise<Array<{
+      provider: string;
+      providerSongId: string;
+      title: string;
+      artistName: string;
+      durationMs: number | null;
+      language: string;
+      coverUrl: string | null;
+      sourceLabel: string;
+      tags: readonly string[];
+      metadata: Record<string, unknown>;
+    }>>;
     songsBySinger(input: { singerId: string; page: number; pageSize: number }): Promise<{
       candidates: Array<{
         provider: string;
@@ -401,6 +418,9 @@ function createOnlineDiscovery() {
     },
     async discoveryStyles() {
       return ["流行", "摇滚"];
+    },
+    async recommendedSongs() {
+      return candidates;
     },
     async songsBySinger() {
       return { candidates, pageCount: 1 };

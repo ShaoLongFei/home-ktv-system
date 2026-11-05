@@ -2282,3 +2282,86 @@ input:focus {
   min-width: 0;
   padding: 8px 10px;
 }
+
+.profile-entry {
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 999px;
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 13px;
+  font-weight: 800;
+  height: 38px;
+  margin-left: auto;
+  padding: 0 14px;
+}
+
+.home-search-section {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.music-console {
+  align-items: center;
+  backdrop-filter: blur(18px);
+  background: rgba(8, 12, 24, 0.94);
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  bottom: 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(90px, 0.7fr) auto;
+  left: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  position: fixed;
+  right: 0;
+  z-index: 50;
+}
+
+.music-console__track {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.music-console__track strong {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-console__track span {
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-console__volume {
+  align-items: center;
+  display: flex;
+}
+
+.music-console__volume input {
+  width: 100%;
+}
+
+.music-console__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.music-console__actions button {
+  white-space: nowrap;
+}
+
+.app-shell--home {
+  padding-bottom: 96px;
+}
+
+.top-bar__heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}

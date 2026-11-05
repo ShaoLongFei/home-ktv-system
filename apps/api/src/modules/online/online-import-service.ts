@@ -219,6 +219,11 @@ export class OnlineImportService {
     return provider.discoverySingers ? provider.discoverySingers(limit) : [];
   }
 
+  async recommendedSongs(limit: number): Promise<Awaited<ReturnType<NonNullable<OnlineCatalogProvider["search"]>>>> {
+    const provider = this.options.provider;
+    return provider.recommendedSongs ? provider.recommendedSongs(limit) : [];
+  }
+
   async discoveryStyles(): Promise<string[]> {
     const provider = this.options.provider;
     return provider.discoveryStyles ? provider.discoveryStyles() : [];

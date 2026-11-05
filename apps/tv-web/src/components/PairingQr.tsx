@@ -17,7 +17,7 @@ const QUIET_ZONE_MODULES = 2;
 
 export function PairingQr({ pairing, variant }: PairingQrProps) {
   const isLarge = variant === "large";
-  const modules = createQrModules(pairing.qrPayload);
+  const modules = createQrModules(pairing.qrPayload, isLarge ? 2 : 1);
 
   const target = pairing.controllerUrl || pairing.qrPayload;
 
@@ -45,15 +45,15 @@ export function PairingQr({ pairing, variant }: PairingQrProps) {
   );
 }
 
-export function createQrModules(payload: string): QrModules {
+export function createQrModules(payload: string, quietZoneModules = QUIET_ZONE_MODULES): QrModules {
   const qrCode = create(payload, {
     errorCorrectionLevel: "M"
   });
   const qrSize = qrCode.modules.size;
-  const size = qrSize + QUIET_ZONE_MODULES * 2;
+  const size = qrSize + quietZoneModules * 2;
   const cells = Array.from({ length: size * size }, (_, index) => {
-    const row = Math.floor(index / size) - QUIET_ZONE_MODULES;
-    const column = (index % size) - QUIET_ZONE_MODULES;
+    const row = Math.floor(index / size) - quietZoneModules;
+    const column = (index % size) - quietZoneModules;
     if (row < 0 || column < 0 || row >= qrSize || column >= qrSize) {
       return false;
     }
@@ -93,14 +93,14 @@ const styles = {
     padding: "16px 16px 14px"
   },
   cornerFrame: {
-    background: "rgba(255, 255, 255, 0.94)",
-    border: "1px solid rgba(255, 255, 255, 0.7)",
-    borderRadius: 6,
-    boxShadow: "0 18px 54px rgba(0, 0, 0, 0.4)",
+    background: "#ffffff",
+    border: "none",
+    borderRadius: 8,
+    boxShadow: "0 14px 38px rgba(0, 0, 0, 0.35)",
     display: "grid",
     justifyItems: "center",
     margin: 0,
-    padding: 8
+    padding: 4
   },
   largeQr: {
     width: "min(34vw, 380px)",
@@ -117,7 +117,7 @@ const styles = {
     width: 96,
     aspectRatio: "1",
     background: tvTheme.colors.text,
-    border: `2px solid ${tvTheme.colors.text}`,
+    border: "none",
     display: "grid",
     gap: 0,
     padding: 0
