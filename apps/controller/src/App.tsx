@@ -1586,7 +1586,9 @@ function SearchOnlineSongRow({
       }
     >
       <div className="compact-version-main">
-        <strong>{candidate.title}</strong>
+        <strong>
+          <ScrollingText text={candidate.title} />
+        </strong>
         <div className="compact-version-meta">
           <span>{candidate.artistName}</span>
           <span>{candidate.sourceLabel}</span>
@@ -1861,6 +1863,51 @@ function DiscoveryBrowseView({
   );
 }
 
+/**
+ * 名字放不下时自动横向滚动。
+ * 宽度靠实测：scrollWidth 超过容器才启动动画，并把溢出距离写进 CSS 变量，
+ * 这样长名字能完整走一遍，短名字保持静止。
+ */
+function ScrollingText({ text }: { text: string }) {
+  const outerRef = useRef<HTMLSpanElement>(null);
+  const innerRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const outer = outerRef.current;
+    const inner = innerRef.current;
+    if (!outer || !inner) {
+      return;
+    }
+
+    const measure = () => {
+      const distance = inner.scrollWidth - outer.clientWidth;
+      if (distance > 2) {
+        outer.style.setProperty("--scroll-distance", `${distance}px`);
+        outer.classList.add("scroll-text--running");
+        return;
+      }
+      outer.style.removeProperty("--scroll-distance");
+      outer.classList.remove("scroll-text--running");
+    };
+
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(outer);
+    return () => observer.disconnect();
+  }, [text]);
+
+  return (
+    <span className="scroll-text" ref={outerRef}>
+      <span className="scroll-text__inner" ref={innerRef}>
+        {text}
+      </span>
+    </span>
+  );
+}
+
 function DiscoverySongRow({
   controller,
   onQueueAddFeedback,
@@ -1897,13 +1944,6 @@ function DiscoverySongRow({
           : t("button.add")
         : disabledVersionLabel(primaryVersion)
       : "暂不可播放";
-  const [coverUrl, setCoverUrl] = useState(song.coverThumbnailUrl ?? song.coverImageUrl ?? "");
-  const showCover = Boolean(coverUrl);
-
-  useEffect(() => {
-    setCoverUrl(song.coverThumbnailUrl ?? song.coverImageUrl ?? "");
-  }, [song.coverImageUrl, song.coverThumbnailUrl]);
-
   return (
     <button
       aria-label={`${addLabel} ${song.title}`}
@@ -1930,32 +1970,13 @@ function DiscoverySongRow({
         }
       }}
     >
-      <div className={`song-art ${showCover ? "song-art--image" : "song-art--fallback"}`} aria-hidden="true">
-        {showCover ? (
-          <img
-            alt=""
-            decoding="async"
-            draggable={false}
-            height={40}
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            src={coverUrl}
-            width={40}
-            onError={() => {
-              if (coverUrl === song.coverThumbnailUrl && song.coverImageUrl && song.coverImageUrl !== song.coverThumbnailUrl) {
-                setCoverUrl(song.coverImageUrl);
-                return;
-              }
-              setCoverUrl("");
-            }}
-          />
-        ) : (
-          <span>{song.title.trim().slice(0, 1) || "K"}</span>
-        )}
-      </div>
       <div className="result-main">
-        <strong>{song.title}</strong>
-        <p>{song.artistName}</p>
+        <strong>
+          <ScrollingText text={song.title} />
+        </strong>
+        <p>
+          <ScrollingText text={song.artistName} />
+        </p>
       </div>
       {onlineBusy || (isOnline && onlineState?.status === "failed") ? (
         <span className="song-row__badge">{addLabel}</span>

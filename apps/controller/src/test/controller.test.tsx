@@ -284,14 +284,15 @@ describe("mobile controller runtime", () => {
     expect(screen.getByRole("heading", { name: "推荐歌曲" })).toBeTruthy();
     expect(screen.getAllByText("周杰伦").length).toBeGreaterThan(0);
     expect(screen.getAllByText("流行").length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/^推荐歌曲/u, { selector: "strong" })).toHaveLength(30);
+    expect(screen.getAllByText(/^推荐歌曲\d+$/u)).toHaveLength(30);
     const recommendations = screen.getByRole("region", { name: "推荐歌曲" });
     expect(within(recommendations).queryByText("本地可播")).toBeNull();
     expect(within(recommendations).queryByText("流行")).toBeNull();
     expect(within(recommendations).queryByText(/次点歌/u)).toBeNull();
     expect(recommendations.querySelector(".result-meta")).toBeNull();
-    expect(recommendations.querySelector('img[src="https://cover.example/thumbs/recommend-1.jpg"]')).toBeTruthy();
-    expect(recommendations.querySelector(".song-art--fallback")).toBeTruthy();
+    // 歌曲条目前面的封面头像已经去掉
+    expect(recommendations.querySelector(".song-art")).toBeNull();
+    expect(recommendations.querySelector("img")).toBeNull();
 
     const initialDiscoveryRequests = requests.filter((request) => request.url.startsWith("/rooms/living-room/songs/discovery?"));
     await user.click(screen.getByRole("button", { name: "换一批" }));
@@ -726,7 +727,7 @@ describe("mobile controller runtime", () => {
     expect(screen.getByText("最近搜索")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "七里香" }));
     const dialog = screen.getByRole("dialog", { name: "搜索歌曲" });
-    expect(await within(dialog).findByText("七里香", { selector: "strong" })).toBeTruthy();
+    expect(await within(dialog).findByText("七里香")).toBeTruthy();
 
     await user.clear(within(dialog).getByLabelText("搜索关键词"));
     await user.click(screen.getByRole("button", { name: "清空" }));
@@ -1336,7 +1337,7 @@ describe("mobile controller runtime", () => {
 
     const dialog = await typeSearchQuery(user, "晴天");
     const search = within(dialog);
-    await search.findByText("晴天", { selector: "strong" });
+    await search.findByText("晴天");
 
     // 搜索只展示在线曲库，NAS 面板和文件行都不出现
     expect(search.queryByText("NAS 曲库")).toBeNull();
@@ -1440,7 +1441,7 @@ describe("mobile controller runtime", () => {
 
     const dialog = await typeSearchQuery(user, "孤勇者");
     const search = within(dialog);
-    await search.findByText("孤勇者", { selector: "strong" });
+    await search.findByText("孤勇者");
     await user.click(search.getByRole("button", { name: "点歌 孤勇者" }));
 
     await waitFor(() =>

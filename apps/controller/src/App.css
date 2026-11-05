@@ -551,6 +551,8 @@ input:focus {
 .queue-list,
 .song-list {
   display: grid;
+  /* 每列约 280px：视口过 600 自动并成两列，过 900 三列 */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 8px;
   margin-top: 8px;
   /* grid 默认 align-content:stretch，放在抽屉的 1fr 区域里会把每一行
@@ -1357,6 +1359,7 @@ input:focus {
 
 .recommendation-list {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 5px;
   margin-top: 0;
 }
@@ -1367,7 +1370,7 @@ input:focus {
 }
 
 .recommendation-row {
-  grid-template-columns: 40px minmax(0, 1fr) 34px;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   border: 0;
@@ -2677,11 +2680,6 @@ input:focus {
     width: min(100%, 720px);
     margin: 0 auto;
   }
-
-  .song-list,
-  .recommendation-list {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
 }
 
 @media (min-width: 1100px) {
@@ -2691,5 +2689,34 @@ input:focus {
 
   .bottom-tabs {
     width: min(100%, 1040px);
+  }
+}
+
+
+/* 歌名过长时横向滚动，短名字保持静止 */
+.scroll-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.scroll-text__inner {
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.scroll-text--running .scroll-text__inner {
+  animation: scroll-text-marquee 6s ease-in-out infinite alternate;
+  padding-right: 10px;
+}
+
+@keyframes scroll-text-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(var(--scroll-distance, 0px) * -1));
   }
 }
