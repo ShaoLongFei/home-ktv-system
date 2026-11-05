@@ -795,9 +795,27 @@ describe("mobile controller runtime", () => {
     expect(window.location.search).toBe("");
   });
 
-  it("shows pairing guidance instead of raw CONTROL_SESSION_REQUIRED when opened without a token", async () => {
-    installControllerFetchMock({
+  it("auto-pairs from the public room snapshot when opened without a token", async () => {
+    const { requests } = installControllerFetchMock({
       restoreResponses: [json({ code: "CONTROL_SESSION_REQUIRED" }, 401)]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await waitFor(() => {
+      const created = requests.find(
+        (request) => request.method === "POST" && request.url === "/rooms/living-room/control-sessions"
+      );
+      expect(created?.body).toMatchObject({ pairingToken: "public-pairing-token" });
+    });
+    expect(screen.queryByText("请从电视端二维码重新进入控制端")).toBeNull();
+  });
+
+  it("shows pairing guidance instead of raw CONTROL_SESSION_REQUIRED when no token can be resolved", async () => {
+    installControllerFetchMock({
+      restoreResponses: [json({ code: "CONTROL_SESSION_REQUIRED" }, 401)],
+      publicSnapshotResponse: () => json({ code: "ROOM_NOT_FOUND" }, 404)
     });
     installWebSocketMock();
 
@@ -1732,6 +1750,7 @@ function installControllerFetchMock(options: {
   songSearchResponse?: (query: string) => unknown;
   onlineQueueResponse?: unknown;
   onlineAssetResponse?: (assetId: string) => unknown;
+  publicSnapshotResponse?: () => unknown;
   songDiscoveryResponse?: (seed: string) => unknown;
   discoveryArtistSongsResponse?: (artistId: string, offset: number, limit: number) => unknown;
   discoveryGenreSongsResponse?: (genre: string, offset: number, limit: number) => unknown;
@@ -1795,6 +1814,20 @@ function installControllerFetchMock(options: {
             playbackUrl: null
           }
         );
+      }
+
+      if (method === "GET" && requestUrl.pathname === "/rooms/living-room/snapshot") {
+        return options.publicSnapshotResponse
+          ? options.publicSnapshotResponse()
+          : json({
+              pairing: {
+                roomSlug: "living-room",
+                token: "public-pairing-token",
+                tokenExpiresAt: "2026-05-28T10:05:00.000Z",
+                controllerUrl: "/controller?token=public-pairing-token",
+                qrPayload: "/controller?token=public-pairing-token"
+              }
+            });
       }
 
       if (method === "GET" && requestUrl.pathname.endsWith("/control-session")) {

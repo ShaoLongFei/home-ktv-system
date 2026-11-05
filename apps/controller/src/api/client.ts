@@ -203,6 +203,21 @@ export async function fetchOnlineAssetStatus(input: {
   );
 }
 
+export interface PublicRoomSnapshotResponse {
+  pairing: {
+    roomSlug: string;
+    token: string;
+    tokenExpiresAt: string;
+    controllerUrl: string;
+    qrPayload: string;
+  };
+}
+
+/** 公共房间快照：TV 与手机端共用，未登录也可读，内含当前配对 token。 */
+export async function fetchPublicRoomSnapshot(roomSlug: string): Promise<PublicRoomSnapshotResponse> {
+  return fetchController<PublicRoomSnapshotResponse>(`/rooms/${encodeURIComponent(roomSlug)}/snapshot`);
+}
+
 export async function fetchSongDiscovery(input: {
   roomSlug: string;
   seed: string;

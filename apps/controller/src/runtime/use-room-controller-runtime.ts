@@ -15,6 +15,7 @@ import {
   deleteQueueEntry,
   fetchControllerSongHistory,
   fetchOnlineAssetStatus,
+  fetchPublicRoomSnapshot,
   fetchSongDiscovery,
   getCurrentControllerUser,
   loginControllerUser,
@@ -407,7 +408,8 @@ export function useRoomControllerRuntime(): RoomControllerState {
         await applySessionResponse(restored);
         openRealtime();
       } catch (restoreError) {
-        if (!initial.pairingToken) {
+        const pairingToken = await resolvePairingToken(initial.roomSlug, initial.pairingToken);
+        if (!pairingToken) {
           setConnectionStatus("error");
           setErrorMessage(errorMessageFrom(restoreError, "CONTROL_SESSION_REQUIRED"));
           return;
@@ -416,7 +418,7 @@ export function useRoomControllerRuntime(): RoomControllerState {
         try {
           const created = await createControlSession({
             roomSlug: initial.roomSlug,
-            pairingToken: initial.pairingToken,
+            pairingToken,
             deviceId
           });
           await applySessionResponse(created);
@@ -836,6 +838,22 @@ function normalizeVolumePercent(value: number): number {
     return DEFAULT_ROOM_VOLUME_PERCENT;
   }
   return Math.max(0, Math.min(100, Math.trunc(value)));
+}
+
+/**
+ * 扫码进入时 URL 自带 token；直接打开控制端时退化为读取公共房间快照里的当前 token。
+ * 这样局域网内不扫二维码也能配对（快照本来就对 TV 公开）。
+ */
+async function resolvePairingToken(roomSlug: string, queryToken: string | null): Promise<string | null> {
+  if (queryToken) {
+    return queryToken;
+  }
+  try {
+    const snapshot = await fetchPublicRoomSnapshot(roomSlug);
+    return snapshot.pairing?.token?.trim() || null;
+  } catch {
+    return null;
+  }
 }
 
 function readRuntimeParams(): { roomSlug: string; pairingToken: string | null } {
