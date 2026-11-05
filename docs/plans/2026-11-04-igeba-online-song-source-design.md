@@ -462,3 +462,14 @@ python3 scripts/igeba_probe.py selfcheck 海阔天空 --count 5
 - 启动时 `backfillVariants()` 幂等补齐历史缓存，缓存字节与配额含变体。
 
 验证：`switch-vocal-mode` 返回 `currentTarget.playbackUrl=...+?variant=instrumental`、`switchTarget` 指向主文件（原唱），两个 URL 均 206。
+
+### 15.6 切换叠音修复（2026-11-05）
+
+抽轨换源后出现「切伴奏时还能听到原唱」：`prepareStandby()` 把 standby 音量设成和原视频一致且未静音，而 `playStandbyUntilReady()` 要等到首帧才返回，期间两路同时在放，缓冲慢时叠音可持续数秒。
+
+修复：
+
+- `prepareStandby` 强制 `muted = true`，预加载阶段只出图不出声；
+- `commitStandby` 先用旧视频当前时间对齐 standby（容差 0.25s），再恢复音量/静音状态、暂停旧视频并交换；
+- `primeActive` 顺带停掉残留 standby，避免快照重放导致双路播放；
+- 新增 `video-pool-switch.test.ts` 覆盖静音、对齐与残留清理。
