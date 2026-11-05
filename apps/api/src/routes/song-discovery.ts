@@ -216,10 +216,11 @@ async function loadOnlineSongsBySinger(
     return null;
   }
   try {
+    const pageSize = Math.min(50, page.limit);
     const result = await dependencies.onlineDiscovery.songsBySinger({
       singerId,
-      page: Math.floor(page.offset / page.limit) + 1,
-      pageSize: page.limit
+      page: Math.floor(page.offset / pageSize) + 1,
+      pageSize
     });
     if (!result) {
       return null;
@@ -239,10 +240,11 @@ async function loadOnlineSongsByStyle(
     return null;
   }
   try {
+    const pageSize = Math.min(50, page.limit);
     const result = await dependencies.onlineDiscovery.songsByStyle({
       style,
-      page: Math.floor(page.offset / page.limit) + 1,
-      pageSize: page.limit
+      page: Math.floor(page.offset / pageSize) + 1,
+      pageSize
     });
     if (!result) {
       return null;
@@ -259,7 +261,7 @@ function onlineSongsPage(
   page: { limit: number; offset: number }
 ): SongDiscoverySongsResponse {
   const songs = result.candidates.map((candidate) => onlineDiscoverySong(candidate, context));
-  const pageNo = Math.floor(page.offset / page.limit) + 1;
+  const pageNo = Math.floor(page.offset / Math.min(50, page.limit)) + 1;
   return {
     songs,
     nextOffset: songs.length > 0 && pageNo < Math.max(1, result.pageCount) ? page.offset + songs.length : null
