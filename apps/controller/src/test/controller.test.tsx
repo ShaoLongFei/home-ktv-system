@@ -374,6 +374,78 @@ describe("mobile controller runtime", () => {
     await waitFor(() => expect(screen.queryByRole("button", { name: "加载更多" })).toBeNull());
   });
 
+  it("loads the next page of a detail list when the sentinel comes into view", async () => {
+    const user = userEvent.setup();
+    const observers: Array<() => void> = [];
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(private readonly callback: (entries: Array<{ isIntersecting: boolean }>) => void) {}
+        observe() {
+          observers.push(() => this.callback([{ isIntersecting: true }]));
+        }
+        disconnect() {}
+        unobserve() {}
+      }
+    );
+
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songDiscoveryResponse: (seed) => ({
+        seed,
+        recommended: [],
+        artists: [{ artistId: "artist-jay", artistName: "周杰伦", songCount: 0, songs: [] }],
+        genres: []
+      }),
+      discoveryArtistSongsResponse: (artistId, offset) =>
+        offset === 0
+          ? {
+              songs: [
+                discoverySong({
+                  songId: "detail-1",
+                  title: "第一页歌曲",
+                  artistId,
+                  artistName: "周杰伦",
+                  genre: ["流行"],
+                  playCount: 5
+                })
+              ],
+              nextOffset: 1
+            }
+          : {
+              songs: [
+                discoverySong({
+                  songId: "detail-2",
+                  title: "第二页歌曲",
+                  artistId,
+                  artistName: "周杰伦",
+                  genre: ["流行"],
+                  playCount: 4
+                })
+              ],
+              nextOffset: null
+            }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /歌手点歌/u }));
+    await user.click(await screen.findByRole("button", { name: /周杰伦/u }));
+    await screen.findByText("第一页歌曲");
+    expect(screen.queryByText("第二页歌曲")).toBeNull();
+
+    // 哨兵进入视口即自动续拉，不需要点任何按钮
+    act(() => {
+      observers.at(-1)?.();
+    });
+
+    await waitFor(() => expect(screen.getByText("第二页歌曲")).toBeTruthy());
+    expect(
+      requests.some((request) => request.url.includes("/songs/discovery/artists/artist-jay/songs?offset=1"))
+    ).toBe(true);
+  });
+
   it("loads genre detail songs from the discovery genre endpoint", async () => {
     const user = userEvent.setup();
     const { requests } = installControllerFetchMock({

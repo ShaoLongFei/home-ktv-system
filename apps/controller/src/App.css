@@ -1362,6 +1362,12 @@ input:focus {
   margin-top: 0;
 }
 
+/* 滚动到这里就自动续拉下一页 */
+.discovery-sentinel {
+  height: 1px;
+  width: 100%;
+}
+
 .discovery-load-more {
   width: 100%;
   justify-content: center;

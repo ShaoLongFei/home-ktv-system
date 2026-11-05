@@ -1618,12 +1618,14 @@ function DiscoveryBrowseView({
   view: BrowseView;
 }) {
   const [detailPages, setDetailPages] = useState<Record<string, DiscoveryDetailState>>({});
+  const detailPagesRef = useRef<Record<string, DiscoveryDetailState>>({});
   const [artistList, setArtistList] = useState<ArtistListState>({
     items: [],
     nextOffset: null,
     status: "idle"
   });
   const artistSentinelRef = useRef<HTMLDivElement | null>(null);
+  const detailSentinelRef = useRef<HTMLDivElement | null>(null);
 
   // 歌手点歌从接口按热门分页取，不再用发现页首屏那 16 个
   useEffect(() => {
@@ -1767,6 +1769,37 @@ function DiscoveryBrowseView({
     void loadDetailSongs(view, 0);
   }, [detailKey, detailPages, loadDetailSongs, view]);
 
+  useEffect(() => {
+    detailPagesRef.current = detailPages;
+  }, [detailPages]);
+
+  // 详情页（某歌手/某风格）滑到底部自动续拉，不再需要点按钮
+  useEffect(() => {
+    const sentinel = detailSentinelRef.current;
+    if (!sentinel || !isDiscoveryDetailView(view)) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) {
+          return;
+        }
+        const key = discoveryDetailKey(view);
+        const nextOffset = key ? detailPagesRef.current[key]?.nextOffset : null;
+        if (nextOffset != null) {
+          void loadDetailSongs(view, nextOffset);
+        }
+      },
+      { rootMargin: "240px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+    // 哨兵要等第一页回来才渲染，detailPages 变化后必须重新挂观察器
+  }, [detailPages, loadDetailSongs, view]);
+
   if (view.kind === "artists" || view.kind === "genres") {
     const isArtists = view.kind === "artists";
     const items = isArtists ? artistList.items : discovery?.genres ?? [];
@@ -1847,18 +1880,13 @@ function DiscoveryBrowseView({
           />
         ))}
         {loading && songs.length === 0 ? <p className="empty-state local-empty">{t("discovery.detailLoading")}</p> : null}
-        {detailState?.status === "error" ? <p className="empty-state local-empty">{t("discovery.detailError")}</p> : null}
-        {isDiscoveryDetailView(view) && detailState?.nextOffset != null ? (
-          <button
-            className="secondary-button compact-button discovery-load-more"
-            disabled={loading}
-            type="button"
-            onClick={() => void loadDetailSongs(view, detailState.nextOffset ?? 0)}
-          >
-            {loading ? t("discovery.detailLoading") : t("button.loadMore")}
-          </button>
-        ) : null}
       </div>
+      {detailState?.status === "error" ? <p className="empty-state local-empty">{t("discovery.detailError")}</p> : null}
+      {/* 滑到这里就自动续拉，不再放按钮 */}
+      {isDiscoveryDetailView(view) && detailState?.nextOffset != null ? (
+        <div aria-hidden="true" className="discovery-sentinel" ref={detailSentinelRef} />
+      ) : null}
+      {loading && songs.length > 0 ? <p className="empty-state local-empty">{t("discovery.detailLoading")}</p> : null}
     </section>
   );
 }
