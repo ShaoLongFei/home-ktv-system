@@ -229,6 +229,14 @@ export class OnlineImportService {
     return provider.recommendedSongs ? provider.recommendedSongs(limit) : [];
   }
 
+  async discoverySingerPage(input: { page: number; pageSize: number }): Promise<{
+    singers: Array<{ singerId: string; singerName: string; mark: string; pictureUrl: string | null }>;
+    pageCount: number;
+  }> {
+    const provider = this.options.provider;
+    return provider.discoverySingerPage ? provider.discoverySingerPage(input) : { singers: [], pageCount: 0 };
+  }
+
   async discoveryStyles(): Promise<string[]> {
     const provider = this.options.provider;
     return provider.discoveryStyles ? provider.discoveryStyles() : [];

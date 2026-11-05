@@ -145,10 +145,12 @@ describe("song discovery routes", () => {
       { artistId: "artist-b", artistName: "歌手B", songCount: 7, songs: [] },
       { artistId: "artist-c", artistName: "歌手C", songCount: 3, songs: [] }
     ]);
-    expect(body.genres).toEqual([
+    // 索引里的风格排在前面，本地曲库独有的标签补充在后面
+    expect(body.genres.slice(0, 2)).toEqual([
       { genre: "流行", songCount: 120, songs: [] },
       { genre: "摇滚", songCount: 45, songs: [] }
     ]);
+    expect(body.genres.map((genre) => genre.genre)).toContain("样本风格");
     expect(listDiscoveryArtists).toHaveBeenCalledTimes(1);
     expect(listDiscoveryGenres).toHaveBeenCalledTimes(1);
   });
@@ -335,6 +337,10 @@ async function createHarness(input: {
   coverEntries?: Record<string, FakeCoverEntry>;
   onlineDiscovery?: {
     discoverySingers(limit: number): Promise<Array<{ singerId: string; singerName: string; mark: string; pictureUrl: string | null }>>;
+    discoverySingerPage(input: { page: number; pageSize: number }): Promise<{
+      singers: Array<{ singerId: string; singerName: string; mark: string; pictureUrl: string | null }>;
+      pageCount: number;
+    }>;
     discoveryStyles(): Promise<string[]>;
     recommendedSongs(limit: number): Promise<Array<{
       provider: string;
@@ -395,6 +401,19 @@ async function createHarness(input: {
 }
 
 function createOnlineDiscovery() {
+  const singerPage = async ({ page, pageSize }: { page: number; pageSize: number }) => {
+    const all = [
+      { singerId: "s1", singerName: "周杰伦", mark: "", pictureUrl: null },
+      { singerId: "s2", singerName: "林俊杰", mark: "", pictureUrl: null },
+      { singerId: "s3", singerName: "陈奕迅", mark: "", pictureUrl: null }
+    ];
+    const start = (page - 1) * pageSize;
+    return {
+      singers: all.slice(start, start + pageSize),
+      pageCount: Math.max(1, Math.ceil(all.length / pageSize))
+    };
+  };
+
   const candidates = [
     {
       provider: "igeba",
@@ -416,6 +435,7 @@ function createOnlineDiscovery() {
         { singerId: "211", singerName: "刀郎", mark: "大陆男星", pictureUrl: null }
       ];
     },
+    discoverySingerPage: singerPage,
     async discoveryStyles() {
       return ["流行", "摇滚"];
     },

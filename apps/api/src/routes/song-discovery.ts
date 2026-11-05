@@ -28,7 +28,12 @@ export interface SongDiscoveryRouteDependencies {
   songCovers?: Pick<SongCoverRepository, "findBySongKeys">;
   onlineDiscovery?: Pick<
     OnlineImportService,
-    "discoverySingers" | "discoveryStyles" | "songsBySinger" | "songsByStyle" | "recommendedSongs"
+    | "discoverySingers"
+    | "discoverySingerPage"
+    | "discoveryStyles"
+    | "songsBySinger"
+    | "songsByStyle"
+    | "recommendedSongs"
   >;
 }
 
@@ -73,7 +78,9 @@ export async function registerSongDiscoveryRoutes(
       const onlineArtists = await loadOnlineArtists(dependencies);
       const onlineGenres = await loadOnlineGenres(dependencies);
       const artists = onlineArtists ?? fullArtists ?? buildArtistModules(songsWithCovers);
-      const genres = onlineGenres ?? fullGenres ?? buildGenreModules(songsWithCovers);
+      // igeba 只有 10 个曲风，本地曲库里还标了不少细分标签，两者合并去重，
+      // 顺序保留 igeba 的原始分类，本地独有的接在后面。
+      const genres = mergeGenreModules(onlineGenres, fullGenres, buildGenreModules(songsWithCovers));
 
       const response: SongDiscoveryResponse = {
         seed,
@@ -85,6 +92,41 @@ export async function registerSongDiscoveryRoutes(
       };
 
       await reply.send(response);
+    }
+  );
+
+  /** 歌手点歌列表分页：首屏之外下滑继续取热门歌手。 */
+  server.get<{ Params: { roomSlug: string }; Querystring: SongDiscoverySongsQuery }>(
+    "/rooms/:roomSlug/songs/discovery/artists",
+    async (request, reply) => {
+      const room = await dependencies.rooms.findBySlug(request.params.roomSlug);
+      if (!room) {
+        await reply.code(404).send({ code: "ROOM_NOT_FOUND" });
+        return;
+      }
+
+      const pageSize = Math.min(50, Math.max(1, parseSongsLimit(request.query.limit)));
+      const offset = parseOffset(request.query.offset);
+      if (!dependencies.onlineDiscovery?.discoverySingerPage) {
+        await reply.send({ artists: [], nextOffset: null });
+        return;
+      }
+
+      try {
+        const page = Math.floor(offset / pageSize) + 1;
+        const result = await dependencies.onlineDiscovery.discoverySingerPage({ page, pageSize });
+        const artists: SongDiscoveryArtist[] = result.singers.map((singer) => ({
+          artistId: singer.singerId as EntityId,
+          artistName: singer.singerName,
+          songCount: 0,
+          songs: []
+        }));
+        const loaded = page * pageSize;
+        const nextOffset = loaded < result.pageCount * pageSize ? loaded : null;
+        await reply.send({ artists, nextOffset });
+      } catch {
+        await reply.code(502).send({ code: "DISCOVERY_ARTISTS_FAILED" });
+      }
     }
   );
 
@@ -576,6 +618,36 @@ function lastUncoveredSongIndex(songs: readonly SongDiscoverySong[]): number {
     }
   }
   return -1;
+}
+
+function mergeGenreModules(
+  ...sources: ReadonlyArray<readonly SongDiscoveryGenre[] | null>
+): SongDiscoveryGenre[] {
+  const merged: SongDiscoveryGenre[] = [];
+  const seen = new Set<string>();
+  for (const list of sources) {
+    for (const genre of list ?? []) {
+      for (const name of splitGenreNames(genre.genre)) {
+        if (seen.has(name)) {
+          continue;
+        }
+        seen.add(name);
+        merged.push({ genre: name, songCount: genre.songCount, songs: [] });
+      }
+    }
+  }
+  return merged;
+}
+
+/**
+ * 本地曲库的 style_tags 里混着「思恋;伤感」这种复合标签和「未打标签」这类占位值，
+ * 直接当分类列出来没法点。拆成单个标签，丢掉占位值。
+ */
+function splitGenreNames(raw: string): string[] {
+  return raw
+    .split(/[;；、,，/|]/u)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && part !== "未打标签" && part !== "未知");
 }
 
 function buildArtistModules(songs: readonly SongDiscoverySong[]): SongDiscoveryArtist[] {

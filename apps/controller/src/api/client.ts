@@ -1,5 +1,6 @@
 import type {
   ControllerSongHistoryResponse,
+  SongDiscoveryArtist,
   SongDiscoveryResponse,
   SongDiscoverySongsResponse,
   SongSearchResponse
@@ -203,6 +204,17 @@ export async function fetchOnlineAssetStatus(input: {
   );
 }
 
+/**
+ * 请求电视立刻上报一次播放位置（同步画面对齐用）。
+ * 服务端会广播一条位置请求，电视收到后马上回心跳。
+ */
+export async function requestPlayerPosition(input: { roomSlug: string }): Promise<{ requested: boolean }> {
+  return fetchController<{ requested: boolean }>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/player/position-request`,
+    { method: "POST", body: JSON.stringify({}) }
+  );
+}
+
 export interface PublicRoomSnapshotResponse {
   pairing: {
     roomSlug: string;
@@ -227,6 +239,18 @@ export async function fetchSongDiscovery(input: {
   return fetchController<SongDiscoveryResponse>(
     `/rooms/${encodeURIComponent(input.roomSlug)}/songs/discovery?seed=${encodeURIComponent(input.seed)}`,
     init
+  );
+}
+
+export async function fetchDiscoveryArtists(input: {
+  roomSlug: string;
+  offset?: number;
+  limit?: number;
+}): Promise<{ artists: SongDiscoveryArtist[]; nextOffset: number | null }> {
+  return fetchController<{ artists: SongDiscoveryArtist[]; nextOffset: number | null }>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/songs/discovery/artists?offset=${input.offset ?? 0}&limit=${
+      input.limit ?? 24
+    }`
   );
 }
 

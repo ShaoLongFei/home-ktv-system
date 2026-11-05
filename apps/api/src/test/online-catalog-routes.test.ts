@@ -220,10 +220,10 @@ describe("online catalog routes", () => {
   });
 
   it("broadcasts again when an async cache job finishes and queues the song", async () => {
-    let fireReady: ((asset: OnlineAssetRecord) => void | Promise<void>) | null = null;
+    const readyHandler: { current: ((asset: OnlineAssetRecord) => void | Promise<void>) | null } = { current: null };
     const { server, broadcasted } = createHarness({
       requestImport: (async (_input: unknown, options: RequestImportOptions = {}) => {
-        fireReady = options.onReady ?? null;
+        readyHandler.current = options.onReady ?? null;
         return { asset: createAsset({ status: "caching" }), cached: false };
       }) as unknown as OnlineImportService["requestImport"]
     });
@@ -236,7 +236,7 @@ describe("online catalog routes", () => {
     expect(response.statusCode).toBe(202);
     expect(broadcasted).toEqual([]);
 
-    await fireReady?.(
+    await readyHandler.current?.(
       createAsset({
         providerAssetId: "20039643",
         status: "ready",

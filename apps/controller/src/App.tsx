@@ -8,7 +8,12 @@ import type {
 } from "@home-ktv/domain";
 import type { PlaybackTarget, RoomInteractionKind } from "@home-ktv/player-contracts";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { fetchDiscoveryArtistSongs, fetchDiscoveryGenreSongs } from "./api/client.js";
+import {
+  fetchDiscoveryArtistSongs,
+  fetchDiscoveryArtists,
+  fetchDiscoveryGenreSongs,
+  requestPlayerPosition
+} from "./api/client.js";
 import { I18nProvider, LanguageSwitch, useI18n } from "./i18n.js";
 import { useRoomController, type RoomControllerState } from "./runtime/use-room-controller.js";
 
@@ -168,7 +173,7 @@ function ControllerApp() {
         onClose={() => setQueueDrawerOpen(false)}
       />
 
-      {mirrorOpen ? <TvMirrorOverlay target={current ?? null} t={t} onClose={() => setMirrorOpen(false)} /> : null}
+      {mirrorOpen ? <TvMirrorOverlay roomSlug={controller.roomSlug} target={current ?? null} t={t} onClose={() => setMirrorOpen(false)} /> : null}
       {searchOpen ? (
         <SearchOverlay
           controller={controller}
@@ -679,45 +684,90 @@ function playQuietly(video: HTMLVideoElement): void {
 /**
  * 手机端静音预览电视画面。
  *
- * 直接复用电视在播的 media 地址，静音播放，不参与房间状态；进度只在换歌时
- * 对齐一次——控制快照里的 resumePositionMs 会随电视心跳变化，每次变化都
- * seek 会把画面反复拖回去。
+ * 打开时主动请求电视上报一次当前位置——定时心跳 10 秒一次，等下一次太久，
+ * 会明显对不上。拿到新位置前先不 seek，1.5 秒没等到就用快照里的旧值兜底。
  */
 function TvMirrorOverlay({
+  roomSlug,
   target,
   onClose,
   t
 }: {
+  roomSlug: string;
   target: PlaybackTarget | null;
   onClose(): void;
   t: TFunction;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const alignedEntryRef = useRef<string | null>(null);
+  const pendingFreshPositionRef = useRef(true);
+  const initialPositionRef = useRef(target?.resumePositionMs ?? null);
+  const latestTargetRef = useRef(target);
+
+  useEffect(() => {
+    latestTargetRef.current = target;
+  }, [target]);
+
+  const applyPosition = useCallback((video: HTMLVideoElement, positionMs: number) => {
+    const seconds = Math.max(0, positionMs) / 1000;
+    if (Number.isFinite(seconds) && seconds > 0) {
+      try {
+        video.currentTime = seconds;
+      } catch {
+        // 极端情况下仍然 seek 不了，退回从头播放
+      }
+    }
+    playQuietly(video);
+  }, []);
 
   const alignToTarget = useCallback(
     (video: HTMLVideoElement) => {
-      if (!target || alignedEntryRef.current === target.queueEntryId) {
+      if (!target) {
         return;
       }
-      // metadata 没到之前 seek 会被浏览器直接忽略。这里必须先返回、不记标记，
-      // 否则 loadedmetadata 那一次也会被标记挡掉，画面就只能从头播。
+      // metadata 没到之前 seek 会被浏览器直接忽略，等 loadedmetadata 再来
       if (video.readyState < 1) {
         return;
       }
-      alignedEntryRef.current = target.queueEntryId;
-      const startAtSeconds = Math.max(0, target.resumePositionMs) / 1000;
-      if (Number.isFinite(startAtSeconds) && startAtSeconds > 0) {
-        try {
-          video.currentTime = startAtSeconds;
-        } catch {
-          // 极端情况下仍然 seek 不了，退回从头播放
+
+      if (pendingFreshPositionRef.current) {
+        // 还在等电视回报新位置；和打开时那份一样就继续等
+        if (target.resumePositionMs === initialPositionRef.current) {
+          return;
         }
+        pendingFreshPositionRef.current = false;
+      } else if (alignedEntryRef.current === target.queueEntryId) {
+        // 同一首歌已经对齐过，别再被后续快照拖回去
+        return;
       }
-      playQuietly(video);
+
+      alignedEntryRef.current = target.queueEntryId;
+      applyPosition(video, target.resumePositionMs);
     },
-    [target]
+    [applyPosition, target]
   );
+
+  useEffect(() => {
+    void requestPlayerPosition({ roomSlug }).catch(() => {
+      pendingFreshPositionRef.current = false;
+    });
+
+    const timeoutId = globalThis.setTimeout(() => {
+      if (!pendingFreshPositionRef.current) {
+        return;
+      }
+      // 电视没回位置（离线/被拦），用快照里的旧值兜底
+      pendingFreshPositionRef.current = false;
+      const video = videoRef.current;
+      const latest = latestTargetRef.current;
+      if (video && latest) {
+        alignedEntryRef.current = latest.queueEntryId;
+        applyPosition(video, latest.resumePositionMs);
+      }
+    }, 1500);
+
+    return () => globalThis.clearTimeout(timeoutId);
+  }, [applyPosition, roomSlug]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -1345,7 +1395,14 @@ type DiscoveryDetailState = {
   status: "loading" | "success" | "error";
 };
 
+type ArtistListState = {
+  items: SongDiscoveryArtist[];
+  nextOffset: number | null;
+  status: "idle" | "loading" | "loadingMore" | "success" | "error";
+};
+
 const discoveryDetailPageSize = 60;
+const discoveryArtistsPageSize = 24;
 
 function isDiscoveryDetailView(view: BrowseView): view is DiscoveryDetailView {
   return view.kind === "artist" || view.kind === "genre";
@@ -1513,9 +1570,20 @@ function SearchOnlineSongRow({
             : t("search.onlineQueue");
 
   return (
-    <article
-      className="song-row indexed-version-row compact-version-row"
-      aria-label={`${candidate.title} - ${candidate.artistName}`}
+    <button
+      aria-label={`${label} ${candidate.title}`}
+      className={`song-row indexed-version-row compact-version-row song-row--clickable${busy ? " song-row--busy" : ""}`}
+      disabled={busy}
+      type="button"
+      onClick={() =>
+        controller.requestAddOnlineSong(
+          candidate.providerCandidateId,
+          candidate.title,
+          candidate.artistName,
+          candidate.nasAssetId,
+          candidate.nasQueueState
+        )
+      }
     >
       <div className="compact-version-main">
         <strong>{candidate.title}</strong>
@@ -1525,23 +1593,8 @@ function SearchOnlineSongRow({
           {state?.status === "failed" && state.message ? <span>{state.message}</span> : null}
         </div>
       </div>
-      <button
-        className="primary-button compact-queue-button"
-        type="button"
-        disabled={busy}
-        onClick={() =>
-          controller.requestAddOnlineSong(
-            candidate.providerCandidateId,
-            candidate.title,
-            candidate.artistName,
-            candidate.nasAssetId,
-            candidate.nasQueueState
-          )
-        }
-      >
-        {label}
-      </button>
-    </article>
+      {busy || state?.status === "failed" ? <span className="song-row__badge">{label}</span> : null}
+    </button>
   );
 }
 
@@ -1563,6 +1616,89 @@ function DiscoveryBrowseView({
   view: BrowseView;
 }) {
   const [detailPages, setDetailPages] = useState<Record<string, DiscoveryDetailState>>({});
+  const [artistList, setArtistList] = useState<ArtistListState>({
+    items: [],
+    nextOffset: null,
+    status: "idle"
+  });
+  const artistSentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // 歌手点歌从接口按热门分页取，不再用发现页首屏那 16 个
+  useEffect(() => {
+    if (view.kind !== "artists") {
+      return;
+    }
+    let cancelled = false;
+    setArtistList({ items: [], nextOffset: null, status: "loading" });
+    fetchDiscoveryArtists({
+      roomSlug: controller.roomSlug,
+      offset: 0,
+      limit: discoveryArtistsPageSize
+    })
+      .then((response) => {
+        if (cancelled) {
+          return;
+        }
+        setArtistList({ items: response.artists, nextOffset: response.nextOffset, status: "success" });
+      })
+      .catch(() => {
+        if (cancelled) {
+          return;
+        }
+        // 在线取不到时退回发现页自带的歌手，至少还能点
+        setArtistList({ items: discovery?.artists ?? [], nextOffset: null, status: "error" });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [controller.roomSlug, view.kind]);
+
+  const loadMoreArtists = useCallback(async () => {
+    const offset = artistList.nextOffset;
+    if (offset == null || (artistList.status !== "success" && artistList.status !== "loadingMore")) {
+      return;
+    }
+    if (artistList.status === "loadingMore") {
+      return;
+    }
+
+    setArtistList((current) => ({ ...current, status: "loadingMore" }));
+    try {
+      const response = await fetchDiscoveryArtists({
+        roomSlug: controller.roomSlug,
+        offset,
+        limit: discoveryArtistsPageSize
+      });
+      setArtistList((current) => ({
+        items: [...current.items, ...response.artists],
+        nextOffset: response.nextOffset,
+        status: "success"
+      }));
+    } catch {
+      setArtistList((current) => ({ ...current, status: "error" }));
+    }
+  }, [artistList.nextOffset, artistList.status, controller.roomSlug]);
+
+  // 滑到底部自动续拉；jsdom 里没有 IntersectionObserver，靠按钮兜底
+  useEffect(() => {
+    const sentinel = artistSentinelRef.current;
+    if (!sentinel || view.kind !== "artists" || artistList.nextOffset == null) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          void loadMoreArtists();
+        }
+      },
+      { rootMargin: "160px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [artistList.nextOffset, loadMoreArtists, view.kind]);
   const detailKey = discoveryDetailKey(view);
   const loadDetailSongs = useCallback(
     async (detailView: DiscoveryDetailView, offset: number) => {
@@ -1631,7 +1767,7 @@ function DiscoveryBrowseView({
 
   if (view.kind === "artists" || view.kind === "genres") {
     const isArtists = view.kind === "artists";
-    const items = isArtists ? discovery?.artists ?? [] : discovery?.genres ?? [];
+    const items = isArtists ? artistList.items : discovery?.genres ?? [];
     return (
       <section className="panel discovery-panel">
         <div className="panel-heading">
@@ -1662,6 +1798,22 @@ function DiscoveryBrowseView({
             );
           })}
         </div>
+        {isArtists && artistList.status === "loading" ? (
+          <p className="empty-state local-empty">{t("discovery.detailLoading")}</p>
+        ) : null}
+        {isArtists && artistList.nextOffset != null ? (
+          <>
+            <div aria-hidden="true" className="discovery-sentinel" ref={artistSentinelRef} />
+            <button
+              className="secondary-button compact-button discovery-load-more"
+              disabled={artistList.status === "loadingMore"}
+              type="button"
+              onClick={() => void loadMoreArtists()}
+            >
+              {artistList.status === "loadingMore" ? t("discovery.detailLoading") : t("button.loadMore")}
+            </button>
+          </>
+        ) : null}
       </section>
     );
   }
@@ -1753,7 +1905,31 @@ function DiscoverySongRow({
   }, [song.coverImageUrl, song.coverThumbnailUrl]);
 
   return (
-    <article className="song-row recommendation-row">
+    <button
+      aria-label={`${addLabel} ${song.title}`}
+      className={`song-row recommendation-row song-row--clickable${onlineBusy ? " song-row--busy" : ""}`}
+      disabled={!canQueue}
+      type="button"
+      onClick={() => {
+        if (isOnline) {
+          if (!onlineSongNumber || onlineBusy) {
+            return;
+          }
+          if (controller.requestAddOnlineSong(onlineSongNumber, song.title, song.artistName)) {
+            onQueueAddFeedback(song);
+          }
+          return;
+        }
+
+        if (!primaryVersion || !nasCanQueue) {
+          return;
+        }
+
+        if (controller.requestAddNasAsset(primaryVersion.assetId, song.title, primaryVersion.queueState)) {
+          onQueueAddFeedback(song);
+        }
+      }}
+    >
       <div className={`song-art ${showCover ? "song-art--image" : "song-art--fallback"}`} aria-hidden="true">
         {showCover ? (
           <img
@@ -1781,34 +1957,10 @@ function DiscoverySongRow({
         <strong>{song.title}</strong>
         <p>{song.artistName}</p>
       </div>
-      <button
-        className="primary-button add-circle-button"
-        aria-label={`${addLabel} ${song.title}`}
-        disabled={!canQueue && !isOnline}
-        type="button"
-        onClick={() => {
-          if (isOnline) {
-            if (!onlineSongNumber || onlineBusy) {
-              return;
-            }
-            if (controller.requestAddOnlineSong(onlineSongNumber, song.title, song.artistName)) {
-              onQueueAddFeedback(song);
-            }
-            return;
-          }
-
-          if (!primaryVersion || !nasCanQueue) {
-            return;
-          }
-
-          if (controller.requestAddNasAsset(primaryVersion.assetId, song.title, primaryVersion.queueState)) {
-            onQueueAddFeedback(song);
-          }
-        }}
-      >
-        {canQueue || isOnline ? "+" : "·"}
-      </button>
-    </article>
+      {onlineBusy || (isOnline && onlineState?.status === "failed") ? (
+        <span className="song-row__badge">{addLabel}</span>
+      ) : null}
+    </button>
   );
 }
 

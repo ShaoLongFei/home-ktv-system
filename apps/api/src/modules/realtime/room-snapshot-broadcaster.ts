@@ -43,6 +43,22 @@ export class RoomSnapshotBroadcaster {
     this.broadcast(roomSlug, JSON.stringify(toInteractionEnvelope(interaction)));
   }
 
+  /**
+   * 让电视立刻上报一次播放位置。
+   * 手机打开「同步画面」时用：心跳默认 10 秒一次，等下一次心跳太久，
+   * 主动要一次才能对齐到当前进度。
+   */
+  broadcastPlayerPositionRequest(roomSlug: string): void {
+    this.broadcast(
+      roomSlug,
+      JSON.stringify({
+        type: "room.player.position.requested",
+        roomId: roomSlug,
+        timestamp: new Date().toISOString()
+      })
+    );
+  }
+
   private broadcast(roomSlug: string, message: string): void {
     const subscribers = this.subscribers.get(roomSlug);
     if (!subscribers || subscribers.size === 0) {

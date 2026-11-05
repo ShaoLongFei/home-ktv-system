@@ -1,4 +1,4 @@
-import type { PairingInfo } from "@home-ktv/player-contracts";
+import { DEFAULT_ROOM_VOLUME_PERCENT, type PairingInfo } from "@home-ktv/player-contracts";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PairingQr } from "../components/PairingQr.js";
 import type { IdlePlaylistItem, PlayerClient } from "../runtime/player-client.js";
@@ -9,9 +9,11 @@ export interface IdleScreenProps {
   displayState: TvDisplayState;
   pairing: PairingInfo;
   client?: PlayerClient;
+  /** 房间音量，待机垫片音乐跟随它，不再写死。 */
+  volumePercent?: number;
 }
 
-export function IdleScreen({ pairing, client }: IdleScreenProps) {
+export function IdleScreen({ pairing, client, volumePercent }: IdleScreenProps) {
   const ambientVideoRef = useRef<HTMLVideoElement | null>(null);
   const [idleTracks, setIdleTracks] = useState<IdlePlaylistItem[]>([]);
   const [idleIndex, setIdleIndex] = useState(0);
@@ -44,7 +46,6 @@ export function IdleScreen({ pairing, client }: IdleScreenProps) {
       return;
     }
     video.src = client.mediaUrl(idleTrack.url);
-    video.volume = 0.35;
     video.play().then(
       () => setAmbientBlocked(false),
       () => setAmbientBlocked(true)
@@ -55,6 +56,15 @@ export function IdleScreen({ pairing, client }: IdleScreenProps) {
       video.load();
     };
   }, [client, idleTrack]);
+
+  // 音量独立处理：挂载时设一次，之后手机调音量立即生效，
+  // 不参与切歌的 effect，避免调音量导致重新加载当前这首。
+  useEffect(() => {
+    const video = ambientVideoRef.current;
+    if (video) {
+      video.volume = volumeFraction(volumePercent);
+    }
+  }, [volumePercent, idleTrack]);
 
   useEffect(() => {
     if (!ambientBlocked) {
@@ -237,3 +247,10 @@ const styles = {
     zIndex: 1
   }
 } satisfies Record<string, CSSProperties>;
+
+function volumeFraction(volumePercent: number | undefined): number {
+  if (typeof volumePercent !== "number" || !Number.isFinite(volumePercent)) {
+    return DEFAULT_ROOM_VOLUME_PERCENT / 100;
+  }
+  return Math.max(0, Math.min(100, Math.trunc(volumePercent))) / 100;
+}

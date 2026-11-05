@@ -26,6 +26,14 @@ export interface OnlineCatalogProvider {
     mark: string;
     pictureUrl: string | null;
   }>>;
+  /** 分页取热门歌手：歌手点歌列表下滑加载用。 */
+  discoverySingerPage?(input: {
+    page: number;
+    pageSize: number;
+  }): Promise<{
+    singers: Array<{ singerId: string; singerName: string; mark: string; pictureUrl: string | null }>;
+    pageCount: number;
+  }>;
   discoveryStyles?(): Promise<string[]>;
   recommendedSongs?(limit: number): Promise<OnlineCatalogCandidate[]>;
   songsBySinger?(input: {
@@ -82,6 +90,21 @@ export function createIgebaProvider(client: IgebaClient, options: IgebaProviderO
         mark: singer.mark,
         pictureUrl: singer.pictureUrl
       }));
+    },
+    async discoverySingerPage({ page, pageSize }) {
+      const result = await client.singerList({
+        page: Math.max(1, page),
+        pageSize: Math.min(50, Math.max(1, pageSize))
+      });
+      return {
+        singers: result.singers.map((singer) => ({
+          singerId: singer.singerId,
+          singerName: singer.singerName,
+          mark: singer.mark,
+          pictureUrl: singer.pictureUrl
+        })),
+        pageCount: result.pageCount
+      };
     },
     async discoveryStyles() {
       return client.musicStyles();

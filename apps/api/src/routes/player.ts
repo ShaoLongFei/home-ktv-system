@@ -153,6 +153,24 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
     });
   });
 
+  /**
+   * 手机端请求电视立刻上报一次播放位置（同步画面用）。
+   * 只是触发一次心跳，不改变房间状态。
+   */
+  server.post<{ Params: { roomSlug: string } }>(
+    "/rooms/:roomSlug/player/position-request",
+    async (request, reply) => {
+      const room = await dependencies.repositories.rooms.findBySlug(request.params.roomSlug);
+      if (!room) {
+        await reply.code(404).send({ code: "ROOM_NOT_FOUND" });
+        return;
+      }
+
+      dependencies.broadcaster?.broadcastPlayerPositionRequest(room.slug);
+      await reply.send({ requested: true });
+    }
+  );
+
   server.post("/player/heartbeat", async (request, reply) => {
     const body = request.body as HeartbeatBody;
     const roomSlug = body.roomSlug ?? dependencies.config.roomSlug;

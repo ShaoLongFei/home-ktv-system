@@ -9,7 +9,11 @@ export interface RoomSnapshotState {
   status: "booting" | "ready" | "error";
 }
 
-export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500): RoomSnapshotState {
+export function useRoomSnapshot(
+  client: PlayerClient,
+  pollingIntervalMs = 1500,
+  onPlayerPositionRequest?: () => void
+): RoomSnapshotState {
   const [state, setState] = useState<RoomSnapshotState>({
     errorMessage: null,
     interactions: [],
@@ -111,6 +115,11 @@ export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500):
           return;
         }
 
+        if (realtimeMessage.playerPositionRequested) {
+          onPlayerPositionRequest?.();
+          return;
+        }
+
         const snapshot = realtimeMessage.snapshot;
         if (snapshot) {
           setState((current) => ({
@@ -185,7 +194,7 @@ export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500):
       }
       websocket?.close();
     };
-  }, [client, pollingIntervalMs]);
+  }, [client, onPlayerPositionRequest, pollingIntervalMs]);
 
   return state;
 }
@@ -194,13 +203,23 @@ export function playbackEnabledFromSnapshot(snapshot: RoomSnapshot | null): bool
   return Boolean(snapshot?.currentTarget);
 }
 
-function parseRealtimeMessage(data: unknown): { snapshot?: RoomSnapshot; interaction?: RoomInteractionEvent } | null {
+interface RealtimeMessage {
+  snapshot?: RoomSnapshot;
+  interaction?: RoomInteractionEvent;
+  playerPositionRequested?: boolean;
+}
+
+function parseRealtimeMessage(data: unknown): RealtimeMessage | null {
   if (typeof data !== "string") {
     return null;
   }
 
   try {
     const parsed = JSON.parse(data) as { type?: string; payload?: RoomSnapshot | RoomControlSnapshot | RoomInteractionEvent };
+    if (parsed.type === "room.player.position.requested") {
+      return { playerPositionRequested: true };
+    }
+
     if (parsed.type === "room.control.snapshot.updated" && parsed.payload) {
       return { snapshot: toRoomSnapshot(parsed.payload as RoomSnapshot | RoomControlSnapshot) };
     }

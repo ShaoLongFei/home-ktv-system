@@ -125,7 +125,14 @@ function renderScreen(
     );
   }
 
-  return <IdleScreen client={client} displayState={displayState} pairing={snapshot.pairing} />;
+  return (
+    <IdleScreen
+      client={client}
+      displayState={displayState}
+      pairing={snapshot.pairing}
+      {...(snapshot.volumePercent != null ? { volumePercent: snapshot.volumePercent } : {})}
+    />
+  );
 }
 
 function SystemScreen({ displayState }: { displayState: TvDisplayState }) {

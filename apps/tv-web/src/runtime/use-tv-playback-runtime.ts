@@ -34,7 +34,6 @@ export interface TvPlaybackRuntimeState {
 
 export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlaybackRuntimeState {
   const [client] = useState(() => createBrowserPlayerClient(input.roomSlug ?? "living-room"));
-  const roomState = useRoomSnapshot(client);
   const latestSnapshotRef = useRef<RoomSnapshot | null>(null);
   const videoPoolRef = useRef<DualVideoPool | null>(null);
   const vocalModeSwitchInFlightRef = useRef(false);
@@ -44,6 +43,20 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
   const [firstPlayBlocked, setFirstPlayBlocked] = useState(false);
   const [confirmedPlaybackTargetKey, setConfirmedPlaybackTargetKey] = useState<string | null>(null);
   const [, setPlaybackFrame] = useState(0);
+
+  const sendHeartbeat = useCallback(() => {
+    const pool = videoPoolRef.current;
+    const snapshot = latestSnapshotRef.current;
+    if (!pool || !snapshot) {
+      return;
+    }
+
+    void new HeartbeatController({ client, videoPool: pool }).send(snapshot);
+  }, [client]);
+
+  // 手机打开「同步画面」时会请求一次位置，这里立刻回一次心跳，
+  // 不用等 10 秒的定时心跳。
+  const roomState = useRoomSnapshot(client, 1500, sendHeartbeat);
 
   useEffect(() => {
     latestSnapshotRef.current = roomState.snapshot;
@@ -142,19 +155,9 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
   }, [retryCurrentPlayback]);
 
   useEffect(() => {
-    const sendHeartbeat = () => {
-      const pool = videoPoolRef.current;
-      const snapshot = latestSnapshotRef.current;
-      if (!pool || !snapshot) {
-        return;
-      }
-
-      void new HeartbeatController({ client, videoPool: pool }).send(snapshot);
-    };
-
     const intervalId = globalThis.setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
     return () => globalThis.clearInterval(intervalId);
-  }, [client]);
+  }, [sendHeartbeat]);
 
   useEffect(() => {
     const pool = videoPoolRef.current;
