@@ -4,7 +4,8 @@ import type {
   SongDiscoveryArtist,
   SongDiscoveryGenre,
   SongDiscoverySong,
-  SongSearchNasResult
+  SongSearchNasResult,
+  VocalMode
 } from "@home-ktv/domain";
 import type { RoomInteractionKind } from "@home-ktv/player-contracts";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
@@ -1059,11 +1060,7 @@ function MusicConsole({
         type="button"
         onClick={() => void controller.switchVocalMode()}
       >
-        {current?.vocalMode === "original"
-          ? t("button.vocalOriginal")
-          : current?.vocalMode === "instrumental"
-            ? t("button.vocalInstrumental")
-            : t("button.vocalUnknown")}
+        {resolveVocalButtonLabel(current?.vocalMode, controller.snapshot?.targetVocalMode, t)}
       </button>
       <button className="secondary-button compact-button music-console__pause" disabled={!current} type="button" onClick={() => void controller.togglePause()}>
         {paused ? t("button.resume") : t("button.pause")}
@@ -1078,6 +1075,20 @@ function MusicConsole({
       </button>
     </section>
   );
+}
+
+function resolveVocalButtonLabel(
+  currentMode: VocalMode | undefined,
+  targetMode: VocalMode | null | undefined,
+  t: TFunction
+): string {
+  const resolved =
+    currentMode === "original" || currentMode === "instrumental"
+      ? currentMode
+      : targetMode === "original"
+        ? "original"
+        : "instrumental";
+  return resolved === "original" ? t("button.vocalOriginal") : t("button.vocalInstrumental");
 }
 
 function QueueDrawer({
