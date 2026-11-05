@@ -22,6 +22,7 @@ import {
   logoutControllerUser,
   promoteQueueEntry,
   queueOnlineSong,
+  replayCurrent,
   registerControllerUser,
   realtimeUrl,
   restoreControlSession,
@@ -31,6 +32,7 @@ import {
   shuffleQueue,
   skipCurrent,
   switchVocalMode,
+  togglePause,
   updateControllerUserProfile,
   undoDeleteQueueEntry
 } from "../api/client.js";
@@ -93,6 +95,8 @@ export interface RoomControllerState {
   requestAddSongVersion(songId: string, assetId: string, title: string, queueState: SongSearchQueueState): boolean;
   requestAddNasAsset(assetId: string, title: string, queueState: SongSearchNasQueueState): boolean;
   sendInteraction(kind: RoomInteractionKind, message: string): Promise<void>;
+  replayCurrent(): Promise<void>;
+  togglePause(): Promise<void>;
   requestSkip(): void;
   refreshSongDiscovery(): void;
   refreshSongHistory(): Promise<void>;
@@ -789,6 +793,12 @@ export function useRoomControllerRuntime(): RoomControllerState {
       return true;
     },
     sendInteraction,
+    replayCurrent: async () => {
+      await runCommand((input) => replayCurrent(input));
+    },
+    togglePause: async () => {
+      await runCommand((input) => togglePause(input));
+    },
     requestSkip: () => setSkipConfirmOpen(true),
     refreshSongDiscovery: () => {
       void runSongDiscovery(createDiscoverySeed());

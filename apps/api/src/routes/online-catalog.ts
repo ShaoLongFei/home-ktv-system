@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import type { RoomId } from "@home-ktv/domain";
+import type { Room, RoomId } from "@home-ktv/domain";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 import type { OnlineImportService } from "../modules/online/online-import-service.js";
@@ -8,6 +8,8 @@ export interface OnlineCatalogRouteDependencies {
   rooms: RoomRepository;
   onlineImport: OnlineImportService;
   queueEntries: Pick<QueueEntryRepository, "listEffectiveQueue" | "append">;
+  /** 入队后若房间仍在 idle，主动起播并广播快照。 */
+  ensurePlaybackStarted?: (room: Room) => Promise<void>;
 }
 
 interface ImportBody {
@@ -165,6 +167,7 @@ export async function registerOnlineCatalogRoutes(
         : "controller";
 
       let queueEntryId: string | null = null;
+      let playbackEnsuredByHook = false;
       const result = await dependencies.onlineImport.requestImport(
         {
           songNumber,
@@ -183,9 +186,15 @@ export async function registerOnlineCatalogRoutes(
               requestedByName: typeof body.requestedByName === "string" ? body.requestedByName : null,
               requestedByUserPhone: typeof body.requestedByUserPhone === "string" ? body.requestedByUserPhone : null
             });
+            await dependencies.ensurePlaybackStarted?.(room);
+            playbackEnsuredByHook = true;
           }
         }
       );
+
+      if (queueEntryId && !playbackEnsuredByHook) {
+        await dependencies.ensurePlaybackStarted?.(room);
+      }
 
       const statusCode = queueEntryId ? 200 : 202;
       await reply.code(statusCode).send({

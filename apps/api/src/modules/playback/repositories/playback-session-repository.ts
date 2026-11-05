@@ -42,6 +42,10 @@ export interface PlaybackSessionRepository {
   requestSwitchTarget(input: RequestSwitchTargetInput): Promise<PlaybackSession | null>;
   setVolume?(input: SetVolumeInput): Promise<PlaybackSession | null>;
   bumpVersion?(roomId: RoomId): Promise<PlaybackSession | null>;
+  /** 重唱：进度归零并递增 replay_epoch，电视端据此 seek 0。 */
+  replayCurrent?(roomId: RoomId): Promise<PlaybackSession | null>;
+  /** 暂停 / 继续。 */
+  setPaused?(input: { roomId: RoomId; paused: boolean }): Promise<PlaybackSession | null>;
 }
 
 export interface UpdatePlayerPositionInput {
@@ -71,6 +75,7 @@ interface PlaybackSessionRowWithVolume {
   volume_percent?: number | null;
   media_started_at: Date | null;
   updated_at: Date;
+  replay_epoch?: number | null;
 }
 
 function mapPlaybackSessionRow(row: PlaybackSessionRowWithVolume): PlaybackSession {
@@ -84,6 +89,7 @@ function mapPlaybackSessionRow(row: PlaybackSessionRowWithVolume): PlaybackSessi
     playerPositionMs: row.player_position_ms,
     volumePercent: row.volume_percent ?? DEFAULT_ROOM_VOLUME_PERCENT,
     mediaStartedAt: row.media_started_at?.toISOString() ?? null,
+    replayEpoch: row.replay_epoch ?? 0,
     version: row.version,
     updatedAt: row.updated_at.toISOString()
   };
@@ -96,12 +102,12 @@ export class PgPlaybackSessionRepository implements PlaybackSessionRepository {
     const result = await this.db.query<PlaybackSessionRowWithVolume>(
       `SELECT id AS room_id, current_queue_entry_id, target_vocal_mode,
               player_state, player_position_ms, next_queue_entry_id, version,
-              volume_percent, media_started_at, updated_at
+              volume_percent, media_started_at, updated_at, replay_epoch
        FROM (
          SELECT id, current_queue_entry_id, target_vocal_mode,
                 player_state, player_position_ms, next_queue_entry_id,
                 playback_version AS version, volume_percent, media_started_at,
-                playback_updated_at AS updated_at
+                playback_updated_at AS updated_at, replay_epoch
          FROM rooms
        ) AS room_playback
        WHERE id = $1
@@ -202,6 +208,42 @@ export class PgPlaybackSessionRepository implements PlaybackSessionRepository {
       [input.roomId, input.volumePercent]
     );
 
+    const row = result.rows[0];
+    return row ? mapPlaybackSessionRow(row) : null;
+  }
+
+  async replayCurrent(roomId: RoomId): Promise<PlaybackSession | null> {
+    const result = await this.db.query<PlaybackSessionRowWithVolume>(
+      `UPDATE rooms
+       SET player_position_ms = 0,
+           player_state = CASE WHEN player_state = 'paused' THEN 'paused' ELSE 'playing' END,
+           replay_epoch = replay_epoch + 1,
+           playback_version = playback_version + 1,
+           playback_updated_at = now()
+       WHERE id = $1
+       RETURNING id AS room_id, current_queue_entry_id, target_vocal_mode,
+                 player_state, player_position_ms, next_queue_entry_id,
+                 playback_version AS version, volume_percent, media_started_at,
+                 playback_updated_at AS updated_at, replay_epoch`,
+      [roomId]
+    );
+    const row = result.rows[0];
+    return row ? mapPlaybackSessionRow(row) : null;
+  }
+
+  async setPaused(input: { roomId: RoomId; paused: boolean }): Promise<PlaybackSession | null> {
+    const result = await this.db.query<PlaybackSessionRowWithVolume>(
+      `UPDATE rooms
+       SET player_state = $2,
+           playback_version = playback_version + 1,
+           playback_updated_at = now()
+       WHERE id = $1
+       RETURNING id AS room_id, current_queue_entry_id, target_vocal_mode,
+                 player_state, player_position_ms, next_queue_entry_id,
+                 playback_version AS version, volume_percent, media_started_at,
+                 playback_updated_at AS updated_at, replay_epoch`,
+      [input.roomId, input.paused ? "paused" : "playing"]
+    );
     const row = result.rows[0];
     return row ? mapPlaybackSessionRow(row) : null;
   }

@@ -71,6 +71,8 @@ export async function buildRoomSnapshot(input: BuildRoomSnapshotInput): Promise<
     currentTarget,
     switchTarget,
     targetVocalMode: session?.targetVocalMode ?? currentTarget?.vocalMode ?? null,
+    playbackPaused: session?.playerState === "paused",
+    replayToken: String(session?.replayEpoch ?? 0),
     conflict: null,
     notice: input.notice ?? noticeFromPlayerState(session?.playerState ?? "idle"),
     generatedAt: now.toISOString()

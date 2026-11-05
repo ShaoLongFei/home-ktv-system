@@ -127,6 +127,20 @@ export async function registerControlCommandRoutes(
     }
   );
 
+  server.post<{ Params: { roomSlug: string }; Body: BaseCommandBody }>(
+    "/rooms/:roomSlug/commands/replay-current",
+    async (request, reply) => {
+      await handleCommand(request, reply, dependencies, "replay-current", {});
+    }
+  );
+
+  server.post<{ Params: { roomSlug: string }; Body: BaseCommandBody }>(
+    "/rooms/:roomSlug/commands/toggle-pause",
+    async (request, reply) => {
+      await handleCommand(request, reply, dependencies, "toggle-pause", {});
+    }
+  );
+
   server.post<{ Params: { roomSlug: string }; Body: SetVolumeBody }>(
     "/rooms/:roomSlug/commands/set-volume",
     async (request, reply) => {

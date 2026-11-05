@@ -49,6 +49,8 @@ export type ControlCommandType =
   | "skip-current"
   | "switch-vocal-mode"
   | "set-volume"
+  | "replay-current"
+  | "toggle-pause"
   | "player-ended";
 export type ControlCommandResultStatus = "accepted" | "duplicate" | "conflict" | "rejected";
 export type ImportScanRunId = EntityId;
@@ -670,6 +672,8 @@ export interface PlaybackSession {
   activeAssetId: AssetId | null;
   targetVocalMode: VocalMode;
   playerState: PlayerState;
+  /** 递增用于触发电视端「重唱」：值变化 -> 从头播放。 */
+  replayEpoch?: number;
   playerPositionMs: number;
   volumePercent?: number;
   mediaStartedAt: string | null;

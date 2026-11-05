@@ -1059,6 +1059,12 @@ function ControlScreen({
           <button className="primary-button" type="button" disabled={!current} onClick={() => void controller.switchVocalMode()}>
             {switchLabel}
           </button>
+          <button className="secondary-button" type="button" disabled={!current} onClick={() => void controller.replayCurrent()}>
+            {t("button.replay")}
+          </button>
+          <button className="secondary-button" type="button" disabled={!current} onClick={() => void controller.togglePause()}>
+            {controller.snapshot?.playbackPaused ? t("button.resume") : t("button.pause")}
+          </button>
           <button className="danger-button" type="button" disabled={!current} onClick={controller.requestSkip}>
             {t("button.skip")}
           </button>

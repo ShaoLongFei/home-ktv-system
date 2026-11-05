@@ -59,6 +59,7 @@ import { registerRealtimeRoutes } from "./routes/realtime.js";
 import { registerRoomInteractionRoutes } from "./routes/room-interactions.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
 import { registerOnlineCatalogRoutes } from "./routes/online-catalog.js";
+import { startPlaybackIfIdle } from "./modules/playback/session-command-service.js";
 import { registerSongDiscoveryRoutes } from "./routes/song-discovery.js";
 import { registerSongSearchRoutes } from "./routes/song-search.js";
 
@@ -212,10 +213,32 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     ...(onlineImport ? { onlineCatalog: { search: (keyword, limit) => onlineImport.search(keyword, limit) } } : {})
   });
   if (onlineImport) {
+    let ensureInFlight: Promise<void> | null = null;
+    const ensurePlaybackStarted = async (room: Room): Promise<void> => {
+      if (ensureInFlight) {
+        return ensureInFlight;
+      }
+      ensureInFlight = (async () => {
+        const snapshot = await startPlaybackIfIdle({
+          config: resolvedConfig,
+          room,
+          repositories,
+          mediaGateway
+        });
+        if (snapshot) {
+          broadcaster.broadcastRoomSnapshot(room.slug, snapshot);
+        }
+      })().finally(() => {
+        ensureInFlight = null;
+      });
+      return ensureInFlight;
+    };
+
     await registerOnlineCatalogRoutes(server, {
       rooms: repositories.rooms,
       onlineImport,
-      queueEntries: repositories.queueEntries
+      queueEntries: repositories.queueEntries,
+      ensurePlaybackStarted
     });
   }
   await registerSongDiscoveryRoutes(server, {

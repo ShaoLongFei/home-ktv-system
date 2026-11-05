@@ -37,6 +37,7 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
   const videoPoolRef = useRef<DualVideoPool | null>(null);
   const vocalModeSwitchInFlightRef = useRef(false);
   const sentPlaybackTelemetryRef = useRef<Set<string>>(new Set());
+  const replayTokenRef = useRef<string | null>(null);
   const [localNotice, setLocalNotice] = useState<PlaybackNotice | null>(null);
   const [firstPlayBlocked, setFirstPlayBlocked] = useState(false);
   const [confirmedPlaybackTargetKey, setConfirmedPlaybackTargetKey] = useState<string | null>(null);
@@ -69,7 +70,8 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       setConfirmedPlaybackTargetKey,
       sentPlaybackTelemetryRef,
       setLocalNotice,
-      switchInFlightRef: vocalModeSwitchInFlightRef
+      switchInFlightRef: vocalModeSwitchInFlightRef,
+      replayTokenRef
     });
   }, [client, roomState.snapshot]);
 
@@ -119,7 +121,8 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       setConfirmedPlaybackTargetKey,
       sentPlaybackTelemetryRef,
       setLocalNotice,
-      switchInFlightRef: vocalModeSwitchInFlightRef
+      switchInFlightRef: vocalModeSwitchInFlightRef,
+      replayTokenRef
     });
   }, [client]);
 
@@ -340,7 +343,28 @@ async function synchronizePlayback(input: {
   snapshot: RoomSnapshot;
   setLocalNotice: Dispatch<SetStateAction<PlaybackNotice | null>>;
   switchInFlightRef: MutableRefObject<boolean>;
+  replayTokenRef: MutableRefObject<string | null>;
 }): Promise<void> {
+  if (input.snapshot.playbackPaused) {
+    if (!input.pool.activeVideo.paused) {
+      input.pool.activeVideo.pause();
+    }
+    return;
+  }
+
+  const replayToken = input.snapshot.replayToken ?? "";
+  if (input.replayTokenRef.current !== null && replayToken !== input.replayTokenRef.current && input.snapshot.currentTarget) {
+    input.replayTokenRef.current = replayToken;
+    input.pool.activeVideo.currentTime = 0;
+    try {
+      await input.pool.activeVideo.play();
+    } catch {
+      // 自动播放被拦截时保持暂停，等用户点击
+    }
+    return;
+  }
+  input.replayTokenRef.current = replayToken;
+
   const targetVocalMode = input.snapshot.targetVocalMode ?? input.snapshot.currentTarget?.vocalMode ?? null;
   const currentVocalMode = input.snapshot.currentTarget?.vocalMode ?? null;
   const hasPendingVocalSwitch = Boolean(input.snapshot.currentTarget && targetVocalMode && targetVocalMode !== currentVocalMode);

@@ -90,12 +90,16 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
     ...importService
   } as unknown as OnlineImportService;
 
+  const ensured: string[] = [];
   void registerOnlineCatalogRoutes(server, {
     rooms: {
       findById: async (roomId) => (roomId === room.id ? room : null),
       findBySlug: async (slug) => (slug === room.slug ? room : null)
     },
     onlineImport: service,
+    ensurePlaybackStarted: async (targetRoom) => {
+      ensured.push(targetRoom.slug);
+    },
     queueEntries: {
       listEffectiveQueue: async () => [] as QueueEntry[],
       append: async (input) => {
@@ -104,7 +108,7 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
       }
     }
   });
-  return { server, appended };
+  return { server, appended, ensured };
 }
 
 describe("online catalog routes", () => {
@@ -168,7 +172,7 @@ describe("online catalog routes", () => {
   });
 
   it("queues an already cached online song immediately", async () => {
-    const { server, appended } = createHarness();
+    const { server, appended, ensured } = createHarness();
     const response = await server.inject({
       method: "POST",
       url: "/rooms/living-room/online/queue",
@@ -186,6 +190,7 @@ describe("online catalog routes", () => {
       queuePosition: 1,
       status: "queued"
     });
+    expect(ensured).toEqual(["living-room"]);
     await server.close();
   });
 

@@ -557,6 +557,10 @@ async function executeMutatingCommand(
       return switchVocalMode(input, context);
     case "set-volume":
       return setVolume(input, context);
+    case "replay-current":
+      return replayCurrent(input, context);
+    case "toggle-pause":
+      return togglePause(input, context);
     case "player-ended":
       return rejected(input.commandId, input.sessionVersion, "PLAYER_ENDED_IS_TELEMETRY_ONLY");
   }
@@ -771,6 +775,63 @@ async function switchVocalMode(
   };
 }
 
+async function replayCurrent(
+  input: ExecuteRoomCommandInput,
+  context: QueueMutationContext
+): Promise<CommandExecutionResult> {
+  const session = await input.repositories.playbackSessions.findByRoomId(context.room.id);
+  if (!session?.currentQueueEntryId) {
+    return rejected(input.commandId, input.sessionVersion, "NO_CURRENT_TARGET");
+  }
+  if (!input.repositories.playbackSessions.replayCurrent) {
+    return rejected(input.commandId, input.sessionVersion, "PLAYBACK_CONTROL_UNAVAILABLE");
+  }
+
+  const updated = await input.repositories.playbackSessions.replayCurrent(context.room.id);
+  if (!updated) {
+    return rejected(input.commandId, input.sessionVersion, "PLAYBACK_SESSION_NOT_FOUND");
+  }
+
+  const snapshot = await finishAcceptedCommand(input, context);
+  return {
+    status: "accepted",
+    commandId: input.commandId,
+    sessionVersion: snapshot.sessionVersion,
+    snapshot: snapshot.snapshot,
+    controlSessionCookie: snapshot.controlSessionCookie
+  };
+}
+
+async function togglePause(
+  input: ExecuteRoomCommandInput,
+  context: QueueMutationContext
+): Promise<CommandExecutionResult> {
+  const session = await input.repositories.playbackSessions.findByRoomId(context.room.id);
+  if (!session?.currentQueueEntryId) {
+    return rejected(input.commandId, input.sessionVersion, "NO_CURRENT_TARGET");
+  }
+  if (!input.repositories.playbackSessions.setPaused) {
+    return rejected(input.commandId, input.sessionVersion, "PLAYBACK_CONTROL_UNAVAILABLE");
+  }
+
+  const updated = await input.repositories.playbackSessions.setPaused({
+    roomId: context.room.id,
+    paused: session.playerState !== "paused"
+  });
+  if (!updated) {
+    return rejected(input.commandId, input.sessionVersion, "PLAYBACK_SESSION_NOT_FOUND");
+  }
+
+  const snapshot = await finishAcceptedCommand(input, context);
+  return {
+    status: "accepted",
+    commandId: input.commandId,
+    sessionVersion: snapshot.sessionVersion,
+    snapshot: snapshot.snapshot,
+    controlSessionCookie: snapshot.controlSessionCookie
+  };
+}
+
 async function setVolume(
   input: ExecuteRoomCommandInput,
   context: QueueMutationContext
@@ -929,7 +990,7 @@ async function syncPlaybackSessionAfterQueueMutation(
 }
 
 async function resolvePlayableMediaForQueueEntry(
-  repositories: CommandRepositories,
+  repositories: { playableMedia?: CommandRepositories["playableMedia"] },
   queueEntry: QueueEntry
 ): Promise<PlayableMediaAsset | null> {
   if (!repositories.playableMedia) {
@@ -988,7 +1049,7 @@ function hasPlayableMediaTrackForVocalMode(asset: PlayableMediaAsset, vocalMode:
 }
 
 async function markQueueEntryPlaybackState(
-  repositories: CommandRepositories,
+  repositories: { queueEntries: CommandRepositories["queueEntries"] },
   input: {
     roomId: string;
     queueEntryId: string;
@@ -997,6 +1058,64 @@ async function markQueueEntryPlaybackState(
   }
 ): Promise<QueueEntry | null> {
   return repositories.queueEntries.markPlaybackState?.(input) ?? null;
+}
+
+/**
+ * 队列里已有歌、但会话还停在 idle 时，由「入队」路径主动起播。
+ * 用于在线补歌等不经过 control command 的入队方式。
+ */
+export async function startPlaybackIfIdle(input: {
+  config: ApiConfig;
+  room: Room;
+  repositories: ControlSnapshotRepositories;
+  mediaGateway?: Pick<MediaGateway, "createPlaybackUrl">;
+  now?: Date;
+}): Promise<RoomControlSnapshot | null> {
+  const repositories = input.repositories;
+  const session = await repositories.playbackSessions.findByRoomId(input.room.id);
+  if (!session || session.currentQueueEntryId) {
+    return null;
+  }
+
+  const targetQueueEntry = await repositories.queueEntries.findCurrentForRoom(input.room.id);
+  if (!targetQueueEntry) {
+    return null;
+  }
+
+  const targetPlayableMedia = await resolvePlayableMediaForQueueEntry(repositories, targetQueueEntry);
+  if (!targetPlayableMedia) {
+    return null;
+  }
+
+  const now = input.now ?? new Date();
+  await markQueueEntryPlaybackState(repositories, {
+    roomId: input.room.id,
+    queueEntryId: targetQueueEntry.id,
+    status: "loading",
+    startedAt: now
+  });
+
+  const effectiveQueue = await repositories.queueEntries.listEffectiveQueue(input.room.id);
+  const currentIndex = effectiveQueue.findIndex((entry) => entry.id === targetQueueEntry.id);
+
+  await repositories.playbackSessions.startQueueEntry({
+    roomId: input.room.id,
+    queueEntryId: targetQueueEntry.id,
+    activeAssetId: null,
+    targetVocalMode: targetVocalModeForPlayableMedia(targetPlayableMedia, targetQueueEntry),
+    playerState: "loading",
+    playerPositionMs: 0,
+    nextQueueEntryId: currentIndex >= 0 ? effectiveQueue[currentIndex + 1]?.id ?? null : null,
+    mediaStartedAt: null
+  });
+
+  return buildRoomControlSnapshot({
+    roomSlug: input.room.slug,
+    config: input.config,
+    repositories,
+    ...(input.mediaGateway ? { mediaGateway: input.mediaGateway } : {}),
+    now
+  });
 }
 
 async function touchAcceptedControlSession(

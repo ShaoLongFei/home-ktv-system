@@ -305,6 +305,14 @@ export async function switchVocalMode(input: CommandBaseInput & { playbackPositi
   });
 }
 
+export async function replayCurrent(input: CommandBaseInput) {
+  return sendCommand(input, "replay-current", {});
+}
+
+export async function togglePause(input: CommandBaseInput) {
+  return sendCommand(input, "toggle-pause", {});
+}
+
 export async function setVolume(input: CommandBaseInput & { volumePercent: number }) {
   return sendCommand(input, "set-volume", {
     volumePercent: input.volumePercent

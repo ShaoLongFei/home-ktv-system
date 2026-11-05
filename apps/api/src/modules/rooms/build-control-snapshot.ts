@@ -155,6 +155,8 @@ export async function buildRoomControlSnapshot(input: BuildRoomControlSnapshotIn
     currentTarget: baseSnapshot.currentTarget,
     switchTarget: baseSnapshot.switchTarget,
     targetVocalMode: baseSnapshot.targetVocalMode ?? null,
+    ...(baseSnapshot.playbackPaused === undefined ? {} : { playbackPaused: baseSnapshot.playbackPaused }),
+    ...(baseSnapshot.replayToken === undefined ? {} : { replayToken: baseSnapshot.replayToken }),
     queue: queuePreview,
     recentEvents: recentEvents.map(playbackEventPreview),
     onlineTasks: buildEmptyOnlineTaskSummary(),
