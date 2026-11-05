@@ -20,6 +20,23 @@ export interface OnlineCatalogProvider {
   resolve(providerSongId: string): Promise<IgebaSongAddress>;
   download?(providerSongId: string, targetPath: string): Promise<{ bytes: number; songNumber: string }>;
   hotModules?(): Promise<IgebaHotModule[]>;
+  discoverySingers?(limit: number): Promise<Array<{
+    singerId: string;
+    singerName: string;
+    mark: string;
+    pictureUrl: string | null;
+  }>>;
+  discoveryStyles?(): Promise<string[]>;
+  songsBySinger?(input: {
+    singerId: string;
+    page: number;
+    pageSize: number;
+  }): Promise<{ candidates: OnlineCatalogCandidate[]; pageCount: number }>;
+  songsByStyle?(input: {
+    style: string;
+    page: number;
+    pageSize: number;
+  }): Promise<{ candidates: OnlineCatalogCandidate[]; pageCount: number }>;
   packageSongs?(input: {
     packageType: number;
     packageId: string;
@@ -55,6 +72,32 @@ export function createIgebaProvider(client: IgebaClient, options: IgebaProviderO
     },
     async hotModules() {
       return client.hotModules();
+    },
+    async discoverySingers(limit) {
+      const page = await client.singerList({ pageSize: Math.min(50, Math.max(1, limit)) });
+      return page.singers.map((singer) => ({
+        singerId: singer.singerId,
+        singerName: singer.singerName,
+        mark: singer.mark,
+        pictureUrl: singer.pictureUrl
+      }));
+    },
+    async discoveryStyles() {
+      return client.musicStyles();
+    },
+    async songsBySinger({ singerId, page, pageSize }) {
+      const result = await client.songsBySingerId(singerId, { page, pageSize });
+      return {
+        candidates: result.songs.map((song) => toCandidate(song, id, sourceLabel)),
+        pageCount: result.pageCount
+      };
+    },
+    async songsByStyle({ style, page, pageSize }) {
+      const result = await client.songsByStyle(style, { page, pageSize });
+      return {
+        candidates: result.songs.map((song) => toCandidate(song, id, sourceLabel)),
+        pageCount: result.pageCount
+      };
     },
     async packageSongs(input) {
       const page = await client.packageSongs({

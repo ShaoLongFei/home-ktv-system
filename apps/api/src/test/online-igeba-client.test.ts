@@ -82,6 +82,33 @@ describe("IgebaClient", () => {
     expect(decodeURIComponent(calls[0]?.body ?? "")).toContain('"Id":"13166"');
   });
 
+  it("loads singers, music styles, and songs by style", async () => {
+    const { fetchImpl, calls } = createFakeFetch((call) => {
+      const body = decodeURIComponent(call.body ?? "");
+      if (body.includes("GET_PACGS")) {
+        return Response.json({
+          List: [{ SingerId: "1066", SingerName: "周杰伦", OtherName: "Jay", MidPicture: "http://x/1066.jpg" }],
+          Page: { PageCount: 1, RecordCount: 42 }
+        });
+      }
+      if (body.includes("GET_TAGS")) {
+        return Response.json({ Tags: ["流行", "摇滚"] });
+      }
+      return Response.json(searchPayload);
+    });
+    const client = new IgebaClient({ fetchImpl, sleep: noSleep, minIntervalMs: 0 });
+
+    const singers = await client.singerList({ pageSize: 5 });
+    const styles = await client.musicStyles();
+    const songs = await client.songsByStyle("流行", { pageSize: 3 });
+
+    expect(singers.singers[0]).toMatchObject({ singerId: "1066", singerName: "周杰伦" });
+    expect(singers.recordCount).toBe(42);
+    expect(styles).toEqual(["流行", "摇滚"]);
+    expect(songs.songs[0]?.songNumber).toBe("20039643");
+    expect(decodeURIComponent(calls[2]?.body ?? "")).toContain('"MusicStyle":"流行"');
+  });
+
   it("maps hot modules and parses their app links", async () => {
     const { fetchImpl } = createFakeFetch(() =>
       Response.json({

@@ -62,6 +62,19 @@ IGEBA_CACHE_TTL_DAYS=30
 - 淘汰会删除缓存文件、把 asset 置为 `unavailable`，并把对应的 `ktv-online-*` 曲库条目**软删除**（`missing_at`）：搜索与播放立即看不到它，但队列里的历史引用不会因外键报错；重新导入会把它复活；
 - 多个 API 副本同时运行时，通过 `claim_expires_at` 租约（10 分钟）抢占任务，跑完立即释放，不会重复下载同一首。
 
+## 手机端发现页（歌手点歌 / 风格点歌）
+
+启用 igeba 后，`GET /rooms/:roomSlug/songs/discovery` 的 `artists` / `genres` 改为在线推荐：
+
+| 数据 | ige8 接口 |
+| --- | --- |
+| 热门歌手 | `GET_PACGS` `PackageType=1`（取前 16） |
+| 曲风 | `GET_TAGS` `TagType=4`（音乐风格） |
+| 歌手歌曲 | `GET_SONGS` `Filter.Package{Type:1,Id:SingerId}`，`Order:[{Hot:1}]` |
+| 曲风歌曲 | `GET_SONGS` `Filter.MusicStyle`，`Order:[{Hot:1}]` |
+
+详情接口返回 `source=online` + `providerSongNumber`，手机端点「+」走 `POST /rooms/:slug/online/queue`（缓存好自动入队）。ige8 不可用时自动回退到本地曲库模块。
+
 ## 管理后台
 
 Admin 顶部「在线曲库」页签：

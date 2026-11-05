@@ -1261,6 +1261,58 @@ describe("mobile controller runtime", () => {
     expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
   });
 
+  it("queues ige8 discovery songs from the artist browse view", async () => {
+    const user = userEvent.setup();
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songDiscoveryResponse: (seed) => ({
+        seed,
+        recommended: [],
+        artists: [{ artistId: "1066", artistName: "周杰伦", songCount: 0, songs: [] }],
+        genres: [{ genre: "流行", songCount: 0, songs: [] }]
+      }),
+      discoveryArtistSongsResponse: () => ({
+        songs: [
+          {
+            source: "online",
+            songId: "online:igeba:20039643",
+            providerSongNumber: "20039643",
+            title: "晴天",
+            artistName: "周杰伦",
+            language: "mandarin",
+            matchReason: "default",
+            queueState: "not_queued",
+            artistId: "1066",
+            genre: [],
+            playCount: 0,
+            recommendationWeight: 0,
+            versions: []
+          }
+        ],
+        nextOffset: null
+      })
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await user.click(await screen.findByRole("button", { name: /歌手点歌/u }));
+    await user.click(await screen.findByRole("button", { name: /周杰伦/u }));
+    const addButton = await screen.findByRole("button", { name: "点歌 晴天" });
+    await user.click(addButton);
+
+    await waitFor(() =>
+      expect(
+        requests.some(
+          (request) =>
+            request.url === "/rooms/living-room/online/queue" &&
+            request.method === "POST" &&
+            (request.body as { songNumber?: string } | undefined)?.songNumber === "20039643"
+        )
+      ).toBe(true)
+    );
+  });
+
   it("queues online catalog candidates through the online queue endpoint", async () => {
     const user = userEvent.setup();
     const { requests } = installControllerFetchMock({

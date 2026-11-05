@@ -209,6 +209,45 @@ export class OnlineImportService {
     return { asset: { ...asset, status: "caching" }, cached: false };
   }
 
+  async discoverySingers(limit: number): Promise<Array<{
+    singerId: string;
+    singerName: string;
+    mark: string;
+    pictureUrl: string | null;
+  }>> {
+    const provider = this.options.provider;
+    return provider.discoverySingers ? provider.discoverySingers(limit) : [];
+  }
+
+  async discoveryStyles(): Promise<string[]> {
+    const provider = this.options.provider;
+    return provider.discoveryStyles ? provider.discoveryStyles() : [];
+  }
+
+  async songsBySinger(input: {
+    singerId: string;
+    page: number;
+    pageSize: number;
+  }): Promise<{ candidates: Awaited<ReturnType<NonNullable<OnlineCatalogProvider["packageSongs"]>>>; pageCount: number } | null> {
+    const provider = this.options.provider;
+    if (!provider.songsBySinger) {
+      return null;
+    }
+    return provider.songsBySinger(input);
+  }
+
+  async songsByStyle(input: {
+    style: string;
+    page: number;
+    pageSize: number;
+  }): Promise<{ candidates: Awaited<ReturnType<NonNullable<OnlineCatalogProvider["packageSongs"]>>>; pageCount: number } | null> {
+    const provider = this.options.provider;
+    if (!provider.songsByStyle) {
+      return null;
+    }
+    return provider.songsByStyle(input);
+  }
+
   async discovery(): Promise<{ hotModules: Awaited<ReturnType<NonNullable<OnlineCatalogProvider["hotModules"]>>> }> {
     const provider = this.options.provider;
     if (!provider.hotModules) {

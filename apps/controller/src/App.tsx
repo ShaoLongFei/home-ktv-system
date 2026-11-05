@@ -1583,7 +1583,7 @@ function DiscoveryBrowseView({
                 }
               >
                 <strong>{label}</strong>
-                <span>{t("discovery.songCount", { count })}</span>
+                {count > 0 ? <span>{t("discovery.songCount", { count })}</span> : null}
               </button>
             );
           })}
@@ -1646,10 +1646,31 @@ function DiscoverySongRow({
   song: SongDiscoverySong;
   t: TFunction;
 }) {
+  const isOnline = song.source === "online";
+  const onlineSongNumber = song.providerSongNumber ?? "";
+  const onlineState = onlineSongNumber ? controller.onlineQueueState[onlineSongNumber] : undefined;
   const primaryVersion = song.versions[0] ?? null;
-  const canQueue = primaryVersion ? primaryVersion.canQueue !== false : false;
-  const disabledLabel = primaryVersion ? disabledVersionLabel(primaryVersion) : "暂不可播放";
-  const addLabel = canQueue ? (song.queueState === "queued" ? t("button.addAgain") : t("button.add")) : disabledLabel;
+  const nasCanQueue = primaryVersion ? primaryVersion.canQueue !== false : false;
+  const onlineBusy =
+    onlineState?.status === "queuing" || onlineState?.status === "preparing" || onlineState?.status === "queued";
+  const canQueue = isOnline ? Boolean(onlineSongNumber) && !onlineBusy : nasCanQueue;
+  const addLabel = isOnline
+    ? onlineState?.status === "queuing"
+      ? t("search.onlineQueuing")
+      : onlineState?.status === "preparing"
+        ? t("search.onlinePreparing")
+        : onlineState?.status === "queued"
+          ? t("search.onlineQueued")
+          : onlineState?.status === "failed"
+            ? t("search.onlineFailed")
+            : t("search.onlineQueue")
+    : primaryVersion
+      ? canQueue
+        ? song.queueState === "queued"
+          ? t("button.addAgain")
+          : t("button.add")
+        : disabledVersionLabel(primaryVersion)
+      : "暂不可播放";
   const [coverUrl, setCoverUrl] = useState(song.coverThumbnailUrl ?? song.coverImageUrl ?? "");
   const showCover = Boolean(coverUrl);
 
@@ -1689,10 +1710,20 @@ function DiscoverySongRow({
       <button
         className="primary-button add-circle-button"
         aria-label={`${addLabel} ${song.title}`}
-        disabled={!canQueue}
+        disabled={!canQueue && !isOnline}
         type="button"
         onClick={() => {
-          if (!primaryVersion || !canQueue) {
+          if (isOnline) {
+            if (!onlineSongNumber || onlineBusy) {
+              return;
+            }
+            if (controller.requestAddOnlineSong(onlineSongNumber, song.title, song.artistName)) {
+              onQueueAddFeedback(song);
+            }
+            return;
+          }
+
+          if (!primaryVersion || !nasCanQueue) {
             return;
           }
 
@@ -1701,7 +1732,7 @@ function DiscoverySongRow({
           }
         }}
       >
-        {canQueue ? "+" : "·"}
+        {canQueue || isOnline ? "+" : "·"}
       </button>
     </article>
   );

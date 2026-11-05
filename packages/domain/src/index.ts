@@ -334,6 +334,8 @@ export type SongDiscoveryVersionOption = SongSearchNasVersionOption;
 export interface SongDiscoverySong {
   source: SongDiscoverySource;
   songId: SongId;
+  /** 在线曲库条目对应的 provider 歌曲号（source=online 时用于点歌）。 */
+  providerSongNumber?: string;
   title: string;
   artistName: string;
   language: Language;

@@ -33,6 +33,14 @@ export interface IgebaSongAddress {
   attempts: number;
 }
 
+export interface IgebaSinger {
+  singerId: string;
+  singerName: string;
+  otherName: string;
+  mark: string;
+  pictureUrl: string | null;
+}
+
 export interface IgebaHotModule {
   headId: string;
   title: string;
@@ -186,6 +194,76 @@ export class IgebaClient {
       }
     });
     return parseSongPage(payload, "package");
+  }
+
+  /** 热门歌手列表（PackageType=1）。 */
+  async singerList(options: { page?: number; pageSize?: number } = {}): Promise<{
+    singers: IgebaSinger[];
+    pageCount: number;
+    recordCount: number;
+  }> {
+    const payload = await this.postCloud("GET_PACGS", {
+      UserId: this.uid,
+      PackageType: 1,
+      Page: {
+        PageNo: Math.max(1, Math.trunc(options.page ?? 1)),
+        PageSize: Math.min(50, Math.max(1, Math.trunc(options.pageSize ?? 12)))
+      }
+    });
+    const list = isRecord(payload) && Array.isArray(payload.List) ? payload.List : [];
+    const page = isRecord(payload) && isRecord(payload.Page) ? payload.Page : {};
+    return {
+      singers: list.filter(isRecord).map((item) => ({
+        singerId: asString(item.SingerId),
+        singerName: asString(item.SingerName),
+        otherName: asString(item.OtherName),
+        mark: asString(item.Mark),
+        pictureUrl: asString(item.MidPicture) || asString(item.LargePicture) || null
+      })),
+      pageCount: toInt(page.PageCount),
+      recordCount: toInt(page.RecordCount)
+    };
+  }
+
+  /** 曲风标签（TagType=4 为音乐风格）。 */
+  async musicStyles(): Promise<string[]> {
+    const payload = await this.postCloud("GET_TAGS", { TagType: 4, TagFor: 1, TagTo: 2 });
+    const tags = isRecord(payload) && Array.isArray(payload.Tags) ? payload.Tags : [];
+    return tags.filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0);
+  }
+
+  /** 按歌手取歌：Filter.Package{Type:1,Id:SingerId}。 */
+  async songsBySingerId(
+    singerId: string,
+    options: { page?: number; pageSize?: number } = {}
+  ): Promise<IgebaSearchPage> {
+    const payload = await this.postCloud("GET_SONGS", {
+      UserId: this.uid,
+      Filter: { Package: { Type: 1, Id: singerId } },
+      Order: [{ Hot: 1 }],
+      Page: {
+        PageNo: Math.max(1, Math.trunc(options.page ?? 1)),
+        PageSize: Math.min(50, Math.max(1, Math.trunc(options.pageSize ?? 20)))
+      }
+    });
+    return parseSongPage(payload, "singer");
+  }
+
+  /** 按曲风取歌：Filter.MusicStyle。 */
+  async songsByStyle(
+    style: string,
+    options: { page?: number; pageSize?: number } = {}
+  ): Promise<IgebaSearchPage> {
+    const payload = await this.postCloud("GET_SONGS", {
+      UserId: this.uid,
+      Filter: { MusicStyle: style },
+      Order: [{ Hot: 1 }],
+      Page: {
+        PageNo: Math.max(1, Math.trunc(options.page ?? 1)),
+        PageSize: Math.min(50, Math.max(1, Math.trunc(options.pageSize ?? 20)))
+      }
+    });
+    return parseSongPage(payload, "style");
   }
 
   /** 首页运营位（专题 / 榜单入口）。 */

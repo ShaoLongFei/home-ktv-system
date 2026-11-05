@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import type {
+  EntityId,
   QueueEntry,
   SongDiscoveryArtist,
   SongDiscoveryGenre,
@@ -12,6 +13,8 @@ import type {
 import { songCoverKey } from "../modules/covers/types.js";
 import type { SongCoverRepository } from "../modules/covers/song-cover-repository.js";
 import type { KtvIndexReadRepository } from "../modules/ktv-index/ktv-index-read-repository.js";
+import type { OnlineCatalogCandidate } from "../modules/online/igeba/igeba-provider.js";
+import type { OnlineImportService } from "../modules/online/online-import-service.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 
@@ -23,6 +26,10 @@ export interface SongDiscoveryRouteDependencies {
     "searchIndexedSongs" | "listDiscoveryArtists" | "listDiscoveryGenres" | "listIndexedSongsByArtist" | "listIndexedSongsByGenre"
   >;
   songCovers?: Pick<SongCoverRepository, "findBySongKeys">;
+  onlineDiscovery?: Pick<
+    OnlineImportService,
+    "discoverySingers" | "discoveryStyles" | "songsBySinger" | "songsByStyle"
+  >;
 }
 
 interface SongDiscoveryQuery {
@@ -62,8 +69,10 @@ export async function registerSongDiscoveryRoutes(
       ]);
       const songsWithCovers = await attachCoverImageUrls(songs, dependencies.songCovers);
       const weightedRecommendations = selectWeightedSongs(songsWithCovers, limit, seed);
-      const artists = fullArtists ?? buildArtistModules(songsWithCovers);
-      const genres = fullGenres ?? buildGenreModules(songsWithCovers);
+      const onlineArtists = await loadOnlineArtists(dependencies);
+      const onlineGenres = await loadOnlineGenres(dependencies);
+      const artists = onlineArtists ?? fullArtists ?? buildArtistModules(songsWithCovers);
+      const genres = onlineGenres ?? fullGenres ?? buildGenreModules(songsWithCovers);
 
       const response: SongDiscoveryResponse = {
         seed,
@@ -85,12 +94,18 @@ export async function registerSongDiscoveryRoutes(
         return;
       }
 
+      const page = parseSongsPage(request.query);
+      const online = await loadOnlineSongsBySinger(dependencies, request.params.artistId, page);
+      if (online) {
+        await reply.send(online);
+        return;
+      }
+
       if (!dependencies.ktvIndex?.listIndexedSongsByArtist) {
         await reply.send(emptySongsPage());
         return;
       }
 
-      const page = parseSongsPage(request.query);
       const queue = await dependencies.queueEntries.listEffectiveQueue(room.id);
       const records = await dependencies.ktvIndex.listIndexedSongsByArtist({
         artistId: request.params.artistId,
@@ -118,12 +133,23 @@ export async function registerSongDiscoveryRoutes(
       }
 
       const genre = String(request.query.genre ?? "").trim();
-      if (!genre || !dependencies.ktvIndex?.listIndexedSongsByGenre) {
+      if (!genre) {
         await reply.send(emptySongsPage());
         return;
       }
 
       const page = parseSongsPage(request.query);
+      const online = await loadOnlineSongsByStyle(dependencies, genre, page);
+      if (online) {
+        await reply.send(online);
+        return;
+      }
+
+      if (!dependencies.ktvIndex?.listIndexedSongsByGenre) {
+        await reply.send(emptySongsPage());
+        return;
+      }
+
       const queue = await dependencies.queueEntries.listEffectiveQueue(room.id);
       const records = await dependencies.ktvIndex.listIndexedSongsByGenre({
         genre,
@@ -140,6 +166,125 @@ export async function registerSongDiscoveryRoutes(
       await reply.send(response);
     }
   );
+}
+
+async function loadOnlineArtists(
+  dependencies: SongDiscoveryRouteDependencies
+): Promise<SongDiscoveryArtist[] | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const singers = await dependencies.onlineDiscovery.discoverySingers(16);
+    if (singers.length === 0) {
+      return null;
+    }
+    return singers.map((singer) => ({
+      artistId: singer.singerId as EntityId,
+      artistName: singer.singerName,
+      songCount: 0,
+      songs: []
+    }));
+  } catch {
+    return null;
+  }
+}
+
+async function loadOnlineGenres(
+  dependencies: SongDiscoveryRouteDependencies
+): Promise<SongDiscoveryGenre[] | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const styles = await dependencies.onlineDiscovery.discoveryStyles();
+    if (styles.length === 0) {
+      return null;
+    }
+    return styles.map((style) => ({ genre: style, songCount: 0, songs: [] }));
+  } catch {
+    return null;
+  }
+}
+
+async function loadOnlineSongsBySinger(
+  dependencies: SongDiscoveryRouteDependencies,
+  singerId: string,
+  page: { limit: number; offset: number }
+): Promise<SongDiscoverySongsResponse | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const result = await dependencies.onlineDiscovery.songsBySinger({
+      singerId,
+      page: Math.floor(page.offset / page.limit) + 1,
+      pageSize: page.limit
+    });
+    if (!result) {
+      return null;
+    }
+    return onlineSongsPage(result, { artistId: singerId, genre: [] }, page);
+  } catch {
+    return null;
+  }
+}
+
+async function loadOnlineSongsByStyle(
+  dependencies: SongDiscoveryRouteDependencies,
+  style: string,
+  page: { limit: number; offset: number }
+): Promise<SongDiscoverySongsResponse | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const result = await dependencies.onlineDiscovery.songsByStyle({
+      style,
+      page: Math.floor(page.offset / page.limit) + 1,
+      pageSize: page.limit
+    });
+    if (!result) {
+      return null;
+    }
+    return onlineSongsPage(result, { artistId: "", genre: [style] }, page);
+  } catch {
+    return null;
+  }
+}
+
+function onlineSongsPage(
+  result: { candidates: readonly OnlineCatalogCandidate[]; pageCount: number },
+  context: { artistId: string; genre: readonly string[] },
+  page: { limit: number; offset: number }
+): SongDiscoverySongsResponse {
+  const songs = result.candidates.map((candidate) => onlineDiscoverySong(candidate, context));
+  const pageNo = Math.floor(page.offset / page.limit) + 1;
+  return {
+    songs,
+    nextOffset: songs.length > 0 && pageNo < Math.max(1, result.pageCount) ? page.offset + songs.length : null
+  };
+}
+
+function onlineDiscoverySong(
+  candidate: OnlineCatalogCandidate,
+  context: { artistId: string; genre: readonly string[] }
+): SongDiscoverySong {
+  return {
+    source: "online",
+    songId: `online:${candidate.provider}:${candidate.providerSongId}` as SongId,
+    providerSongNumber: candidate.providerSongId,
+    title: candidate.title,
+    artistName: candidate.artistName,
+    language: "other",
+    matchReason: "default",
+    queueState: "not_queued",
+    artistId: (context.artistId || candidate.artistName) as EntityId,
+    genre: context.genre,
+    playCount: 0,
+    recommendationWeight: 0,
+    versions: []
+  };
 }
 
 async function attachCoverImageUrls(
