@@ -551,8 +551,8 @@ input:focus {
 .queue-list,
 .song-list {
   display: grid;
-  /* 每列最小 150px，能塞几列塞几列 */
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  /* 每列最小 100px，能塞几列塞几列 */
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 8px;
   margin-top: 8px;
   /* grid 默认 align-content:stretch，放在抽屉的 1fr 区域里会把每一行
@@ -1128,12 +1128,11 @@ input:focus {
 
 .compact-version-main strong {
   min-width: 0;
-  overflow: hidden;
   color: rgba(248, 250, 252, 0.92);
   font-size: 0.82rem;
-  line-height: 1.1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .compact-version-meta {
@@ -1359,7 +1358,7 @@ input:focus {
 
 .recommendation-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 5px;
   margin-top: 0;
 }
@@ -1388,20 +1387,19 @@ input:focus {
 .recommendation-row strong {
   display: block;
   color: var(--ktv-text);
-  font-size: 0.9rem;
-  line-height: 1.12;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  /* 列宽只有 100，宁可换行也别截断，名字要能看全 */
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .recommendation-row p {
   margin: 0;
-  font-size: 0.74rem;
-  line-height: 1.12;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .song-art {
@@ -2693,34 +2691,5 @@ input:focus {
 
   .bottom-tabs {
     max-width: 1040px;
-  }
-}
-
-
-/* 歌名过长时横向滚动，短名字保持静止 */
-.scroll-text {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.scroll-text__inner {
-  display: inline-block;
-  vertical-align: bottom;
-}
-
-.scroll-text--running .scroll-text__inner {
-  animation: scroll-text-marquee 6s ease-in-out infinite alternate;
-  padding-right: 10px;
-}
-
-@keyframes scroll-text-marquee {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(calc(var(--scroll-distance, 0px) * -1));
   }
 }

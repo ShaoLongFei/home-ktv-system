@@ -1586,9 +1586,7 @@ function SearchOnlineSongRow({
       }
     >
       <div className="compact-version-main">
-        <strong>
-          <ScrollingText text={candidate.title} />
-        </strong>
+        <strong>{candidate.title}</strong>
         <div className="compact-version-meta">
           <span>{candidate.artistName}</span>
           <span>{candidate.sourceLabel}</span>
@@ -1863,51 +1861,6 @@ function DiscoveryBrowseView({
   );
 }
 
-/**
- * 名字放不下时自动横向滚动。
- * 宽度靠实测：scrollWidth 超过容器才启动动画，并把溢出距离写进 CSS 变量，
- * 这样长名字能完整走一遍，短名字保持静止。
- */
-function ScrollingText({ text }: { text: string }) {
-  const outerRef = useRef<HTMLSpanElement>(null);
-  const innerRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const outer = outerRef.current;
-    const inner = innerRef.current;
-    if (!outer || !inner) {
-      return;
-    }
-
-    const measure = () => {
-      const distance = inner.scrollWidth - outer.clientWidth;
-      if (distance > 2) {
-        outer.style.setProperty("--scroll-distance", `${distance}px`);
-        outer.classList.add("scroll-text--running");
-        return;
-      }
-      outer.style.removeProperty("--scroll-distance");
-      outer.classList.remove("scroll-text--running");
-    };
-
-    measure();
-    if (typeof ResizeObserver === "undefined") {
-      return;
-    }
-    const observer = new ResizeObserver(measure);
-    observer.observe(outer);
-    return () => observer.disconnect();
-  }, [text]);
-
-  return (
-    <span className="scroll-text" ref={outerRef}>
-      <span className="scroll-text__inner" ref={innerRef}>
-        {text}
-      </span>
-    </span>
-  );
-}
-
 function DiscoverySongRow({
   controller,
   onQueueAddFeedback,
@@ -1971,12 +1924,8 @@ function DiscoverySongRow({
       }}
     >
       <div className="result-main">
-        <strong>
-          <ScrollingText text={song.title} />
-        </strong>
-        <p>
-          <ScrollingText text={song.artistName} />
-        </p>
+        <strong>{song.title}</strong>
+        <p>{song.artistName}</p>
       </div>
       {onlineBusy || (isOnline && onlineState?.status === "failed") ? (
         <span className="song-row__badge">{addLabel}</span>
