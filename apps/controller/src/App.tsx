@@ -9,13 +9,7 @@ import type {
 import type { RoomInteractionKind } from "@home-ktv/player-contracts";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { fetchDiscoveryArtistSongs, fetchDiscoveryGenreSongs } from "./api/client.js";
-import {
-  I18nProvider,
-  LanguageSwitch,
-  playbackStateName,
-  useI18n,
-  vocalModeName
-} from "./i18n.js";
+import { I18nProvider, LanguageSwitch, useI18n } from "./i18n.js";
 import { useRoomController, type RoomControllerState } from "./runtime/use-room-controller.js";
 
 export function App() {
@@ -37,8 +31,6 @@ function ControllerApp() {
     snapshot?.targetVocalMode ??
     (current?.vocalMode === "instrumental" ? "original" : "instrumental");
   const switchLabel = targetVocalMode === "original" ? t("button.switchToOriginal") : t("button.switchToInstrumental");
-  const currentModeLabel = vocalModeName(current?.vocalMode ?? "unknown", t);
-  const playbackLabel = snapshot ? playbackStateName(snapshot?.state, t) : t("current.connecting");
   const noticeMessage = snapshot?.notice?.message;
   const volumePercent = controller.volumePercent;
   const [searchOpen, setSearchOpen] = useState(false);
@@ -159,8 +151,6 @@ function ControllerApp() {
           current={current}
           queueCount={queueCount}
           switchLabel={switchLabel}
-          currentModeLabel={currentModeLabel}
-          playbackLabel={playbackLabel}
           t={t}
           volumePercent={volumePercent}
           onOpenQueue={() => setQueueDrawerOpen(true)}
@@ -1012,8 +1002,6 @@ function MusicConsole({
   current,
   queueCount,
   switchLabel,
-  currentModeLabel,
-  playbackLabel,
   t,
   volumePercent,
   onOpenQueue
@@ -1022,21 +1010,11 @@ function MusicConsole({
   current: NonNullable<RoomControllerState["snapshot"]>["currentTarget"] | undefined;
   queueCount: number;
   switchLabel: string;
-  currentModeLabel: string;
-  playbackLabel: string;
   t: TFunction;
   volumePercent: number;
   onOpenQueue(): void;
 }) {
   const paused = controller.snapshot?.playbackPaused === true;
-  const tvOnlineCount =
-    controller.snapshot?.tvPresence.onlineCount ?? (controller.snapshot?.tvPresence.online ? 1 : 0);
-  const tvStatusLabel =
-    tvOnlineCount > 1
-      ? t("status.tvOnlineCount", { count: tvOnlineCount })
-      : controller.snapshot?.tvPresence.online
-        ? t("status.tvOnline")
-        : t("status.tvOffline");
   const adjustVolume = (delta: number) => {
     const next = Math.min(100, Math.max(0, volumePercent + delta));
     if (next !== volumePercent) {
@@ -1050,10 +1028,6 @@ function MusicConsole({
         <strong>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</strong>
         <span className="music-console__subline">
           <span>{current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}</span>
-          <span aria-hidden="true">·</span>
-          <span>{tvStatusLabel}</span>
-          <span aria-hidden="true">·</span>
-          <span>{playbackLabel}</span>
           <span aria-hidden="true">·</span>
           <span>{t("volume.label")}</span>
           <span>{t("volume.value", { value: volumePercent })}</span>

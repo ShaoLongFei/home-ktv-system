@@ -182,12 +182,12 @@ describe("mobile controller runtime", () => {
     await user.click(screen.getByRole("button", { name: "English" }));
 
     expect(screen.getByRole("region", { name: "Music console" })).toBeTruthy();
-    expect(screen.getByText("TV online")).toBeTruthy();
+    expect(screen.getByText("Volume")).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "中文" }));
 
     expect(screen.getByRole("region", { name: "音乐控制台" })).toBeTruthy();
-    expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     expect(screen.getByRole("region", { name: "音乐控制台" })).toBeTruthy();
   });
 
@@ -213,7 +213,7 @@ describe("mobile controller runtime", () => {
     expect(requester.className).toContain("queue-requester--tone-");
   });
 
-  it("shows the active TV count when multiple TV players are online", async () => {
+  it("keeps the console visible when multiple TV players are online", async () => {
     installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot({ tvOnlineCount: 2 })))]
     });
@@ -223,7 +223,7 @@ describe("mobile controller runtime", () => {
 
     await openControlTab();
 
-    expect(screen.getByText("2 台电视在线")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "音乐控制台" })).toBeTruthy();
   });
 
   it("shows a NAS-only empty state when a search has no local result", async () => {
@@ -777,7 +777,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
 
     await openControlTab();
-    expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     expect(controllerRequests(requests).slice(0, 2)).toEqual([
       "GET /rooms/living-room/control-session?deviceId=mobile-test-uuid",
       "POST /rooms/living-room/control-sessions"
@@ -796,7 +796,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
 
     await openControlTab();
-    expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     expect(controllerRequests(requests).slice(0, 3)).toEqual([
       "GET /rooms/living-room/control-session?deviceId=mobile-test-uuid",
       "POST /rooms/living-room/control-sessions",
@@ -845,7 +845,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
     await flush();
     await openControlTab();
-    expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     sockets[0]?.emitOpen();
     sockets[0]?.emitClose();
 
@@ -890,7 +890,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
     await flush();
     await openControlTab();
-    expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     sockets[0]?.emitOpen();
     await vi.advanceTimersByTimeAsync(sessionRefreshIntervalMs);
     expect(requests.filter((request) => request.url.includes("/control-session")).length).toBeGreaterThanOrEqual(2);
@@ -1066,7 +1066,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
 
     await openControlTab();
-    expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     expect(screen.getByRole("button", { name: "切到伴唱" })).toBeTruthy();
     expect(screen.queryByLabelText("current-vocal-mode")).toBeNull();
 
@@ -1111,7 +1111,7 @@ describe("mobile controller runtime", () => {
 
     await flush();
     await openControlTab();
-    expect(screen.getByText("电视在线")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     expect(screen.getByText("音量")).toBeTruthy();
     expect(screen.getByText("70%")).toBeTruthy();
 
@@ -1149,7 +1149,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
 
     await openControlTab();
-    expect(screen.getByText("播放中")).toBeTruthy();
+    expect(screen.getByText("音量")).toBeTruthy();
     expect(screen.getAllByText("伴唱").length).toBeGreaterThan(0);
     expect(screen.queryByText("当前模式")).toBeNull();
 

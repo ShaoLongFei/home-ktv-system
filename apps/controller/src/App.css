@@ -2679,3 +2679,32 @@ input:focus {
     display: none;
   }
 }
+
+/* 控制台按钮收紧：避免音量 ± 溢出到相邻列 */
+.music-console {
+  grid-template-columns: minmax(0, 1fr) 28px 44px 44px 46px;
+}
+
+.music-console button {
+  font-size: 11px;
+  min-width: 0;
+  padding: 3px 5px;
+}
+
+.music-console .volume-step {
+  font-size: 14px;
+  min-width: 0;
+  width: 28px;
+}
+
+.music-console .music-console__count {
+  font-size: 10px;
+  margin-left: 3px;
+  padding: 0 4px;
+}
+
+@media (max-width: 360px) {
+  .music-console {
+    grid-template-columns: minmax(0, 1fr) 26px 40px 40px;
+  }
+}
