@@ -610,6 +610,31 @@ describe("mobile controller runtime", () => {
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "电视画面" })).toBeNull());
   });
 
+  it("seeks the mirror to the TV position once metadata is ready", async () => {
+    const user = userEvent.setup();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByRole("button", { name: "打开搜索" });
+    await user.click(screen.getByRole("button", { name: "同步画面" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "电视画面" });
+    const video = dialog.querySelector("video") as HTMLVideoElement;
+
+    // metadata 还没就绪，这时动 currentTime 会被浏览器忽略
+    expect(video.currentTime).toBe(0);
+
+    Object.defineProperty(video, "readyState", { configurable: true, value: 1 });
+    fireEvent.loadedMetadata(video);
+
+    // fixture 里 TV 已经播到 1234ms，应该跳到 1.234s 而不是从头开始
+    expect(video.currentTime).toBeCloseTo(1.234, 3);
+  });
+
   it("repeats emoji interactions during a long press and stops after the send window", async () => {
     vi.useFakeTimers();
     const { requests } = installControllerFetchMock({

@@ -693,28 +693,38 @@ function TvMirrorOverlay({
   t: TFunction;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const syncedEntryRef = useRef<string | null>(null);
+  const alignedEntryRef = useRef<string | null>(null);
 
-  const syncToTarget = useCallback((video: HTMLVideoElement) => {
-    if (!target || syncedEntryRef.current === target.queueEntryId) {
-      return;
-    }
-    syncedEntryRef.current = target.queueEntryId;
-    const startAtSeconds = Math.max(0, target.resumePositionMs) / 1000;
-    try {
-      video.currentTime = Number.isFinite(startAtSeconds) ? startAtSeconds : 0;
-    } catch {
-      // 元数据还没就绪时 seek 会抛错，等 loadedmetadata 再对齐
-    }
-    playQuietly(video);
-  }, [target]);
+  const alignToTarget = useCallback(
+    (video: HTMLVideoElement) => {
+      if (!target || alignedEntryRef.current === target.queueEntryId) {
+        return;
+      }
+      // metadata 没到之前 seek 会被浏览器直接忽略。这里必须先返回、不记标记，
+      // 否则 loadedmetadata 那一次也会被标记挡掉，画面就只能从头播。
+      if (video.readyState < 1) {
+        return;
+      }
+      alignedEntryRef.current = target.queueEntryId;
+      const startAtSeconds = Math.max(0, target.resumePositionMs) / 1000;
+      if (Number.isFinite(startAtSeconds) && startAtSeconds > 0) {
+        try {
+          video.currentTime = startAtSeconds;
+        } catch {
+          // 极端情况下仍然 seek 不了，退回从头播放
+        }
+      }
+      playQuietly(video);
+    },
+    [target]
+  );
 
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
-      syncToTarget(video);
+      alignToTarget(video);
     }
-  }, [syncToTarget]);
+  }, [alignToTarget]);
 
   return (
     <div className="mirror-layer" role="dialog" aria-modal="true" aria-label={t("mirror.title")}>
@@ -732,8 +742,9 @@ function TvMirrorOverlay({
           autoPlay
           className="mirror-layer__video"
           muted
-          onLoadedMetadata={(event) => syncToTarget(event.currentTarget)}
+          onLoadedMetadata={(event) => alignToTarget(event.currentTarget)}
           playsInline
+          preload="metadata"
           ref={videoRef}
           src={target.playbackUrl}
         />
