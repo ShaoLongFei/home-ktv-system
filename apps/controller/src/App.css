@@ -2519,3 +2519,64 @@ input:focus {
   text-align: right;
   white-space: nowrap;
 }
+
+/* 控制台：左侧歌名 + 右侧 2 列控制矩阵 */
+.music-console {
+  align-items: center;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(152px, 196px);
+}
+
+.music-console__subline {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.music-console__matrix {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.music-console__matrix .compact-button {
+  font-size: 12px;
+  min-width: 0;
+  padding: 7px 4px;
+}
+
+.music-console__volume {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+}
+
+.music-console__volume-value {
+  font-size: 12px;
+  min-width: 32px;
+  text-align: center;
+}
+
+.volume-step {
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  color: inherit;
+  font-size: 16px;
+  height: 28px;
+  line-height: 1;
+  padding: 0;
+  width: 28px;
+}
+
+@media (max-width: 380px) {
+  .music-console {
+    grid-template-columns: minmax(0, 1fr) 152px;
+  }
+
+  .music-console__subline .music-console__status {
+    display: none;
+  }
+}

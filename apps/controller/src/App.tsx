@@ -1037,43 +1037,56 @@ function MusicConsole({
       : controller.snapshot?.tvPresence.online
         ? t("status.tvOnline")
         : t("status.tvOffline");
+  const adjustVolume = (delta: number) => {
+    const next = Math.min(100, Math.max(0, volumePercent + delta));
+    if (next !== volumePercent) {
+      controller.setVolumePercent(next);
+    }
+  };
+
   return (
     <section className="music-console" aria-label={t("console.aria")}>
       <div className="music-console__track">
         <strong>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</strong>
-        <span>
+        <span className="music-console__subline">
           {current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}
           <span className="music-console__status">{tvStatusLabel}</span>
           <span className="music-console__status">{playbackLabel}</span>
-          <span className="music-console__status">{currentModeLabel}</span>
         </span>
       </div>
-      <div className="music-console__volume">
-        <span className="music-console__volume-label">{t("volume.label")}</span>
-        <input
-          aria-label={t("volume.aria")}
-          max="100"
-          min="0"
-          step="5"
-          type="range"
-          value={volumePercent}
-          onChange={(event) => controller.setVolumePercent(Number(event.currentTarget.value))}
-        />
-        <span className="music-console__volume-value">{t("volume.value", { value: volumePercent })}</span>
-      </div>
-      <div className="music-console__actions">
+      <div className="music-console__matrix">
         <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.replayCurrent()}>
           {t("button.replay")}
         </button>
         <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.togglePause()}>
           {paused ? t("button.resume") : t("button.pause")}
         </button>
-        <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.switchVocalMode()}>
-          {switchLabel}
+        <button
+          aria-label={switchLabel}
+          className="secondary-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={() => void controller.switchVocalMode()}
+        >
+          {current?.vocalMode === "original"
+            ? t("button.vocalOriginal")
+            : current?.vocalMode === "instrumental"
+              ? t("button.vocalInstrumental")
+              : t("button.vocalUnknown")}
         </button>
         <button className="danger-button compact-button" disabled={!current} type="button" onClick={controller.requestSkip}>
           {t("button.skip")}
         </button>
+        <div className="music-console__volume">
+          <span className="music-console__volume-label">{t("volume.label")}</span>
+          <button aria-label={t("volume.decrease")} className="volume-step" type="button" onClick={() => adjustVolume(-5)}>
+            −
+          </button>
+          <span className="music-console__volume-value">{t("volume.value", { value: volumePercent })}</span>
+          <button aria-label={t("volume.increase")} className="volume-step" type="button" onClick={() => adjustVolume(5)}>
+            +
+          </button>
+        </div>
         <button className="secondary-button compact-button" type="button" onClick={onOpenQueue}>
           {t("console.playlist")}
           <span className="music-console__count">{queueCount > 99 ? "99+" : queueCount}</span>

@@ -1115,7 +1115,7 @@ describe("mobile controller runtime", () => {
     expect(screen.getByText("音量")).toBeTruthy();
     expect(screen.getByText("70%")).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText("音量"), { target: { value: "65" } });
+    fireEvent.click(screen.getByRole("button", { name: "音量 -5%" }));
     expect(screen.getByText("65%")).toBeTruthy();
     await vi.advanceTimersByTimeAsync(220);
     await flush();
