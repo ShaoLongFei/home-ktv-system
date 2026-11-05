@@ -2580,3 +2580,102 @@ input:focus {
     display: none;
   }
 }
+
+/* 两行五列：左侧歌名 + 音量 ± + 重唱/原唱 + 暂停/切歌 + 占位/歌单 */
+.music-console {
+  align-items: stretch;
+  display: grid;
+  gap: 4px 6px;
+  grid-template-columns: minmax(0, 1fr) 34px auto auto auto;
+  grid-template-rows: 1fr 1fr;
+  padding-top: 8px;
+}
+
+.music-console__track {
+  align-self: center;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  min-width: 0;
+}
+
+.music-console__subline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.music-console__subline > span {
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.music-console__subline > span:first-child {
+  color: rgba(226, 232, 240, 0.92);
+}
+
+.music-console .volume-step {
+  border-radius: 8px;
+  font-size: 16px;
+  height: auto;
+  min-height: 24px;
+  padding: 0;
+  width: 100%;
+}
+
+.music-console .volume-step--plus {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.music-console .volume-step--minus {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.music-console .music-console__replay {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.music-console .music-console__vocal {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.music-console .music-console__pause {
+  grid-column: 4;
+  grid-row: 1;
+}
+
+.music-console .music-console__skip {
+  grid-column: 4;
+  grid-row: 2;
+}
+
+.music-console .music-console__spacer {
+  grid-column: 5;
+  grid-row: 1;
+}
+
+.music-console .music-console__playlist {
+  grid-column: 5;
+  grid-row: 2;
+}
+
+.music-console button {
+  font-size: 12px;
+  min-width: 54px;
+  padding: 4px 6px;
+}
+
+@media (max-width: 360px) {
+  .music-console {
+    grid-template-columns: minmax(0, 1fr) 30px auto auto;
+  }
+
+  .music-console .music-console__spacer,
+  .music-console .music-console__playlist {
+    display: none;
+  }
+}

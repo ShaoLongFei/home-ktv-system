@@ -73,6 +73,7 @@ export interface OnlineAssetStats {
 
 export interface OnlineCatalogRepository {
   upsertSong(input: UpsertOnlineSongInput): Promise<OnlineSongRecord>;
+  findSongByProviderId?(provider: string, providerSongId: string): Promise<OnlineSongRecord | null>;
   upsertAsset(input: UpsertOnlineAssetInput): Promise<OnlineAssetRecord>;
   findAssetById(assetId: string): Promise<OnlineAssetRecord | null>;
   findAssetByProviderId(provider: string, providerAssetId: string): Promise<OnlineAssetRecord | null>;
@@ -154,6 +155,18 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
     );
 
     return mapSongRow(requireRow(result.rows[0], "online_songs"));
+  }
+
+  async findSongByProviderId(provider: string, providerSongId: string): Promise<OnlineSongRecord | null> {
+    const result = await this.db.query<OnlineSongRow>(
+      `SELECT id, provider, provider_song_id, title, primary_artist_name, metadata
+       FROM online_songs
+       WHERE provider = $1 AND provider_song_id = $2
+       LIMIT 1`,
+      [provider, providerSongId]
+    );
+    const row = result.rows[0];
+    return row ? mapSongRow(row) : null;
   }
 
   async upsertAsset(input: UpsertOnlineAssetInput): Promise<OnlineAssetRecord> {
@@ -350,6 +363,10 @@ export class InMemoryOnlineCatalogRepository implements OnlineCatalogRepository 
   private readonly songs = new Map<string, OnlineSongRecord>();
   private readonly assets = new Map<string, OnlineAssetRecord>();
   private sequence = 0;
+
+  async findSongByProviderId(provider: string, providerSongId: string): Promise<OnlineSongRecord | null> {
+    return this.songs.get(`${provider}:${providerSongId}`) ?? null;
+  }
 
   async upsertSong(input: UpsertOnlineSongInput): Promise<OnlineSongRecord> {
     const key = `${input.provider}:${input.providerSongId}`;

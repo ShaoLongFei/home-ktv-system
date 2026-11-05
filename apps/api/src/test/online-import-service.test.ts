@@ -66,20 +66,20 @@ describe("OnlineImportService", () => {
 
     const asset = await service.getAsset(queued.asset.id);
     expect(asset?.status).toBe("ready");
-    expect(asset?.cachePath).toBe(join(cacheDir, "20039643.mkv"));
+    expect(asset?.cachePath).toBe(join(cacheDir, "陈奕迅-孤勇者.mkv"));
     expect(asset?.cacheBytes).toBe(9 + "instrumental".length);
     expect(asset?.audioTrackCount).toBe(2);
     expect(asset?.catalogSongId).toBe("ktv-online-igeba-20039643");
-    expect(asset?.metadata.instrumentalPath).toBe(join(cacheDir, "20039643.instrumental.mkv"));
+    expect(asset?.metadata.instrumentalPath).toBe(join(cacheDir, "陈奕迅-孤勇者.instrumental.mkv"));
     expect(promoter.promoted[0]).toMatchObject({
-      technicalMetadata: { onlineVariants: { instrumental: join(cacheDir, "20039643.instrumental.mkv") } },
+      technicalMetadata: { onlineVariants: { instrumental: join(cacheDir, "陈奕迅-孤勇者.instrumental.mkv") } },
       provider: "igeba",
       providerSongId: "20039643",
       title: "孤勇者",
       artistName: "陈奕迅",
       sizeBytes: 9
     });
-    expect(await readFile(join(cacheDir, "20039643.mkv"), "utf8")).toBe("012345678");
+    expect(await readFile(join(cacheDir, "陈奕迅-孤勇者.mkv"), "utf8")).toBe("012345678");
 
     const again = await service.requestImport({ songNumber: "20039643" });
     expect(again.cached).toBe(true);
@@ -112,6 +112,66 @@ describe("OnlineImportService", () => {
     expect(downloads).toBe(0);
     expect(asset?.status).toBe("ready");
     expect(asset?.cacheBytes).toBe(9);
+  });
+
+  it("renames an already ready song-number cache once the real title arrives", async () => {
+    const repository = new InMemoryOnlineCatalogRepository();
+    const service = new OnlineImportService({
+      provider: createProvider(),
+      repository,
+      cacheDir,
+      logger: silentLogger,
+      probeMedia: async () => ({ durationMs: 1000, audioTrackCount: 1 })
+    });
+    const song = await repository.upsertSong({
+      provider: "igeba",
+      providerSongId: "20039643",
+      title: "20039643",
+      artistName: ""
+    });
+    const asset = await repository.upsertAsset({
+      provider: "igeba",
+      providerAssetId: "20039643",
+      songId: song.id,
+      mediaUrl: ""
+    });
+    const legacyPath = join(cacheDir, "20039643.mkv");
+    await writeFile(legacyPath, "012345678");
+    await repository.updateAsset(asset.id, { status: "ready", cachePath: legacyPath, metadata: { title: "20039643" } });
+
+    const result = await service.requestImport({ songNumber: "20039643", title: "孤勇者", artistName: "陈奕迅" });
+
+    expect(result.cached).toBe(true);
+    expect(result.asset.cachePath).toBe(join(cacheDir, "陈奕迅-孤勇者.mkv"));
+    expect(result.asset.metadata.title).toBe("孤勇者");
+    expect(await readFile(join(cacheDir, "陈奕迅-孤勇者.mkv"), "utf8")).toBe("012345678");
+  });
+
+  it("renames a legacy song-number cache file to artist-title on reimport", async () => {
+    const repository = new InMemoryOnlineCatalogRepository();
+    let downloads = 0;
+    const service = new OnlineImportService({
+      provider: createProvider({
+        download: async () => {
+          downloads += 1;
+          throw new Error("should not download");
+        }
+      }),
+      repository,
+      cacheDir,
+      logger: silentLogger,
+      probeMedia: async () => ({ durationMs: 1000, audioTrackCount: 1 })
+    });
+
+    await writeFile(join(cacheDir, "20039643.mkv"), "012345678");
+    const queued = await service.requestImport({ songNumber: "20039643", title: "孤勇者", artistName: "陈奕迅" });
+    await service.whenIdle();
+
+    const asset = await service.getAsset(queued.asset.id);
+    expect(downloads).toBe(0);
+    expect(asset?.cachePath).toBe(join(cacheDir, "陈奕迅-孤勇者.mkv"));
+    expect(await readFile(join(cacheDir, "陈奕迅-孤勇者.mkv"), "utf8")).toBe("012345678");
+    await expect(access(join(cacheDir, "20039643.mkv"))).rejects.toThrow();
   });
 
   it("marks rights-less songs as unavailable instead of retrying forever", async () => {

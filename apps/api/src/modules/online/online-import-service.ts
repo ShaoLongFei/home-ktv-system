@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { rm, stat } from "node:fs/promises";
+import { rename, rm, stat } from "node:fs/promises";
 import { promisify } from "node:util";
 import { basename, extname, join, resolve } from "node:path";
 import { probeMediaFile } from "../ingest/media-probe.js";
@@ -167,11 +167,15 @@ export class OnlineImportService {
       throw new Error("songNumber is required");
     }
 
+    const existingSong = (await repository.findSongByProviderId?.(provider.id, providerAssetId)) ?? null;
+    const resolvedTitle = input.title?.trim() || existingSong?.title || providerAssetId;
+    const resolvedArtist = input.artistName?.trim() || existingSong?.artistName || "";
+
     const song = await repository.upsertSong({
       provider: provider.id,
       providerSongId: providerAssetId,
-      title: input.title?.trim() || providerAssetId,
-      artistName: input.artistName?.trim() || "",
+      title: resolvedTitle,
+      artistName: resolvedArtist,
       durationMs: input.durationMs ?? null
     });
     const asset = await repository.upsertAsset({
@@ -180,17 +184,18 @@ export class OnlineImportService {
       songId: song.id,
       mediaUrl: "",
       metadata: {
-        title: input.title?.trim() || providerAssetId,
-        artistName: input.artistName?.trim() || "",
+        title: resolvedTitle,
+        artistName: resolvedArtist,
         ...(input.styleTags ? { tags: input.styleTags } : {})
       }
     });
 
     if (asset.status === "ready" && asset.cachePath) {
+      const readyAsset = await this.renameReadyAssetIfNeeded(asset, resolvedTitle, resolvedArtist);
       if (options.onReady) {
-        await options.onReady(asset);
+        await options.onReady(readyAsset);
       }
-      return { asset, cached: true };
+      return { asset: readyAsset, cached: true };
     }
 
     if (options.onReady) {
@@ -458,7 +463,8 @@ export class OnlineImportService {
       if (!provider.download) {
         throw new Error(`provider ${provider.id} does not support download`);
       }
-      const targetPath = join(this.cacheRoot, cacheFileName(songNumber, address.fileName));
+      const cacheMeta = readCacheNameMeta(claim.metadata);
+      const targetPath = join(this.cacheRoot, cacheFileName(songNumber, address.fileName, cacheMeta));
       const downloaded = await this.downloadOrReuse(songNumber, targetPath, address.sizeBytes);
       this.metrics.downloads += 1;
 
@@ -544,7 +550,20 @@ export class OnlineImportService {
         return { bytes: existing };
       }
     } catch {
-      // 文件不存在，走正常下载
+      // 文件不存在，尝试复用旧的「歌曲号.mkv」缓存
+      const legacyPath = join(this.cacheRoot, `${songNumber}${extname(targetPath)}`);
+      if (legacyPath !== targetPath) {
+        try {
+          const legacySize = (await stat(legacyPath)).size;
+          if (legacySize > 0 && (expectedBytes <= 0 || Math.abs(legacySize - expectedBytes) <= 1)) {
+            await rename(legacyPath, targetPath);
+            this.logger.info?.(`[online] renamed legacy cache ${songNumber} -> ${basename(targetPath)}`);
+            return { bytes: legacySize };
+          }
+        } catch {
+          // 继续正常下载
+        }
+      }
     }
 
     if (!provider.download) {
@@ -552,6 +571,55 @@ export class OnlineImportService {
     }
     const downloaded = await provider.download(songNumber, targetPath);
     return { bytes: downloaded.bytes };
+  }
+
+  /** 已缓存的老资源在拿到真实曲名后，顺手把 20003908.mkv 改名成 歌手-歌名.mkv。 */
+  private async renameReadyAssetIfNeeded(
+    asset: OnlineAssetRecord,
+    title: string,
+    artistName: string
+  ): Promise<OnlineAssetRecord> {
+    if (!asset.cachePath || !title || title === providerSongNumber(asset)) {
+      return asset;
+    }
+    const extension = extname(asset.cachePath) || ".mkv";
+    const desiredPath = join(
+      this.cacheRoot,
+      cacheFileName(asset.providerAssetId, `x${extension}`, { title, artistName })
+    );
+    if (desiredPath === asset.cachePath) {
+      return (
+        (await this.options.repository.updateAsset(asset.id, { metadata: { title, artistName } })) ?? asset
+      );
+    }
+    try {
+      await rename(asset.cachePath, desiredPath);
+    } catch {
+      return asset;
+    }
+
+    const previousInstrumental = readInstrumentalPath(asset.metadata);
+    let instrumentalPath = previousInstrumental;
+    if (previousInstrumental) {
+      const nextInstrumental = `${desiredPath.slice(0, -extension.length)}.instrumental${extension}`;
+      try {
+        await rename(previousInstrumental, nextInstrumental);
+        instrumentalPath = nextInstrumental;
+      } catch {
+        instrumentalPath = previousInstrumental;
+      }
+    }
+
+    return (
+      (await this.options.repository.updateAsset(asset.id, {
+        cachePath: desiredPath,
+        metadata: {
+          title,
+          artistName,
+          ...(instrumentalPath ? { instrumentalPath } : {})
+        }
+      })) ?? asset
+    );
   }
 
   /** 生成伴奏变体（默认抽第 2 条音轨），失败不阻塞主流程。 */
@@ -629,6 +697,10 @@ async function fileSizeOrZero(path: string): Promise<number> {
   }
 }
 
+function providerSongNumber(asset: OnlineAssetRecord): string {
+  return asset.providerAssetId;
+}
+
 function readInstrumentalPath(metadata: Record<string, unknown> | undefined): string | null {
   const value = metadata?.instrumentalPath;
   return typeof value === "string" && value.trim().length > 0 ? value : null;
@@ -642,9 +714,42 @@ function readStyleTags(metadata: Record<string, unknown> | undefined): string[] 
   return raw.filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0);
 }
 
-function cacheFileName(songNumber: string, fileName: string): string {
+function cacheFileName(
+  songNumber: string,
+  fileName: string,
+  meta: { title: string | null; artistName: string | null }
+): string {
   const extension = /\.[A-Za-z0-9]{2,5}$/u.exec(fileName)?.[0] ?? ".mkv";
-  return `${songNumber}${extension}`;
+  const title = sanitizeFilePart(meta.title);
+  const artist = sanitizeFilePart(meta.artistName);
+  if (!title || title === songNumber) {
+    return `${songNumber}${extension}`;
+  }
+  return `${artist ? `${artist}-` : ""}${title}${extension}`;
+}
+
+function sanitizeFilePart(value: string | null): string {
+  if (!value) {
+    return "";
+  }
+  return value
+    .replace(/[\\/:*?"<>|\r\n\t]+/gu, "_")
+    .replace(/\s+/gu, " ")
+    .trim()
+    .replace(/^\.+|\.+$/gu, "")
+    .slice(0, 80);
+}
+
+function readCacheNameMeta(metadata: Record<string, unknown> | undefined): {
+  title: string | null;
+  artistName: string | null;
+} {
+  const title = metadata?.title;
+  const artistName = metadata?.artistName;
+  return {
+    title: typeof title === "string" && title.trim() ? title.trim() : null,
+    artistName: typeof artistName === "string" && artistName.trim() ? artistName.trim() : null
+  };
 }
 
 function isPermanentFailure(error: unknown): boolean {
