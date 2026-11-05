@@ -74,9 +74,12 @@ export async function registerSongDiscoveryRoutes(
       ]);
       const songsWithCovers = await attachCoverImageUrls(songs, dependencies.songCovers);
       const weightedRecommendations = selectWeightedSongs(songsWithCovers, limit, seed);
-      const onlineRecommended = await loadOnlineRecommendations(dependencies, limit);
-      const onlineArtists = await loadOnlineArtists(dependencies);
-      const onlineGenres = await loadOnlineGenres(dependencies);
+      // 三个在线请求互不依赖，串行 await 会白等两轮远程往返
+      const [onlineRecommended, onlineArtists, onlineGenres] = await Promise.all([
+        loadOnlineRecommendations(dependencies, limit),
+        loadOnlineArtists(dependencies),
+        loadOnlineGenres(dependencies)
+      ]);
       const artists = onlineArtists ?? fullArtists ?? buildArtistModules(songsWithCovers);
       // igeba 只有 10 个曲风，本地曲库里还标了不少细分标签，两者合并去重，
       // 顺序保留 igeba 的原始分类，本地独有的接在后面。

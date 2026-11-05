@@ -441,9 +441,18 @@ describe("mobile controller runtime", () => {
     });
 
     await waitFor(() => expect(screen.getByText("第二页歌曲")).toBeTruthy());
-    expect(
-      requests.some((request) => request.url.includes("/songs/discovery/artists/artist-jay/songs?offset=1"))
-    ).toBe(true);
+    const detailRequests = () =>
+      requests.filter((request) => request.url.includes("/songs/discovery/artists/artist-jay/songs?offset=1"));
+    expect(detailRequests()).toHaveLength(1);
+
+    // 观察器重建会立刻回调一次，同一个 offset 不能重复请求
+    act(() => {
+      observers.at(-1)?.();
+    });
+    act(() => {
+      observers.at(-1)?.();
+    });
+    await waitFor(() => expect(detailRequests()).toHaveLength(1));
   });
 
   it("loads genre detail songs from the discovery genre endpoint", async () => {

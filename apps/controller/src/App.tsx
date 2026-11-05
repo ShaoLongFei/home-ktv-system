@@ -1626,6 +1626,10 @@ function DiscoveryBrowseView({
   });
   const artistSentinelRef = useRef<HTMLDivElement | null>(null);
   const detailSentinelRef = useRef<HTMLDivElement | null>(null);
+  // 观察器每次重建都会立刻回调一次（哨兵已在视口内），不记一下就会
+  // 对着同一个 offset 反复发请求，把连接槽占满
+  const artistTriggerRef = useRef<string | null>(null);
+  const detailTriggerRef = useRef<string | null>(null);
 
   // 歌手点歌从接口按热门分页取，不再用发现页首屏那 16 个
   useEffect(() => {
@@ -1694,9 +1698,15 @@ function DiscoveryBrowseView({
     }
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          void loadMoreArtists();
+        if (!entries.some((entry) => entry.isIntersecting)) {
+          return;
         }
+        const token = String(artistList.nextOffset);
+        if (artistTriggerRef.current === token) {
+          return;
+        }
+        artistTriggerRef.current = token;
+        void loadMoreArtists();
       },
       { rootMargin: "160px" }
     );
@@ -1773,6 +1783,12 @@ function DiscoveryBrowseView({
     detailPagesRef.current = detailPages;
   }, [detailPages]);
 
+  // 换页时清空触发记录，重新进同一个歌手/风格还能继续续拉
+  useEffect(() => {
+    artistTriggerRef.current = null;
+    detailTriggerRef.current = null;
+  }, [detailKey, view]);
+
   // 详情页（某歌手/某风格）滑到底部自动续拉，不再需要点按钮
   useEffect(() => {
     const sentinel = detailSentinelRef.current;
@@ -1789,9 +1805,15 @@ function DiscoveryBrowseView({
         }
         const key = discoveryDetailKey(view);
         const nextOffset = key ? detailPagesRef.current[key]?.nextOffset : null;
-        if (nextOffset != null) {
-          void loadDetailSongs(view, nextOffset);
+        if (nextOffset == null) {
+          return;
         }
+        const token = `${key}:${nextOffset}`;
+        if (detailTriggerRef.current === token) {
+          return;
+        }
+        detailTriggerRef.current = token;
+        void loadDetailSongs(view, nextOffset);
       },
       { rootMargin: "240px" }
     );
