@@ -1527,7 +1527,7 @@ function SearchResults({
             <h3>{t("search.onlineTitle")}</h3>
             <span className="search-status available">{online?.message ?? ""}</span>
           </div>
-          <div className="indexed-result-list compact-result-list">
+          <div className="song-list recommendation-list">
             {onlineCandidates.map((candidate) => (
               <SearchOnlineSongRow
                 candidate={candidate}
@@ -1572,7 +1572,7 @@ function SearchOnlineSongRow({
   return (
     <button
       aria-label={`${label} ${candidate.title}`}
-      className={`song-row indexed-version-row compact-version-row song-row--clickable${busy ? " song-row--busy" : ""}`}
+      className={`song-row recommendation-row song-row--clickable${busy ? " song-row--busy" : ""}`}
       disabled={busy}
       type="button"
       onClick={() =>
@@ -1585,15 +1585,13 @@ function SearchOnlineSongRow({
         )
       }
     >
-      <div className="compact-version-main">
+      <div className="result-main">
         <strong>
           <ScrollingText text={candidate.title} />
         </strong>
-        <div className="compact-version-meta">
-          <span>{candidate.artistName}</span>
-          <span>{candidate.sourceLabel}</span>
-          {state?.status === "failed" && state.message ? <span>{state.message}</span> : null}
-        </div>
+        <p>
+          <ScrollingText text={candidate.artistName} />
+        </p>
       </div>
       {busy || state?.status === "failed" ? <span className="song-row__badge">{label}</span> : null}
     </button>
@@ -1884,7 +1882,7 @@ function DiscoveryBrowseView({
   const songs = detailState?.songs ?? view.item.songs;
   const loading = detailState?.status === "loading";
   return (
-    <section className="panel recommendation-panel">
+    <section className="panel recommendation-panel detail-panel">
       <div className="panel-heading">
         <h2>{title}</h2>
         <button className="secondary-button compact-button" type="button" onClick={goBackBrowseView}>

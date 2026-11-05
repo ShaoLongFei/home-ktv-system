@@ -139,7 +139,7 @@ input:focus {
   min-height: 100vh;
   margin: 0;
   padding: 10px 16px 84px;
-  overflow-x: hidden;
+  overflow-x: clip;
   color: var(--ktv-text);
   background:
     linear-gradient(180deg, rgba(5, 7, 13, 0.68) 0%, rgba(11, 16, 32, 0.82) 100%),
@@ -2719,4 +2719,17 @@ input:focus {
   to {
     transform: translateX(calc(var(--scroll-distance, 0px) * -1));
   }
+}
+
+
+/* 详情页（某歌手/某风格）的标题行吸顶，返回按钮不用滚回顶部才看得到 */
+.detail-panel > .panel-heading {
+  align-items: center;
+  background: rgba(8, 12, 24, 0.94);
+  backdrop-filter: blur(10px);
+  margin: -6px 0 0;
+  padding: 8px 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
