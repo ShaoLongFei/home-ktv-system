@@ -415,6 +415,7 @@ function createPool(
   return {
     activeTarget: input.activeTarget ?? null,
     activeVideo: input.activeVideo ?? createVideo({ hidden: false, paused: input.activePaused ?? true }),
+    applyVolume: vi.fn(),
     disable: vi.fn(),
     primeActive: vi.fn(),
     prepareStandby: vi.fn(),

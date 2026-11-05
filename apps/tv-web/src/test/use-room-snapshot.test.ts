@@ -28,6 +28,29 @@ describe("useRoomSnapshot realtime sync", () => {
     expect(result.current.snapshot?.type).toBe("room.snapshot");
   });
 
+  it("carries volume, pause and replay flags through the control snapshot", async () => {
+    const sockets = installWebSocketMock();
+    const client = createClient({
+      bootstrapSnapshot: roomSnapshot("token-first"),
+      fetchSnapshots: []
+    });
+
+    const { result } = renderHook(() => useRoomSnapshot(asPlayerClient(client)));
+
+    await waitFor(() => expect(result.current.snapshot?.pairing.token).toBe("token-first"));
+
+    sockets[0]?.emitMessage({
+      ...controlSnapshot("token-first", 3),
+      volumePercent: 82,
+      playbackPaused: true,
+      replayToken: "7"
+    });
+
+    await waitFor(() => expect(result.current.snapshot?.volumePercent).toBe(82));
+    expect(result.current.snapshot?.playbackPaused).toBe(true);
+    expect(result.current.snapshot?.replayToken).toBe("7");
+  });
+
   it("collects room interaction realtime events and expires them locally", async () => {
     vi.useFakeTimers();
     const sockets = installWebSocketMock();

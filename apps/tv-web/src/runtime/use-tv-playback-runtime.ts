@@ -64,6 +64,10 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       return;
     }
 
+    // 音量与会话状态无关：暂停、重唱、切轨这些分支都会提前 return，
+    // 所以在这里统一落一次，避免调音量被播放分支吞掉。
+    pool.applyVolume(snapshot.volumePercent);
+
     void synchronizePlayback({
       client,
       pool,

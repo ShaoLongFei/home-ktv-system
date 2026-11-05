@@ -234,16 +234,23 @@ function toRoomSnapshot(snapshot: RoomSnapshot | RoomControlSnapshot): RoomSnaps
     return snapshot;
   }
 
+  // 控制快照比播放快照多带了 tvPresence/controllers/queue，但少了 conflict，
+  // 而音量、暂停、重唱标记必须原样透传：TV 端只从这三项知道要做什么，
+  // 丢一项就会出现「手机调音量电视没反应」这类静默失效。
+  // 这三项在契约里是可选的，undefined 时必须整个省略（exactOptionalPropertyTypes）。
   return {
     type: "room.snapshot",
     roomId: snapshot.roomId,
     roomSlug: snapshot.roomSlug,
     sessionVersion: snapshot.sessionVersion,
     state: snapshot.state,
+    ...(snapshot.volumePercent != null ? { volumePercent: snapshot.volumePercent } : {}),
     pairing: snapshot.pairing,
     currentTarget: snapshot.currentTarget,
     switchTarget: snapshot.switchTarget,
     targetVocalMode: snapshot.targetVocalMode ?? null,
+    ...(snapshot.playbackPaused != null ? { playbackPaused: snapshot.playbackPaused } : {}),
+    ...(snapshot.replayToken != null ? { replayToken: snapshot.replayToken } : {}),
     conflict: snapshot.tvPresence.conflict,
     notice: snapshot.notice,
     generatedAt: snapshot.generatedAt
