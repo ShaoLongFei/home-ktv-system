@@ -551,8 +551,8 @@ input:focus {
 .queue-list,
 .song-list {
   display: grid;
-  /* 每列最小 100px，能塞几列塞几列 */
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  /* 每列最小 120px，能塞几列塞几列 */
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 8px;
   margin-top: 8px;
   /* grid 默认 align-content:stretch，放在抽屉的 1fr 区域里会把每一行
@@ -1131,8 +1131,7 @@ input:focus {
   color: rgba(248, 250, 252, 0.92);
   font-size: 0.82rem;
   line-height: 1.25;
-  overflow-wrap: anywhere;
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .compact-version-meta {
@@ -1358,7 +1357,7 @@ input:focus {
 
 .recommendation-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 5px;
   margin-top: 0;
 }
@@ -1389,17 +1388,17 @@ input:focus {
   color: var(--ktv-text);
   font-size: 0.82rem;
   line-height: 1.25;
-  /* 列宽只有 100，宁可换行也别截断，名字要能看全 */
-  overflow-wrap: anywhere;
-  white-space: normal;
+  min-width: 0;
+  /* 固定一行，放不下交给 ScrollingText 横向滚动 */
+  white-space: nowrap;
 }
 
 .recommendation-row p {
   margin: 0;
   font-size: 0.7rem;
   line-height: 1.25;
-  overflow-wrap: anywhere;
-  white-space: normal;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .song-art {
@@ -2201,13 +2200,6 @@ input:focus {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .recommendation-row {
-    grid-template-columns: 40px minmax(0, 1fr) 34px;
-  }
-
-  .recommendation-row > .add-circle-button {
-    width: 34px;
-  }
 }
 
 .room-switcher {
@@ -2691,5 +2683,34 @@ input:focus {
 
   .bottom-tabs {
     max-width: 1040px;
+  }
+}
+
+
+/* 名字固定一行，放不下才横向滚动 */
+.scroll-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.scroll-text__inner {
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.scroll-text--running .scroll-text__inner {
+  animation: scroll-text-marquee 6s ease-in-out infinite alternate;
+  padding-right: 10px;
+}
+
+@keyframes scroll-text-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(var(--scroll-distance, 0px) * -1));
   }
 }

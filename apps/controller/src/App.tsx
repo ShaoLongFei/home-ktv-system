@@ -1586,7 +1586,9 @@ function SearchOnlineSongRow({
       }
     >
       <div className="compact-version-main">
-        <strong>{candidate.title}</strong>
+        <strong>
+          <ScrollingText text={candidate.title} />
+        </strong>
         <div className="compact-version-meta">
           <span>{candidate.artistName}</span>
           <span>{candidate.sourceLabel}</span>
@@ -1861,6 +1863,50 @@ function DiscoveryBrowseView({
   );
 }
 
+/**
+ * 名字固定一行，宽度不够时横向滚动。
+ * 用实测溢出量驱动动画：列宽足够就一直静止，只有真放不下才滚。
+ */
+function ScrollingText({ text }: { text: string }) {
+  const outerRef = useRef<HTMLSpanElement>(null);
+  const innerRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const outer = outerRef.current;
+    const inner = innerRef.current;
+    if (!outer || !inner) {
+      return;
+    }
+
+    const measure = () => {
+      const distance = inner.scrollWidth - outer.clientWidth;
+      if (distance > 2) {
+        outer.style.setProperty("--scroll-distance", `${distance}px`);
+        outer.classList.add("scroll-text--running");
+        return;
+      }
+      outer.style.removeProperty("--scroll-distance");
+      outer.classList.remove("scroll-text--running");
+    };
+
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(outer);
+    return () => observer.disconnect();
+  }, [text]);
+
+  return (
+    <span className="scroll-text" ref={outerRef}>
+      <span className="scroll-text__inner" ref={innerRef}>
+        {text}
+      </span>
+    </span>
+  );
+}
+
 function DiscoverySongRow({
   controller,
   onQueueAddFeedback,
@@ -1924,8 +1970,12 @@ function DiscoverySongRow({
       }}
     >
       <div className="result-main">
-        <strong>{song.title}</strong>
-        <p>{song.artistName}</p>
+        <strong>
+          <ScrollingText text={song.title} />
+        </strong>
+        <p>
+          <ScrollingText text={song.artistName} />
+        </p>
       </div>
       {onlineBusy || (isOnline && onlineState?.status === "failed") ? (
         <span className="song-row__badge">{addLabel}</span>
