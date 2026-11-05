@@ -355,12 +355,14 @@ export class OnlineImportService {
 
   private async runJob(assetId: string, songNumber: string): Promise<void> {
     const { provider, repository } = this.options;
+    let claimed = false;
     try {
-      const claimed = await repository.claimForDownload(assetId);
-      if (!claimed) {
+      const claim = await repository.claimForDownload(assetId);
+      if (!claim) {
         this.logger.info?.(`[online] ${songNumber} already claimed by another worker, skip`);
         return;
       }
+      claimed = true;
 
       const address = await provider.resolve(songNumber);
       await this.enforceQuota({ nextBytes: address.sizeBytes, excludeAssetId: assetId });
@@ -432,6 +434,10 @@ export class OnlineImportService {
         errorReason: message
       });
       this.logger.warn?.(`[online] import failed for ${songNumber}: ${message}`);
+    } finally {
+      if (claimed) {
+        await repository.releaseClaim(assetId).catch(() => undefined);
+      }
     }
   }
 

@@ -205,6 +205,10 @@ describe("OnlineImportService", () => {
     await repository.updateAsset(asset.id, { status: "failed" });
     const claimed = await repository.claimForDownload(asset.id);
     expect(claimed?.status).toBe("caching");
+    expect(await repository.claimForDownload(asset.id)).toBeNull();
+
+    await repository.releaseClaim(asset.id);
+    expect((await repository.claimForDownload(asset.id))?.status).toBe("caching");
   });
 
   it("keeps search failures from breaking the local catalog", async () => {

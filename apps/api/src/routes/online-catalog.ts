@@ -32,15 +32,7 @@ export async function registerOnlineCatalogRoutes(
   dependencies: OnlineCatalogRouteDependencies
 ): Promise<void> {
   server.get("/admin/online/sources", async (_request, reply) => {
-    const status = await dependencies.onlineImport.status();
-    await reply.send({
-      provider: status.provider,
-      enabled: status.enabled,
-      cacheDir: status.cacheDir,
-      pendingJobs: status.pendingJobs,
-      activeJobs: status.activeJobs,
-      stats: status.stats
-    });
+    await reply.send(await dependencies.onlineImport.status());
   });
 
   server.get<{ Querystring: AssetsQuery }>("/admin/online/assets", async (request, reply) => {

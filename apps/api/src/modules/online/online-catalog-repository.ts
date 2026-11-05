@@ -78,6 +78,8 @@ export interface OnlineCatalogRepository {
   updateAsset(assetId: string, patch: UpdateOnlineAssetPatch): Promise<OnlineAssetRecord | null>;
   /** 跨进程抢占下载任务；返回 null 表示已有其他实例在处理。 */
   claimForDownload(assetId: string): Promise<OnlineAssetRecord | null>;
+  /** 任务结束后释放租约，允许失败重试立即再次抢占。 */
+  releaseClaim(assetId: string): Promise<void>;
   listEvictionCandidates(input: { limit: number; excludeAssetId?: string | null }): Promise<OnlineAssetRecord[]>;
   listExpiredAssets(olderThan: Date, limit: number): Promise<OnlineAssetRecord[]>;
   failStaleCaching(olderThan: Date): Promise<number>;
@@ -91,7 +93,6 @@ interface OnlineSongRow {
   provider_song_id: string;
   title: string;
   primary_artist_name: string;
-  duration_ms: number | null;
   metadata: Record<string, unknown>;
 }
 
@@ -135,7 +136,7 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
            tags = EXCLUDED.tags,
            metadata = online_songs.metadata || EXCLUDED.metadata,
            updated_at = now()
-       RETURNING id, provider, provider_song_id, title, primary_artist_name, duration_ms, metadata`,
+       RETURNING id, provider, provider_song_id, title, primary_artist_name, metadata`,
       [
         input.provider,
         input.providerSongId,
@@ -234,16 +235,26 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
   async claimForDownload(assetId: string): Promise<OnlineAssetRecord | null> {
     const result = await this.db.query<OnlineAssetRow>(
       `UPDATE online_song_assets
-       SET status = 'caching', updated_at = now()
+       SET status = 'caching',
+           claim_expires_at = now() + interval '10 minutes',
+           updated_at = now()
        WHERE id = $1
-         AND status IN ('caching', 'failed', 'unavailable')
-         AND (status <> 'caching' OR updated_at < now() - interval '10 minutes')
+         AND (claim_expires_at IS NULL OR claim_expires_at < now())
        RETURNING id, song_id, provider, provider_asset_id, media_url, cache_path, catalog_song_id,
                  status, duration_ms, cache_bytes, audio_track_count, error_reason, metadata`,
       [assetId]
     );
     const row = result.rows[0];
     return row ? mapAssetRow(row) : null;
+  }
+
+  async releaseClaim(assetId: string): Promise<void> {
+    await this.db.query(
+      `UPDATE online_song_assets
+       SET claim_expires_at = NULL
+       WHERE id = $1`,
+      [assetId]
+    );
   }
 
   async listEvictionCandidates(input: { limit: number; excludeAssetId?: string | null }): Promise<OnlineAssetRecord[]> {
@@ -406,18 +417,25 @@ export class InMemoryOnlineCatalogRepository implements OnlineCatalogRepository 
     return updated;
   }
 
+  private readonly claims = new Set<string>();
+
   async claimForDownload(assetId: string): Promise<OnlineAssetRecord | null> {
     const entry = [...this.assets.entries()].find(([, asset]) => asset.id === assetId);
     if (!entry) {
       return null;
     }
     const [key, asset] = entry;
-    if (asset.status === "ready") {
+    if (asset.status === "ready" || this.claims.has(assetId)) {
       return null;
     }
+    this.claims.add(assetId);
     const claimed: OnlineAssetRecord = { ...asset, status: "caching" };
     this.assets.set(key, claimed);
     return claimed;
+  }
+
+  async releaseClaim(assetId: string): Promise<void> {
+    this.claims.delete(assetId);
   }
 
   async listEvictionCandidates(input: { limit: number; excludeAssetId?: string | null }): Promise<OnlineAssetRecord[]> {
@@ -459,7 +477,7 @@ function mapSongRow(row: OnlineSongRow): OnlineSongRecord {
     providerSongId: row.provider_song_id,
     title: row.title,
     artistName: row.primary_artist_name,
-    durationMs: row.duration_ms,
+    durationMs: readMetadataNumber(row.metadata, "durationMs"),
     metadata: row.metadata ?? {}
   };
 }
@@ -487,6 +505,11 @@ function requireRow<TRow>(row: TRow | undefined, table: string): TRow {
     throw new Error(`${table} upsert did not return a row`);
   }
   return row;
+}
+
+function readMetadataNumber(metadata: Record<string, unknown> | null | undefined, key: string): number | null {
+  const value = metadata?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function toNumber(value: unknown): number {

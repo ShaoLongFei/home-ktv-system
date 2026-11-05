@@ -45,7 +45,9 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
       cacheDir: "/media/online-cache/igeba",
       pendingJobs: 0,
       activeJobs: 0,
-      stats: { total: 1, ready: 1, caching: 0, failed: 0, unavailable: 0, bytes: 1024 }
+      stats: { total: 1, ready: 1, caching: 0, failed: 0, unavailable: 0, bytes: 1024 },
+      quota: { maxBytes: 2048, maxItems: 200, ttlDays: 30, usedBytes: 1024, usedItems: 1 },
+      metrics: { downloads: 2, evictions: 1, failures: 0, lastPruneAt: null }
     }),
     listAssets: async () => [createAsset({ status: "ready", cacheBytes: 1024 })],
     requestImport: async (input: { songNumber: string }, options: RequestImportOptions = {}) => {
@@ -114,7 +116,9 @@ describe("online catalog routes", () => {
     expect(response.json()).toMatchObject({
       provider: "igeba",
       enabled: true,
-      stats: { ready: 1, bytes: 1024 }
+      stats: { ready: 1, bytes: 1024 },
+      quota: { maxItems: 200, usedItems: 1 },
+      metrics: { downloads: 2, evictions: 1 }
     });
     await server.close();
   });

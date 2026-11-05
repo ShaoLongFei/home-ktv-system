@@ -112,10 +112,15 @@ export class PgOnlineCatalogPromoter implements OnlineCatalogPromoter {
   }
 
   async demote(catalogSongId: string): Promise<void> {
+    // 软删除：队列条目通过 FK 引用 ktv_songs，硬删会直接报 23503。
+    // 置 missing_at 后搜索与可播查询都会忽略它，重新导入时 promotion 会把它复活。
     await this.db.query(
-      `DELETE FROM ktv_songs
+      `UPDATE ktv_songs
+       SET missing_at = now(),
+           updated_at = now()
        WHERE id = $1
-         AND source_root LIKE '${ONLINE_SOURCE_ROOT_PREFIX}%'`,
+         AND source_root LIKE '${ONLINE_SOURCE_ROOT_PREFIX}%'
+         AND missing_at IS NULL`,
       [catalogSongId]
     );
   }

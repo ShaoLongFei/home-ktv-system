@@ -420,9 +420,9 @@ python3 scripts/igeba_probe.py selfcheck 海阔天空 --count 5
 | --- | --- |
 | 配额 | `IGEBA_CACHE_MAX_BYTES` / `IGEBA_CACHE_MAX_ITEMS`，下载前按 LRU 预淘汰 |
 | TTL | `IGEBA_CACHE_TTL_DAYS`，启动 + 每小时清理（`pruneExpired`） |
-| 手动淘汰 | `POST /admin/online/assets/:id/evict`，删文件 + `unavailable` + 删除 `ktv-online-*` 条目 |
+| 手动淘汰 | `POST /admin/online/assets/:id/evict`，删文件 + `unavailable` + **软删除** `ktv-online-*`（置 `missing_at`，避免队列外键 23503） |
 | 对账 | 启动时重置超过 15 分钟的 `caching`；`failStaleCaching` |
-| 多实例 | `claimForDownload` 条件更新（10 分钟租约），跨进程去重 |
+| 多实例 | `claimForDownload` 以 `claim_expires_at` 租约（10 分钟）抢占，任务结束释放（0028） |
 | 指标 | `status()` 暴露配额使用、下载/淘汰/失败计数、最后清理时间 |
 | 调试 | `POST /admin/online/prune` 立即清理 |
 
@@ -438,3 +438,15 @@ python3 scripts/igeba_probe.py selfcheck 海阔天空 --count 5
 
 - 手机控制端搜索弹层新增「在线曲库」分区：点歌 → `POST /rooms/:slug/online/queue`，按钮状态 `点歌 / 提交中 / 准备中 / 已点 / 重试`；准备中每 2s 轮询 asset 状态（最长 3 分钟）。
 - 管理后台新增「在线曲库」页签：状态卡、关键字预载、运营位一键预载、缓存表格与单条淘汰。
+
+### 15.4 真机验证记录（2026-11-05）
+
+远端 PostgreSQL 17.11（`192.168.3.202/home_ktv`）跑通 0001–0028 迁移后，用真实 ige8 完成一次全链路：
+
+- `POST /rooms/living-room/online/queue` → 202，缓存 56,135,055 字节后 `ready`；
+- `online_songs` / `online_song_assets` / `queue_entries` 三表写入正确，`catalog_song_id = ktv-online-igeba-20040098`；
+- `ktv_songs` 生成 `source_root='online:igeba'` 条目，搜索从 NAS 分区命中，在线候选自动去重；
+- `/media/nas/ktv-online-igeba-20040098` 返回 206；
+- 淘汰后媒体 404、搜索不再出现，队列引用因软删除保持完整。
+
+过程中修掉的真实缺陷：`online_songs` 不存在的 `duration_ms` 列、新资产被 10 分钟租约挡住无法下载、`ktv_songs` 硬删触发队列外键 23503、状态接口丢掉配额/指标字段。

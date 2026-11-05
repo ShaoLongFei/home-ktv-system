@@ -48,4 +48,16 @@ describe("PgOnlineCatalogPromoter", () => {
     expect(calls[0]?.values[17]).toBe("online:igeba");
     expect(String(calls[0]?.values[16])).toContain('"providerSongId":"20039643"');
   });
+
+  it("soft deletes the catalog row instead of hard deleting it", async () => {
+    const { db, calls } = createRecordingDb();
+    const promoter = new PgOnlineCatalogPromoter(db);
+
+    await promoter.demote("ktv-online-igeba-20039643");
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]?.text).toContain("UPDATE ktv_songs");
+    expect(calls[0]?.text).toContain("missing_at = now()");
+    expect(calls[0]?.values).toEqual(["ktv-online-igeba-20039643"]);
+  });
 });

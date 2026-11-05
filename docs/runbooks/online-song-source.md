@@ -58,8 +58,8 @@ IGEBA_CACHE_TTL_DAYS=30
 
 - 每次下载前按 LRU（`last_played_at` 为空优先、`updated_at` 最早优先）淘汰，直到满足 `IGEBA_CACHE_MAX_BYTES` 与 `IGEBA_CACHE_MAX_ITEMS`；
 - 服务启动时做一次对账，之后每小时执行一次 TTL 清理（`IGEBA_CACHE_TTL_DAYS`），并把卡住超过 15 分钟的 `caching` 任务重置为 `failed`；
-- 淘汰会删除缓存文件、把 asset 置为 `unavailable`，并删除对应的 `ktv-online-*` 曲库条目；
-- 多个 API 副本同时运行时，通过数据库条件更新抢占任务（10 分钟租约），不会重复下载同一首。
+- 淘汰会删除缓存文件、把 asset 置为 `unavailable`，并把对应的 `ktv-online-*` 曲库条目**软删除**（`missing_at`）：搜索与播放立即看不到它，但队列里的历史引用不会因外键报错；重新导入会把它复活；
+- 多个 API 副本同时运行时，通过 `claim_expires_at` 租约（10 分钟）抢占任务，跑完立即释放，不会重复下载同一首。
 
 ## 管理后台
 
@@ -69,6 +69,11 @@ Admin 顶部「在线曲库」页签：
 - 按关键字批量预载（数量 1–50）；
 - 运营位/榜单模块一键预载（解析 `app://Object=Playlist&ObjectId=...`，Playlist=3、Rank=4、Album=2）；
 - 缓存列表：状态、大小、`ktv-online-*` 曲库 ID、单条淘汰。
+
+## 已在真实 PostgreSQL 上验证
+
+2026-11-05 在 `192.168.3.202:5432/home_ktv`（PostgreSQL 17.11）执行过 0001–0028 全部迁移，并跑通：
+导入 → `online_songs` / `online_song_assets` 落库 → `ktv_songs` 提升（`source_root=online:igeba`、`missing_at` 为空）→ 队列写入 → `/media/nas/ktv-online-*` 返回 206 → 淘汰后媒体 404 且搜索不再出现。
 
 ## 批量导入（命令行）
 
