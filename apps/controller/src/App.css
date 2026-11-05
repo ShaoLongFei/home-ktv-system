@@ -2667,28 +2667,32 @@ input:focus {
   white-space: nowrap;
 }
 
-/* 宽屏自适应：容器放宽，歌曲列表按可用宽度自动分列 */
-@media (min-width: 760px) {
+/* 宽屏自适应：容器放宽，歌曲列表按可用宽度自动分列。
+   基础规则里 max-width 是 560px，600 宽时内容区只剩 528，放不下两列
+   280，所以这里必须一起抬上去。 */
+@media (min-width: 600px) {
   .app-shell {
-    width: min(100%, 720px);
+    max-width: 720px;
+    width: 100%;
     margin: 0 auto;
-    padding: 20px 16px 96px;
   }
 
   .bottom-tabs {
-    right: 0;
-    width: min(100%, 720px);
-    margin: 0 auto;
+    left: 50%;
+    max-width: 720px;
+    right: auto;
+    transform: translateX(-50%);
+    width: 100%;
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1000px) {
   .app-shell {
-    width: min(100%, 1040px);
+    max-width: 1040px;
   }
 
   .bottom-tabs {
-    width: min(100%, 1040px);
+    max-width: 1040px;
   }
 }
 
