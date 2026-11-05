@@ -11,7 +11,13 @@ import {
   buildSingleFileAudioTrackPlaybackProfile,
   inferTrackRolesFromRealMv
 } from "./real-mv-compatibility.js";
-import type { PlayableMediaAsset, PlayableMediaLookup, PlayableMediaRepository, PlayableMediaStatus } from "./playable-media-repository.js";
+import type {
+  PlayableMediaAsset,
+  PlayableMediaLookup,
+  PlayableMediaRepository,
+  PlayableMediaStatus,
+  PlayableMediaVariantPaths
+} from "./playable-media-repository.js";
 
 interface NasPlayableMediaRow {
   asset_id: string;
@@ -86,7 +92,8 @@ function mapNasPlayableMedia(row: NasPlayableMediaRow): PlayableMediaAsset {
     mediaInfoSummary: mediaInfo.mediaInfoSummary,
     mediaInfoProvenance: mediaInfo.mediaInfoProvenance,
     trackRoles: inferTrackRolesWithOrderFallback(mediaInfo.mediaInfoSummary),
-    playbackProfile: buildSingleFileAudioTrackPlaybackProfile(mediaInfo.mediaInfoSummary)
+    playbackProfile: buildSingleFileAudioTrackPlaybackProfile(mediaInfo.mediaInfoSummary),
+    ...(readVariantPaths(row.technical_metadata) ? { variantFilePaths: readVariantPaths(row.technical_metadata)! } : {})
   };
 }
 
@@ -116,6 +123,16 @@ function compatibilityReasonsFor(row: NasPlayableMediaRow, mediaInfoSummary: Med
     });
   }
   return reasons;
+}
+
+function readVariantPaths(metadata: unknown): PlayableMediaVariantPaths | null {
+  const record = asRecord(metadata);
+  const variants = record ? asRecord(record.onlineVariants) : null;
+  const instrumental = variants ? variants.instrumental : null;
+  if (typeof instrumental !== "string" || instrumental.trim().length === 0) {
+    return null;
+  }
+  return { instrumental };
 }
 
 function readNasMediaInfo(

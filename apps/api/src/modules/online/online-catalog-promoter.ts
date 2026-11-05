@@ -20,6 +20,8 @@ export interface OnlineCatalogPromoter {
   promote(input: PromoteOnlineSongInput): Promise<{ songId: string }>;
   /** 淘汰缓存时移除对应的本地曲库条目。 */
   demote(catalogSongId: string): Promise<void>;
+  /** 把抽出的伴奏文件挂到曲库条目上（供 /media/nas/...?variant=instrumental 使用）。 */
+  attachVariant(catalogSongId: string, instrumentalPath: string): Promise<void>;
 }
 
 export const ONLINE_SOURCE_ROOT_PREFIX = "online:";
@@ -111,6 +113,21 @@ export class PgOnlineCatalogPromoter implements OnlineCatalogPromoter {
     return { songId };
   }
 
+  async attachVariant(catalogSongId: string, instrumentalPath: string): Promise<void> {
+    await this.db.query(
+      `UPDATE ktv_songs
+       SET technical_metadata = jsonb_set(
+             COALESCE(technical_metadata, '{}'::jsonb),
+             '{onlineVariants}',
+             jsonb_build_object('instrumental', $2::text),
+             true
+           ),
+           updated_at = now()
+       WHERE id = $1`,
+      [catalogSongId, instrumentalPath]
+    );
+  }
+
   async demote(catalogSongId: string): Promise<void> {
     // 软删除：队列条目通过 FK 引用 ktv_songs，硬删会直接报 23503。
     // 置 missing_at 后搜索与可播查询都会忽略它，重新导入时 promotion 会把它复活。
@@ -168,6 +185,7 @@ function withAudioTracks(
 export class InMemoryOnlineCatalogPromoter implements OnlineCatalogPromoter {
   readonly promoted: PromoteOnlineSongInput[] = [];
   readonly demoted: string[] = [];
+  readonly variants = new Map<string, string>();
 
   async promote(input: PromoteOnlineSongInput): Promise<{ songId: string }> {
     this.promoted.push(input);
@@ -176,5 +194,9 @@ export class InMemoryOnlineCatalogPromoter implements OnlineCatalogPromoter {
 
   async demote(catalogSongId: string): Promise<void> {
     this.demoted.push(catalogSongId);
+  }
+
+  async attachVariant(catalogSongId: string, instrumentalPath: string): Promise<void> {
+    this.variants.set(catalogSongId, instrumentalPath);
   }
 }

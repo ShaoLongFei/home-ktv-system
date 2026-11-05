@@ -58,6 +58,7 @@ IGEBA_CACHE_TTL_DAYS=30
 
 - 每次下载前按 LRU（`last_played_at` 为空优先、`updated_at` 最早优先）淘汰，直到满足 `IGEBA_CACHE_MAX_BYTES` 与 `IGEBA_CACHE_MAX_ITEMS`；
 - 服务启动时做一次对账，之后每小时执行一次 TTL 清理（`IGEBA_CACHE_TTL_DAYS`），并把卡住超过 15 分钟的 `caching` 任务重置为 `failed`；
+- 双音轨歌曲会额外生成 `*.instrumental.mkv`（`-c copy` 抽第 2 条音轨），占用约翻倍，已计入 `cache_bytes` 与配额统计；
 - 淘汰会删除缓存文件、把 asset 置为 `unavailable`，并把对应的 `ktv-online-*` 曲库条目**软删除**（`missing_at`）：搜索与播放立即看不到它，但队列里的历史引用不会因外键报错；重新导入会把它复活；
 - 多个 API 副本同时运行时，通过 `claim_expires_at` 租约（10 分钟）抢占任务，跑完立即释放，不会重复下载同一首。
 
@@ -93,6 +94,7 @@ pnpm -F @home-ktv/api igeba:load -- --query "海阔天空" --limit 5 --dry-run
 | `status=failed`，`errorReason` 含 `Url Expired` | ige8 双门户 token 不匹配或限流 | 等 1–3 分钟重试；不要提高 `IGEBA_CONCURRENCY` |
 | `status=unavailable`，含 `no playable url` | 该曲下架或需付费会员 | 不会自动重试，换其他版本 |
 | `/media/online/:id` 返回 409 | 缓存未完成 | 轮询 asset 状态；`ready` 后再取 |
+| 切原唱/伴唱失败（`switch_failed`） | Chrome/Edge 不支持 `HTMLMediaElement.audioTracks`，单文件切轨必然失败 | 导入时用 ffmpeg 抽出伴奏轨（`*.instrumental.mkv`），切换改走「换源」路径；历史缓存由启动时的 backfill 自动补齐 |
 | `audioTrackCount=null` | 服务器没装 ffprobe | 不影响播放（网关走在线缓存分支）；装上 ffprobe 后重新预载可补全音轨信息 |
 | 磁盘增长 | 缓存文件累积 | 手动清理 `IGEBA_CACHE_DIR`，并同步删除数据库里对应 asset |
 

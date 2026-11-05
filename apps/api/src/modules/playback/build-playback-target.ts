@@ -62,6 +62,10 @@ async function buildSourcePlaybackTarget(input: BuildPlaybackTargetInput & {
   }
 
   const effectiveVocalMode = effectiveVocalModeForPlayableMedia(asset, input.queueEntry);
+  const playbackSource =
+    effectiveVocalMode === "instrumental" && asset.variantFilePaths?.instrumental
+      ? { ...source, variant: "instrumental" as const }
+      : source;
 
   return {
     roomId: input.room.id,
@@ -71,7 +75,7 @@ async function buildSourcePlaybackTarget(input: BuildPlaybackTargetInput & {
     songId: asset.songId,
     assetId: asset.assetId,
     currentQueueEntryPreview: queuePreviewFromPlayableMedia(input.queueEntry, asset),
-    playbackUrl: input.mediaGateway.createPlaybackUrl(source),
+    playbackUrl: input.mediaGateway.createPlaybackUrl(playbackSource),
     resumePositionMs: input.resumePositionMs,
     vocalMode: effectiveVocalMode,
     switchFamily: switchFamilyForPlayableMedia(asset),

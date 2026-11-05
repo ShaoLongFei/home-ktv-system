@@ -118,6 +118,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   if (onlineImport) {
     // 启动对账 + 每小时清理过期缓存与卡住的任务
     void onlineImport.pruneExpired().catch(() => undefined);
+    // 历史缓存补齐伴奏变体（幂等，失败不影响启动）
+    void onlineImport.backfillVariants().catch(() => undefined);
     const maintenanceTimer = setInterval(() => {
       void onlineImport.pruneExpired().catch(() => undefined);
     }, 60 * 60 * 1000);

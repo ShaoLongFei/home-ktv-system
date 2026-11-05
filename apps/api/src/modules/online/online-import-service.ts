@@ -1,4 +1,6 @@
+import { execFile } from "node:child_process";
 import { rm, stat } from "node:fs/promises";
+import { promisify } from "node:util";
 import { basename, extname, join, resolve } from "node:path";
 import { probeMediaFile } from "../ingest/media-probe.js";
 import { InMemoryOnlineCatalogPromoter, type OnlineCatalogPromoter } from "./online-catalog-promoter.js";
@@ -16,6 +18,14 @@ export interface OnlineMediaProbeResult {
   mediaInfoProvenance?: unknown;
 }
 
+const execFileAsync = promisify(execFile);
+
+export interface InstrumentalRemuxInput {
+  inputPath: string;
+  outputPath: string;
+  trackIndex: number;
+}
+
 export interface OnlineImportServiceOptions {
   provider: OnlineCatalogProvider;
   repository: OnlineCatalogRepository;
@@ -26,6 +36,8 @@ export interface OnlineImportServiceOptions {
   cacheTtlDays?: number;
   promoter?: OnlineCatalogPromoter;
   probeMedia?: (filePath: string) => Promise<OnlineMediaProbeResult>;
+  /** 抽出伴奏轨；默认调用 ffmpeg。测试可注入。 */
+  remuxInstrumental?: (input: InstrumentalRemuxInput) => Promise<void>;
   logger?: Pick<Console, "info" | "warn" | "error">;
 }
 
@@ -79,6 +91,7 @@ export class OnlineImportService {
   private readonly cacheRoot: string;
   private readonly concurrency: number;
   private readonly probeMedia: (filePath: string) => Promise<OnlineMediaProbeResult>;
+  private readonly remuxInstrumental: (input: InstrumentalRemuxInput) => Promise<void>;
   private readonly promoter: OnlineCatalogPromoter;
   private readonly readyHooks = new Map<string, Array<(asset: OnlineAssetRecord) => void | Promise<void>>>();
   private readonly metrics = { downloads: 0, evictions: 0, failures: 0, lastPruneAt: null as string | null };
@@ -97,6 +110,27 @@ export class OnlineImportService {
     this.maxItems = options.cacheMaxItems ?? 200;
     this.ttlDays = options.cacheTtlDays ?? 30;
     this.promoter = options.promoter ?? new InMemoryOnlineCatalogPromoter();
+    this.remuxInstrumental = options.remuxInstrumental ?? (async ({ inputPath, outputPath, trackIndex }) => {
+      await execFileAsync(
+        "ffmpeg",
+        [
+          "-y",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-i",
+          inputPath,
+          "-map",
+          "0:v:0",
+          "-map",
+          `0:a:${trackIndex}`,
+          "-c",
+          "copy",
+          outputPath
+        ],
+        { timeout: 180000 }
+      );
+    });
     this.probeMedia = options.probeMedia ?? (async (filePath) => {
       const probed = await probeMediaFile(filePath);
       return {
@@ -262,6 +296,10 @@ export class OnlineImportService {
       await rm(asset.cachePath, { force: true });
       await rm(`${asset.cachePath}.part`, { force: true });
     }
+    const instrumentalPath = readInstrumentalPath(asset.metadata);
+    if (instrumentalPath) {
+      await rm(instrumentalPath, { force: true });
+    }
     if (asset.catalogSongId) {
       await this.promoter.demote(asset.catalogSongId);
     }
@@ -387,6 +425,11 @@ export class OnlineImportService {
         this.logger.warn?.(`[online] ffprobe failed for ${targetPath}: ${describeError(error)}`);
       }
 
+      let instrumentalPath: string | null = null;
+      if ((probed.audioTrackCount ?? 0) >= 2) {
+        instrumentalPath = await this.ensureInstrumentalVariant(targetPath, 1);
+      }
+
       const current = await repository.findAssetById(assetId);
       const styleTags = readStyleTags(current?.metadata);
       const title = typeof current?.metadata?.title === "string" ? current.metadata.title : songNumber;
@@ -409,18 +452,20 @@ export class OnlineImportService {
           audioTrackCount: probed.audioTrackCount,
           providerSongNumber: songNumber,
           ...(probed.mediaInfoSummary ? { mediaInfoSummary: probed.mediaInfoSummary } : {}),
-          ...(probed.mediaInfoProvenance ? { mediaInfoProvenance: probed.mediaInfoProvenance } : {})
+          ...(probed.mediaInfoProvenance ? { mediaInfoProvenance: probed.mediaInfoProvenance } : {}),
+          ...(instrumentalPath ? { onlineVariants: { instrumental: instrumentalPath } } : {})
         }
       });
 
       const ready = await repository.updateAsset(assetId, {
         status: "ready",
         cachePath: targetPath,
-        cacheBytes: downloaded.bytes,
+        cacheBytes: downloaded.bytes + (instrumentalPath ? await fileSizeOrZero(instrumentalPath) : 0),
         durationMs: probed.durationMs,
         audioTrackCount: probed.audioTrackCount,
         catalogSongId: promoted.songId,
-        errorReason: null
+        errorReason: null,
+        ...(instrumentalPath ? { metadata: { instrumentalPath, instrumentalTrackIndex: 1 } } : {})
       });
       this.logger.info?.(`[online] cached ${songNumber} (${downloaded.bytes} bytes) -> ${promoted.songId}`);
       if (ready) {
@@ -465,6 +510,57 @@ export class OnlineImportService {
     return { bytes: downloaded.bytes };
   }
 
+  /** 生成伴奏变体（默认抽第 2 条音轨），失败不阻塞主流程。 */
+  private async ensureInstrumentalVariant(inputPath: string, trackIndex: number): Promise<string | null> {
+    const extension = extname(inputPath) || ".mkv";
+    const outputPath = `${inputPath.slice(0, -extension.length)}.instrumental${extension}`;
+    try {
+      const existing = (await stat(outputPath)).size;
+      if (existing > 0) {
+        return outputPath;
+      }
+    } catch {
+      // 不存在，继续生成
+    }
+    try {
+      await this.remuxInstrumental({ inputPath, outputPath, trackIndex });
+      this.logger.info?.(`[online] instrumental variant ready: ${outputPath}`);
+      return outputPath;
+    } catch (error) {
+      this.logger.warn?.(`[online] instrumental remux failed for ${inputPath}: ${describeError(error)}`);
+      return null;
+    }
+  }
+
+  /** 为历史缓存补齐伴奏变体（启动时调用，幂等）。 */
+  async backfillVariants(): Promise<number> {
+    const assets = await this.options.repository.listAssets(200);
+    let attached = 0;
+    for (const asset of assets) {
+      if (asset.status !== "ready" || !asset.cachePath) {
+        continue;
+      }
+      if ((asset.audioTrackCount ?? 0) < 2) {
+        continue;
+      }
+      let instrumentalPath = readInstrumentalPath(asset.metadata);
+      if (!instrumentalPath) {
+        instrumentalPath = await this.ensureInstrumentalVariant(asset.cachePath, 1);
+        if (!instrumentalPath) {
+          continue;
+        }
+        await this.options.repository.updateAsset(asset.id, {
+          metadata: { instrumentalPath, instrumentalTrackIndex: 1 }
+        });
+      }
+      if (asset.catalogSongId) {
+        await this.promoter.attachVariant(asset.catalogSongId, instrumentalPath);
+        attached += 1;
+      }
+    }
+    return attached;
+  }
+
   private async runReadyHooks(asset: OnlineAssetRecord): Promise<void> {
     const hooks = this.readyHooks.get(asset.id);
     if (!hooks) {
@@ -479,6 +575,19 @@ export class OnlineImportService {
       }
     }
   }
+}
+
+async function fileSizeOrZero(path: string): Promise<number> {
+  try {
+    return (await stat(path)).size;
+  } catch {
+    return 0;
+  }
+}
+
+function readInstrumentalPath(metadata: Record<string, unknown> | undefined): string | null {
+  const value = metadata?.instrumentalPath;
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
 }
 
 function readStyleTags(metadata: Record<string, unknown> | undefined): string[] {

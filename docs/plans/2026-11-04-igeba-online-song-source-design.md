@@ -450,3 +450,15 @@ python3 scripts/igeba_probe.py selfcheck 海阔天空 --count 5
 - 淘汰后媒体 404、搜索不再出现，队列引用因软删除保持完整。
 
 过程中修掉的真实缺陷：`online_songs` 不存在的 `duration_ms` 列、新资产被 10 分钟租约挡住无法下载、`ktv_songs` 硬删触发队列外键 23503、状态接口丢掉配额/指标字段。
+
+### 15.5 原唱/伴唱切换（2026-11-05）
+
+网页 TV 端在 Chrome/Edge 下没有 `HTMLMediaElement.audioTracks`，`switchKind=audio_track` 必然 `switch_failed`。改为**抽轨换源**：
+
+- 导入时若探测到 ≥2 条音轨，执行 `ffmpeg -map 0:v:0 -map 0:a:1 -c copy` 生成 `*.instrumental.mkv`；
+- 路径写入 `online_song_assets.metadata.instrumentalPath` 与 `ktv_songs.technical_metadata.onlineVariants.instrumental`；
+- `/media/nas/:assetId?variant=instrumental` 返回伴奏文件；
+- `build-switch-target` 在有变体时返回 `switchKind=asset`（`switchFamily=real-mv-variant`），Web 端用 standby 视频换源，原生端同样可用；
+- 启动时 `backfillVariants()` 幂等补齐历史缓存，缓存字节与配额含变体。
+
+验证：`switch-vocal-mode` 返回 `currentTarget.playbackUrl=...+?variant=instrumental`、`switchTarget` 指向主文件（原唱），两个 URL 均 206。

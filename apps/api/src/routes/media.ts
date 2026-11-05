@@ -75,14 +75,18 @@ export async function registerMediaRoutes(fastify: FastifyInstance, context: Med
     }
   );
 
-  fastify.get<{ Params: { assetId: string } }>("/media/nas/:assetId", async (request, reply) => {
+  fastify.get<{ Params: { assetId: string }; Querystring: { variant?: string } }>(
+    "/media/nas/:assetId",
+    async (request, reply) => {
     if (!context.mediaGateway) {
       return reply.status(503).send({ error: "MEDIA_GATEWAY_UNAVAILABLE" });
     }
 
+    const variant = request.query.variant === "instrumental" ? "instrumental" : undefined;
     const resolution = await context.mediaGateway.resolveForStreaming({
       sourceType: "nas",
-      assetId: request.params.assetId
+      assetId: request.params.assetId,
+      ...(variant ? { variant } : {})
     });
     if (!resolution.ok) {
       return sendSourceMediaError(reply, resolution);
@@ -94,7 +98,8 @@ export async function registerMediaRoutes(fastify: FastifyInstance, context: Med
       contentType: resolution.contentType,
       rangeHeader: request.headers.range
     });
-  });
+    }
+  );
 
   fastify.get<{ Params: { assetId: string } }>("/media/online/:assetId", async (request, reply) => {
     if (!context.mediaGateway) {

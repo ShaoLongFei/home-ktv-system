@@ -36,6 +36,32 @@ describe("buildSwitchTarget", () => {
     });
   });
 
+  it("switches to the extracted instrumental file when a variant exists", async () => {
+    const playableAsset: PlayableMediaAsset = {
+      ...createPlayableMediaAsset(),
+      variantFilePaths: { instrumental: "/media/online-cache/igeba/20040098.instrumental.mkv" }
+    };
+
+    const target = await buildSwitchTarget({
+      roomSlug: livingRoom.slug,
+      repositories: createRepositories({
+        session: createPlaybackSession(),
+        queueEntry: createQueueEntry({ playbackOptions: { preferredVocalMode: "original" } }),
+        playableMedia: [playableAsset]
+      }),
+      mediaGateway: createMediaGateway()
+    });
+
+    expect(target).toMatchObject({
+      switchKind: "asset",
+      toAssetId: "ktv-asset-main",
+      playbackUrl: "http://ktv.local/media/nas/ktv-asset-main?variant=instrumental",
+      switchFamily: "real-mv-variant",
+      vocalMode: "instrumental",
+      selectedTrackRef: null
+    });
+  });
+
   it("returns null when the target NAS audio role is missing", async () => {
     const playableAsset = {
       ...createPlayableMediaAsset(),
@@ -90,7 +116,8 @@ function createRepositories(input: {
 function createMediaGateway(): Pick<MediaGateway, "createPlaybackUrl"> {
   return {
     createPlaybackUrl(source: PlayableMediaLookup) {
-      return `http://ktv.local/media/${source.sourceType}/${source.assetId}`;
+      const query = source.variant ? `?variant=${source.variant}` : "";
+      return `http://ktv.local/media/${source.sourceType}/${source.assetId}${query}`;
     }
   };
 }

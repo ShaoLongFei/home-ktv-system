@@ -50,7 +50,8 @@ export class MediaGateway {
   constructor(private readonly options: MediaGatewayOptions) {}
 
   createPlaybackUrl(source: PlayableMediaLookup): string {
-    const path = `/media/${encodeURIComponent(source.sourceType)}/${encodeURIComponent(source.assetId)}`;
+    const variantQuery = source.variant ? `?variant=${encodeURIComponent(source.variant)}` : "";
+    const path = `/media/${encodeURIComponent(source.sourceType)}/${encodeURIComponent(source.assetId)}${variantQuery}`;
     const baseUrl = this.options.publicBaseUrl.trim().replace(/\/$/, "");
     return baseUrl ? `${baseUrl}${path}` : path;
   }
@@ -60,7 +61,7 @@ export class MediaGateway {
       return this.resolveOnlineCachedAsset(source.assetId);
     }
 
-    if (source.assetId.startsWith(ONLINE_CATALOG_SONG_PREFIX)) {
+    if (!source.variant && source.assetId.startsWith(ONLINE_CATALOG_SONG_PREFIX)) {
       const cached = await this.resolvePromotedOnlineAsset(source.assetId);
       if (cached) {
         return cached;
@@ -76,7 +77,15 @@ export class MediaGateway {
       return { ok: false, statusCode: 409, code: "MEDIA_SOURCE_NOT_READY" };
     }
 
-    const resolved = await this.options.mediaPathResolver.resolveAssetFile(asset.filePath);
+    if (source.variant && !asset.variantFilePaths?.[source.variant]) {
+      return { ok: false, statusCode: 404, code: "MEDIA_FILE_NOT_FOUND" };
+    }
+
+    const filePath = source.variant
+      ? (asset.variantFilePaths?.[source.variant] ?? asset.filePath)
+      : asset.filePath;
+
+    const resolved = await this.options.mediaPathResolver.resolveAssetFile(filePath);
     if (!resolved.ok) {
       return this.mapPathResolutionFailure(resolved);
     }
@@ -87,7 +96,7 @@ export class MediaGateway {
       assetId: asset.assetId,
       filePath: resolved.filePath,
       contentLength: resolved.sizeBytes,
-      contentType: inferVideoContentType(asset.filePath)
+      contentType: inferVideoContentType(filePath)
     };
   }
 

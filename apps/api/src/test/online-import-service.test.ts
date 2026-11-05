@@ -1,6 +1,6 @@
 import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { OnlineCatalogProvider } from "../modules/online/igeba/igeba-provider.js";
 import { InMemoryOnlineCatalogPromoter } from "../modules/online/online-catalog-promoter.js";
@@ -52,7 +52,10 @@ describe("OnlineImportService", () => {
       promoter,
       cacheDir,
       logger: silentLogger,
-      probeMedia: async () => ({ durationMs: 269000, audioTrackCount: 2 })
+      probeMedia: async () => ({ durationMs: 269000, audioTrackCount: 2 }),
+      remuxInstrumental: async ({ outputPath }) => {
+        await writeFile(outputPath, "instrumental");
+      }
     });
 
     const queued = await service.requestImport({ songNumber: "20039643", title: "孤勇者", artistName: "陈奕迅" });
@@ -64,10 +67,12 @@ describe("OnlineImportService", () => {
     const asset = await service.getAsset(queued.asset.id);
     expect(asset?.status).toBe("ready");
     expect(asset?.cachePath).toBe(join(cacheDir, "20039643.mkv"));
-    expect(asset?.cacheBytes).toBe(9);
+    expect(asset?.cacheBytes).toBe(9 + "instrumental".length);
     expect(asset?.audioTrackCount).toBe(2);
     expect(asset?.catalogSongId).toBe("ktv-online-igeba-20039643");
+    expect(asset?.metadata.instrumentalPath).toBe(join(cacheDir, "20039643.instrumental.mkv"));
     expect(promoter.promoted[0]).toMatchObject({
+      technicalMetadata: { onlineVariants: { instrumental: join(cacheDir, "20039643.instrumental.mkv") } },
       provider: "igeba",
       providerSongId: "20039643",
       title: "孤勇者",

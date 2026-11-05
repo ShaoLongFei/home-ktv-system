@@ -66,6 +66,51 @@ describe("MediaGateway promoted online assets", () => {
     });
   });
 
+  it("serves the instrumental variant file when requested", async () => {
+    const variantPath = join(mediaRoot, "online-cache", "igeba", "20039643.instrumental.mkv");
+    await writeFile(variantPath, "abcdefghij");
+
+    const gateway = new MediaGateway({
+      playableMedia: {
+        findPlayableBySource: async () => ({
+          sourceType: "nas",
+          songId: "ktv-online-igeba-20039643",
+          assetId: "ktv-online-igeba-20039643",
+          title: "孤勇者",
+          artistName: "陈奕迅",
+          displayName: "20039643.mkv",
+          filePath: cachePath,
+          status: "ready",
+          durationMs: 1000,
+          compatibilityStatus: "playable",
+          compatibilityReasons: [],
+          mediaInfoSummary: {
+            container: "matroska",
+            durationMs: 1000,
+            videoCodec: "h264",
+            resolution: null,
+            fileSizeBytes: 10,
+            audioTracks: []
+          },
+          mediaInfoProvenance: { source: "ffprobe", sourceVersion: null, probedAt: null, importedFrom: cachePath },
+          trackRoles: { original: null, instrumental: null },
+          playbackProfile: { kind: "single_file_audio_tracks", container: "matroska", videoCodec: "h264", audioCodecs: ["vorbis"], requiresAudioTrackSelection: true },
+          variantFilePaths: { instrumental: variantPath }
+        })
+      },
+      mediaPathResolver: new MediaPathResolver({ mediaRoot }),
+      publicBaseUrl: ""
+    });
+
+    const resolution = await gateway.resolveForStreaming({
+      sourceType: "nas",
+      assetId: "ktv-online-igeba-20039643",
+      variant: "instrumental"
+    });
+
+    expect(resolution).toMatchObject({ ok: true, filePath: variantPath, contentLength: 10 });
+  });
+
   it("returns 409 while the promoted asset is still caching", async () => {
     const gateway = createGateway(
       new FakeOnlineAssets({
