@@ -588,6 +588,28 @@ describe("mobile controller runtime", () => {
     ]);
   });
 
+  it("opens a muted TV mirror from the shortcut row", async () => {
+    const user = userEvent.setup();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByRole("button", { name: "打开搜索" });
+    await user.click(screen.getByRole("button", { name: "同步画面" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "电视画面" });
+    const video = dialog.querySelector("video");
+    // 只是看画面，不能出声
+    expect(video?.muted).toBe(true);
+    expect(video?.getAttribute("src")).toBe("http://ktv.local/media/asset-current");
+
+    await user.click(within(dialog).getByRole("button", { name: "关闭" }));
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "电视画面" })).toBeNull());
+  });
+
   it("repeats emoji interactions during a long press and stops after the send window", async () => {
     vi.useFakeTimers();
     const { requests } = installControllerFetchMock({

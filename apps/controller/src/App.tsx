@@ -6,7 +6,7 @@ import type {
   SongDiscoverySong,
   VocalMode
 } from "@home-ktv/domain";
-import type { RoomInteractionKind } from "@home-ktv/player-contracts";
+import type { PlaybackTarget, RoomInteractionKind } from "@home-ktv/player-contracts";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { fetchDiscoveryArtistSongs, fetchDiscoveryGenreSongs } from "./api/client.js";
 import { I18nProvider, LanguageSwitch, useI18n } from "./i18n.js";
@@ -39,6 +39,7 @@ function ControllerApp() {
   const browseView = browseStack.at(-1) ?? { kind: "home" };
   const [activeTab, setActiveTab] = useState<ControllerTab>("home");
   const [queueDrawerOpen, setQueueDrawerOpen] = useState(false);
+  const [mirrorOpen, setMirrorOpen] = useState(false);
   const [interactionComposer, setInteractionComposer] = useState<RoomInteractionKind | null>(null);
   const [queueAddFeedback, setQueueAddFeedback] = useState<QueueAddFeedback | null>(null);
   const [optimisticQueueAdds, setOptimisticQueueAdds] = useState<OptimisticQueueAdd[]>([]);
@@ -134,6 +135,7 @@ function ControllerApp() {
           openBrowseView={openBrowseView}
           setInteractionComposer={setInteractionComposer}
           setSearchOpen={setSearchOpen}
+          onOpenMirror={() => setMirrorOpen(true)}
           onOpenProfile={() => setActiveTab("my")}
           t={t}
           visibleArtists={visibleArtists}
@@ -166,6 +168,7 @@ function ControllerApp() {
         onClose={() => setQueueDrawerOpen(false)}
       />
 
+      {mirrorOpen ? <TvMirrorOverlay target={current ?? null} t={t} onClose={() => setMirrorOpen(false)} /> : null}
       {searchOpen ? (
         <SearchOverlay
           controller={controller}
@@ -507,6 +510,7 @@ function HomeScreen({
   openBrowseView,
   setInteractionComposer,
   setSearchOpen,
+  onOpenMirror,
   onOpenProfile,
   t,
   visibleArtists,
@@ -520,6 +524,7 @@ function HomeScreen({
   openBrowseView(view: Exclude<BrowseView, { kind: "home" }>): void;
   setInteractionComposer(kind: RoomInteractionKind): void;
   setSearchOpen(open: boolean): void;
+  onOpenMirror(): void;
   onOpenProfile(): void;
   t: TFunction;
   visibleArtists: readonly SongDiscoveryArtist[];
@@ -580,6 +585,7 @@ function HomeScreen({
         />
         <ShortcutAction className="shortcut-action--roast" label={t("shortcut.roast")} icon="roast" onClick={() => setInteractionComposer("roast")} />
         <ShortcutAction className="shortcut-action--blessing" label={t("shortcut.blessing")} icon="blessing" onClick={() => setInteractionComposer("blessing")} />
+        <ShortcutAction className="shortcut-action--mirror" label={t("shortcut.mirror")} icon="mirror" onClick={onOpenMirror} />
       </section>
 
       <section className="recommendation-panel home-recommendations" aria-label={t("discovery.recommendations")}>
@@ -646,7 +652,7 @@ function ShortcutAction({
   onClick
 }: {
   className: string;
-  icon: "emoji" | "rainbow" | "roast" | "blessing";
+  icon: "emoji" | "rainbow" | "roast" | "blessing" | "mirror";
   label: string;
   onClick(): void;
 }) {
@@ -655,6 +661,86 @@ function ShortcutAction({
       <span className={`shortcut-action__icon shortcut-action__icon--${icon}`} aria-hidden="true" />
       <span>{label}</span>
     </button>
+  );
+}
+
+/** 自动播放被拦、或 jsdom 里 play() 未实现时都不要影响渲染。 */
+function playQuietly(video: HTMLVideoElement): void {
+  try {
+    const result: unknown = video.play();
+    if (result && typeof (result as Promise<void>).catch === "function") {
+      void (result as Promise<void>).catch(() => {});
+    }
+  } catch {
+    // 忽略：浏览器拒绝自动播放
+  }
+}
+
+/**
+ * 手机端静音预览电视画面。
+ *
+ * 直接复用电视在播的 media 地址，静音播放，不参与房间状态；进度只在换歌时
+ * 对齐一次——控制快照里的 resumePositionMs 会随电视心跳变化，每次变化都
+ * seek 会把画面反复拖回去。
+ */
+function TvMirrorOverlay({
+  target,
+  onClose,
+  t
+}: {
+  target: PlaybackTarget | null;
+  onClose(): void;
+  t: TFunction;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const syncedEntryRef = useRef<string | null>(null);
+
+  const syncToTarget = useCallback((video: HTMLVideoElement) => {
+    if (!target || syncedEntryRef.current === target.queueEntryId) {
+      return;
+    }
+    syncedEntryRef.current = target.queueEntryId;
+    const startAtSeconds = Math.max(0, target.resumePositionMs) / 1000;
+    try {
+      video.currentTime = Number.isFinite(startAtSeconds) ? startAtSeconds : 0;
+    } catch {
+      // 元数据还没就绪时 seek 会抛错，等 loadedmetadata 再对齐
+    }
+    playQuietly(video);
+  }, [target]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      syncToTarget(video);
+    }
+  }, [syncToTarget]);
+
+  return (
+    <div className="mirror-layer" role="dialog" aria-modal="true" aria-label={t("mirror.title")}>
+      <div className="mirror-layer__bar">
+        <span className="mirror-layer__heading">
+          {t("mirror.title")}
+          <span className="mirror-layer__hint">{t("mirror.mutedHint")}</span>
+        </span>
+        <button className="secondary-button compact-button" type="button" onClick={onClose}>
+          {t("button.close")}
+        </button>
+      </div>
+      {target ? (
+        <video
+          autoPlay
+          className="mirror-layer__video"
+          muted
+          onLoadedMetadata={(event) => syncToTarget(event.currentTarget)}
+          playsInline
+          ref={videoRef}
+          src={target.playbackUrl}
+        />
+      ) : (
+        <p className="mirror-layer__empty">{t("mirror.empty")}</p>
+      )}
+    </div>
   );
 }
 

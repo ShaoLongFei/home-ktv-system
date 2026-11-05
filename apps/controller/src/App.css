@@ -553,6 +553,9 @@ input:focus {
   display: grid;
   gap: 8px;
   margin-top: 8px;
+  /* grid 默认 align-content:stretch，放在抽屉的 1fr 区域里会把每一行
+     均分拉伸，整个列表变成几张占满屏的大卡片。必须显式从顶部排列。 */
+  align-content: start;
 }
 
 .queue-row,
@@ -816,7 +819,8 @@ input:focus {
 
 .home-shortcut-section {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 发表情 / 彩虹屁 / 神吐槽 / 送祝福 / 同步画面 —— 五个挤一行 */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   align-items: start;
 }
@@ -2319,11 +2323,10 @@ input:focus {
   bottom: 0;
   display: grid;
   grid-template-areas:
-    "head"
-    "meta"
-    "controls";
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto auto;
+    "head head"
+    "meta controls";
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
   left: 0;
   padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
   position: fixed;
@@ -2384,6 +2387,7 @@ input:focus {
   gap: 5px;
   grid-area: controls;
   justify-self: end;
+  min-width: 0;
 }
 
 .music-console__controls button {
@@ -2424,6 +2428,27 @@ input:focus {
 
   .music-console__controls button {
     padding: 4px 5px;
+  }
+}
+
+/* 超窄屏：再把按钮和音量文字收一档，「音量」标签只留数值，
+   否则这一行放不下 7 个控件。 */
+@media (max-width: 340px) {
+  .music-console {
+    column-gap: 4px;
+  }
+
+  .music-console__controls {
+    gap: 2px;
+  }
+
+  .music-console__controls button {
+    font-size: 10px;
+    padding: 3px 4px;
+  }
+
+  .music-console__meta > span:first-child {
+    display: none;
   }
 }
 
@@ -2546,4 +2571,75 @@ input:focus {
   font-size: 10px;
   margin-left: 2px;
   padding: 0 4px;
+}
+
+/* 同步画面：屏幕 + 播放三角 */
+.shortcut-action__icon--mirror::before {
+  width: 26px;
+  height: 19px;
+  border: 3px solid currentColor;
+  border-radius: 4px;
+}
+
+.shortcut-action__icon--mirror::after {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid currentColor;
+}
+
+/* 手机端静音预览电视画面 */
+.mirror-layer {
+  background: #000;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  inset: 0;
+  position: fixed;
+  z-index: 80;
+}
+
+.mirror-layer__bar {
+  align-items: center;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+}
+
+.mirror-layer__heading {
+  align-items: baseline;
+  display: flex;
+  font-weight: 800;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mirror-layer__hint {
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mirror-layer__video {
+  background: #000;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  width: 100%;
+}
+
+.mirror-layer__empty {
+  align-self: center;
+  color: rgba(148, 163, 184, 0.9);
+  justify-self: center;
+  margin: 0;
+}
+
+/* 五列快捷操作在窄屏收一下字号，避免「同步画面」被挤出去 */
+@media (max-width: 380px) {
+  .shortcut-action {
+    font-size: 0.7rem;
+  }
 }
