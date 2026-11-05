@@ -1520,7 +1520,7 @@ function SearchResults({
   const onlineCandidates = online?.status === "available" ? online.candidates : [];
 
   return (
-    <div className="song-list search-overlay-results">
+    <div className="search-overlay-results">
       {onlineCandidates.length > 0 ? (
         <section className="indexed-panel" aria-label={t("search.onlineTitle")}>
           <div className="panel-heading">
