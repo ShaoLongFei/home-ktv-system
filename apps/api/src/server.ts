@@ -60,6 +60,7 @@ import { registerRoomInteractionRoutes } from "./routes/room-interactions.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
 import { registerOnlineCatalogRoutes } from "./routes/online-catalog.js";
 import { startPlaybackIfIdle } from "./modules/playback/session-command-service.js";
+import { registerRoomRoutes } from "./routes/rooms.js";
 import { registerSongDiscoveryRoutes } from "./routes/song-discovery.js";
 import { registerSongSearchRoutes } from "./routes/song-search.js";
 
@@ -119,7 +120,25 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   if (onlineImport) {
     // 启动对账 + 每小时清理过期缓存与卡住的任务
     void onlineImport.pruneExpired().catch(() => undefined);
-    // 历史缓存补齐伴奏变体（幂等，失败不影响启动）
+    // 回收 TV 端离线超过 1 小时的自建房
+  const sweepStaleRooms = async (): Promise<void> => {
+    if (!repositories.rooms.findStaleTvRooms || !repositories.rooms.delete) {
+      return;
+    }
+    const cutoff = new Date(Date.now() - 60 * 60 * 1000);
+    const staleRooms = await repositories.rooms.findStaleTvRooms({ cutoff });
+    for (const room of staleRooms) {
+      await repositories.rooms.delete(room.id);
+      server.log.info({ roomSlug: room.slug }, "stale TV room removed");
+    }
+  };
+  void sweepStaleRooms().catch(() => undefined);
+  const sweepTimer = setInterval(() => {
+    void sweepStaleRooms().catch(() => undefined);
+  }, 10 * 60 * 1000);
+  sweepTimer.unref?.();
+
+  // 历史缓存补齐伴奏变体（幂等，失败不影响启动）
     void onlineImport.backfillVariants().catch(() => undefined);
     const maintenanceTimer = setInterval(() => {
       void onlineImport.pruneExpired().catch(() => undefined);
@@ -241,6 +260,7 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
       ensurePlaybackStarted
     });
   }
+  await registerRoomRoutes(server, { rooms: repositories.rooms });
   await registerSongDiscoveryRoutes(server, {
     rooms: repositories.rooms,
     queueEntries: repositories.queueEntries,

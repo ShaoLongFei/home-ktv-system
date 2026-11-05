@@ -154,13 +154,72 @@ export class PlayerClient {
   }
 }
 
-export function createBrowserPlayerClient(): PlayerClient {
+export function createBrowserPlayerClient(roomSlug = "living-room"): PlayerClient {
   return new PlayerClient({
     apiBaseUrl: readRuntimeSetting("apiBaseUrl", readDefaultApiBaseUrl()),
     deviceId: readRuntimeSetting("deviceId", "") || readOrCreateDeviceId(),
     deviceName: readRuntimeSetting("deviceName", "Living Room TV"),
-    roomSlug: "living-room"
+    roomSlug
   });
+}
+
+const tvRoomStorageKey = "home_ktv_tv_room";
+
+export function readTvRoomSlug(): string | null {
+  const search = new URLSearchParams(globalThis.location?.search ?? "");
+  const fromQuery = search.get("room");
+  if (fromQuery && fromQuery.trim()) {
+    return fromQuery.trim();
+  }
+  try {
+    const stored = globalThis.localStorage?.getItem(tvRoomStorageKey);
+    return stored && stored.trim() ? stored.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function rememberTvRoomSlug(slug: string): void {
+  try {
+    globalThis.localStorage?.setItem(tvRoomStorageKey, slug);
+  } catch {
+    // ignore
+  }
+}
+
+export async function tvRoomExists(slug: string): Promise<boolean> {
+  const apiBaseUrl = readRuntimeSetting("apiBaseUrl", readDefaultApiBaseUrl());
+  try {
+    const response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/rooms/${encodeURIComponent(slug)}/snapshot`);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** 电视端作为房主建房；失败时退回 living-room，保证老部署仍可用。 */
+export async function createTvRoom(): Promise<string> {
+  const apiBaseUrl = readRuntimeSetting("apiBaseUrl", readDefaultApiBaseUrl());
+  const deviceId = readRuntimeSetting("deviceId", "") || readOrCreateDeviceId();
+  try {
+    const response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}/rooms`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: "我的 KTV", deviceId })
+    });
+    if (response.ok) {
+      const payload = (await response.json()) as { room?: { slug?: string } };
+      const slug = payload.room?.slug;
+      if (slug) {
+        rememberTvRoomSlug(slug);
+        return slug;
+      }
+    }
+  } catch {
+    // fall through
+  }
+  rememberTvRoomSlug("living-room");
+  return "living-room";
 }
 
 async function parseJsonResponse<T>(response: Response): Promise<T> {

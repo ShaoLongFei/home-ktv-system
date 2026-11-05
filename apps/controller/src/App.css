@@ -2210,3 +2210,75 @@ input:focus {
     margin: 0 auto;
   }
 }
+
+.room-switcher {
+  left: 12px;
+  position: fixed;
+  top: 10px;
+  z-index: 60;
+}
+
+.room-switcher__chip {
+  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 14px;
+}
+
+.room-switcher__panel {
+  background: rgba(10, 15, 28, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  width: 240px;
+}
+
+.room-switcher__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-switcher__list {
+  display: grid;
+  gap: 6px;
+}
+
+.room-switcher__room {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: rgba(248, 250, 252, 0.86);
+  font-size: 13px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.room-switcher__room--active {
+  border-color: rgba(34, 211, 238, 0.6);
+  color: #67e8f9;
+}
+
+.room-switcher__join {
+  display: flex;
+  gap: 8px;
+}
+
+.room-switcher__join input {
+  background: rgba(9, 12, 24, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  color: inherit;
+  flex: 1;
+  font-size: 12px;
+  min-width: 0;
+  padding: 8px 10px;
+}

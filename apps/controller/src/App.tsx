@@ -129,6 +129,7 @@ function ControllerApp() {
 
   return (
     <main className={`app-shell app-shell--${activeTab}`} aria-label={t("app.aria")}>
+      <RoomSwitcher currentRoom={controller.roomSlug} t={t} />
       <AppNotices controller={controller} noticeMessage={noticeMessage} t={t} />
 
       {activeTab === "home" ? (
@@ -1741,6 +1742,113 @@ function DiscoverySongRow({
         {canQueue || isOnline ? "+" : "·"}
       </button>
     </article>
+  );
+}
+
+const joinedRoomsStorageKey = "home_ktv_joined_rooms";
+
+function readJoinedRooms(currentRoom: string): string[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(joinedRoomsStorageKey) ?? "[]");
+    const rooms = Array.isArray(parsed)
+      ? parsed.filter((room): room is string => typeof room === "string" && room.length > 0)
+      : [];
+    return rooms.includes(currentRoom) ? rooms : [currentRoom, ...rooms];
+  } catch {
+    return [currentRoom];
+  }
+}
+
+function rememberJoinedRoom(room: string): void {
+  try {
+    const rooms = readJoinedRooms(room).filter((item) => item !== room);
+    localStorage.setItem(joinedRoomsStorageKey, JSON.stringify([room, ...rooms].slice(0, 12)));
+  } catch {}
+}
+
+function parseRoomInput(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return null;
+  }
+  if (/^https?:\/\//iu.test(trimmed)) {
+    try {
+      const url = new URL(trimmed);
+      const fromQuery = url.searchParams.get("room");
+      if (fromQuery) {
+        return fromQuery;
+      }
+      const lastSegment = url.pathname.split("/").filter(Boolean).at(-1);
+      return lastSegment && lastSegment !== "controller" ? lastSegment : null;
+    } catch {
+      return null;
+    }
+  }
+  const normalized = trimmed.toLowerCase().replace(/[^a-z0-9-]/gu, "");
+  return normalized.length >= 2 ? normalized.slice(0, 40) : null;
+}
+
+function RoomSwitcher({ currentRoom, t }: { currentRoom: string; t: TFunction }) {
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const rooms = readJoinedRooms(currentRoom);
+
+  const enterRoom = (room: string) => {
+    rememberJoinedRoom(room);
+    const url = new URL(window.location.href);
+    url.searchParams.set("room", room);
+    url.searchParams.delete("token");
+    window.location.assign(url.toString());
+  };
+
+  return (
+    <div className="room-switcher">
+      <button className="room-switcher__chip" type="button" onClick={() => setOpen((value) => !value)}>
+        {t("rooms.current", { room: currentRoom })}
+      </button>
+      {open ? (
+        <div className="room-switcher__panel" role="dialog" aria-label={t("rooms.switch")}>
+          <div className="room-switcher__header">
+            <strong>{t("rooms.joined")}</strong>
+            <button className="secondary-button compact-button" type="button" onClick={() => setOpen(false)}>
+              {t("button.close")}
+            </button>
+          </div>
+          <div className="room-switcher__list">
+            {rooms.map((room) => (
+              <button
+                className={room === currentRoom ? "room-switcher__room room-switcher__room--active" : "room-switcher__room"}
+                key={room}
+                type="button"
+                onClick={() => enterRoom(room)}
+              >
+                {room}
+              </button>
+            ))}
+          </div>
+          <form
+            className="room-switcher__join"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const room = parseRoomInput(input);
+              if (room) {
+                enterRoom(room);
+              }
+            }}
+          >
+            <input
+              aria-label={t("rooms.joinPlaceholder")}
+              placeholder={t("rooms.joinPlaceholder")}
+              value={input}
+              onChange={(event) => setInput(event.currentTarget.value)}
+            />
+            <button className="primary-button compact-button" type="submit">
+              {t("rooms.join")}
+            </button>
+          </form>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

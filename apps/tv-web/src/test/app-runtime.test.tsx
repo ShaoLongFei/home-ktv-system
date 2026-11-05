@@ -31,7 +31,10 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("../runtime/player-client.js", () => ({
-  createBrowserPlayerClient: mocks.createBrowserPlayerClient
+  createBrowserPlayerClient: mocks.createBrowserPlayerClient,
+  readTvRoomSlug: () => "living-room",
+  createTvRoom: async () => "living-room",
+  tvRoomExists: async () => true
 }));
 
 vi.mock("../runtime/video-pool.js", () => ({

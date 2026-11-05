@@ -13,14 +13,23 @@ export interface QrModules {
   size: number;
 }
 
-const QUIET_ZONE_MODULES = 4;
+const QUIET_ZONE_MODULES = 2;
 
 export function PairingQr({ pairing, variant }: PairingQrProps) {
   const isLarge = variant === "large";
   const modules = createQrModules(pairing.qrPayload);
 
+  const target = pairing.controllerUrl || pairing.qrPayload;
+
   return (
-    <figure style={isLarge ? styles.largeFrame : styles.cornerFrame}>
+    <a
+      aria-label={isLarge ? "点击打开点歌台" : "打开点歌台"}
+      href={target}
+      rel="noreferrer"
+      style={styles.link}
+      target="_blank"
+    >
+      <figure style={isLarge ? styles.largeFrame : styles.cornerFrame}>
       <div
         aria-label={isLarge ? "large pairing QR" : "corner pairing QR"}
         style={qrStyle(isLarge, modules.size)}
@@ -30,8 +39,9 @@ export function PairingQr({ pairing, variant }: PairingQrProps) {
           <span key={index} style={active ? styles.dotActive : styles.dot} />
         ))}
       </div>
-      {isLarge ? <figcaption style={styles.largeCaption}>HomeKTV 请扫码点歌</figcaption> : null}
-    </figure>
+      {isLarge ? <figcaption style={styles.largeCaption}>扫码或点击二维码进入点歌台</figcaption> : null}
+      </figure>
+    </a>
   );
 }
 
@@ -65,6 +75,11 @@ function qrStyle(isLarge: boolean, moduleSize: number): CSSProperties {
 }
 
 const styles = {
+  link: {
+    color: "inherit",
+    display: "block",
+    textDecoration: "none"
+  },
   largeFrame: {
     backdropFilter: "blur(18px)",
     background: "rgba(255, 255, 255, 0.94)",
@@ -72,10 +87,10 @@ const styles = {
     borderRadius: tvTheme.radii.panel,
     boxShadow: "0 28px 90px rgba(0, 0, 0, 0.46), 0 0 42px rgba(34, 211, 238, 0.10)",
     display: "grid",
-    gap: 22,
+    gap: 18,
     justifyItems: "center",
     margin: 0,
-    padding: "28px 28px 24px"
+    padding: "16px 16px 14px"
   },
   cornerFrame: {
     background: "rgba(255, 255, 255, 0.94)",
@@ -92,7 +107,7 @@ const styles = {
     minWidth: 260,
     aspectRatio: "1",
     background: tvTheme.colors.text,
-    border: `10px solid ${tvTheme.colors.text}`,
+    border: `2px solid ${tvTheme.colors.text}`,
     boxShadow: "0 22px 64px rgba(0, 0, 0, 0.42)",
     display: "grid",
     gap: 0,
@@ -102,7 +117,7 @@ const styles = {
     width: 96,
     aspectRatio: "1",
     background: tvTheme.colors.text,
-    border: `4px solid ${tvTheme.colors.text}`,
+    border: `2px solid ${tvTheme.colors.text}`,
     display: "grid",
     gap: 0,
     padding: 0

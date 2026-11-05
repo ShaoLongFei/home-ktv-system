@@ -16,6 +16,7 @@ const TRANSIENT_NOTICE_TTL_MS = 5_000;
 export interface UseTvPlaybackRuntimeInput {
   activeVideoRef: RefObject<HTMLVideoElement | null>;
   standbyVideoRef: RefObject<HTMLVideoElement | null>;
+  roomSlug?: string;
 }
 
 export interface TvPlaybackRuntimeState {
@@ -32,7 +33,7 @@ export interface TvPlaybackRuntimeState {
 }
 
 export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlaybackRuntimeState {
-  const [client] = useState(() => createBrowserPlayerClient());
+  const [client] = useState(() => createBrowserPlayerClient(input.roomSlug ?? "living-room"));
   const roomState = useRoomSnapshot(client);
   const latestSnapshotRef = useRef<RoomSnapshot | null>(null);
   const videoPoolRef = useRef<DualVideoPool | null>(null);
@@ -336,7 +337,7 @@ async function ensureCurrentPlayback(
   }
 }
 
-async function synchronizePlayback(input: {
+export async function synchronizePlayback(input: {
   client: ReturnType<typeof createBrowserPlayerClient>;
   pool: DualVideoPool;
   setConfirmedPlaybackTargetKey: Dispatch<SetStateAction<string | null>>;

@@ -866,12 +866,38 @@ async function resolvePairingToken(roomSlug: string, queryToken: string | null):
   }
 }
 
+const controllerRoomStorageKey = "home_ktv_controller_room";
+
 function readRuntimeParams(): { roomSlug: string; pairingToken: string | null } {
   const search = new URLSearchParams(window.location.search);
+  const queryRoom = normalizeRoomSlug(search.get("room"));
+  let storedRoom: string | null = null;
+  try {
+    storedRoom = normalizeRoomSlug(window.localStorage.getItem(controllerRoomStorageKey));
+  } catch {
+    storedRoom = null;
+  }
+
+  const roomSlug = queryRoom ?? storedRoom ?? "living-room";
+  if (queryRoom) {
+    try {
+      window.localStorage.setItem(controllerRoomStorageKey, queryRoom);
+    } catch {}
+  }
+
   return {
-    roomSlug: "living-room",
+    roomSlug,
     pairingToken: search.get("token")
   };
+}
+
+function normalizeRoomSlug(value: string | null): string | null {
+  const trimmed = value?.trim().toLowerCase();
+  if (!trimmed) {
+    return null;
+  }
+  const normalized = trimmed.replace(/[^a-z0-9-]/gu, "");
+  return normalized.length >= 2 ? normalized.slice(0, 40) : null;
 }
 
 function createDiscoverySeed(): string {

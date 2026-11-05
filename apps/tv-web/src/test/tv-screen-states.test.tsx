@@ -27,7 +27,7 @@ describe("tv screen states", () => {
     );
 
     expect(screen.getByText("今晚开唱")).toBeTruthy();
-    expect(screen.getByText("HomeKTV 请扫码点歌")).toBeTruthy();
+    expect(screen.getByText("扫码或点击二维码进入点歌台")).toBeTruthy();
     expect(screen.getByLabelText("large pairing QR").parentElement?.style.background).toBe("rgba(255, 255, 255, 0.94)");
   });
 

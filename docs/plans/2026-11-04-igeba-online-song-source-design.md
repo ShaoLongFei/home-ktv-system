@@ -473,3 +473,12 @@ python3 scripts/igeba_probe.py selfcheck 海阔天空 --count 5
 - `commitStandby` 先用旧视频当前时间对齐 standby（容差 0.25s），再恢复音量/静音状态、暂停旧视频并交换；
 - `primeActive` 顺带停掉残留 standby，避免快照重放导致双路播放；
 - 新增 `video-pool-switch.test.ts` 覆盖静音、对齐与残留清理。
+
+### 15.7 多房间与电视房主（2026-11-05）
+
+- `POST /rooms`：电视端建房，生成 `room-xxxxxx`，记录 `owner_device_id`（迁移 0030）；
+- 服务端每 10 分钟回收「TV 心跳超过 1 小时」的自建房（`findStaleTvRooms` + 级联删除）；
+- 电视端 App 启动时校验本地房号，房间被回收则自动重建；
+- 配对 URL 追加 `&room=<slug>`，二维码可点击直接打开点歌台；
+- 手机控制端从 `?room=` / localStorage 取房号，提供房间切换面板与「房间号或链接」加入，支持一个手机保存多个房间；
+- 二维码白边由 4 模块 quiet zone + 10px 边框收敛到 2 模块 + 2px。

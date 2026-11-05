@@ -1,17 +1,54 @@
 import type { RoomSnapshot } from "@home-ktv/player-contracts";
 import type { CSSProperties } from "react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InteractionOverlay } from "./components/InteractionOverlay.js";
 import { IdleScreen } from "./screens/IdleScreen.js";
 import { PlayingScreen } from "./screens/PlayingScreen.js";
 import { useTvPlaybackRuntime } from "./runtime/use-tv-playback-runtime.js";
+import { createTvRoom, readTvRoomSlug, tvRoomExists } from "./runtime/player-client.js";
 import { deriveTvDisplayState, type TvDisplayState } from "./screens/tv-display-model.js";
 import { tvTheme } from "./theme.js";
 
 export function App() {
+  const [roomSlug, setRoomSlug] = useState<string>(() => readTvRoomSlug() ?? "living-room");
+
+  useEffect(() => {
+    let cancelled = false;
+    const stored = readTvRoomSlug();
+    const ensure = async (): Promise<string | null> => {
+      if (stored && (await tvRoomExists(stored))) {
+        return null;
+      }
+      return createTvRoom();
+    };
+    void ensure().then((slug) => {
+      if (!slug) {
+        return;
+      }
+      if (cancelled) {
+        return;
+      }
+      setRoomSlug(slug);
+      try {
+        const url = new URL(globalThis.location.href);
+        url.searchParams.set("room", slug);
+        globalThis.history.replaceState({}, "", url);
+      } catch {
+        // ignore
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [roomSlug]);
+
+  return <TvRoomApp roomSlug={roomSlug} />;
+}
+
+function TvRoomApp({ roomSlug }: { roomSlug: string }) {
   const activeVideoRef = useRef<HTMLVideoElement>(null);
   const standbyVideoRef = useRef<HTMLVideoElement>(null);
-  const runtime = useTvPlaybackRuntime({ activeVideoRef, standbyVideoRef });
+  const runtime = useTvPlaybackRuntime({ activeVideoRef, standbyVideoRef, roomSlug });
   const isPlaybackScreen =
     runtime.roomState.status === "ready" &&
     Boolean(runtime.snapshot?.currentTarget) &&
