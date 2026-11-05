@@ -551,8 +551,8 @@ input:focus {
 .queue-list,
 .song-list {
   display: grid;
-  /* 每列约 280px：视口过 600 自动并成两列，过 900 三列 */
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* 每列最小 150px，能塞几列塞几列 */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 8px;
   margin-top: 8px;
   /* grid 默认 align-content:stretch，放在抽屉的 1fr 区域里会把每一行
@@ -1359,7 +1359,7 @@ input:focus {
 
 .recommendation-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 5px;
   margin-top: 0;
 }
