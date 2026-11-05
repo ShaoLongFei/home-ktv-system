@@ -256,7 +256,7 @@ describe("mobile controller runtime", () => {
     render(<App />);
 
     await screen.findByRole("button", { name: "打开搜索" });
-    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=&limit=30")).toBe(true);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=&limit=30&offset=0")).toBe(true);
     expect(requests.some((request) => request.url.startsWith("/rooms/living-room/songs/discovery?"))).toBe(true);
     expect(requests.some((request) => request.url.endsWith("/available-songs"))).toBe(false);
   });
@@ -372,6 +372,91 @@ describe("mobile controller runtime", () => {
     await waitFor(() => expect(screen.getByText("林俊杰")).toBeTruthy());
     // 拉完最后一页就不再显示加载按钮
     await waitFor(() => expect(screen.queryByRole("button", { name: "加载更多" })).toBeNull());
+  });
+
+  it("appends the next page of search results when the sentinel comes into view", async () => {
+    const user = userEvent.setup();
+    const observers: Array<() => void> = [];
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(private readonly callback: (entries: Array<{ isIntersecting: boolean }>) => void) {}
+        observe() {
+          observers.push(() => this.callback([{ isIntersecting: true }]));
+        }
+        disconnect() {}
+        unobserve() {}
+      }
+    );
+
+    const candidate = (id: string, title: string) => ({
+      provider: "igeba",
+      providerCandidateId: id,
+      title,
+      artistName: "六哲",
+      sourceLabel: "在线曲库",
+      durationMs: 200000,
+      candidateType: "mv",
+      reliabilityLabel: "medium",
+      riskLabel: "normal",
+      taskState: "discovered",
+      taskId: null,
+      nasAssetId: null
+    });
+
+    const { requests } = installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))],
+      songSearchResponse: (query, offset) => {
+        // 只有真正输入了关键词才给结果，避免空查询提前命中
+        if (query !== "六哲") {
+          return {
+            query,
+            nas: { status: "unavailable", message: "", results: [] },
+            online: {
+              status: "available",
+              message: "",
+              requestSupplement: { visible: false, label: "请求补歌" },
+              candidates: [],
+              nextOffset: null
+            }
+          };
+        }
+        return {
+          query,
+          nas: { status: "unavailable", message: "", results: [] },
+          online: {
+            status: "available",
+            message: offset === 0 ? "找到 2 首在线曲库结果" : "找到 1 首在线曲库结果",
+            requestSupplement: { visible: false, label: "请求补歌" },
+            candidates: offset === 0 ? [candidate("a", "第一页歌曲")] : [candidate("b", "第二页歌曲")],
+            nextOffset: offset === 0 ? 20 : null
+          }
+        };
+      }
+    });
+    installWebSocketMock();
+
+    render(<App />);
+    const dialog = await typeSearchQuery(user, "六哲");
+    await within(dialog).findByText("第一页歌曲");
+    expect(within(dialog).queryByText("第二页歌曲")).toBeNull();
+
+    expect(observers.length).toBeGreaterThan(0);
+    act(() => {
+      // 页面上可能还有别的观察器，全部触发一遍
+      observers.forEach((trigger) => trigger());
+    });
+
+    await waitFor(() =>
+      expect(requests.some((request) => request.url.includes("songs/search") && request.url.includes("offset=20"))).toBe(
+        true
+      )
+    );
+    await waitFor(() => expect(within(dialog).getByText("第二页歌曲")).toBeTruthy());
+    expect(within(dialog).getByText("第一页歌曲")).toBeTruthy();
+    expect(requests.some((request) => request.url.includes("songs/search") && request.url.includes("offset=20"))).toBe(
+      true
+    );
   });
 
   it("loads the next page of a detail list when the sentinel comes into view", async () => {
@@ -830,11 +915,11 @@ describe("mobile controller runtime", () => {
       controller.current?.setSongSearchQuery("qlx");
     });
     await vi.advanceTimersByTimeAsync(249);
-    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(false);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30&offset=0")).toBe(false);
     await vi.advanceTimersByTimeAsync(1);
 
     await flush();
-    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(true);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30&offset=0")).toBe(true);
   });
 
   it("submits the latest song search query immediately", async () => {
@@ -853,7 +938,7 @@ describe("mobile controller runtime", () => {
     });
     await flush();
 
-    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(true);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30&offset=0")).toBe(true);
   });
 
   it("sends selected assetId when adding a song version", async () => {
@@ -1346,13 +1431,13 @@ describe("mobile controller runtime", () => {
 
     fireEvent.change(searchInput, { target: { value: "qlx" } });
     await vi.advanceTimersByTimeAsync(250);
-    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30")).toBe(true);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=qlx&limit=30&offset=0")).toBe(true);
 
     requests.length = 0;
     fireEvent.change(searchInput, { target: { value: "晴天" } });
     fireEvent.submit(searchInput.closest("form")!);
     await flush();
-    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=%E6%99%B4%E5%A4%A9&limit=30")).toBe(true);
+    expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=%E6%99%B4%E5%A4%A9&limit=30&offset=0")).toBe(true);
   });
 
   it("hides the NAS library in search and queues the local asset for songs already on NAS", async () => {
@@ -1708,7 +1793,7 @@ function installControllerFetchMock(options: {
   createResponses?: Response[];
   commandResponses?: Record<string, MockResponse | MockResponse[]>;
   controllerHistoryResponse?: unknown;
-  songSearchResponse?: (query: string) => unknown;
+  songSearchResponse?: (query: string, offset: number) => unknown;
   onlineQueueResponse?: unknown;
   onlineAssetResponse?: (assetId: string) => unknown;
   publicSnapshotResponse?: () => unknown;
@@ -1802,7 +1887,8 @@ function installControllerFetchMock(options: {
 
       if (method === "GET" && requestUrl.pathname.endsWith("/songs/search")) {
         const query = requestUrl.searchParams.get("q") ?? "";
-        return json((options.songSearchResponse ?? songSearchResponse)(query));
+        const offset = Number.parseInt(requestUrl.searchParams.get("offset") ?? "0", 10);
+        return json((options.songSearchResponse ?? songSearchResponse)(query, offset));
       }
 
       if (method === "GET" && requestUrl.pathname.endsWith("/songs/discovery")) {

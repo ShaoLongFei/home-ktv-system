@@ -88,6 +88,8 @@ export interface RoomControllerState {
   songSearch: SongSearchResponse | null;
   songSearchQuery: string;
   songSearchStatus: "idle" | "loading" | "success" | "error";
+  songSearchLoadingMore: boolean;
+  loadMoreSongSearch(): Promise<void>;
   snapshot: RoomControlSnapshot | null;
   volumePercent: number;
   addSongVersion(songId: string, assetId: string): Promise<void>;
@@ -127,6 +129,9 @@ export function useRoomControllerRuntime(): RoomControllerState {
   const [songSearch, setSongSearch] = useState<SongSearchResponse | null>(null);
   const [songSearchQuery, setSongSearchQueryState] = useState("");
   const [songSearchStatus, setSongSearchStatus] = useState<RoomControllerState["songSearchStatus"]>("idle");
+  const [songSearchLoadingMore, setSongSearchLoadingMore] = useState(false);
+  const songSearchRef = useRef<SongSearchResponse | null>(null);
+  const songSearchLoadingMoreRef = useRef(false);
   const [duplicateConfirm, setDuplicateConfirm] = useState<RoomControllerState["duplicateConfirm"]>(null);
   const [connectionStatus, setConnectionStatus] = useState<RoomControllerState["connectionStatus"]>("connecting");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -143,6 +148,10 @@ export function useRoomControllerRuntime(): RoomControllerState {
   const [pendingVolumePercent, setPendingVolumePercent] = useState<number | null>(null);
   const snapshotRef = useRef<RoomControlSnapshot | null>(null);
   const songSearchQueryRef = useRef("");
+
+  useEffect(() => {
+    songSearchRef.current = songSearch;
+  }, [songSearch]);
   const searchRequestIdRef = useRef(0);
   const searchAbortRef = useRef<AbortController | null>(null);
   const discoveryAbortRef = useRef<AbortController | null>(null);
@@ -238,6 +247,48 @@ export function useRoomControllerRuntime(): RoomControllerState {
     },
     [clearSearchDebounce, initial.roomSlug]
   );
+
+  /** 搜索结果下滑续拉：在当前结果后面追加下一页。 */
+  const loadMoreSongSearch = useCallback(async () => {
+    const current = songSearchRef.current;
+    const query = songSearchQueryRef.current;
+    const nextOffset = current?.online.nextOffset ?? null;
+    if (!current || !query || nextOffset == null || songSearchLoadingMoreRef.current) {
+      return;
+    }
+
+    const requestId = searchRequestIdRef.current;
+    songSearchLoadingMoreRef.current = true;
+    setSongSearchLoadingMore(true);
+    try {
+      const response = await searchSongs({
+        roomSlug: initial.roomSlug,
+        query,
+        offset: nextOffset
+      });
+      if (searchRequestIdRef.current !== requestId || songSearchQueryRef.current !== query) {
+        return;
+      }
+      // 用 ref 里的首页结果做基准：setState 的 updater 拿到的 previous 可能
+      // 还是 null（首页更新尚未提交），那样这一页会被静默丢掉
+      const base = songSearchRef.current;
+      if (!base || base.query !== response.query) {
+        return;
+      }
+      setSongSearch({
+        ...response,
+        online: {
+          ...response.online,
+          candidates: [...base.online.candidates, ...response.online.candidates]
+        }
+      });
+    } catch (error) {
+      setErrorMessage(errorMessageFrom(error, "SONG_SEARCH_FAILED"));
+    } finally {
+      songSearchLoadingMoreRef.current = false;
+      setSongSearchLoadingMore(false);
+    }
+  }, [initial.roomSlug]);
 
   const runSongDiscovery = useCallback(
     async (seed: string) => {
@@ -739,7 +790,9 @@ export function useRoomControllerRuntime(): RoomControllerState {
     songDiscoveryStatus,
     songHistory,
     songHistoryStatus,
+    loadMoreSongSearch,
     songSearch,
+    songSearchLoadingMore,
     songSearchQuery,
     songSearchStatus,
     snapshot,

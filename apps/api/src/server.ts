@@ -230,7 +230,15 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     rooms: repositories.rooms,
     queueEntries: repositories.queueEntries,
     ...(repositories.ktvIndex ? { ktvIndex: repositories.ktvIndex } : {}),
-    ...(onlineImport ? { onlineCatalog: { search: (keyword, limit) => onlineImport.search(keyword, limit) } } : {})
+    ...(onlineImport
+      ? {
+          onlineCatalog: {
+            search: (keyword: string, limit: number) => onlineImport.search(keyword, limit),
+            searchPage: (keyword: string, options: { page: number; pageSize: number }) =>
+              onlineImport.searchPage(keyword, options)
+          }
+        }
+      : {})
   });
   if (onlineImport) {
     let ensureInFlight: Promise<void> | null = null;

@@ -142,13 +142,14 @@ export async function searchSongs(input: {
   roomSlug: string;
   query: string;
   limit?: number;
+  offset?: number;
   signal?: AbortSignal;
 }): Promise<SongSearchResponse> {
   const init: RequestInit = input.signal ? { signal: input.signal } : {};
   return fetchController<SongSearchResponse>(
     `/rooms/${encodeURIComponent(input.roomSlug)}/songs/search?q=${encodeURIComponent(input.query)}&limit=${
       input.limit ?? 30
-    }`,
+    }&offset=${input.offset ?? 0}`,
     init
   );
 }

@@ -269,6 +269,8 @@ export interface SongSearchOnlineResult {
   message: string;
   requestSupplement: SongSearchOnlineRequestSupplementEntry;
   candidates: OnlineCandidateCard[];
+  /** 还有下一页时给出下一页的 offset；null 表示已经到底 */
+  nextOffset?: number | null;
 }
 
 export type SongSearchIndexedQueueState = "not_queued" | "queued" | "source_missing" | "file_unreadable";

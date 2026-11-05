@@ -17,6 +17,11 @@ export interface OnlineCatalogProvider {
   readonly id: string;
   readonly sourceLabel: string;
   search(keyword: string, limit: number): Promise<OnlineCatalogCandidate[]>;
+  /** 搜索结果分页：下滑自动加载更多用。 */
+  searchPage?(keyword: string, options: { page: number; pageSize: number }): Promise<{
+    candidates: OnlineCatalogCandidate[];
+    pageCount: number;
+  }>;
   resolve(providerSongId: string): Promise<IgebaSongAddress>;
   download?(providerSongId: string, targetPath: string): Promise<{ bytes: number; songNumber: string }>;
   hotModules?(): Promise<IgebaHotModule[]>;
@@ -70,6 +75,16 @@ export function createIgebaProvider(client: IgebaClient, options: IgebaProviderO
     async search(keyword: string, limit: number): Promise<OnlineCatalogCandidate[]> {
       const page = await client.search(keyword, { pageSize: Math.min(50, Math.max(1, limit)) });
       return page.songs.map((song) => toCandidate(song, id, sourceLabel));
+    },
+    async searchPage(keyword, { page, pageSize }) {
+      const result = await client.search(keyword, {
+        page: Math.max(1, page),
+        pageSize: Math.min(50, Math.max(1, pageSize))
+      });
+      return {
+        candidates: result.songs.map((song) => toCandidate(song, id, sourceLabel)),
+        pageCount: result.pageCount
+      };
     },
     resolve: (providerSongId: string) => client.resolveAddress(providerSongId),
     async download(providerSongId: string, targetPath: string) {

@@ -1518,6 +1518,35 @@ function SearchResults({
 }) {
   const online = controller.songSearch?.online ?? null;
   const onlineCandidates = online?.status === "available" ? online.candidates : [];
+  const nextOffset = online?.nextOffset ?? null;
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const triggeredOffsetRef = useRef<number | null>(null);
+
+  // 滑到底部自动取下一页；同一个 offset 只放行一次，避免观察器重建时重复请求
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || nextOffset == null) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) {
+          return;
+        }
+        if (triggeredOffsetRef.current === nextOffset) {
+          return;
+        }
+        triggeredOffsetRef.current = nextOffset;
+        void controller.loadMoreSongSearch();
+      },
+      { rootMargin: "240px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [controller, nextOffset]);
 
   return (
     <div className="search-overlay-results">
@@ -1537,6 +1566,12 @@ function SearchResults({
               />
             ))}
           </div>
+          {nextOffset != null ? (
+            <div aria-hidden="true" className="discovery-sentinel" ref={sentinelRef} />
+          ) : null}
+          {controller.songSearchLoadingMore ? (
+            <p className="empty-state local-empty">{t("search.loadingMore")}</p>
+          ) : null}
         </section>
       ) : null}
 

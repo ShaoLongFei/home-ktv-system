@@ -224,6 +224,14 @@ export class OnlineImportService {
     return provider.discoverySingers ? provider.discoverySingers(limit) : [];
   }
 
+  async searchPage(keyword: string, input: { page: number; pageSize: number }): Promise<{
+    candidates: Awaited<ReturnType<NonNullable<OnlineCatalogProvider["search"]>>>;
+    pageCount: number;
+  }> {
+    const provider = this.options.provider;
+    return provider.searchPage ? provider.searchPage(keyword, input) : { candidates: [], pageCount: 0 };
+  }
+
   async recommendedSongs(limit: number): Promise<Awaited<ReturnType<NonNullable<OnlineCatalogProvider["search"]>>>> {
     const provider = this.options.provider;
     return provider.recommendedSongs ? provider.recommendedSongs(limit) : [];

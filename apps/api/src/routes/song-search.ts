@@ -19,13 +19,20 @@ export interface SongSearchRouteDependencies {
   ktvIndex?: Pick<KtvIndexReadRepository, "searchIndexedSongs">;
   onlineCatalog?: {
     search(keyword: string, limit: number): Promise<OnlineCatalogCandidate[]>;
+    searchPage?(keyword: string, options: { page: number; pageSize: number }): Promise<{
+      candidates: OnlineCatalogCandidate[];
+      pageCount: number;
+    }>;
   };
 }
 
 interface SongSearchQuery {
   q?: string;
   limit?: string | number;
+  offset?: string | number;
 }
+
+const ONLINE_SEARCH_PAGE_SIZE = 20;
 
 export async function registerSongSearchRoutes(
   server: FastifyInstance,
@@ -57,10 +64,9 @@ export async function registerSongSearchRoutes(
           queuedIndexedAssetIds: queuedNasAssetIds,
           unreadableIndexedAssetIds: []
         })) ?? [];
-      const onlineCandidates = annotateNasMatches(
-        await loadOnlineCandidates(dependencies, query, limit),
-        indexedResults
-      );
+      const offset = parseOffset(request.query.offset);
+      const onlinePage = await loadOnlineCandidatesPage(dependencies, query, offset);
+      const onlineCandidates = annotateNasMatches(onlinePage.candidates, indexedResults);
       const response: SongSearchResponse = {
         query,
         nas: {
@@ -68,7 +74,7 @@ export async function registerSongSearchRoutes(
           message: indexedResults.length > 0 ? "找到 NAS 曲库结果" : "未找到 NAS 曲库结果",
           results: indexedResults.map(toNasSearchResult)
         },
-        online: buildOnlineSection(dependencies, onlineCandidates)
+        online: buildOnlineSection(dependencies, onlineCandidates, onlinePage.nextOffset)
       };
 
       await reply.send(response);
@@ -76,20 +82,41 @@ export async function registerSongSearchRoutes(
   );
 }
 
-async function loadOnlineCandidates(
+/**
+ * 取一页在线搜索结果。
+ * igeba 按页给，offset 换算成页码；pageCount 换算成下一页的 offset。
+ */
+async function loadOnlineCandidatesPage(
   dependencies: SongSearchRouteDependencies,
   query: string,
-  limit: number
-): Promise<OnlineCatalogCandidate[]> {
-  if (!dependencies.onlineCatalog || query.trim().length === 0) {
-    return [];
+  offset: number
+): Promise<{ candidates: OnlineCatalogCandidate[]; nextOffset: number | null }> {
+  const catalog = dependencies.onlineCatalog;
+  if (!catalog || query.trim().length === 0) {
+    return { candidates: [], nextOffset: null };
   }
-  return dependencies.onlineCatalog.search(query, Math.min(limit, 20));
+
+  if (catalog.searchPage) {
+    const page = Math.floor(offset / ONLINE_SEARCH_PAGE_SIZE) + 1;
+    const result = await catalog.searchPage(query, { page, pageSize: ONLINE_SEARCH_PAGE_SIZE });
+    const loaded = page * ONLINE_SEARCH_PAGE_SIZE;
+    const nextOffset = loaded < result.pageCount * ONLINE_SEARCH_PAGE_SIZE ? loaded : null;
+    return { candidates: result.candidates, nextOffset };
+  }
+
+  return { candidates: await catalog.search(query, ONLINE_SEARCH_PAGE_SIZE), nextOffset: null };
+}
+
+function parseOffset(rawOffset: string | number | undefined): number {
+  const parsed =
+    typeof rawOffset === "number" ? Math.trunc(rawOffset) : Number.parseInt(String(rawOffset ?? ""), 10);
+  return Math.max(0, Number.isFinite(parsed) ? parsed : 0);
 }
 
 function buildOnlineSection(
   dependencies: SongSearchRouteDependencies,
-  candidates: readonly OnlineCandidateCard[]
+  candidates: readonly OnlineCandidateCard[],
+  nextOffset: number | null
 ): SongSearchOnlineResult {
   if (!dependencies.onlineCatalog) {
     return {
@@ -99,7 +126,8 @@ function buildOnlineSection(
         visible: false,
         label: "请求补歌"
       },
-      candidates: []
+      candidates: [],
+      nextOffset: null
     };
   }
 
@@ -110,7 +138,8 @@ function buildOnlineSection(
       visible: false,
       label: "请求补歌"
     },
-    candidates: [...candidates]
+    candidates: [...candidates],
+    nextOffset
   };
 }
 
