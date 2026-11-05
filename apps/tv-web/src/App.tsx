@@ -32,7 +32,8 @@ export function App() {
           runtime.durationMs,
           runtime.firstPlayBlocked,
           runtime.handleFirstPlayPromptClick,
-          runtime.localPlaybackConfirmed
+          runtime.localPlaybackConfirmed,
+          runtime.client
         )}
       </div>
       <InteractionOverlay interactions={runtime.interactions} />
@@ -48,7 +49,8 @@ function renderScreen(
   durationMs: number | null,
   firstPlayBlocked: boolean,
   onFirstPlayPromptClick: () => void,
-  localPlaybackConfirmed: boolean
+  localPlaybackConfirmed: boolean,
+  client: ReturnType<typeof useTvPlaybackRuntime>["client"]
 ) {
   const displayState = deriveTvDisplayState({
     errorMessage,
@@ -86,7 +88,7 @@ function renderScreen(
     );
   }
 
-  return <IdleScreen displayState={displayState} pairing={snapshot.pairing} />;
+  return <IdleScreen client={client} displayState={displayState} pairing={snapshot.pairing} />;
 }
 
 function SystemScreen({ displayState }: { displayState: TvDisplayState }) {

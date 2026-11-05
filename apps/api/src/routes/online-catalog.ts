@@ -208,6 +208,36 @@ export async function registerOnlineCatalogRoutes(
     }
   );
 
+  /**
+   * 空闲垫片：房间 idle 且队列为空时，电视端随机播放已缓存的在线歌曲。
+   * 只读列表，不改会话状态。
+   */
+  server.get<{ Params: { roomSlug: string } }>("/rooms/:roomSlug/idle-playlist", async (request, reply) => {
+    const room = await dependencies.rooms.findBySlug(request.params.roomSlug);
+    if (!room) {
+      await reply.code(404).send({ code: "ROOM_NOT_FOUND" });
+      return;
+    }
+
+    const assets = await dependencies.onlineImport.listAssets(200);
+    const ready = assets.filter((asset) => asset.status === "ready");
+    for (let index = ready.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      [ready[index], ready[swap]] = [ready[swap]!, ready[index]!];
+    }
+
+    await reply.send({
+      items: ready.slice(0, 20).map((asset) => ({
+        id: asset.id,
+        title:
+          readMetadataText(asset.metadata, "title") ?? asset.songTitle ?? asset.providerAssetId,
+        artistName:
+          readMetadataText(asset.metadata, "artistName") ?? asset.songArtistName ?? "",
+        url: `/media/online/${encodeURIComponent(asset.id)}`
+      }))
+    });
+  });
+
   server.get<{ Params: { roomSlug: string; assetId: string } }>(
     "/rooms/:roomSlug/online/assets/:assetId",
     async (request, reply) => {
@@ -269,6 +299,11 @@ async function appendToQueue(
     status: "queued"
   });
   return entry.id;
+}
+
+function readMetadataText(metadata: Record<string, unknown>, key: string): string | null {
+  const value = metadata[key];
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
 }
 
 function toImportResponse(result: {

@@ -75,6 +75,15 @@ IGEBA_CACHE_TTL_DAYS=30
 
 详情接口返回 `source=online` + `providerSongNumber`，手机端点「+」走 `POST /rooms/:slug/online/queue`（缓存好自动入队）。ige8 不可用时自动回退到本地曲库模块。
 
+## 空闲垫片（等待点歌时随机播放）
+
+房间 `idle` 且队列为空时，电视端会拉 `GET /rooms/:roomSlug/idle-playlist` 并随机循环播放已缓存的在线歌曲：
+
+- 只读接口，不改会话状态，状态栏仍然是「等待点歌」；
+- 电视端用独立隐藏 video 播放，显示「♫ 歌名 · 歌手」；
+- 一旦队列出现歌曲，服务端会起播队列（`startPlaybackIfIdle`），电视切到播放屏，垫片自动停止；
+- 没有缓存歌曲时返回空列表，空闲页保持原样。
+
 ## 管理后台
 
 Admin 顶部「在线曲库」页签：

@@ -27,6 +27,8 @@ export interface OnlineAssetRecord {
   audioTrackCount: number | null;
   errorReason: string | null;
   metadata: Record<string, unknown>;
+  songTitle?: string | null;
+  songArtistName?: string | null;
 }
 
 export interface UpsertOnlineSongInput {
@@ -300,15 +302,19 @@ export class PgOnlineCatalogRepository implements OnlineCatalogRepository {
   }
 
   async listAssets(limit: number): Promise<OnlineAssetRecord[]> {
-    const result = await this.db.query<OnlineAssetRow>(
-      `SELECT ${assetSelect}
+    const result = await this.db.query<OnlineAssetRow & { song_title?: string | null; song_artist?: string | null }>(
+      `SELECT ${assetSelect}, s.title AS song_title, s.primary_artist_name AS song_artist
        FROM online_song_assets a
        LEFT JOIN online_songs s ON s.id = a.song_id
        ORDER BY a.updated_at DESC
        LIMIT $1`,
       [Math.min(200, Math.max(1, Math.trunc(limit)))]
     );
-    return result.rows.map(mapAssetRow);
+    return result.rows.map((row) => ({
+      ...mapAssetRow(row),
+      songTitle: row.song_title ?? null,
+      songArtistName: row.song_artist ?? null
+    }));
   }
 
   async stats(): Promise<OnlineAssetStats> {
@@ -454,7 +460,11 @@ export class InMemoryOnlineCatalogRepository implements OnlineCatalogRepository 
   }
 
   async listAssets(limit: number): Promise<OnlineAssetRecord[]> {
-    return [...this.assets.values()].slice(0, Math.max(1, limit));
+    const songsById = new Map([...this.songs.values()].map((song) => [song.id, song]));
+    return [...this.assets.values()].slice(0, Math.max(1, limit)).map((asset) => {
+      const song = songsById.get(asset.songId);
+      return song ? { ...asset, songTitle: song.title, songArtistName: song.artistName } : asset;
+    });
   }
 
   async stats(): Promise<OnlineAssetStats> {

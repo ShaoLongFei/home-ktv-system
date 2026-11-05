@@ -254,6 +254,18 @@ describe("online catalog routes", () => {
     await server.close();
   });
 
+  it("returns a shuffled idle playlist of cached songs", async () => {
+    const { server } = createHarness();
+
+    const response = await server.inject({ method: "GET", url: "/rooms/living-room/idle-playlist" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().items).toEqual([
+      expect.objectContaining({ id: "online-asset-1", url: "/media/online/online-asset-1" })
+    ]);
+    await server.close();
+  });
+
   it("returns 404 for unknown rooms and assets", async () => {
     const { server } = createHarness();
 

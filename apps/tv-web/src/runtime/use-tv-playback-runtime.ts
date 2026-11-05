@@ -19,6 +19,7 @@ export interface UseTvPlaybackRuntimeInput {
 }
 
 export interface TvPlaybackRuntimeState {
+  client: ReturnType<typeof createBrowserPlayerClient>;
   durationMs: number | null;
   firstPlayBlocked: boolean;
   handleFirstPlayPromptClick(): void;
@@ -227,6 +228,7 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
     activeVideo && Number.isFinite(activeVideo.duration) ? Math.max(0, Math.trunc(activeVideo.duration * 1000)) : null;
 
   return {
+    client,
     durationMs,
     firstPlayBlocked,
     handleFirstPlayPromptClick: retryCurrentPlayback,

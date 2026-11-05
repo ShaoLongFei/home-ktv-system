@@ -15,6 +15,13 @@ export interface PlayerClientOptions {
   roomSlug: string;
 }
 
+export interface IdlePlaylistItem {
+  id: string;
+  title: string;
+  artistName: string;
+  url: string;
+}
+
 export interface BootstrapResult {
   status: "registered";
   snapshot: RoomSnapshot | null;
@@ -45,6 +52,14 @@ export class PlayerClient {
         runtime: "web-tv-player"
       }
     });
+  }
+
+  async fetchIdlePlaylist(): Promise<{ items: IdlePlaylistItem[] }> {
+    return this.getJson<{ items: IdlePlaylistItem[] }>(`/rooms/${encodeURIComponent(this.roomSlug)}/idle-playlist`);
+  }
+
+  mediaUrl(path: string): string {
+    return `${this.apiBaseUrl}${path}`;
   }
 
   async fetchSnapshot(): Promise<RoomSnapshot> {
