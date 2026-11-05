@@ -46,6 +46,7 @@ function ControllerApp() {
   const [browseStack, setBrowseStack] = useState<BrowseView[]>([]);
   const browseView = browseStack.at(-1) ?? { kind: "home" };
   const [activeTab, setActiveTab] = useState<ControllerTab>("home");
+  const [queueDrawerOpen, setQueueDrawerOpen] = useState(false);
   const [interactionComposer, setInteractionComposer] = useState<RoomInteractionKind | null>(null);
   const [queueAddFeedback, setQueueAddFeedback] = useState<QueueAddFeedback | null>(null);
   const [optimisticQueueAdds, setOptimisticQueueAdds] = useState<OptimisticQueueAdd[]>([]);
@@ -148,21 +149,6 @@ function ControllerApp() {
         />
       ) : null}
 
-      {activeTab === "control" ? (
-        <ControlScreen
-          controller={controller}
-          current={current}
-          currentModeLabel={currentModeLabel}
-          optimisticQueueAdds={optimisticQueueAdds}
-          playbackLabel={playbackLabel}
-          snapshot={snapshot}
-          switchLabel={switchLabel}
-          t={t}
-          volumePercent={volumePercent}
-          onBack={() => setActiveTab("home")}
-        />
-      ) : null}
-
       {activeTab === "my" ? (
         <MyScreen controller={controller} onQueueAddFeedback={triggerQueueAddFeedback} onBack={() => setActiveTab("home")} />
       ) : null}
@@ -172,11 +158,23 @@ function ControllerApp() {
           controller={controller}
           current={current}
           queueCount={queueCount}
+          switchLabel={switchLabel}
+          currentModeLabel={currentModeLabel}
+          playbackLabel={playbackLabel}
           t={t}
           volumePercent={volumePercent}
-          onOpenQueue={() => setActiveTab("control")}
+          onOpenQueue={() => setQueueDrawerOpen(true)}
         />
       ) : null}
+
+      <QueueDrawer
+        controller={controller}
+        open={queueDrawerOpen}
+        optimisticQueueAdds={optimisticQueueAdds}
+        snapshot={snapshot}
+        t={t}
+        onClose={() => setQueueDrawerOpen(false)}
+      />
 
       {searchOpen ? (
         <SearchOverlay
@@ -559,6 +557,7 @@ function HomeScreen({
           <span>{controller.songSearchQuery || t("search.placeholder")}</span>
         </button>
         {controller.songSearchStatus === "loading" ? <span className="search-status">{t("search.loading")}</span> : null}
+        <LanguageSwitch />
         <button className="profile-entry" type="button" aria-label={t("nav.my")} onClick={onOpenProfile}>
           {t("nav.my")}
         </button>
@@ -1008,168 +1007,13 @@ function randomInteractionPreset(presets: readonly string[], current: string): s
   return pool[Math.floor(Math.random() * pool.length)] ?? current;
 }
 
-function ControlScreen({
-  controller,
-  current,
-  currentModeLabel,
-  optimisticQueueAdds,
-  playbackLabel,
-  snapshot,
-  switchLabel,
-  t,
-  volumePercent,
-  onBack
-}: {
-  controller: RoomControllerState;
-  current: NonNullable<RoomControllerState["snapshot"]>["currentTarget"] | undefined;
-  currentModeLabel: string;
-  optimisticQueueAdds: readonly OptimisticQueueAdd[];
-  playbackLabel: string;
-  snapshot: RoomControllerState["snapshot"];
-  switchLabel: string;
-  t: TFunction;
-  volumePercent: number;
-  onBack(): void;
-}) {
-  const onlineTvCount = snapshot?.tvPresence.onlineCount ?? (snapshot?.tvPresence.online ? 1 : 0);
-  const tvStatusLabel =
-    onlineTvCount > 1
-      ? t("status.tvOnlineCount", { count: onlineTvCount })
-      : snapshot?.tvPresence.online
-        ? t("status.tvOnline")
-        : t("status.tvOffline");
-
-  return (
-    <>
-      <header className="top-bar">
-        <div className="top-bar__heading">
-          <button className="secondary-button compact-button" type="button" onClick={onBack}>
-            {t("button.back")}
-          </button>
-          <h1>{t("header.title")}</h1>
-        </div>
-        <div className="top-actions">
-          <span className={snapshot?.tvPresence.online ? "status-pill online" : "status-pill offline"}>
-            {tvStatusLabel}
-          </span>
-          <LanguageSwitch />
-        </div>
-      </header>
-
-      <section className="panel current-panel" aria-label={t("current.aria")}>
-        <div>
-          <p className="eyebrow">{t("current.eyebrow")}</p>
-          <h2>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</h2>
-          <p>{current?.currentQueueEntryPreview.artistName ?? t("current.emptyQueue")}</p>
-        </div>
-        <div className="current-meta">
-          <span className="playback-state-chip">{playbackLabel}</span>
-          <span>{currentModeLabel}</span>
-        </div>
-        <div className="volume-control">
-          <div className="volume-control__header">
-            <span className="volume-control__label">{t("volume.label")}</span>
-            <span className="volume-control__value">{t("volume.value", { value: volumePercent })}</span>
-          </div>
-          <input
-            aria-label={t("volume.aria")}
-            className="volume-slider"
-            type="range"
-            min="0"
-            max="100"
-            step="5"
-            value={volumePercent}
-            disabled={!snapshot}
-            onChange={(event) => controller.setVolumePercent(Number(event.currentTarget.value))}
-          />
-        </div>
-        <div className="command-row">
-          <button className="primary-button" type="button" disabled={!current} onClick={() => void controller.switchVocalMode()}>
-            {switchLabel}
-          </button>
-          <button className="secondary-button" type="button" disabled={!current} onClick={() => void controller.replayCurrent()}>
-            {t("button.replay")}
-          </button>
-          <button className="secondary-button" type="button" disabled={!current} onClick={() => void controller.togglePause()}>
-            {controller.snapshot?.playbackPaused ? t("button.resume") : t("button.pause")}
-          </button>
-          <button className="danger-button" type="button" disabled={!current} onClick={controller.requestSkip}>
-            {t("button.skip")}
-          </button>
-        </div>
-      </section>
-
-      <section className="panel" aria-label={t("queue.aria")}>
-        <div className="panel-heading">
-          <h2>{t("queue.title")}</h2>
-          <button
-            className="secondary-button compact-button"
-            type="button"
-            disabled={(snapshot?.queue.length ?? 0) < 2}
-            onClick={() => void controller.shuffleQueue()}
-          >
-            {t("button.shuffle")}
-          </button>
-        </div>
-        <div className="queue-list">
-          {snapshot?.queue.length || optimisticQueueAdds.length ? (
-            <>
-              {snapshot?.queue.map((entry) => {
-                const undoExpiresAt =
-                  entry.undoExpiresAt ??
-                  (controller.pendingUndo?.queueEntryId === entry.queueEntryId ? controller.pendingUndo.undoExpiresAt : null);
-                const requesterLabel = queueRequesterLabel(entry, t);
-                const requesterToneClass = queueRequesterToneClass(entry);
-                return (
-                  <article className="queue-row" key={entry.queueEntryId}>
-                    <div>
-                      <strong>{entry.songTitle}</strong>
-                      <p className="queue-meta">
-                        <span>{entry.artistName}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className={`queue-requester ${requesterToneClass}`}>{requesterLabel}</span>
-                      </p>
-                      {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
-                    </div>
-                    <div className="row-actions">
-                      <button className="secondary-button" type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
-                        {t("button.promote")}
-                      </button>
-                      <button className="danger-button" type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
-                        {t("button.delete")}
-                      </button>
-                      {undoExpiresAt ? (
-                        <button className="secondary-button" type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
-                          {t("button.undo")}
-                        </button>
-                      ) : null}
-                    </div>
-                  </article>
-                );
-              })}
-              {optimisticQueueAdds.map((entry) => (
-                <article className="queue-row queue-row--pending" key={`pending-${entry.id}`}>
-                  <div>
-                    <strong>{entry.title}</strong>
-                    <p>{entry.artistName}</p>
-                    <small>{t("queue.pending")}</small>
-                  </div>
-                </article>
-              ))}
-            </>
-          ) : (
-            <p className="empty-state">{t("queue.empty")}</p>
-          )}
-        </div>
-      </section>
-    </>
-  );
-}
-
 function MusicConsole({
   controller,
   current,
   queueCount,
+  switchLabel,
+  currentModeLabel,
+  playbackLabel,
   t,
   volumePercent,
   onOpenQueue
@@ -1177,18 +1021,35 @@ function MusicConsole({
   controller: RoomControllerState;
   current: NonNullable<RoomControllerState["snapshot"]>["currentTarget"] | undefined;
   queueCount: number;
+  switchLabel: string;
+  currentModeLabel: string;
+  playbackLabel: string;
   t: TFunction;
   volumePercent: number;
   onOpenQueue(): void;
 }) {
   const paused = controller.snapshot?.playbackPaused === true;
+  const tvOnlineCount =
+    controller.snapshot?.tvPresence.onlineCount ?? (controller.snapshot?.tvPresence.online ? 1 : 0);
+  const tvStatusLabel =
+    tvOnlineCount > 1
+      ? t("status.tvOnlineCount", { count: tvOnlineCount })
+      : controller.snapshot?.tvPresence.online
+        ? t("status.tvOnline")
+        : t("status.tvOffline");
   return (
     <section className="music-console" aria-label={t("console.aria")}>
       <div className="music-console__track">
         <strong>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</strong>
-        <span>{current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}</span>
+        <span>
+          {current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}
+          <span className="music-console__status">{tvStatusLabel}</span>
+          <span className="music-console__status">{playbackLabel}</span>
+          <span className="music-console__status">{currentModeLabel}</span>
+        </span>
       </div>
       <div className="music-console__volume">
+        <span className="music-console__volume-label">{t("volume.label")}</span>
         <input
           aria-label={t("volume.aria")}
           max="100"
@@ -1198,6 +1059,7 @@ function MusicConsole({
           value={volumePercent}
           onChange={(event) => controller.setVolumePercent(Number(event.currentTarget.value))}
         />
+        <span className="music-console__volume-value">{t("volume.value", { value: volumePercent })}</span>
       </div>
       <div className="music-console__actions">
         <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.replayCurrent()}>
@@ -1207,22 +1069,133 @@ function MusicConsole({
           {paused ? t("button.resume") : t("button.pause")}
         </button>
         <button className="secondary-button compact-button" disabled={!current} type="button" onClick={() => void controller.switchVocalMode()}>
-          {t("button.switchVocal")}
+          {switchLabel}
         </button>
         <button className="danger-button compact-button" disabled={!current} type="button" onClick={controller.requestSkip}>
           {t("button.skip")}
         </button>
         <button className="secondary-button compact-button" type="button" onClick={onOpenQueue}>
-          {t("console.queue", { count: queueCount })}
+          {t("console.playlist")}
+          <span className="music-console__count">{queueCount > 99 ? "99+" : queueCount}</span>
         </button>
       </div>
     </section>
   );
 }
 
+function QueueDrawer({
+  controller,
+  open,
+  optimisticQueueAdds,
+  snapshot,
+  t,
+  onClose
+}: {
+  controller: RoomControllerState;
+  open: boolean;
+  optimisticQueueAdds: readonly OptimisticQueueAdd[];
+  snapshot: RoomControllerState["snapshot"];
+  t: TFunction;
+  onClose(): void;
+}) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="queue-drawer-layer">
+      <button aria-label={t("button.close")} className="queue-drawer-backdrop" type="button" onClick={onClose} />
+      <aside className="queue-drawer" role="region" aria-label={t("queue.aria")}>
+        <div className="queue-drawer__header">
+          <h2>{t("queue.title")}</h2>
+          <div className="queue-drawer__actions">
+            <button
+              className="secondary-button compact-button"
+              type="button"
+              disabled={(snapshot?.queue.length ?? 0) < 2}
+              onClick={() => void controller.shuffleQueue()}
+            >
+              {t("button.shuffle")}
+            </button>
+            <button className="secondary-button compact-button" type="button" onClick={onClose}>
+              {t("button.close")}
+            </button>
+          </div>
+        </div>
+        <QueueList controller={controller} optimisticQueueAdds={optimisticQueueAdds} snapshot={snapshot} t={t} />
+      </aside>
+    </div>
+  );
+}
+
+function QueueList({
+  controller,
+  optimisticQueueAdds,
+  snapshot,
+  t
+}: {
+  controller: RoomControllerState;
+  optimisticQueueAdds: readonly OptimisticQueueAdd[];
+  snapshot: RoomControllerState["snapshot"];
+  t: TFunction;
+}) {
+  return (
+    <div className="queue-list">
+      {snapshot?.queue.length || optimisticQueueAdds.length ? (
+        <>
+          {snapshot?.queue.map((entry) => {
+            const undoExpiresAt =
+              entry.undoExpiresAt ??
+              (controller.pendingUndo?.queueEntryId === entry.queueEntryId ? controller.pendingUndo.undoExpiresAt : null);
+            const requesterLabel = queueRequesterLabel(entry, t);
+            const requesterToneClass = queueRequesterToneClass(entry);
+            return (
+              <article className="queue-row" key={entry.queueEntryId}>
+                <div>
+                  <strong>{entry.songTitle}</strong>
+                  <p className="queue-meta">
+                    <span>{entry.artistName}</span>
+                    <span aria-hidden="true">·</span>
+                    <span className={`queue-requester ${requesterToneClass}`}>{requesterLabel}</span>
+                  </p>
+                  {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
+                </div>
+                <div className="row-actions">
+                  <button className="secondary-button" type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
+                    {t("button.promote")}
+                  </button>
+                  <button className="danger-button" type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
+                    {t("button.delete")}
+                  </button>
+                  {undoExpiresAt ? (
+                    <button className="secondary-button" type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
+                      {t("button.undo")}
+                    </button>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })}
+          {optimisticQueueAdds.map((entry) => (
+            <article className="queue-row queue-row--pending" key={`pending-${entry.id}`}>
+              <div>
+                <strong>{entry.title}</strong>
+                <p>{entry.artistName}</p>
+                <small>{t("queue.pending")}</small>
+              </div>
+            </article>
+          ))}
+        </>
+      ) : (
+        <p className="empty-state">{t("queue.empty")}</p>
+      )}
+    </div>
+  );
+}
+
 type TFunction = ReturnType<typeof useI18n>["t"];
 
-type ControllerTab = "home" | "control" | "my";
+type ControllerTab = "home" | "my";
 
 type QueueAddFeedback = {
   id: number;

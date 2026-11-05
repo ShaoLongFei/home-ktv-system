@@ -178,19 +178,17 @@ describe("mobile controller runtime", () => {
 
     render(<App />);
 
-    await openControlTab();
-    await screen.findByRole("heading", { name: "点歌控制台" });
+    await waitForControllerHome();
     await user.click(screen.getByRole("button", { name: "English" }));
 
-    expect(screen.getByRole("heading", { name: "KTV controller" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Music console" })).toBeTruthy();
     expect(screen.getByText("TV online")).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "中文" }));
 
-    expect(screen.getByRole("heading", { name: "点歌控制台" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "音乐控制台" })).toBeTruthy();
     expect(screen.getByText("电视在线")).toBeTruthy();
-    expect(screen.getByRole("region", { name: "当前播放" })).toBeTruthy();
-    expect(screen.getByRole("region", { name: "播放队列" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "音乐控制台" })).toBeTruthy();
   });
 
   it("starts on the discovery home and keeps playback controls behind the control tab", async () => {
@@ -204,13 +202,10 @@ describe("mobile controller runtime", () => {
     const search = await screen.findByRole("region", { name: "搜索歌曲" });
     const recommendations = screen.getByRole("region", { name: "推荐歌曲" });
     expect(search.compareDocumentPosition(recommendations) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.queryByRole("region", { name: "当前播放" })).toBeNull();
+    expect(screen.getByRole("region", { name: "音乐控制台" })).toBeTruthy();
 
     await openControlTab();
-    const current = screen.getByRole("region", { name: "当前播放" });
     const queue = screen.getByRole("region", { name: "播放队列" });
-
-    expect(current).toBeTruthy();
     expect(queue).toBeTruthy();
     const requester = within(queue).getByText("点歌人 阿飞");
     expect(requester).toBeTruthy();
@@ -368,10 +363,28 @@ describe("mobile controller runtime", () => {
 
     await screen.findByText("歌手点歌");
 
-    const queueButton = screen.getByRole("button", { name: /队列/u });
+    const queueButton = screen.getByRole("button", { name: /歌单/u });
     await waitFor(() => {
       expect(queueButton.textContent).toContain("1");
     });
+  });
+
+  it("opens the playlist drawer from the music console and closes it", async () => {
+    const user = userEvent.setup();
+    installControllerFetchMock({
+      restoreResponses: [json(sessionResponse(roomSnapshot()))]
+    });
+    installWebSocketMock();
+
+    render(<App />);
+
+    await screen.findByText("歌手点歌");
+    await user.click(screen.getByRole("button", { name: /歌单/u }));
+    const drawer = await screen.findByRole("region", { name: "播放队列" });
+    expect(within(drawer).getByRole("heading", { name: "播放队列" })).toBeTruthy();
+
+    await user.click(within(drawer).getByRole("button", { name: "关闭" }));
+    await waitFor(() => expect(screen.queryByRole("region", { name: "播放队列" })).toBeNull());
   });
 
   it("shows user profile and request history in the My tab and queues history songs again", async () => {
@@ -462,7 +475,7 @@ describe("mobile controller runtime", () => {
 
     const recommendations = await screen.findByRole("region", { name: "推荐歌曲" });
     expect(await within(recommendations).findByText("NAS 晴天")).toBeTruthy();
-    const controlTab = screen.getByRole("button", { name: /队列/u });
+    const controlTab = screen.getByRole("button", { name: /歌单/u });
     await waitFor(() => {
       expect(controlTab.textContent).toContain("1");
     });
@@ -1753,9 +1766,9 @@ async function flush() {
 
 async function openControlTab() {
   await waitForControllerHome();
-  fireEvent.click(screen.getByRole("button", { name: /队列|Queue/u }));
+  fireEvent.click(screen.getByRole("button", { name: /歌单|Playlist/u }));
   await flush();
-  return screen.getByRole("region", { name: /当前播放|Current playback/u });
+  return screen.getByRole("region", { name: /播放队列|Queue/u });
 }
 
 async function openSearchOverlay(user: ReturnType<typeof userEvent.setup>) {
