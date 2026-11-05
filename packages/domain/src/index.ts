@@ -250,6 +250,13 @@ export interface OnlineCandidateCard {
   riskLabel: OnlineCandidateRiskLabel;
   taskState: OnlineCandidateTaskState;
   taskId: OnlineCandidateTaskId | null;
+  /**
+   * 该在线歌曲在 NAS 曲库里已有可入队的版本时，指向那个资产。
+   * 客户端据此直接用本地文件点歌，跳过在线导入。
+   */
+  nasAssetId?: string;
+  /** 上述 NAS 资产在队列里的状态，用来决定点歌前是否需要重复确认。 */
+  nasQueueState?: SongSearchIndexedQueueState;
 }
 
 export interface SongSearchOnlineRequestSupplementEntry {

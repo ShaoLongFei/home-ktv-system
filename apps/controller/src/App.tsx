@@ -4,7 +4,6 @@ import type {
   SongDiscoveryArtist,
   SongDiscoveryGenre,
   SongDiscoverySong,
-  SongSearchNasResult,
   VocalMode
 } from "@home-ktv/domain";
 import type { RoomInteractionKind } from "@home-ktv/player-contracts";
@@ -1025,54 +1024,73 @@ function MusicConsole({
 
   return (
     <section className="music-console" aria-label={t("console.aria")}>
-      <div className="music-console__track">
-        <strong>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</strong>
-        <span className="music-console__subline">
-          <span>{current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}</span>
-          <span aria-hidden="true">·</span>
-          <span>{t("volume.label")}</span>
-          <span>{t("volume.value", { value: volumePercent })}</span>
+      <div className="music-console__head">
+        <strong className="music-console__title">
+          {current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}
+        </strong>
+        <span className="music-console__artist">
+          {current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}
         </span>
       </div>
-      <button
-        aria-label={t("volume.increase")}
-        className="volume-step volume-step--plus"
-        type="button"
-        onClick={() => adjustVolume(5)}
-      >
-        +
-      </button>
-      <button
-        aria-label={t("volume.decrease")}
-        className="volume-step volume-step--minus"
-        type="button"
-        onClick={() => adjustVolume(-5)}
-      >
-        −
-      </button>
-      <button className="secondary-button compact-button music-console__replay" disabled={!current} type="button" onClick={() => void controller.replayCurrent()}>
-        {t("button.replay")}
-      </button>
-      <button
-        aria-label={switchLabel}
-        className="secondary-button compact-button music-console__vocal"
-        disabled={!current}
-        type="button"
-        onClick={() => void controller.switchVocalMode()}
-      >
-        {resolveVocalButtonLabel(current?.vocalMode, controller.snapshot?.targetVocalMode, t)}
-      </button>
-      <button className="secondary-button compact-button music-console__pause" disabled={!current} type="button" onClick={() => void controller.togglePause()}>
-        {paused ? t("button.resume") : t("button.pause")}
-      </button>
-      <button className="danger-button compact-button music-console__skip" disabled={!current} type="button" onClick={controller.requestSkip}>
-        {t("button.skip")}
-      </button>
-      <span aria-hidden="true" className="music-console__spacer" />
-      <button className="secondary-button compact-button music-console__playlist" type="button" onClick={onOpenQueue}>
-        {t("console.playlist")}
-        <span className="music-console__count">{queueCount > 99 ? "99+" : queueCount}</span>
-      </button>
+      <div className="music-console__meta">
+        <span>{t("volume.label")}</span>
+        <span className="music-console__volume-value">{t("volume.value", { value: volumePercent })}</span>
+      </div>
+      <div className="music-console__controls">
+        <button
+          aria-label={t("volume.decrease")}
+          className="secondary-button compact-button volume-step volume-step--minus"
+          type="button"
+          onClick={() => adjustVolume(-5)}
+        >
+          −
+        </button>
+        <button
+          aria-label={t("volume.increase")}
+          className="secondary-button compact-button volume-step volume-step--plus"
+          type="button"
+          onClick={() => adjustVolume(5)}
+        >
+          +
+        </button>
+        <button
+          className="secondary-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={() => void controller.replayCurrent()}
+        >
+          {t("button.replay")}
+        </button>
+        <button
+          aria-label={switchLabel}
+          className="secondary-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={() => void controller.switchVocalMode()}
+        >
+          {resolveVocalButtonLabel(current?.vocalMode, controller.snapshot?.targetVocalMode, t)}
+        </button>
+        <button
+          className="secondary-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={() => void controller.togglePause()}
+        >
+          {paused ? t("button.resume") : t("button.pause")}
+        </button>
+        <button
+          className="danger-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={controller.requestSkip}
+        >
+          {t("button.skip")}
+        </button>
+        <button className="secondary-button compact-button music-console__playlist" type="button" onClick={onOpenQueue}>
+          {t("console.playlist")}
+          <span className="music-console__count">{queueCount > 99 ? "99+" : queueCount}</span>
+        </button>
+      </div>
     </section>
   );
 }
@@ -1344,32 +1362,11 @@ function SearchResults({
   controller: RoomControllerState;
   t: TFunction;
 }) {
-  const nas = controller.songSearch?.nas ?? null;
   const online = controller.songSearch?.online ?? null;
   const onlineCandidates = online?.status === "available" ? online.candidates : [];
-  const hasNasResults = (nas?.results.length ?? 0) > 0;
 
   return (
     <div className="song-list search-overlay-results">
-      {nas ? (
-        <section className="indexed-panel" aria-label={t("search.indexedTitle")}>
-          <div className="panel-heading">
-            <h3>{t("search.indexedTitle")}</h3>
-            <span className={`search-status ${nas.status}`}>{nas.message}</span>
-          </div>
-
-          {nas.results.length > 0 ? (
-            <div className="indexed-result-list compact-result-list">
-              {nas.results.map((result) => (
-                <SearchNasSongRows controller={controller} key={result.songId} result={result} t={t} />
-              ))}
-            </div>
-          ) : (
-            <p className="empty-state indexed-empty">{t("search.indexedEmpty")}</p>
-          )}
-        </section>
-      ) : null}
-
       {onlineCandidates.length > 0 ? (
         <section className="indexed-panel" aria-label={t("search.onlineTitle")}>
           <div className="panel-heading">
@@ -1389,8 +1386,8 @@ function SearchResults({
         </section>
       ) : null}
 
-      {!hasNasResults && onlineCandidates.length === 0 ? (
-        <p className="empty-state local-empty">{t("search.localEmpty")}</p>
+      {onlineCandidates.length === 0 ? (
+        <p className="empty-state local-empty">{t("search.onlineEmpty")}</p>
       ) : null}
     </div>
   );
@@ -1436,55 +1433,18 @@ function SearchOnlineSongRow({
         type="button"
         disabled={busy}
         onClick={() =>
-          controller.requestAddOnlineSong(candidate.providerCandidateId, candidate.title, candidate.artistName)
+          controller.requestAddOnlineSong(
+            candidate.providerCandidateId,
+            candidate.title,
+            candidate.artistName,
+            candidate.nasAssetId,
+            candidate.nasQueueState
+          )
         }
       >
         {label}
       </button>
     </article>
-  );
-}
-
-function SearchNasSongRows({
-  controller,
-  result,
-  t
-}: {
-  controller: RoomControllerState;
-  result: SongSearchNasResult;
-  t: TFunction;
-}) {
-  return (
-    <>
-      {result.versions.map((version) => {
-        const isPending = controller.pendingNasAssetId === version.assetId;
-        const buttonLabel = indexedVersionButtonLabel(version, isPending, t);
-        const canClick = version.canQueue && !isPending;
-
-        return (
-          <article className="song-row indexed-version-row compact-version-row" aria-label={version.displayName} key={version.assetId}>
-            <div className="compact-version-main">
-              <strong>{version.displayName}</strong>
-              <div className="compact-version-meta">
-                <span>{version.extension}</span>
-                <span>{version.sizeBytes == null ? t("search.unknownSize") : formatFileSize(version.sizeBytes)}</span>
-                {version.audioTrackCount === 1 ? (
-                  <span className="single-track-badge">{t("search.singleAudioTrackSource")}</span>
-                ) : null}
-              </div>
-            </div>
-            <button
-              className="primary-button compact-queue-button"
-              type="button"
-              disabled={!canClick}
-              onClick={() => (canClick ? controller.requestAddNasAsset(version.assetId, result.title, version.queueState) : undefined)}
-            >
-              {buttonLabel}
-            </button>
-          </article>
-        );
-      })}
-    </>
   );
 }
 
@@ -1812,45 +1772,7 @@ function queueRequesterToneClass(
   return `queue-requester--tone-${hash + 1}`;
 }
 
-function formatFileSize(sizeBytes: number | null): string {
-  if (sizeBytes == null) {
-    return "未知大小";
-  }
-
-  const units = ["B", "KB", "MB", "GB"] as const;
-  let value = Math.max(0, sizeBytes);
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
-  }
-  const fractionDigits = value >= 10 || unitIndex === 0 ? 0 : 1;
-  return `${value.toFixed(fractionDigits)} ${units[unitIndex]}`;
-}
-
 function disabledVersionLabel(version: { disabledLabel?: string | null }): string {
   return version.disabledLabel ?? "暂不可播放";
 }
 
-function indexedVersionButtonLabel(
-  version: { queueState: string; canQueue: boolean; disabledLabel?: string | null },
-  isPending: boolean,
-  t: ReturnType<typeof useI18n>["t"]
-): string {
-  if (isPending) {
-    return t("button.addingIndexed");
-  }
-  if (version.queueState === "queued") {
-    return t("search.indexedQueued");
-  }
-  if (version.canQueue) {
-    return t("button.addIndexed");
-  }
-  if (version.queueState === "source_missing") {
-    return version.disabledLabel ?? t("search.indexedStale");
-  }
-  if (version.queueState === "file_unreadable") {
-    return version.disabledLabel ?? t("search.indexedUnreadable");
-  }
-  return version.disabledLabel ?? t("search.indexedStale");
-}

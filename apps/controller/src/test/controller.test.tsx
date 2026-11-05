@@ -226,7 +226,7 @@ describe("mobile controller runtime", () => {
     expect(screen.getByRole("region", { name: "音乐控制台" })).toBeTruthy();
   });
 
-  it("shows a NAS-only empty state when a search has no local result", async () => {
+  it("shows the online empty state when a search has no result", async () => {
     const user = userEvent.setup();
     installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))],
@@ -243,6 +243,8 @@ describe("mobile controller runtime", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "打开搜索" }).textContent).toContain("不存在的歌曲"));
     expect(screen.queryByText("暂未找到在线补歌候选")).toBeNull();
     expect(screen.queryByRole("button", { name: "请求补歌" })).toBeNull();
+    expect(screen.getByText("在线曲库未找到")).toBeTruthy();
+    expect(screen.queryByText("NAS 曲库")).toBeNull();
   });
 
   it("loads empty song search results after control-session restore", async () => {
@@ -638,9 +640,9 @@ describe("mobile controller runtime", () => {
     expect(screen.getByRole("dialog", { name: "搜索歌曲" })).toBeTruthy();
     expect(screen.getByText("最近搜索")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "七里香" }));
-    expect(await screen.findByText("现场版", { selector: "strong" })).toBeTruthy();
-
     const dialog = screen.getByRole("dialog", { name: "搜索歌曲" });
+    expect(await within(dialog).findByText("七里香", { selector: "strong" })).toBeTruthy();
+
     await user.clear(within(dialog).getByLabelText("搜索关键词"));
     await user.click(screen.getByRole("button", { name: "清空" }));
     expect(localStorage.getItem("home_ktv_search_history_v1")).toBe("[]");
@@ -1186,40 +1188,7 @@ describe("mobile controller runtime", () => {
     expect(requests.some((request) => request.url === "/rooms/living-room/songs/search?q=%E6%99%B4%E5%A4%A9&limit=30")).toBe(true);
   });
 
-  it("renders NAS search results as one-layer compact file rows with selected asset add buttons", async () => {
-    const user = userEvent.setup();
-    const { requests } = installControllerFetchMock({
-      restoreResponses: [json(sessionResponse(roomSnapshot()))]
-    });
-    installWebSocketMock();
-
-    render(<App />);
-
-    const dialog = await typeSearchQuery(user, "晴天");
-    const search = within(dialog);
-    const fileRows = await search.findAllByRole("article", { name: /高清版/u });
-    expect(fileRows[0]?.classList.contains("compact-version-row")).toBe(true);
-    expect(fileRows[0]?.closest(".compact-result-list")).toBeTruthy();
-    expect(fileRows[0]?.closest(".compact-song-row")).toBeNull();
-    expect(search.getByText("NAS 曲库")).toBeTruthy();
-    expect(search.queryByText("周杰伦")).toBeNull();
-    expect(search.queryByText("1 个版本")).toBeNull();
-    expect(search.queryByText("2 个版本")).toBeNull();
-    expect(search.getByText("现场版")).toBeTruthy();
-
-    await user.click(search.getByRole("button", { name: "点歌" }));
-    await flush();
-
-    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
-      sourceType: "nas",
-      assetId: "asset-sunny-main"
-    });
-    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).not.toHaveProperty(
-      "vocalMode"
-    );
-  });
-
-  it("keeps disabled real MV search results visible without queueing them", async () => {
+  it("hides the NAS library in search and queues the local asset for songs already on NAS", async () => {
     const user = userEvent.setup();
     const { requests } = installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))],
@@ -1230,45 +1199,73 @@ describe("mobile controller runtime", () => {
           message: "找到 NAS 曲库结果",
           results: [
             {
-              songId: "song-real-mv-needs-preprocess",
-              title: "真实 MV 样本",
-              artistName: "样本歌手",
+              songId: "ktv-song-sunny",
+              title: "晴天",
+              artistName: "周杰伦",
               category: "流行",
               sourceLabel: "NAS曲库",
               matchReason: "title",
               versions: [
                 {
-                  assetId: "asset-real-mv-needs-preprocess",
-                  displayName: "MKV 双声轨",
+                  assetId: "ktv-asset-sunny-mkv",
+                  displayName: "晴天.mkv",
                   sourceLabel: "NAS曲库",
                   extension: ".mkv",
-                  sizeBytes: 60000,
+                  sizeBytes: 734003200,
                   audioTrackCount: 2,
                   category: "流行",
-                  queueState: "source_missing",
-                  canQueue: false,
-                  disabledLabel: "需预处理"
+                  queueState: "not_queued",
+                  canQueue: true,
+                  disabledLabel: null
                 }
               ]
             }
           ]
         },
-        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
+        online: {
+          status: "available",
+          message: "找到 1 首在线曲库结果",
+          requestSupplement: { visible: false, label: "请求补歌" },
+          candidates: [
+            {
+              provider: "igeba",
+              providerCandidateId: "20039643",
+              title: "晴天",
+              artistName: "周杰伦",
+              sourceLabel: "在线曲库",
+              durationMs: 269000,
+              candidateType: "mv",
+              reliabilityLabel: "medium",
+              riskLabel: "normal",
+              taskState: "discovered",
+              taskId: null,
+              nasAssetId: "ktv-asset-sunny-mkv"
+            }
+          ]
+        }
       })
     });
     installWebSocketMock();
 
     render(<App />);
 
-    const dialog = await typeSearchQuery(user, "真实 MV 样本");
+    const dialog = await typeSearchQuery(user, "晴天");
     const search = within(dialog);
-    await search.findByText("MKV 双声轨", { selector: "strong" });
-    expect(search.getAllByText("需预处理").length).toBeGreaterThanOrEqual(1);
-    const disabledButton = search.getByRole("button", { name: "需预处理" }) as HTMLButtonElement;
-    expect(disabledButton.disabled).toBe(true);
-    await user.click(disabledButton);
+    await search.findByText("晴天", { selector: "strong" });
 
-    expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
+    // 搜索只展示在线曲库，NAS 面板和文件行都不出现
+    expect(search.queryByText("NAS 曲库")).toBeNull();
+    expect(search.queryByText("晴天.mkv")).toBeNull();
+
+    await user.click(search.getByRole("button", { name: "点歌" }));
+    await flush();
+
+    // NAS 里已有的歌直接用本库资产，不走在线导入
+    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
+      sourceType: "nas",
+      assetId: "ktv-asset-sunny-mkv"
+    });
+    expect(requests.some((request) => request.url === "/rooms/living-room/online/queue")).toBe(false);
   });
 
   it("queues ige8 discovery songs from the artist browse view", async () => {
@@ -1374,274 +1371,7 @@ describe("mobile controller runtime", () => {
     await search.findByRole("button", { name: "已点" });
   });
 
-  it("queues NAS search versions with source asset identity and inline pending state", async () => {
-    const user = userEvent.setup();
-    const indexedCommand = deferred<Response>();
-    const nasPathPrefix = ["/m", "nt", "/n", "as"].join("");
-    const rawCamelPathKey = ["file", "Path"].join("");
-    const rawSnakePathKey = ["file", "_", "path"].join("");
-    const { requests } = installControllerFetchMock({
-      restoreResponses: [json(sessionResponse(roomSnapshot()))],
-      commandResponses: {
-        "/rooms/living-room/commands/add-queue-entry": indexedCommand.promise
-      },
-      songSearchResponse: (query) => ({
-        query,
-        nas: {
-          status: "available",
-          message: "找到 NAS 曲库结果",
-          results: [
-            {
-              songId: "ktv-song-sunny",
-              title: "NAS 晴天",
-              artistName: "周杰伦",
-              category: "流行",
-              sourceLabel: "NAS曲库",
-              matchReason: "title",
-              versions: [
-                {
-                  assetId: "ktv-asset-sunny-mkv",
-                  displayName: "NAS 晴天.mkv",
-                  sourceLabel: "NAS曲库",
-                  extension: ".mkv",
-                  sizeBytes: 734003200,
-                  audioTrackCount: 1,
-                  category: "流行",
-                  queueState: "not_queued",
-                  canQueue: true,
-                  disabledLabel: null,
-                  [rawCamelPathKey]: `${nasPathPrefix}/KTV歌曲/NAS 晴天.mkv`
-                },
-                {
-                  assetId: "ktv-asset-sunny-mpg",
-                  displayName: "NAS 晴天.mpg",
-                  sourceLabel: "NAS曲库",
-                  extension: ".mpg",
-                  sizeBytes: null,
-                  category: "流行",
-                  queueState: "queued",
-                  canQueue: true,
-                  disabledLabel: null,
-                  [rawSnakePathKey]: `${nasPathPrefix}/KTV歌曲/NAS 晴天.mpg`
-                }
-              ]
-            }
-          ]
-        },
-        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
-      })
-    });
-    installWebSocketMock();
-
-    render(<App />);
-
-    const dialog = await typeSearchQuery(user, "NAS 晴天");
-    const search = within(dialog);
-    expect(await search.findByText("NAS 曲库")).toBeTruthy();
-    expect(search.queryByText("NAS 晴天")).toBeNull();
-    expect(search.getByText("NAS 晴天.mkv").closest(".compact-version-row")).toBeTruthy();
-    expect(search.queryByText("2 个版本")).toBeNull();
-    expect(search.getByText("单音轨歌曲源")).toBeTruthy();
-    expect(search.getByText("未知大小")).toBeTruthy();
-    const addButton = search.getByRole("button", { name: "点歌" }) as HTMLButtonElement;
-    expect(addButton.disabled).toBe(false);
-    expect(search.getByRole("button", { name: "已点" })).toBeTruthy();
-    const historyRequestsBeforeAdd = requests.filter((request) => request.url === "/controller/me/song-history").length;
-
-    await user.click(addButton);
-
-    const pendingButton = await search.findByRole("button", { name: "正在加入..." });
-    expect((pendingButton as HTMLButtonElement).disabled).toBe(true);
-    const body = requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")
-      ?.body as Record<string, unknown>;
-    expect(body).toMatchObject({ sourceType: "nas", assetId: "ktv-asset-sunny-mkv" });
-    expect(body).not.toHaveProperty("indexedAssetId");
-    expect(body).not.toHaveProperty("songId");
-    expect(JSON.stringify(body)).not.toContain(nasPathPrefix);
-    expect(JSON.stringify(body)).not.toContain(rawCamelPathKey);
-    expect(JSON.stringify(body)).not.toContain(rawSnakePathKey);
-    const searchPanelText = dialog.textContent ?? "";
-    expect(searchPanelText).not.toContain(nasPathPrefix);
-    expect(searchPanelText).not.toContain(rawCamelPathKey);
-    expect(searchPanelText).not.toContain(rawSnakePathKey);
-
-    indexedCommand.resolve(
-      json({
-        status: "accepted",
-        commandId: "mobile-command-test",
-        sessionVersion: 2,
-        snapshot: roomSnapshot({ sessionVersion: 2 })
-      })
-    );
-    await flush();
-    await waitFor(() => {
-      expect(requests.filter((request) => request.url === "/controller/me/song-history").length).toBeGreaterThan(
-        historyRequestsBeforeAdd
-      );
-    });
-  });
-
-  it("opens duplicate confirmation from a queued NAS search version before sending source asset identity", async () => {
-    const user = userEvent.setup();
-    const { requests } = installControllerFetchMock({
-      restoreResponses: [json(sessionResponse(roomSnapshot()))],
-      songSearchResponse: (query) => ({
-        query,
-        nas: {
-          status: "available",
-          message: "找到 NAS 曲库结果",
-          results: [
-            {
-              songId: "ktv-song-sunny",
-              title: "NAS 晴天",
-              artistName: "周杰伦",
-              category: "流行",
-              sourceLabel: "NAS曲库",
-              matchReason: "title",
-              versions: [
-                {
-                  assetId: "ktv-asset-sunny-mpg",
-                  displayName: "NAS 晴天.mpg",
-                  sourceLabel: "NAS曲库",
-                  extension: ".mpg",
-                  sizeBytes: 734003200,
-                  category: "流行",
-                  queueState: "queued",
-                  canQueue: true,
-                  disabledLabel: null
-                }
-              ]
-            }
-          ]
-        },
-        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
-      })
-    });
-    installWebSocketMock();
-
-    render(<App />);
-
-    const dialog = await typeSearchQuery(user, "NAS 晴天");
-    const search = within(dialog);
-    await search.findByText("NAS 晴天.mpg");
-    await user.click(search.getByRole("button", { name: "已点" }));
-
-    expect(screen.getByRole("dialog", { name: "重复点歌" })).toBeTruthy();
-    expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
-
-    await user.click(screen.getByRole("button", { name: "确认加点" }));
-    await flush();
-
-    expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
-      sourceType: "nas",
-      assetId: "ktv-asset-sunny-mpg"
-    });
-  });
-
-  it("keeps disabled NAS states visible with explicit labels", async () => {
-    installControllerFetchMock({
-      restoreResponses: [json(sessionResponse(roomSnapshot()))],
-      songSearchResponse: (query) => ({
-        query,
-        nas: {
-          status: "available",
-          message: "找到 NAS 曲库结果",
-          results: [
-            {
-              songId: "ktv-song-disabled",
-              title: "NAS 失效歌曲",
-              artistName: "样本歌手",
-              category: "流行",
-              sourceLabel: "NAS曲库",
-              matchReason: "title",
-              versions: [
-                {
-                  assetId: "ktv-asset-stale",
-                  displayName: "NAS 失效.mkv",
-                  sourceLabel: "NAS曲库",
-                  extension: ".mkv",
-                  sizeBytes: 1024,
-                  category: "流行",
-                  queueState: "source_missing",
-                  canQueue: false,
-                  disabledLabel: "索引已失效"
-                },
-                {
-                  assetId: "ktv-asset-unreadable",
-                  displayName: "不可读.mpg",
-                  sourceLabel: "NAS曲库",
-                  extension: ".mpg",
-                  sizeBytes: 2048,
-                  category: "流行",
-                  queueState: "file_unreadable",
-                  canQueue: false,
-                  disabledLabel: "文件不可读"
-                }
-              ]
-            }
-          ]
-        },
-        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
-      })
-    });
-    installWebSocketMock();
-
-    render(<App />);
-
-    await typeSearchQuery(userEvent.setup(), "索引失效");
-    expect(await screen.findByRole("button", { name: "索引已失效" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "文件不可读" })).toBeTruthy();
-    expect((screen.getByRole("button", { name: "索引已失效" }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole("button", { name: "文件不可读" }) as HTMLButtonElement).disabled).toBe(true);
-  });
-
-  it("falls back to a short disabled real MV search label", async () => {
-    installControllerFetchMock({
-      restoreResponses: [json(sessionResponse(roomSnapshot()))],
-      songSearchResponse: (query) => ({
-        query,
-        nas: {
-          status: "available",
-          message: "找到 NAS 曲库结果",
-          results: [
-            {
-              songId: "song-real-mv-disabled",
-              title: "暂不可播 MV",
-              artistName: "样本歌手",
-              category: "流行",
-              sourceLabel: "NAS曲库",
-              matchReason: "title",
-              versions: [
-                {
-                  assetId: "asset-real-mv-disabled",
-                  displayName: "MPG 双声轨",
-                  sourceLabel: "NAS曲库",
-                  extension: ".mpg",
-                  sizeBytes: 60000,
-                  audioTrackCount: 2,
-                  category: "流行",
-                  queueState: "file_unreadable",
-                  canQueue: false,
-                  disabledLabel: null
-                }
-              ]
-            }
-          ]
-        },
-        online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
-      })
-    });
-    installWebSocketMock();
-
-    render(<App />);
-
-    const dialog = await typeSearchQuery(userEvent.setup(), "暂不可播 MV");
-    const search = within(dialog);
-    await search.findByText("MPG 双声轨", { selector: "strong" });
-    expect(search.getByRole("button", { name: "文件不可读" })).toBeTruthy();
-  });
-
-  it("confirms queued multi-version duplicate add before sending the selected assetId", async () => {
+  it("confirms before re-adding a queued NAS song reached from online search", async () => {
     const user = userEvent.setup();
     const { requests } = installControllerFetchMock({
       restoreResponses: [json(sessionResponse(roomSnapshot()))]
@@ -1650,9 +1380,11 @@ describe("mobile controller runtime", () => {
 
     render(<App />);
     await typeSearchQuery(user, "七里香");
-    const versionButtons = screen.getAllByRole("button", { name: "已点" });
+    const dialog = screen.getByRole("dialog", { name: "搜索歌曲" });
+    const addButtons = await within(dialog).findAllByRole("button", { name: "点歌" });
 
-    await user.click(versionButtons[1]!);
+    // 第二个候选（七里香）在 NAS 里已经点过，应先弹重复确认
+    await user.click(addButtons[1]!);
 
     expect(screen.getByRole("dialog", { name: "重复点歌" })).toBeTruthy();
     expect(requests.some((request) => request.url === "/rooms/living-room/commands/add-queue-entry")).toBe(false);
@@ -1661,7 +1393,7 @@ describe("mobile controller runtime", () => {
 
     expect(requests.find((request) => request.url === "/rooms/living-room/commands/add-queue-entry")?.body).toMatchObject({
       sourceType: "nas",
-      assetId: "asset-qlx-live"
+      assetId: "asset-qlx-hd"
     });
   });
 
@@ -2096,7 +1828,43 @@ function songSearchResponse(query: string) {
         }
       ]
     },
-    online: { status: "disabled", message: "本地未入库，补歌功能后续可用", candidates: [] }
+    online: {
+      status: "available",
+      message: "找到 2 首在线曲库结果",
+      requestSupplement: { visible: false, label: "请求补歌" },
+      candidates: [
+        {
+          provider: "igeba",
+          providerCandidateId: "20039643",
+          title: "晴天",
+          artistName: "周杰伦",
+          sourceLabel: "在线曲库",
+          durationMs: 269000,
+          candidateType: "mv",
+          reliabilityLabel: "medium",
+          riskLabel: "normal",
+          taskState: "discovered",
+          taskId: null,
+          nasAssetId: "asset-sunny-main",
+          nasQueueState: "not_queued"
+        },
+        {
+          provider: "igeba",
+          providerCandidateId: "20039644",
+          title: "七里香",
+          artistName: "周杰伦",
+          sourceLabel: "在线曲库",
+          durationMs: 299000,
+          candidateType: "mv",
+          reliabilityLabel: "medium",
+          riskLabel: "normal",
+          taskState: "discovered",
+          taskId: null,
+          nasAssetId: "asset-qlx-hd",
+          nasQueueState: "queued"
+        }
+      ]
+    }
   };
 }
 

@@ -10,6 +10,11 @@ export interface OnlineCatalogRouteDependencies {
   queueEntries: Pick<QueueEntryRepository, "listEffectiveQueue" | "append">;
   /** 入队后若房间仍在 idle，主动起播并广播快照。 */
   ensurePlaybackStarted?: (room: Room) => Promise<void>;
+  /**
+   * 入队/起播后无条件广播一次房间快照。
+   * 队列是直接写进去的（不走命令链路），不补这一下手机歌单不会自己刷新。
+   */
+  broadcastRoomSnapshot?: (room: Room) => Promise<void>;
 }
 
 interface ImportBody {
@@ -168,6 +173,7 @@ export async function registerOnlineCatalogRoutes(
 
       let queueEntryId: string | null = null;
       let playbackEnsuredByHook = false;
+      let snapshotBroadcast = false;
       const result = await dependencies.onlineImport.requestImport(
         {
           songNumber,
@@ -188,12 +194,18 @@ export async function registerOnlineCatalogRoutes(
             });
             await dependencies.ensurePlaybackStarted?.(room);
             playbackEnsuredByHook = true;
+            // 异步转码完成后入的队，响应早就返回了，必须在这里广播。
+            await dependencies.broadcastRoomSnapshot?.(room);
+            snapshotBroadcast = true;
           }
         }
       );
 
       if (queueEntryId && !playbackEnsuredByHook) {
         await dependencies.ensurePlaybackStarted?.(room);
+      }
+      if (queueEntryId && !snapshotBroadcast) {
+        await dependencies.broadcastRoomSnapshot?.(room);
       }
 
       const statusCode = queueEntryId ? 200 : 202;

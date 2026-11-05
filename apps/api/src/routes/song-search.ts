@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type {
   OnlineCandidateCard,
+  SongSearchIndexedQueueState,
   SongSearchIndexedResult,
   SongSearchNasResult,
   SongSearchOnlineResult,
@@ -56,7 +57,7 @@ export async function registerSongSearchRoutes(
           queuedIndexedAssetIds: queuedNasAssetIds,
           unreadableIndexedAssetIds: []
         })) ?? [];
-      const onlineCandidates = dropDuplicates(
+      const onlineCandidates = annotateNasMatches(
         await loadOnlineCandidates(dependencies, query, limit),
         indexedResults
       );
@@ -88,7 +89,7 @@ async function loadOnlineCandidates(
 
 function buildOnlineSection(
   dependencies: SongSearchRouteDependencies,
-  candidates: readonly OnlineCatalogCandidate[]
+  candidates: readonly OnlineCandidateCard[]
 ): SongSearchOnlineResult {
   if (!dependencies.onlineCatalog) {
     return {
@@ -109,23 +110,54 @@ function buildOnlineSection(
       visible: false,
       label: "请求补歌"
     },
-    candidates: candidates.map(toOnlineCandidateCard)
+    candidates: [...candidates]
   };
 }
 
-function dropDuplicates(
+/**
+ * 在线候选命中 NAS 曲库时，给它挂上可直接入队的本库资产。
+ *
+ * 这里不再像以前那样把重复项从在线结果里删掉：搜索面板只展示在线曲库，
+ * 一旦删掉，本该用 NAS 文件播放的歌就会在搜索结果里彻底消失。
+ */
+function annotateNasMatches(
   candidates: readonly OnlineCatalogCandidate[],
   nasResults: readonly SongSearchIndexedResult[]
-): OnlineCatalogCandidate[] {
-  if (nasResults.length === 0) {
-    return [...candidates];
+): OnlineCandidateCard[] {
+  const nasMatchByKey = new Map<string, { assetId: string; queueState: SongSearchIndexedQueueState }>();
+  if (nasResults.length > 0) {
+    for (const result of nasResults) {
+      const match = pickQueueableAsset(result);
+      if (match) {
+        nasMatchByKey.set(searchKey(result.title, result.artistName), match);
+      }
+    }
   }
-  const localKeys = new Set(
-    nasResults.map((result) => `${normalizeSearchText(result.title)}|${normalizeSearchText(result.artistName)}`)
-  );
-  return candidates.filter(
-    (candidate) => !localKeys.has(`${normalizeSearchText(candidate.title)}|${normalizeSearchText(candidate.artistName)}`)
-  );
+
+  return candidates.map((candidate) => {
+    const card = toOnlineCandidateCard(candidate);
+    const match = nasMatchByKey.get(searchKey(candidate.title, candidate.artistName));
+    if (!match) {
+      return card;
+    }
+    return { ...card, nasAssetId: match.assetId, nasQueueState: match.queueState };
+  });
+}
+
+function pickQueueableAsset(
+  result: SongSearchIndexedResult
+): { assetId: string; queueState: SongSearchIndexedQueueState } | null {
+  const preferred =
+    result.versions.find((version) => version.canQueue && version.queueState === "not_queued") ??
+    result.versions.find((version) => version.canQueue);
+  if (!preferred) {
+    return null;
+  }
+  return { assetId: preferred.indexedAssetId, queueState: preferred.queueState };
+}
+
+function searchKey(title: string, artistName: string): string {
+  return `${normalizeSearchText(title)}|${normalizeSearchText(artistName)}`;
 }
 
 function toOnlineCandidateCard(candidate: OnlineCatalogCandidate): OnlineCandidateCard {

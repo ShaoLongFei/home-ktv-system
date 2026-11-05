@@ -91,6 +91,7 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
   } as unknown as OnlineImportService;
 
   const ensured: string[] = [];
+  const broadcasted: string[] = [];
   void registerOnlineCatalogRoutes(server, {
     rooms: {
       findById: async (roomId) => (roomId === room.id ? room : null),
@@ -100,6 +101,9 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
     ensurePlaybackStarted: async (targetRoom) => {
       ensured.push(targetRoom.slug);
     },
+    broadcastRoomSnapshot: async (targetRoom) => {
+      broadcasted.push(targetRoom.slug);
+    },
     queueEntries: {
       listEffectiveQueue: async () => [] as QueueEntry[],
       append: async (input) => {
@@ -108,7 +112,7 @@ function createHarness(importService: Partial<OnlineImportService> = {}) {
       }
     }
   });
-  return { server, appended, ensured };
+  return { server, appended, ensured, broadcasted };
 }
 
 describe("online catalog routes", () => {
@@ -172,7 +176,7 @@ describe("online catalog routes", () => {
   });
 
   it("queues an already cached online song immediately", async () => {
-    const { server, appended, ensured } = createHarness();
+    const { server, appended, ensured, broadcasted } = createHarness();
     const response = await server.inject({
       method: "POST",
       url: "/rooms/living-room/online/queue",
@@ -191,6 +195,8 @@ describe("online catalog routes", () => {
       status: "queued"
     });
     expect(ensured).toEqual(["living-room"]);
+    // 队列是直接写库的，必须补广播，否则手机歌单不会自己刷新
+    expect(broadcasted).toEqual(["living-room"]);
     await server.close();
   });
 
@@ -210,6 +216,35 @@ describe("online catalog routes", () => {
 
     expect(response.statusCode).toBe(202);
     expect(response.json()).toMatchObject({ queued: false, queueEntryId: null, status: "caching" });
+    await server.close();
+  });
+
+  it("broadcasts again when an async cache job finishes and queues the song", async () => {
+    let fireReady: ((asset: OnlineAssetRecord) => void | Promise<void>) | null = null;
+    const { server, broadcasted } = createHarness({
+      requestImport: (async (_input: unknown, options: RequestImportOptions = {}) => {
+        fireReady = options.onReady ?? null;
+        return { asset: createAsset({ status: "caching" }), cached: false };
+      }) as unknown as OnlineImportService["requestImport"]
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/queue",
+      payload: { songNumber: "20039643" }
+    });
+    expect(response.statusCode).toBe(202);
+    expect(broadcasted).toEqual([]);
+
+    await fireReady?.(
+      createAsset({
+        providerAssetId: "20039643",
+        status: "ready",
+        catalogSongId: "ktv-online-igeba-20039643"
+      })
+    );
+
+    expect(broadcasted).toEqual(["living-room"]);
     await server.close();
   });
 

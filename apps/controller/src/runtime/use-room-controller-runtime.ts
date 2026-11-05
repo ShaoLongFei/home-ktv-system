@@ -70,7 +70,13 @@ export interface RoomControllerState {
   errorMessage: string | null;
   pendingNasAssetId: string | null;
   onlineQueueState: Record<string, OnlineQueueState>;
-  requestAddOnlineSong(songNumber: string, title: string, artistName: string): boolean;
+  requestAddOnlineSong(
+    songNumber: string,
+    title: string,
+    artistName: string,
+    nasAssetId?: string,
+    nasQueueState?: SongSearchNasQueueState
+  ): boolean;
   pendingInteractionKind: RoomInteractionKind | null;
   pendingUndo: { queueEntryId: string; undoExpiresAt: string } | null;
   roomSlug: string;
@@ -646,7 +652,40 @@ export function useRoomControllerRuntime(): RoomControllerState {
   );
 
   const requestAddOnlineSong = useCallback(
-    (songNumber: string, title: string, artistName: string): boolean => {
+    (
+      songNumber: string,
+      title: string,
+      artistName: string,
+      nasAssetId?: string,
+      nasQueueState?: SongSearchNasQueueState
+    ): boolean => {
+      // NAS 曲库里已经有的歌，直接排本库资产，不走在线导入和等待转码。
+      if (nasAssetId) {
+        if (nasQueueState === "queued") {
+          setDuplicateConfirm({ kind: "nas", assetId: nasAssetId, title });
+          return false;
+        }
+
+        setOnlineQueueState(songNumber, { status: "queuing", message: null });
+        void (async () => {
+          try {
+            await runCommand(
+              (input) => addQueueEntry({ ...input, sourceType: "nas", assetId: nasAssetId }),
+              { retryOnConflict: true }
+            );
+            setOnlineQueueState(songNumber, { status: "queued", message: null });
+            await runSongSearch(songSearchQueryRef.current);
+            await runSongHistory();
+          } catch (error) {
+            setOnlineQueueState(songNumber, {
+              status: "failed",
+              message: errorMessageFrom(error, "点歌失败")
+            });
+          }
+        })();
+        return true;
+      }
+
       setOnlineQueueState(songNumber, { status: "queuing", message: null });
       void (async () => {
         try {
@@ -671,7 +710,15 @@ export function useRoomControllerRuntime(): RoomControllerState {
       })();
       return true;
     },
-    [authUser, initial.roomSlug, pollOnlineAsset, setOnlineQueueState]
+    [
+      authUser,
+      initial.roomSlug,
+      pollOnlineAsset,
+      runCommand,
+      runSongHistory,
+      runSongSearch,
+      setOnlineQueueState
+    ]
   );
 
   return {

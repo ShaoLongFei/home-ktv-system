@@ -40,6 +40,7 @@ import {
 } from "./modules/playback/repositories/room-session-command-repository.js";
 import { InMemoryRoomPairingTokenRepository } from "./modules/rooms/repositories/pairing-token-repository.js";
 import type { RoomRepository } from "./modules/rooms/repositories/room-repository.js";
+import { buildRoomControlSnapshot } from "./modules/rooms/build-control-snapshot.js";
 import { RoomSnapshotBroadcaster } from "./modules/realtime/room-snapshot-broadcaster.js";
 import {
   createPgRuntimeRepositories,
@@ -253,11 +254,26 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
       return ensureInFlight;
     };
 
+    // 在线歌入库后会直接写队列，绕过了命令链路，所以这里必须补一次广播：
+    // 否则房间已在播放时 ensurePlaybackStarted 不产生快照，手机歌单和电视都收不到新歌。
+    const broadcastRoomSnapshot = async (room: Room): Promise<void> => {
+      const snapshot = await buildRoomControlSnapshot({
+        roomSlug: room.slug,
+        config: resolvedConfig,
+        repositories,
+        ...(mediaGateway ? { mediaGateway } : {})
+      });
+      if (snapshot) {
+        broadcaster.broadcastRoomSnapshot(room.slug, snapshot);
+      }
+    };
+
     await registerOnlineCatalogRoutes(server, {
       rooms: repositories.rooms,
       onlineImport,
       queueEntries: repositories.queueEntries,
-      ensurePlaybackStarted
+      ensurePlaybackStarted,
+      broadcastRoomSnapshot
     });
   }
   await registerRoomRoutes(server, { rooms: repositories.rooms });
