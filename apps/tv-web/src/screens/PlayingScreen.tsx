@@ -27,6 +27,7 @@ export function PlayingScreen({
   const modeLabel = modeLabelFor(target?.vocalMode ?? "unknown");
   const clock = formatPlaybackClock(playbackPositionMs, durationMs);
   const songTitle = target?.currentQueueEntryPreview.songTitle ?? "暂无歌曲";
+  const artistName = target?.currentQueueEntryPreview.artistName?.trim() ?? "";
   const requester = requesterDisplay(target?.currentQueueEntryPreview.requestedByName ?? null);
   const pointerActivatedPromptRef = useRef(false);
 
@@ -43,8 +44,11 @@ export function PlayingScreen({
         <PairingQr pairing={snapshot.pairing} variant="corner" />
       </div>
       <footer aria-label="播放状态" style={styles.footer}>
-        {/* 第一行只放歌名，点歌人和模式都挪到第三行 */}
-        <span style={styles.songTitle} title={songTitle}>{songTitle}</span>
+        {/* 第一行：歌名 - 歌手；点歌人和模式在第三行 */}
+        <span style={styles.songTitle} title={artistName ? `${songTitle} - ${artistName}` : songTitle}>
+          {songTitle}
+          {artistName ? <span style={styles.songArtist}> - {artistName}</span> : null}
+        </span>
 
         {/* 第二行：播放进度 */}
         <span style={styles.timeValue}>{clock}</span>
@@ -225,6 +229,11 @@ const styles = {
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap"
+  },
+  songArtist: {
+    color: tvTheme.colors.textMuted,
+    fontSize: 19,
+    fontWeight: 800
   },
   requesterLine: {
     alignItems: "center",
