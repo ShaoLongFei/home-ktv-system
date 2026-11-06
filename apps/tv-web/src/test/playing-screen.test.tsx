@@ -105,7 +105,9 @@ describe("PlayingScreen", () => {
     expect(footer.style.gap).toBe("6px");
     expect(footer.style.width).toBe("max-content");
     expect(footer.style.maxWidth).toContain("calc(100vw - 28px)");
-    expect(requester.style.width).toBe("100%");
+    // 点歌人现在和「伴唱/原唱」并排，不能再撑满整行
+    expect(requester.style.width).toBe("");
+    expect(requester.style.flex).toBe("0 0 auto");
     expect(screen.getByText(requesterName).style.maxWidth).toBe("5.5em");
     expect(screen.getByText(requesterName).style.fontSize).toBe("14px");
     expect(screen.getByText(requesterName).style.whiteSpace).toBe("nowrap");

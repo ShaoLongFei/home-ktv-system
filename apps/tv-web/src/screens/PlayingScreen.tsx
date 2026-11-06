@@ -252,8 +252,10 @@ const styles = {
   requesterLine: {
     alignItems: "center",
     display: "flex",
+    // 不能写 width: 100%：这一行现在已经并进 metaLine，撑满会把
+    // 前面的「原唱」挤到上一行去
+    flex: "0 0 auto",
     gap: 6,
-    width: "100%",
     minWidth: 0
   },
   requesterAvatar: {
@@ -300,7 +302,7 @@ const styles = {
     alignItems: "center",
     color: tvTheme.colors.textMuted,
     display: "flex",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     fontSize: 15,
     fontWeight: 760,
     gap: 8,
