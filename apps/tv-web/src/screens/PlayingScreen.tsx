@@ -27,9 +27,6 @@ export function PlayingScreen({
   const modeLabel = modeLabelFor(target?.vocalMode ?? "unknown");
   const clock = formatPlaybackClock(playbackPositionMs, durationMs);
   const songTitle = target?.currentQueueEntryPreview.songTitle ?? "暂无歌曲";
-  // 另一条能切的音轨：当前放原唱就提示「伴唱」，反之亦然
-  const alternateModeLabel =
-    modeLabel === "原唱" ? "伴唱" : modeLabel === "伴唱" ? "原唱" : "双轨";
   const requester = requesterDisplay(target?.currentQueueEntryPreview.requestedByName ?? null);
   const pointerActivatedPromptRef = useRef(false);
 
@@ -46,23 +43,18 @@ export function PlayingScreen({
         <PairingQr pairing={snapshot.pairing} variant="corner" />
       </div>
       <footer aria-label="播放状态" style={styles.footer}>
-        {/* 第一行：点歌人头像 + 当前模式 + 歌名 */}
-        <span style={styles.titleLine}>
-          <span style={styles.requesterAvatar} aria-hidden="true">
-            {requester?.initial ?? "♪"}
-          </span>
-          <span style={{ ...styles.modePill, ...modeAccent(target?.vocalMode ?? "unknown") }}>{modeLabel}</span>
-          <span style={styles.songTitle} title={songTitle}>{songTitle}</span>
-        </span>
+        {/* 第一行只放歌名，点歌人和模式都挪到第三行 */}
+        <span style={styles.songTitle} title={songTitle}>{songTitle}</span>
 
         {/* 第二行：播放进度 */}
         <span style={styles.timeValue}>{clock}</span>
 
-        {/* 第三行：可切换模式 + 点歌人 + 状态 */}
+        {/* 第三行：当前模式 + 点歌人 + 状态（模式随原唱/伴唱自动切换） */}
         <span style={styles.metaLine}>
-          <span style={styles.altModeText}>{alternateModeLabel}</span>
+          <span style={{ ...styles.modePill, ...modeAccent(target?.vocalMode ?? "unknown") }}>{modeLabel}</span>
           {requester ? (
             <span aria-label={`点歌人 ${requester.name}`} style={styles.requesterLine}>
+              <span style={styles.requesterAvatar} aria-hidden="true">{requester.initial}</span>
               <span style={styles.requesterLabel}>点歌人</span>
               <span style={styles.requesterName}>{requester.name}</span>
             </span>
@@ -222,32 +214,17 @@ const styles = {
     width: "max-content",
     zIndex: 3
   },
-  titleLine: {
-    alignItems: "center",
-    display: "flex",
-    gap: 8,
-    maxWidth: "100%",
-    minWidth: 0,
-    width: "100%"
-  },
   songTitle: {
     color: tvTheme.colors.text,
     display: "block",
-    flex: "1 1 auto",
     fontSize: 22,
     fontWeight: 950,
     lineHeight: 1.15,
+    maxWidth: "100%",
     minWidth: 0,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap"
-  },
-  altModeText: {
-    color: tvTheme.colors.textMuted,
-    flex: "0 0 auto",
-    fontSize: 14,
-    fontWeight: 800,
-    opacity: 0.72
   },
   requesterLine: {
     alignItems: "center",
@@ -266,12 +243,12 @@ const styles = {
     color: "#03120B",
     display: "inline-flex",
     flex: "0 0 auto",
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 900,
-    height: 24,
+    height: 18,
     justifyContent: "center",
     lineHeight: 1,
-    width: 24
+    width: 18
   },
   requesterLabel: {
     color: tvTheme.colors.textMuted,
