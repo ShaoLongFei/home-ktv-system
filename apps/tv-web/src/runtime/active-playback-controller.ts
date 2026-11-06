@@ -36,7 +36,10 @@ export class ActivePlaybackController {
     }
 
     const targetChanged = !isSamePlaybackTarget(this.videoPool.activeTarget, snapshot.currentTarget);
-    if (targetChanged) {
+    // 同一条队列项也可能换了播放地址（重新准备/转码完成），只看 id 会漏掉，
+    // 电视上就会一直放着上一次的源，直到有人点一下才重载
+    const urlChanged = this.videoPool.activeTarget?.playbackUrl !== snapshot.currentTarget.playbackUrl;
+    if (targetChanged || urlChanged) {
       this.videoPool.primeActive(snapshot.currentTarget);
     }
 

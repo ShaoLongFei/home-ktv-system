@@ -599,7 +599,9 @@ async function addSourceQueueEntry(
   }
 
   const effectiveQueue = await input.repositories.queueEntries.listEffectiveQueue(context.room.id);
-  const queuePosition = effectiveQueue.at(-1)?.queuePosition ?? 0;
+  // 取最大值而不是"最后一条"：listEffectiveQueue 还会按 priority 排，
+  // 结尾那条不一定是 position 最大的，靠它 +1 会把新歌插到前面去
+  const queuePosition = effectiveQueue.reduce((max, entry) => Math.max(max, entry.queuePosition), 0);
   await input.repositories.queueEntries.append({
     roomId: context.room.id,
     songId: playableMedia.songId,
