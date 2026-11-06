@@ -445,6 +445,12 @@ export async function advanceToNext(input: AdvanceToNextInput): Promise<{
   }
 
   const nextTargetVocalMode = targetVocalModeForPlayableMedia(nextPlayableMedia, nextEntry);
+  // 先把别的残留 playing 收掉，保证任何时刻只有一条在播
+  await input.repositories.queueEntries.completeStalePlaying?.({
+    roomId: input.room.id,
+    keepQueueEntryId: nextEntry.id,
+    now
+  });
   await markQueueEntryPlaybackState(input.repositories, {
     roomId: input.room.id,
     queueEntryId: nextEntry.id,

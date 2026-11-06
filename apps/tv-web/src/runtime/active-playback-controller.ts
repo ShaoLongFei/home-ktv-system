@@ -4,6 +4,24 @@ import type { DualVideoPool } from "./video-pool.js";
 
 type PlaybackProfile = NonNullable<PlaybackTarget["playbackProfile"]>;
 
+const AUDIO_UNLOCK_KEY = "ktv_audio_unlocked";
+
+export function markAudioUnlocked(): void {
+  try {
+    globalThis.sessionStorage?.setItem(AUDIO_UNLOCK_KEY, "1");
+  } catch {
+    // 隐私模式下没有 sessionStorage，忽略
+  }
+}
+
+function isAudioUnlocked(): boolean {
+  try {
+    return globalThis.sessionStorage?.getItem(AUDIO_UNLOCK_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export type ActivePlaybackResult =
   | { status: "playing"; warning?: string }
   | { status: "blocked"; message: string }
@@ -66,7 +84,10 @@ export class ActivePlaybackController {
       return { status: "playing" };
     }
 
-    const shouldTemporarilyMute = targetChanged && this.videoPool.activeVideo.paused;
+    // 用户在这个会话里点过屏幕，浏览器已经放行，刷新后也可以直接出声，
+    // 不用再走"先静音再取消静音"那一套
+    const shouldTemporarilyMute =
+      targetChanged && this.videoPool.activeVideo.paused && !isAudioUnlocked();
     const previousMuted = this.videoPool.activeVideo.muted;
     if (shouldTemporarilyMute) {
       this.videoPool.activeVideo.muted = true;

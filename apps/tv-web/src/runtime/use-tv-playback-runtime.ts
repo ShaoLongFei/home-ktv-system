@@ -8,6 +8,7 @@ import { createBrowserPlayerClient } from "./player-client.js";
 import { RecoveryController } from "./recovery-controller.js";
 import { SwitchController } from "./switch-controller.js";
 import { useRoomSnapshot, type RoomSnapshotState } from "./use-room-snapshot.js";
+import { markAudioUnlocked } from "./active-playback-controller.js";
 import { createBrowserVideoPool, type DualVideoPool, type KtvVideoElement } from "./video-pool.js";
 
 const HEARTBEAT_INTERVAL_MS = 10_000;
@@ -131,6 +132,9 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
     if (!pool || !snapshot) {
       return;
     }
+
+    // 记下来：这个会话已经解锁过声音，刷新后也不用再点
+    markAudioUnlocked();
 
     // 用户点了屏幕，这次交互可以用来恢复声音（刷新后是被迫静音的）
     if (pool.activeVideo.muted) {

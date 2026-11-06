@@ -42,6 +42,7 @@ vi.mock("../runtime/video-pool.js", () => ({
 }));
 
 vi.mock("../runtime/active-playback-controller.js", () => ({
+  markAudioUnlocked: vi.fn(),
   ActivePlaybackController: class {
     async ensurePlaying() {
       return mocks.activePlaybackEnsurePlaying();
@@ -95,6 +96,8 @@ import { App } from "../App.js";
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  // 音频解锁标记会跨用例残留，导致后面的"自动播放被拦"用例直接出声
+  globalThis.sessionStorage?.clear();
   mocks.roomSnapshot.mockImplementation(() => snapshot());
 });
 
