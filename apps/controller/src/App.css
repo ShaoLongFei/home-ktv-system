@@ -2739,7 +2739,7 @@ input:focus {
 }
 
 .scroll-text--running .scroll-text__inner {
-  animation: scroll-text-marquee 6s ease-in-out infinite alternate;
+  animation: scroll-text-marquee var(--scroll-duration, 6s) ease-in-out infinite alternate;
   padding-right: 10px;
 }
 

@@ -56,6 +56,19 @@ function ControllerApp() {
   const [queueAddFeedback, setQueueAddFeedback] = useState<QueueAddFeedback | null>(null);
   const [queueToasts, setQueueToasts] = useState<QueueToast[]>([]);
   const queueToastIdRef = useRef(0);
+  const pendingToastTitlesRef = useRef<Map<string, string>>(new Map());
+  const previousQueueStatusRef = useRef<Record<string, string>>({});
+  const pushQueueToast = useCallback((title: string, providerId?: string) => {
+    queueToastIdRef.current += 1;
+    const toastId = queueToastIdRef.current;
+    setQueueToasts((current) => [
+      ...current.slice(-2),
+      { id: toastId, title, ...(providerId ? { providerId } : {}) }
+    ]);
+    globalThis.setTimeout(() => {
+      setQueueToasts((current) => current.filter((toast) => toast.id !== toastId));
+    }, 3000);
+  }, []);
   const [optimisticQueueAdds, setOptimisticQueueAdds] = useState<OptimisticQueueAdd[]>([]);
   const queueFeedbackIdRef = useRef(0);
   const queueFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -82,15 +95,10 @@ function ControllerApp() {
       setQueueAddFeedback(feedback);
 
       // 右上角状态标签：最多同时三条，每条 3 秒
-      queueToastIdRef.current += 1;
-      const toastId = queueToastIdRef.current;
-      setQueueToasts((current) => [
-        ...current.slice(-2),
-        { id: toastId, title: song.title, providerId: song.providerId }
-      ]);
-      globalThis.setTimeout(() => {
-        setQueueToasts((current) => current.filter((toast) => toast.id !== toastId));
-      }, 3000);
+      if (song.providerId) {
+        pendingToastTitlesRef.current.set(song.providerId, song.title);
+      }
+      pushQueueToast(song.title, song.providerId);
 
       setOptimisticQueueAdds((current) => [
         ...current,
@@ -104,8 +112,31 @@ function ControllerApp() {
         setQueueAddFeedback((current) => (current?.id === feedback.id ? null : current));
       }, 900);
     },
-    []
+    [pushQueueToast]
   );
+
+  // 准备中 → 已点：再提醒一次，让人知道真的排上了
+  useEffect(() => {
+    const states = controller.onlineQueueState;
+    const previous = previousQueueStatusRef.current;
+    const next: Record<string, string> = {};
+
+    for (const [providerId, state] of Object.entries(states)) {
+      next[providerId] = state.status;
+      const before = previous[providerId];
+      if (state.status !== "queued" || !before || before === "queued") {
+        continue;
+      }
+      const title = pendingToastTitlesRef.current.get(providerId);
+      if (!title) {
+        continue;
+      }
+      pendingToastTitlesRef.current.delete(providerId);
+      pushQueueToast(title, providerId);
+    }
+
+    previousQueueStatusRef.current = next;
+  }, [controller.onlineQueueState, pushQueueToast]);
 
   useEffect(() => {
     const previousCount = previousServerQueueCountRef.current;
@@ -742,6 +773,7 @@ function TvMirrorOverlay({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const alignedEntryRef = useRef<string | null>(null);
+  const reconfirmedEntryRef = useRef<string | null>(null);
   const pendingFreshPositionRef = useRef(true);
   const initialPositionRef = useRef(target?.resumePositionMs ?? null);
   const latestTargetRef = useRef(target);
@@ -818,27 +850,26 @@ function TvMirrorOverlay({
     }
   }, [alignToTarget]);
 
-  // 电视每 10 秒才报一次位置，手机这边解码/缓冲一卡就再也没人管，
-  // 偏差会一路累积。这里每 5 秒量一次，落后超过 5 秒才拉回去：
-  // 手机"超前"通常只是快照陈旧，硬拽反而更乱，所以不做前向校正。
-  useEffect(() => {
-    const timer = globalThis.setInterval(() => {
-      const video = videoRef.current;
-      const latest = latestTargetRef.current;
-      if (!video || !latest || video.readyState < 1 || video.seeking) {
-        return;
-      }
-      const targetSeconds = latest.resumePositionMs / 1000;
-      if (targetSeconds - video.currentTime > 5) {
-        try {
-          video.currentTime = targetSeconds;
-        } catch {
-          // seek 失败就等下一轮
-        }
-      }
-    }, 5000);
+  // 定时 seek 会在播放中途把画面拽回去，看着就像重新播放，所以改成
+  // 只在真正开始播放时确认一次；同一首歌不重复动。
+  const reconfirmPosition = useCallback((video: HTMLVideoElement) => {
+    const latest = latestTargetRef.current;
+    if (!latest || reconfirmedEntryRef.current === latest.queueEntryId) {
+      return;
+    }
+    reconfirmedEntryRef.current = latest.queueEntryId;
 
-    return () => globalThis.clearInterval(timer);
+    const targetSeconds = latest.resumePositionMs / 1000;
+    if (targetSeconds <= 0) {
+      return;
+    }
+    if (Math.abs(targetSeconds - video.currentTime) > 3) {
+      try {
+        video.currentTime = targetSeconds;
+      } catch {
+        // seek 不了就保持当前进度
+      }
+    }
   }, []);
 
   return (
@@ -858,6 +889,7 @@ function TvMirrorOverlay({
           className="mirror-layer__video"
           muted
           onLoadedMetadata={(event) => alignToTarget(event.currentTarget)}
+          onPlaying={(event) => reconfirmPosition(event.currentTarget)}
           playsInline
           preload="metadata"
           ref={videoRef}
@@ -2069,10 +2101,14 @@ function ScrollingText({ text }: { text: string }) {
       const distance = inner.scrollWidth - outer.clientWidth;
       if (distance > 2) {
         outer.style.setProperty("--scroll-distance", `${distance}px`);
+        // 按距离算时长：固定 6s 时短名字一闪而过、长名字慢得发飘，
+        // 统一成 55px/s 左右更稳
+        outer.style.setProperty("--scroll-duration", `${Math.max(2.4, distance / 55).toFixed(2)}s`);
         outer.classList.add("scroll-text--running");
         return;
       }
       outer.style.removeProperty("--scroll-distance");
+      outer.style.removeProperty("--scroll-duration");
       outer.classList.remove("scroll-text--running");
     };
 
