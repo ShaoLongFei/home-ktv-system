@@ -77,6 +77,7 @@ export interface QueueEntryRepository {
   listEffectiveQueue(roomId: RoomId): Promise<QueueEntry[]>;
   listControllerUserSongHistory?(phone: string, limit?: number): Promise<ControllerSongHistoryEntry[]>;
   listGlobalSongRequestCounts?(songIds: readonly SongId[]): Promise<Map<SongId, number>>;
+  renameRequester?(input: { phone: string; displayName: string }): Promise<number>;
   listUndoableRemoved(roomId: RoomId, now: Date): Promise<QueueEntry[]>;
   findCurrentForRoom(roomId: RoomId): Promise<QueueEntry | null>;
   append(input: AppendQueueEntryInput): Promise<QueueEntry>;
@@ -144,6 +145,19 @@ export class PgQueueEntryRepository implements QueueEntryRepository {
     );
 
     return result.rows.map(mapQueueEntryRow);
+  }
+
+  /** 用户改昵称后，把还没播完的队列条目上的点歌人名字一起换掉。 */
+  async renameRequester(input: { phone: string; displayName: string }): Promise<number> {
+    const result = await this.db.query<{ queue_entry_id: string }>(
+      `UPDATE queue_entries
+          SET requested_by_name = $2
+        WHERE requested_by_user_phone = $1
+          AND status IN ('queued', 'preparing', 'loading')
+        RETURNING queue_entry_id`,
+      [input.phone, input.displayName]
+    );
+    return result.rows.length;
   }
 
   async listGlobalSongRequestCounts(songIds: readonly SongId[]): Promise<Map<SongId, number>> {

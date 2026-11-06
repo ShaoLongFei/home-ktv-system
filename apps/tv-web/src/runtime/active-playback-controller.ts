@@ -72,7 +72,21 @@ export class ActivePlaybackController {
     try {
       await this.videoPool.playActiveUntilReady();
       if (shouldTemporarilyMute) {
-        this.videoPool.activeVideo.muted = previousMuted;
+        const video = this.videoPool.activeVideo;
+        video.muted = previousMuted;
+        // 页面刷新后没有任何用户交互，浏览器允许静音自动播放，但一取消静音
+        // 就会把播放暂停。宁可先不出声，也不能让画面停住等人来点一下。
+        if (previousMuted === false) {
+          await new Promise((resolve) => setTimeout(resolve, 80));
+          if (video.paused) {
+            video.muted = true;
+            try {
+              await video.play();
+            } catch {
+              // 还播不了就交给上层提示
+            }
+          }
+        }
       }
       return playbackWarning ? { status: "playing", warning: playbackWarning } : { status: "playing" };
     } catch (error) {

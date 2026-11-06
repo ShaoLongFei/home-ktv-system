@@ -132,6 +132,14 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       return;
     }
 
+    // 用户点了屏幕，这次交互可以用来恢复声音（刷新后是被迫静音的）
+    if (pool.activeVideo.muted) {
+      pool.activeVideo.muted = false;
+      void pool.activeVideo.play().catch(() => {
+        pool.activeVideo.muted = true;
+      });
+    }
+
     void synchronizePlayback({
       client,
       pool,

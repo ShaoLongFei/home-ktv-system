@@ -203,7 +203,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     ...(mediaGateway ? { mediaGateway } : {})
   });
   await registerControllerAuthRoutes(server, {
-    controllerAuth: repositories.controllerAuth
+    controllerAuth: repositories.controllerAuth,
+    queueEntries: repositories.queueEntries
   });
   await registerControllerUserHistoryRoutes(server, {
     controllerAuth: repositories.controllerAuth,
