@@ -1520,34 +1520,37 @@ function SearchResults({
   const onlineCandidates = online?.status === "available" ? online.candidates : [];
   const nextOffset = online?.nextOffset ?? null;
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const triggeredOffsetRef = useRef<number | null>(null);
   const loadMoreSongSearch = controller.loadMoreSongSearch;
 
   // 不用 IntersectionObserver：内容不满一屏时根本没有滚动，观察器只在
   // 交叉状态变化时回调，一次都等不到。改成直接量哨兵位置，滚动和每次
   // 加载完都检查一次，凑满一屏就停下来。
-  const maybeLoadMore = useCallback(() => {
-    if (nextOffset == null || triggeredOffsetRef.current === nextOffset) {
+  const checkAndLoadMore = useCallback(() => {
+    if (nextOffset == null) {
       return;
     }
     const sentinel = sentinelRef.current;
     if (!sentinel) {
       return;
     }
-    const rect = sentinel.getBoundingClientRect();
-    if (rect.top > window.innerHeight + 240) {
+    if (sentinel.getBoundingClientRect().top > window.innerHeight + 240) {
       return;
     }
-    triggeredOffsetRef.current = nextOffset;
+    // 不在这里记「已触发」：首次调用时 loadMoreSongSearch 的闭包可能还是旧的
+    // （songSearch 尚未更新），一次就 return 掉，标记写死后再也试不了。
+    // 并发由内部 songSearchLoadingMoreRef 兜，重复调用是安全的。
     void loadMoreSongSearch();
   }, [loadMoreSongSearch, nextOffset]);
 
   useEffect(() => {
-    maybeLoadMore();
-    const handleScroll = () => maybeLoadMore();
-    globalThis.addEventListener("scroll", handleScroll, { passive: true });
-    return () => globalThis.removeEventListener("scroll", handleScroll);
-  }, [maybeLoadMore]);
+    // 延后一帧再量：effect 执行时哨兵可能刚挂载、还没参与布局
+    const timer = globalThis.setTimeout(checkAndLoadMore, 0);
+    globalThis.addEventListener("scroll", checkAndLoadMore, { passive: true });
+    return () => {
+      globalThis.clearTimeout(timer);
+      globalThis.removeEventListener("scroll", checkAndLoadMore);
+    };
+  }, [checkAndLoadMore, onlineCandidates.length]);
 
   return (
     <div className="search-overlay-results">
@@ -1555,7 +1558,7 @@ function SearchResults({
         <section className="indexed-panel" aria-label={t("search.onlineTitle")}>
           <div className="panel-heading">
             <h3>{t("search.onlineTitle")}</h3>
-            <span className="search-status available">{online?.message ?? ""}</span>
+            <span className="search-status available">{t("search.loadedCount", { count: onlineCandidates.length })}</span>
           </div>
           <div className="song-list recommendation-list">
             {onlineCandidates.map((candidate) => (
