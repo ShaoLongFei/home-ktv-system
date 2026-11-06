@@ -2818,3 +2818,31 @@ input:focus {
     transform: translateY(0);
   }
 }
+
+
+/* 播放状态提示（准备下一首 / 重连中）：和点歌提示同一列，带个呼吸小圆点 */
+.queue-toast--notice {
+  border-color: rgba(148, 163, 184, 0.32);
+}
+
+.queue-toast__dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--ktv-accent);
+  animation: queue-toast-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes queue-toast-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -36,7 +36,14 @@ function ControllerApp() {
     snapshot?.targetVocalMode ??
     (current?.vocalMode === "instrumental" ? "original" : "instrumental");
   const switchLabel = targetVocalMode === "original" ? t("button.switchToOriginal") : t("button.switchToInstrumental");
-  const noticeMessage = snapshot?.notice?.message;
+  const notice = snapshot?.notice ?? null;
+  // 服务端给的是英文硬编码，按 kind 换成本地文案
+  const noticeMessage =
+    notice?.kind === "loading"
+      ? t("status.loadingNext")
+      : notice?.kind === "recovering"
+        ? t("status.recovering")
+        : notice?.message;
   const volumePercent = controller.volumePercent;
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchHistory, setSearchHistory] = useState(() => readSearchHistory());
@@ -137,7 +144,7 @@ function ControllerApp() {
   if (controller.authStatus !== "authenticated") {
     return (
       <main className="app-shell auth-shell" aria-label="KTV 控制端登录">
-        <AppNotices controller={controller} noticeMessage={noticeMessage} t={t} />
+        <AppNotices controller={controller} t={t} />
         <AuthGate controller={controller} />
       </main>
     );
@@ -145,7 +152,7 @@ function ControllerApp() {
 
   return (
     <main className={`app-shell app-shell--${activeTab}`} aria-label={t("app.aria")}>
-      <AppNotices controller={controller} noticeMessage={noticeMessage} t={t} />
+      <AppNotices controller={controller} t={t} />
 
       {activeTab === "home" ? (
         <HomeScreen
@@ -253,8 +260,14 @@ function ControllerApp() {
         </div>
       ) : null}
 
-      {queueToasts.length > 0 ? (
+      {queueToasts.length > 0 || noticeMessage ? (
         <div className="queue-toasts" aria-live="polite">
+          {noticeMessage ? (
+            <div className="queue-toast queue-toast--notice">
+              <span className="queue-toast__dot" aria-hidden="true" />
+              <span className="queue-toast__title">{noticeMessage}</span>
+            </div>
+          ) : null}
           {queueToasts.map((toast) => {
             const state = toast.providerId ? controller.onlineQueueState[toast.providerId] : undefined;
             const statusLabel =
@@ -524,22 +537,13 @@ function HistorySongRow({
   );
 }
 
-function AppNotices({
-  controller,
-  noticeMessage,
-  t
-}: {
-  controller: RoomControllerState;
-  noticeMessage: string | undefined;
-  t: TFunction;
-}) {
+function AppNotices({ controller, t }: { controller: RoomControllerState; t: TFunction }) {
   return (
     <>
       {controller.connectionStatus === "reconnecting" ? (
         <div className="offline-banner">{t("status.reconnecting")}</div>
       ) : null}
       {controller.errorMessage ? <div className="error-banner">{controller.errorMessage}</div> : null}
-      {noticeMessage ? <div className="error-banner">{noticeMessage}</div> : null}
     </>
   );
 }
@@ -813,6 +817,29 @@ function TvMirrorOverlay({
       alignToTarget(video);
     }
   }, [alignToTarget]);
+
+  // 电视每 10 秒才报一次位置，手机这边解码/缓冲一卡就再也没人管，
+  // 偏差会一路累积。这里每 5 秒量一次，落后超过 5 秒才拉回去：
+  // 手机"超前"通常只是快照陈旧，硬拽反而更乱，所以不做前向校正。
+  useEffect(() => {
+    const timer = globalThis.setInterval(() => {
+      const video = videoRef.current;
+      const latest = latestTargetRef.current;
+      if (!video || !latest || video.readyState < 1 || video.seeking) {
+        return;
+      }
+      const targetSeconds = latest.resumePositionMs / 1000;
+      if (targetSeconds - video.currentTime > 5) {
+        try {
+          video.currentTime = targetSeconds;
+        } catch {
+          // seek 失败就等下一轮
+        }
+      }
+    }, 5000);
+
+    return () => globalThis.clearInterval(timer);
+  }, []);
 
   return (
     <div className="mirror-layer" role="dialog" aria-modal="true" aria-label={t("mirror.title")}>
