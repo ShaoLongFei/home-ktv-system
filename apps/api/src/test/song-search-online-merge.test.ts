@@ -92,7 +92,7 @@ describe("song search online merge", () => {
     });
 
     const body = response.json();
-    expect(calls).toEqual([{ keyword: "孤勇者", limit: 20 }]);
+    expect(calls).toEqual([{ keyword: "孤勇者", limit: 40 }]);
     expect(body.online.status).toBe("available");
     expect(body.online.message).toBe("找到 2 首在线曲库结果");
     expect(body.online.candidates[0]).toEqual({

@@ -1477,15 +1477,20 @@ input:focus {
   align-content: start;
   gap: 12px;
   width: min(100%, 760px);
-  min-height: 100vh;
+  /* 定高 + 内部滚动：内容才滑得动，标题行的 sticky 也才有真正滚动的
+     祖先可依附（之前用 min-height 不定高，设了 overflow 也不滚，sticky
+     同样失效） */
+  height: 100vh;
+  height: 100dvh;
   margin: 0 auto;
   padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   color: var(--ktv-text);
   background:
     linear-gradient(180deg, rgba(5, 7, 13, 0.98) 0%, rgba(11, 16, 32, 0.98) 100%),
     var(--ktv-bg);
-  /* 不要在这里设 overflow-y: auto —— 会把自己变成滚动容器，
-     标题行的 sticky 就相对它定位、永远不吸附。滚动交给 body。 */
 }
 
 .search-overlay__header {

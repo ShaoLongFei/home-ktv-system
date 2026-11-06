@@ -1533,7 +1533,8 @@ function SearchResults({
     if (!sentinel) {
       return;
     }
-    if (sentinel.getBoundingClientRect().top > window.innerHeight + 240) {
+    // 不留提前量：首屏 40 首本来就该停住，哨兵真正进视口才续拉
+    if (sentinel.getBoundingClientRect().top > window.innerHeight) {
       return;
     }
     // 不在这里记「已触发」：首次调用时 loadMoreSongSearch 的闭包可能还是旧的
@@ -1545,10 +1546,11 @@ function SearchResults({
   useEffect(() => {
     // 延后一帧再量：effect 执行时哨兵可能刚挂载、还没参与布局
     const timer = globalThis.setTimeout(checkAndLoadMore, 0);
-    globalThis.addEventListener("scroll", checkAndLoadMore, { passive: true });
+    // 搜索浮层自己是滚动容器，scroll 事件不冒泡到 window，必须用捕获
+    globalThis.addEventListener("scroll", checkAndLoadMore, { passive: true, capture: true });
     return () => {
       globalThis.clearTimeout(timer);
-      globalThis.removeEventListener("scroll", checkAndLoadMore);
+      globalThis.removeEventListener("scroll", checkAndLoadMore, true);
     };
   }, [checkAndLoadMore, onlineCandidates.length]);
 

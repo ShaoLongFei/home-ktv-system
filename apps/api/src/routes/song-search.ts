@@ -32,7 +32,7 @@ interface SongSearchQuery {
   offset?: string | number;
 }
 
-const ONLINE_SEARCH_PAGE_SIZE = 20;
+const ONLINE_SEARCH_PAGE_SIZE = 40;
 
 export async function registerSongSearchRoutes(
   server: FastifyInstance,
