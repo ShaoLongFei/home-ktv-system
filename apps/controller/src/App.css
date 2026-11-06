@@ -960,9 +960,10 @@ input:focus {
   min-width: 0;
 }
 
-/* 「返回」跟在搜索框后面，不单独占一行 */
+/* 「返回」和「搜索」等宽等高，视觉上成一对其 */
 .search-overlay__back {
   flex: 0 0 auto;
+  min-width: 66px;
 }
 
 /* 搜索按钮始终跟在输入框右边，不再在窄屏塌到下一行 */
@@ -1473,7 +1474,9 @@ input:focus {
 .search-overlay-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  /* 要盖住底部播放控制台（z-index: 50）和队列抽屉（70），
+     否则搜索时底部会漏出一条可点的控制栏 */
+  z-index: 90;
   display: grid;
   place-items: stretch;
   background: rgba(2, 6, 23, 0.82);

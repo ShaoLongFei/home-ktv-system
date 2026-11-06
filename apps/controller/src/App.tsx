@@ -1465,7 +1465,7 @@ function SearchOverlay({
             />
             <button className="primary-button" type="submit">{t("search.submit")}</button>
           </form>
-          <button className="secondary-button compact-button search-overlay__back" type="button" onClick={onClose}>
+          <button className="primary-button search-overlay__back" type="button" onClick={onClose}>
             {t("button.back")}
           </button>
         </div>
