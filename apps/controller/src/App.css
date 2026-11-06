@@ -953,9 +953,16 @@ input:focus {
 
 .search-form {
   display: grid;
+  flex: 1;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
+  min-width: 0;
+}
+
+/* 「返回」跟在搜索框后面，不单独占一行 */
+.search-overlay__back {
+  flex: 0 0 auto;
 }
 
 /* 搜索按钮始终跟在输入框右边，不再在窄屏塌到下一行 */
@@ -1477,11 +1484,8 @@ input:focus {
   align-content: start;
   gap: 12px;
   width: min(100%, 760px);
-  /* 定高 + 内部滚动：内容才滑得动，标题行的 sticky 也才有真正滚动的
-     祖先可依附（之前用 min-height 不定高，设了 overflow 也不滚，sticky
-     同样失效） */
-  height: 100vh;
-  height: 100dvh;
+  /* 高度交给 backdrop 的 grid stretch 撑满整屏（inset: 0），这里只负责
+     内部滚动。写死 100dvh 的话底部会漏出一条，透出下面的控制台 */
   margin: 0 auto;
   padding: 16px;
   overflow-y: auto;

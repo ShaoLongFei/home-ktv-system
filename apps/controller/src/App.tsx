@@ -1444,31 +1444,31 @@ function SearchOverlay({
 
   return (
     <div className="search-overlay-backdrop">
-      <section className="search-overlay" role="dialog" aria-modal="true" aria-labelledby="search-overlay-title">
+      <section className="search-overlay" role="dialog" aria-modal="true" aria-label={t("search.title")}>
+        {/* 搜索框 + 搜索 + 返回 合成一行，整行吸顶 */}
         <div className="search-overlay__header">
-          <h2 id="search-overlay-title">{t("search.title")}</h2>
-          <button className="secondary-button compact-button" type="button" onClick={onClose}>
-            {t("button.close")}
+          <form
+            role="search"
+            className="search-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitSearch();
+            }}
+          >
+            <input
+              autoFocus
+              aria-label={t("search.inputAria")}
+              className="search-input"
+              value={controller.songSearchQuery}
+              onChange={(event) => controller.setSongSearchQuery(event.currentTarget.value)}
+              placeholder={t("search.placeholder")}
+            />
+            <button className="primary-button" type="submit">{t("search.submit")}</button>
+          </form>
+          <button className="secondary-button compact-button search-overlay__back" type="button" onClick={onClose}>
+            {t("button.back")}
           </button>
         </div>
-        <form
-          role="search"
-          className="search-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            submitSearch();
-          }}
-        >
-          <input
-            autoFocus
-            aria-label={t("search.inputAria")}
-            className="search-input"
-            value={controller.songSearchQuery}
-            onChange={(event) => controller.setSongSearchQuery(event.currentTarget.value)}
-            placeholder={t("search.placeholder")}
-          />
-          <button className="primary-button" type="submit">{t("search.submit")}</button>
-        </form>
 
         {hasQuery ? (
           <SearchResults
