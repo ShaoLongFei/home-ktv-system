@@ -548,7 +548,15 @@ input:focus {
   outline-offset: 4px;
 }
 
-.queue-list,
+/* 队列一首歌独占一行，不参与多列；推荐/搜索才按 120px 自动分列 */
+.queue-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+  align-content: start;
+}
+
 .song-list {
   display: grid;
   /* 每列最小 120px，能塞几列塞几列 */
@@ -2756,4 +2764,57 @@ input:focus {
   position: sticky;
   top: 0;
   z-index: 5;
+}
+
+
+/* 点歌后的状态小标签：右上角堆叠，3 秒自动消失 */
+.queue-toasts {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 95;
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  pointer-events: none;
+}
+
+.queue-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(72vw, 280px);
+  border: 1px solid rgba(34, 211, 238, 0.32);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(8, 12, 24, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 22px rgba(2, 6, 23, 0.5);
+  font-size: 0.78rem;
+  animation: queue-toast-in 180ms ease-out;
+}
+
+.queue-toast__title {
+  overflow: hidden;
+  color: rgba(248, 250, 252, 0.92);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-toast__state {
+  flex: 0 0 auto;
+  color: #67e8f9;
+  font-weight: 700;
+}
+
+@keyframes queue-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

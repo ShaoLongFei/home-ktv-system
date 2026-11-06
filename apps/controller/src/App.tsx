@@ -47,6 +47,8 @@ function ControllerApp() {
   const [mirrorOpen, setMirrorOpen] = useState(false);
   const [interactionComposer, setInteractionComposer] = useState<RoomInteractionKind | null>(null);
   const [queueAddFeedback, setQueueAddFeedback] = useState<QueueAddFeedback | null>(null);
+  const [queueToasts, setQueueToasts] = useState<QueueToast[]>([]);
+  const queueToastIdRef = useRef(0);
   const [optimisticQueueAdds, setOptimisticQueueAdds] = useState<OptimisticQueueAdd[]>([]);
   const queueFeedbackIdRef = useRef(0);
   const queueFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -62,26 +64,41 @@ function ControllerApp() {
   }, []);
   const serverQueueCount = snapshot?.queue.filter((entry) => entry.status !== "removed").length ?? 0;
   const queueCount = serverQueueCount + optimisticQueueAdds.length;
-  const triggerQueueAddFeedback = useCallback((song: Pick<SongDiscoverySong, "artistName" | "title">) => {
-    if (queueFeedbackTimerRef.current) {
-      clearTimeout(queueFeedbackTimerRef.current);
-    }
-
-    queueFeedbackIdRef.current += 1;
-    const feedback = { id: queueFeedbackIdRef.current };
-    setQueueAddFeedback(feedback);
-    setOptimisticQueueAdds((current) => [
-      ...current,
-      {
-        artistName: song.artistName,
-        id: feedback.id,
-        title: song.title
+  const triggerQueueAddFeedback = useCallback(
+    (song: { artistName: string; title: string; providerId?: string }) => {
+      if (queueFeedbackTimerRef.current) {
+        clearTimeout(queueFeedbackTimerRef.current);
       }
-    ]);
-    queueFeedbackTimerRef.current = setTimeout(() => {
-      setQueueAddFeedback((current) => (current?.id === feedback.id ? null : current));
-    }, 900);
-  }, []);
+
+      queueFeedbackIdRef.current += 1;
+      const feedback = { id: queueFeedbackIdRef.current };
+      setQueueAddFeedback(feedback);
+
+      // 右上角状态标签：最多同时三条，每条 3 秒
+      queueToastIdRef.current += 1;
+      const toastId = queueToastIdRef.current;
+      setQueueToasts((current) => [
+        ...current.slice(-2),
+        { id: toastId, title: song.title, providerId: song.providerId }
+      ]);
+      globalThis.setTimeout(() => {
+        setQueueToasts((current) => current.filter((toast) => toast.id !== toastId));
+      }, 3000);
+
+      setOptimisticQueueAdds((current) => [
+        ...current,
+        {
+          artistName: song.artistName,
+          id: feedback.id,
+          title: song.title
+        }
+      ]);
+      queueFeedbackTimerRef.current = setTimeout(() => {
+        setQueueAddFeedback((current) => (current?.id === feedback.id ? null : current));
+      }, 900);
+    },
+    []
+  );
 
   useEffect(() => {
     const previousCount = previousServerQueueCountRef.current;
@@ -178,6 +195,7 @@ function ControllerApp() {
         <SearchOverlay
           controller={controller}
           history={searchHistory}
+          onQueueAddFeedback={triggerQueueAddFeedback}
           onClose={() => setSearchOpen(false)}
           onClearHistory={() => {
             writeSearchHistory([]);
@@ -232,6 +250,26 @@ function ControllerApp() {
               </button>
             </div>
           </section>
+        </div>
+      ) : null}
+
+      {queueToasts.length > 0 ? (
+        <div className="queue-toasts" aria-live="polite">
+          {queueToasts.map((toast) => {
+            const state = toast.providerId ? controller.onlineQueueState[toast.providerId] : undefined;
+            const statusLabel =
+              state?.status === "preparing"
+                ? t("search.onlinePreparing")
+                : state?.status === "failed"
+                  ? t("search.onlineFailed")
+                  : t("search.onlineQueued");
+            return (
+              <div className="queue-toast" key={toast.id}>
+                <span className="queue-toast__title">{toast.title}</span>
+                <span className="queue-toast__state">{statusLabel}</span>
+              </div>
+            );
+          })}
         </div>
       ) : null}
 
@@ -404,7 +442,7 @@ function MyScreen({
   onBack
 }: {
   controller: RoomControllerState;
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   onBack(): void;
 }) {
   const history = controller.songHistory;
@@ -460,7 +498,7 @@ function HistorySongRow({
   song
 }: {
   controller: RoomControllerState;
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   song: ControllerSongHistoryEntry;
 }) {
   const addAgain = () => {
@@ -524,7 +562,7 @@ function HomeScreen({
   browseView: BrowseView;
   controller: RoomControllerState;
   discovery: RoomControllerState["songDiscovery"];
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   goBackBrowseView(): void;
   openBrowseView(view: Exclude<BrowseView, { kind: "home" }>): void;
   setInteractionComposer(kind: RoomInteractionKind): void;
@@ -1374,6 +1412,21 @@ type QueueAddFeedback = {
   id: number;
 };
 
+type QueueAddFeedbackSong = {
+  artistName: string;
+  title: string;
+  /** 在线歌曲用来读实时状态；NAS 歌曲没有 */
+  providerId?: string | undefined;
+};
+
+/** 点歌后右上角的状态小标签，3 秒自己消失 */
+type QueueToast = {
+  id: number;
+  title: string;
+  /** 在线歌曲用来读实时状态；NAS 歌曲没有 */
+  providerId?: string | undefined;
+};
+
 type OptimisticQueueAdd = {
   artistName: string;
   id: number;
@@ -1424,6 +1477,7 @@ function SearchOverlay({
   onClearHistory,
   onClose,
   onCommitHistory,
+  onQueueAddFeedback,
   t
 }: {
   controller: RoomControllerState;
@@ -1431,6 +1485,7 @@ function SearchOverlay({
   onClearHistory(): void;
   onClose(): void;
   onCommitHistory(query: string): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   t: TFunction;
 }) {
   const hasQuery = controller.songSearchQuery.trim().length > 0;
@@ -1473,6 +1528,7 @@ function SearchOverlay({
         {hasQuery ? (
           <SearchResults
             controller={controller}
+            onQueueAddFeedback={onQueueAddFeedback}
             t={t}
           />
         ) : (
@@ -1511,9 +1567,11 @@ function SearchOverlay({
 
 function SearchResults({
   controller,
+  onQueueAddFeedback,
   t
 }: {
   controller: RoomControllerState;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   t: TFunction;
 }) {
   const online = controller.songSearch?.online ?? null;
@@ -1568,6 +1626,7 @@ function SearchResults({
                 candidate={candidate}
                 controller={controller}
                 key={`${candidate.provider}:${candidate.providerCandidateId}`}
+                onQueueAddFeedback={onQueueAddFeedback}
                 t={t}
               />
             ))}
@@ -1591,10 +1650,12 @@ function SearchResults({
 function SearchOnlineSongRow({
   candidate,
   controller,
+  onQueueAddFeedback,
   t
 }: {
   candidate: OnlineCandidateCard;
   controller: RoomControllerState;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   t: TFunction;
 }) {
   const state = controller.onlineQueueState[candidate.providerCandidateId];
@@ -1616,15 +1677,25 @@ function SearchOnlineSongRow({
       className={`song-row recommendation-row song-row--clickable${busy ? " song-row--busy" : ""}`}
       disabled={busy}
       type="button"
-      onClick={() =>
-        controller.requestAddOnlineSong(
+      onClick={() => {
+        if (busy) {
+          return;
+        }
+        const accepted = controller.requestAddOnlineSong(
           candidate.providerCandidateId,
           candidate.title,
           candidate.artistName,
           candidate.nasAssetId,
           candidate.nasQueueState
-        )
-      }
+        );
+        if (accepted) {
+          onQueueAddFeedback({
+            artistName: candidate.artistName,
+            title: candidate.title,
+            providerId: candidate.providerCandidateId
+          });
+        }
+      }}
     >
       <div className="result-main">
         <strong>
@@ -1650,7 +1721,7 @@ function DiscoveryBrowseView({
 }: {
   controller: RoomControllerState;
   discovery: RoomControllerState["songDiscovery"];
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   goBackBrowseView(): void;
   openBrowseView(view: Exclude<BrowseView, { kind: "home" }>): void;
   t: TFunction;
@@ -2003,7 +2074,7 @@ function DiscoverySongRow({
   t
 }: {
   controller: RoomControllerState;
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   song: SongDiscoverySong;
   t: TFunction;
 }) {
@@ -2044,7 +2115,7 @@ function DiscoverySongRow({
             return;
           }
           if (controller.requestAddOnlineSong(onlineSongNumber, song.title, song.artistName)) {
-            onQueueAddFeedback(song);
+            onQueueAddFeedback({ artistName: song.artistName, title: song.title, providerId: onlineSongNumber });
           }
           return;
         }
@@ -2054,7 +2125,7 @@ function DiscoverySongRow({
         }
 
         if (controller.requestAddNasAsset(primaryVersion.assetId, song.title, primaryVersion.queueState)) {
-          onQueueAddFeedback(song);
+          onQueueAddFeedback({ artistName: song.artistName, title: song.title });
         }
       }}
     >

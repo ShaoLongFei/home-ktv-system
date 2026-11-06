@@ -238,9 +238,10 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
         ...(dependencies.mediaGateway ? { mediaGateway: dependencies.mediaGateway } : {})
       });
 
-      if (result.snapshot) {
-        dependencies.broadcaster?.broadcastRoomSnapshot(roomSlug, result.snapshot);
-      }
+      // 推进后队列和播放地址都变了，重新构建一份完整控制快照推给所有端。
+      // result.snapshot 是推进瞬间的（state 还是 loading），电视收到后拿不到
+      // 下一首的 playbackUrl，primeActive 会挂到空源上，看着就是"播完停了"
+      await broadcastControlSnapshot(dependencies, roomSlug);
 
       request.log.info(
         terminalTelemetryResultLogPayload(body, roomSlug, result, snapshot),
