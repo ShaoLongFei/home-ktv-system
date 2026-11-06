@@ -183,7 +183,6 @@ function ControllerApp() {
 
   return (
     <main className={`app-shell app-shell--${activeTab}`} aria-label={t("app.aria")}>
-      <AppNotices controller={controller} t={t} />
 
       {activeTab === "home" ? (
         <HomeScreen
@@ -291,8 +290,20 @@ function ControllerApp() {
         </div>
       ) : null}
 
-      {queueToasts.length > 0 || noticeMessage ? (
+      {queueToasts.length > 0 || noticeMessage || controller.errorMessage || controller.connectionStatus === "reconnecting" ? (
         <div className="queue-toasts" aria-live="polite">
+          {controller.connectionStatus === "reconnecting" ? (
+            <div className="queue-toast queue-toast--error" role="status">
+              <span className="queue-toast__dot" aria-hidden="true" />
+              <span className="queue-toast__title">{t("status.reconnecting")}</span>
+            </div>
+          ) : null}
+          {controller.errorMessage ? (
+            <div className="queue-toast queue-toast--error" role="alert">
+              <span className="queue-toast__dot" aria-hidden="true" />
+              <span className="queue-toast__title">{controller.errorMessage}</span>
+            </div>
+          ) : null}
           {noticeMessage ? (
             <div className="queue-toast queue-toast--notice">
               <span className="queue-toast__dot" aria-hidden="true" />

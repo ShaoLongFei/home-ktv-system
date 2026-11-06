@@ -1,6 +1,8 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 
-const CORS_METHODS = "GET,POST,OPTIONS";
+// PATCH 用于改昵称、DELETE 用于删队列条目，漏掉的话预检直接失败，
+// 前端只会看到 "Failed to fetch"，看不出是 CORS
+const CORS_METHODS = "GET,POST,PATCH,DELETE,PUT,OPTIONS";
 const DEFAULT_CORS_HEADERS = "content-type";
 
 export interface CorsDependencies {

@@ -2846,3 +2846,18 @@ input:focus {
     transform: scale(1);
   }
 }
+
+
+/* 错误提示也用同一个小标签，红边区分 */
+.queue-toast--error {
+  border-color: rgba(248, 113, 113, 0.42);
+}
+
+.queue-toast--error .queue-toast__dot {
+  background: #f87171;
+  animation: none;
+}
+
+.queue-toast--error .queue-toast__title {
+  color: rgba(254, 226, 226, 0.96);
+}
