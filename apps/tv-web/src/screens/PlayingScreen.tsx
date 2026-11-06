@@ -26,7 +26,10 @@ export function PlayingScreen({
   const target = snapshot.currentTarget;
   const modeLabel = modeLabelFor(target?.vocalMode ?? "unknown");
   const clock = formatPlaybackClock(playbackPositionMs, durationMs);
-  const audioTrackLabel = audioTrackLabelFor(target?.selectedTrackRef ?? null);
+  const songTitle = target?.currentQueueEntryPreview.songTitle ?? "暂无歌曲";
+  // 另一条能切的音轨：当前放原唱就提示「伴唱」，反之亦然
+  const alternateModeLabel =
+    modeLabel === "原唱" ? "伴唱" : modeLabel === "伴唱" ? "原唱" : "双轨";
   const requester = requesterDisplay(target?.currentQueueEntryPreview.requestedByName ?? null);
   const pointerActivatedPromptRef = useRef(false);
 
@@ -43,18 +46,30 @@ export function PlayingScreen({
         <PairingQr pairing={snapshot.pairing} variant="corner" />
       </div>
       <footer aria-label="播放状态" style={styles.footer}>
-        {requester ? (
-          <span aria-label={`点歌人 ${requester.name}`} style={styles.requesterLine}>
-            <span style={styles.requesterAvatar} aria-hidden="true">{requester.initial}</span>
-            <span style={styles.requesterLabel}>点歌人</span>
-            <span style={styles.requesterName}>{requester.name}</span>
+        {/* 第一行：点歌人头像 + 当前模式 + 歌名 */}
+        <span style={styles.titleLine}>
+          <span style={styles.requesterAvatar} aria-hidden="true">
+            {requester?.initial ?? "♪"}
           </span>
-        ) : null}
-        <span style={styles.timeValue}>{clock}</span>
-        <span style={styles.metaLine}>
           <span style={{ ...styles.modePill, ...modeAccent(target?.vocalMode ?? "unknown") }}>{modeLabel}</span>
-          <span style={styles.audioTrackText}>{audioTrackLabel}</span>
-          {showStateLabel ? <span style={{ ...styles.stateText, ...stateAccent(displayState.tone) }}>{displayState.stateLabel}</span> : null}
+          <span style={styles.songTitle} title={songTitle}>{songTitle}</span>
+        </span>
+
+        {/* 第二行：播放进度 */}
+        <span style={styles.timeValue}>{clock}</span>
+
+        {/* 第三行：可切换模式 + 点歌人 + 状态 */}
+        <span style={styles.metaLine}>
+          <span style={styles.altModeText}>{alternateModeLabel}</span>
+          {requester ? (
+            <span aria-label={`点歌人 ${requester.name}`} style={styles.requesterLine}>
+              <span style={styles.requesterLabel}>点歌人</span>
+              <span style={styles.requesterName}>{requester.name}</span>
+            </span>
+          ) : null}
+          {showStateLabel ? (
+            <span style={{ ...styles.stateText, ...stateAccent(displayState.tone) }}>{displayState.stateLabel}</span>
+          ) : null}
         </span>
       </footer>
       {displayState.firstPlayPrompt.visible ? (
@@ -206,6 +221,33 @@ const styles = {
     position: "absolute",
     width: "max-content",
     zIndex: 3
+  },
+  titleLine: {
+    alignItems: "center",
+    display: "flex",
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0,
+    width: "100%"
+  },
+  songTitle: {
+    color: tvTheme.colors.text,
+    display: "block",
+    flex: "1 1 auto",
+    fontSize: 22,
+    fontWeight: 950,
+    lineHeight: 1.15,
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
+  },
+  altModeText: {
+    color: tvTheme.colors.textMuted,
+    flex: "0 0 auto",
+    fontSize: 14,
+    fontWeight: 800,
+    opacity: 0.72
   },
   requesterLine: {
     alignItems: "center",

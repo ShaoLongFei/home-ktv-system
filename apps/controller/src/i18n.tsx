@@ -181,6 +181,7 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "search.onlinePreparing": "Preparing",
     "search.onlineQueued": "Queued",
     "search.onlineFailed": "Retry",
+    "search.queueFailed": "Failed",
 
     "discovery.artists": "Artists",
     "discovery.genres": "Genres",
@@ -451,6 +452,7 @@ const dictionaries: Record<AppLanguage, Record<string, string>> = {
     "search.onlinePreparing": "准备中",
     "search.onlineQueued": "已点",
     "search.onlineFailed": "重试",
+    "search.queueFailed": "点歌失败",
 
     "discovery.artists": "歌手点歌",
     "discovery.genres": "风格点歌",

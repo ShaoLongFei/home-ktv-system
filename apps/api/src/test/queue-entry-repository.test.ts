@@ -41,8 +41,8 @@ describe("PgQueueEntryRepository", () => {
     expect(db.queries[0]).toContain("room_id, song_id");
     expect(db.queries[0]).toContain("requested_by_user_phone");
     expect(db.queries[0]).toContain("requested_by_name");
-    expect(db.queries[0]).toContain("$8, $9::jsonb");
-    expect(db.queries[0]).not.toContain("$8::jsonb");
+    expect(db.queries[0]).toContain("$7, $8::jsonb");
+    expect(db.queries[0]).not.toContain("$7::jsonb");
     expect(db.queries[0]).not.toContain("source_type");
     expect(db.queries[0]).not.toContain("nas_asset_id");
     expect(db.values[0]?.slice(0, 5)).toEqual(["living-room", "ktv-song-1", "phone-a", "13800138000", "阿飞"]);

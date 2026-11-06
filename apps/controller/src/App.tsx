@@ -316,7 +316,7 @@ function ControllerApp() {
               state?.status === "preparing"
                 ? t("search.onlinePreparing")
                 : state?.status === "failed"
-                  ? t("search.onlineFailed")
+                  ? t("search.queueFailed")
                   : t("search.onlineQueued");
             return (
               <div className="queue-toast" key={toast.id}>

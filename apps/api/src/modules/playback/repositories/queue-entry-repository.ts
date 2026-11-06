@@ -281,7 +281,7 @@ export class PgQueueEntryRepository implements QueueEntryRepository {
          COALESCE((SELECT MAX(queue_position) FROM queue_entries
                     WHERE room_id = $1
                       AND status IN ('queued', 'preparing', 'loading', 'playing')), 0) + 1,
-         $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15)
+         $6, $7, $8::jsonb, $9, $10, $11, $12, $13, $14)
        RETURNING ${queueEntrySelectColumns}`,
       [
         input.roomId,
