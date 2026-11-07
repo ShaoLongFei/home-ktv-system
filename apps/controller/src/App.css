@@ -139,7 +139,7 @@ input:focus {
   min-height: 100vh;
   margin: 0;
   padding: 10px 16px 84px;
-  overflow-x: hidden;
+  overflow-x: clip;
   color: var(--ktv-text);
   background:
     linear-gradient(180deg, rgba(5, 7, 13, 0.68) 0%, rgba(11, 16, 32, 0.82) 100%),
@@ -548,11 +548,24 @@ input:focus {
   outline-offset: 4px;
 }
 
-.queue-list,
-.song-list {
+/* 队列一首歌独占一行，不参与多列；推荐/搜索才按 120px 自动分列 */
+.queue-list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   margin-top: 8px;
+  align-content: start;
+}
+
+.song-list {
+  display: grid;
+  /* 每列最小 120px，能塞几列塞几列 */
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+  /* grid 默认 align-content:stretch，放在抽屉的 1fr 区域里会把每一行
+     均分拉伸，整个列表变成几张占满屏的大卡片。必须显式从顶部排列。 */
+  align-content: start;
 }
 
 .queue-row,
@@ -816,7 +829,8 @@ input:focus {
 
 .home-shortcut-section {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 发表情 / 彩虹屁 / 神吐槽 / 送祝福 / 同步画面 —— 五个挤一行 */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   align-items: start;
 }
@@ -947,9 +961,24 @@ input:focus {
 
 .search-form {
   display: grid;
+  flex: 1;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
+  min-width: 0;
+}
+
+/* 「返回」和「搜索」等宽等高，视觉上成一对其 */
+.search-overlay__back {
+  flex: 0 0 auto;
+  min-width: 66px;
+}
+
+/* 搜索按钮始终跟在输入框右边，不再在窄屏塌到下一行 */
+.search-form > button {
+  min-height: 48px;
+  padding: 0 16px;
+  white-space: nowrap;
 }
 
 .search-input {
@@ -1115,11 +1144,9 @@ input:focus {
 
 .compact-version-main strong {
   min-width: 0;
-  overflow: hidden;
   color: rgba(248, 250, 252, 0.92);
   font-size: 0.82rem;
-  line-height: 1.1;
-  text-overflow: ellipsis;
+  line-height: 1.25;
   white-space: nowrap;
 }
 
@@ -1346,8 +1373,15 @@ input:focus {
 
 .recommendation-list {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 5px;
   margin-top: 0;
+}
+
+/* 滚动到这里就自动续拉下一页 */
+.discovery-sentinel {
+  height: 1px;
+  width: 100%;
 }
 
 .discovery-load-more {
@@ -1356,7 +1390,7 @@ input:focus {
 }
 
 .recommendation-row {
-  grid-template-columns: 40px minmax(0, 1fr) 34px;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   border: 0;
@@ -1374,19 +1408,18 @@ input:focus {
 .recommendation-row strong {
   display: block;
   color: var(--ktv-text);
-  font-size: 0.9rem;
-  line-height: 1.12;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  min-width: 0;
+  /* 固定一行，放不下交给 ScrollingText 横向滚动 */
   white-space: nowrap;
 }
 
 .recommendation-row p {
   margin: 0;
-  font-size: 0.74rem;
-  line-height: 1.12;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  min-width: 0;
   white-space: nowrap;
 }
 
@@ -1449,7 +1482,9 @@ input:focus {
 .search-overlay-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 20;
+  /* 要盖住底部播放控制台（z-index: 50）和队列抽屉（70），
+     否则搜索时底部会漏出一条可点的控制栏 */
+  z-index: 90;
   display: grid;
   place-items: stretch;
   background: rgba(2, 6, 23, 0.82);
@@ -1460,21 +1495,32 @@ input:focus {
   align-content: start;
   gap: 12px;
   width: min(100%, 760px);
-  min-height: 100vh;
+  /* 高度交给 backdrop 的 grid stretch 撑满整屏（inset: 0），这里只负责
+     内部滚动。写死 100dvh 的话底部会漏出一条，透出下面的控制台 */
   margin: 0 auto;
   padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   color: var(--ktv-text);
   background:
     linear-gradient(180deg, rgba(5, 7, 13, 0.98) 0%, rgba(11, 16, 32, 0.98) 100%),
     var(--ktv-bg);
-  overflow-y: auto;
 }
 
 .search-overlay__header {
+  /* 搜索浮层自己就是滚动容器，sticky 相对它生效 */
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: rgba(8, 12, 24, 0.96);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin: -8px 0 0;
+  padding: 8px 0;
 }
 
 .search-overlay__header h2,
@@ -1483,7 +1529,10 @@ input:focus {
 }
 
 .search-overlay-results {
+  display: grid;
+  gap: 12px;
   margin-top: 0;
+  min-width: 0;
 }
 
 .history-panel {
@@ -1881,14 +1930,17 @@ input:focus {
   position: fixed;
   inset: 0;
   display: grid;
-  place-items: end center;
-  z-index: 40;
+  place-items: center;
+  /* 必须高于底部控制台(50)和房间切换器(60)，否则弹窗被压住点不到 */
+  z-index: 65;
   padding: 16px;
   background: rgba(2, 6, 23, 0.72);
   backdrop-filter: blur(14px);
 }
 
+/* 交互面板仍是底部抽屉形态，只让确认类弹窗居中 */
 .modal-backdrop--sheet {
+  align-items: end;
   padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
 }
 
@@ -2120,7 +2172,6 @@ input:focus {
 }
 
 @media (max-width: 520px) {
-  .search-form,
   .song-row,
   .version-row,
   .indexed-version-row {
@@ -2135,7 +2186,6 @@ input:focus {
   .version-row > button,
   .indexed-version-row > button,
   .online-candidate-row > button,
-  .search-form > button,
   .interaction-form > button {
     width: 100%;
   }
@@ -2188,25 +2238,626 @@ input:focus {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .recommendation-row {
-    grid-template-columns: 40px minmax(0, 1fr) 34px;
+}
+
+.room-switcher {
+  left: 12px;
+  position: fixed;
+  top: 10px;
+  z-index: 60;
+}
+
+.room-switcher__chip {
+  backdrop-filter: blur(12px);
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 14px;
+}
+
+.room-switcher__panel {
+  background: rgba(10, 15, 28, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  width: 240px;
+}
+
+.room-switcher__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-switcher__list {
+  display: grid;
+  gap: 6px;
+}
+
+.room-switcher__room {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: rgba(248, 250, 252, 0.86);
+  font-size: 13px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.room-switcher__room--active {
+  border-color: rgba(34, 211, 238, 0.6);
+  color: #67e8f9;
+}
+
+.room-switcher__join {
+  display: flex;
+  gap: 8px;
+}
+
+.room-switcher__join input {
+  background: rgba(9, 12, 24, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  color: inherit;
+  flex: 1;
+  font-size: 12px;
+  min-width: 0;
+  padding: 8px 10px;
+}
+
+.profile-entry {
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 999px;
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 13px;
+  font-weight: 800;
+  height: 38px;
+  margin-left: auto;
+  padding: 0 14px;
+}
+
+.home-search-section {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+/* 底部控制台：歌名→左上，歌手紧随其后，音量小字在下一行，
+   播放控制按钮单独一行贴右下角。 */
+.music-console {
+  align-items: end;
+  backdrop-filter: blur(18px);
+  background: rgba(8, 12, 24, 0.94);
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  bottom: 0;
+  display: grid;
+  grid-template-areas:
+    "head head"
+    "meta controls";
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  left: 0;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  position: fixed;
+  right: 0;
+  row-gap: 4px;
+  z-index: 50;
+}
+
+.music-console__head {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  grid-area: head;
+  min-width: 0;
+}
+
+.music-console__title {
+  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-console__artist {
+  color: rgba(148, 163, 184, 0.92);
+  flex: 0 1 auto;
+  font-size: 12px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-console__meta {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+  grid-area: meta;
+  min-width: 0;
+}
+
+.music-console__meta span {
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.music-console__meta .music-console__volume-value {
+  min-width: 30px;
+}
+
+.music-console__controls {
+  align-items: center;
+  display: flex;
+  gap: 5px;
+  grid-area: controls;
+  justify-self: end;
+  min-width: 0;
+}
+
+.music-console__controls button {
+  flex: 0 0 auto;
+  font-size: 11px;
+  min-width: 0;
+  padding: 4px 7px;
+  white-space: nowrap;
+}
+
+.music-console__controls .music-console__playlist {
+  align-items: center;
+  display: inline-flex;
+  gap: 3px;
+}
+
+/* 音量 ± 跟「重唱」等控制按钮同一套外观：同高、同圆角、同配色，
+   只把宽度收成方块。基础 button 的 min-height:48 必须显式压掉，
+   否则会撑出一个上下很宽的竖条。 */
+.volume-step {
+  flex: 0 0 auto;
+  font-size: 15px;
+  min-height: 34px;
+  padding: 0;
+  width: 38px;
+}
+
+@media (max-width: 360px) {
+  .music-console {
+    column-gap: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
-  .recommendation-row > .add-circle-button {
-    width: 34px;
+  .music-console__controls {
+    gap: 3px;
+  }
+
+  .music-console__controls button {
+    padding: 4px 5px;
   }
 }
 
-@media (min-width: 760px) {
+/* 超窄屏：再把按钮和音量文字收一档，「音量」标签只留数值，
+   否则这一行放不下 7 个控件。 */
+@media (max-width: 340px) {
+  .music-console {
+    column-gap: 4px;
+  }
+
+  .music-console__controls {
+    gap: 2px;
+  }
+
+  .music-console__controls button {
+    font-size: 10px;
+    padding: 3px 4px;
+  }
+
+  .music-console__meta > span:first-child {
+    display: none;
+  }
+}
+
+.app-shell--home {
+  padding-bottom: 96px;
+}
+
+.top-bar__heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.music-console__count {
+  background: rgba(34, 211, 238, 0.2);
+  border-radius: 999px;
+  color: #67e8f9;
+  font-size: 11px;
+  margin-left: 6px;
+  padding: 1px 6px;
+}
+
+.queue-drawer-layer {
+  inset: 0;
+  position: fixed;
+  z-index: 70;
+}
+
+.queue-drawer-backdrop {
+  background: rgba(2, 6, 23, 0.62);
+  border: 0;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.queue-drawer {
+  background: #0b1020;
+  border-left: 1px solid rgba(148, 163, 184, 0.18);
+  bottom: 0;
+  box-shadow: -24px 0 60px rgba(0, 0, 0, 0.5);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  max-width: 86vw;
+  overflow: hidden;
+  padding: 16px 14px calc(16px + env(safe-area-inset-bottom, 0px));
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: min(360px, 86vw);
+  animation: queue-drawer-in 180ms ease-out;
+}
+
+.queue-drawer__header {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding-bottom: 10px;
+}
+
+.queue-drawer__header h2 {
+  font-size: 17px;
+  margin: 0;
+}
+
+.queue-drawer__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.queue-drawer .queue-list {
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+@keyframes queue-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* 手机窗口自适应：竖屏铺满、横屏放宽 */
+.app-shell {
+  margin: 0 auto;
+  max-width: 560px;
+  width: 100%;
+  padding-left: max(14px, env(safe-area-inset-left, 0px));
+  padding-right: max(14px, env(safe-area-inset-right, 0px));
+}
+
+@media (orientation: landscape) {
   .app-shell {
-    width: min(100%, 430px);
+    max-width: 960px;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-shell--home {
+    padding-bottom: 132px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .app-shell {
+    max-width: 100%;
+    padding-bottom: 78px;
+  }
+
+  .music-console {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    padding-top: 8px;
+  }
+}
+
+.music-console .music-console__count {
+  font-size: 10px;
+  margin-left: 2px;
+  padding: 0 4px;
+}
+
+/* 同步画面：屏幕 + 播放三角 */
+.shortcut-action__icon--mirror::before {
+  width: 26px;
+  height: 19px;
+  border: 3px solid currentColor;
+  border-radius: 4px;
+}
+
+.shortcut-action__icon--mirror::after {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid currentColor;
+}
+
+/* 手机端静音预览电视画面 */
+.mirror-layer {
+  background: #000;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  inset: 0;
+  position: fixed;
+  z-index: 80;
+}
+
+.mirror-layer__bar {
+  align-items: center;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+}
+
+.mirror-layer__heading {
+  align-items: baseline;
+  display: flex;
+  font-weight: 800;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mirror-layer__hint {
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.mirror-layer__video {
+  background: #000;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  width: 100%;
+}
+
+.mirror-layer__empty {
+  align-self: center;
+  color: rgba(148, 163, 184, 0.9);
+  justify-self: center;
+  margin: 0;
+}
+
+/* 五列快捷操作在窄屏收一下字号，避免「同步画面」被挤出去 */
+@media (max-width: 380px) {
+  .shortcut-action {
+    font-size: 0.7rem;
+  }
+}
+
+
+/* 整行可点的歌曲条目：不再单独放点歌按钮，点整行即添加 */
+.song-row--clickable {
+  cursor: pointer;
+  justify-content: stretch;
+  font-weight: inherit;
+  min-height: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.song-row--clickable:not(:disabled):hover {
+  border-color: rgba(34, 211, 238, 0.42);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.recommendation-row.song-row--clickable {
+  border-radius: 8px;
+  padding: 4px 6px;
+}
+
+.song-row--clickable:disabled {
+  cursor: not-allowed;
+  opacity: 0.66;
+}
+
+/* 已点/准备中/失败时在行尾给一句状态，替代原来按钮上的文字 */
+.song-row__badge {
+  color: var(--ktv-accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* 宽屏自适应：容器放宽，歌曲列表按可用宽度自动分列。
+   基础规则里 max-width 是 560px，600 宽时内容区只剩 528，放不下两列
+   280，所以这里必须一起抬上去。 */
+@media (min-width: 600px) {
+  .app-shell {
+    max-width: 720px;
+    width: 100%;
     margin: 0 auto;
-    padding: 20px 16px 96px;
   }
 
   .bottom-tabs {
-    right: 0;
-    width: min(100%, 430px);
-    margin: 0 auto;
+    left: 50%;
+    max-width: 720px;
+    right: auto;
+    transform: translateX(-50%);
+    width: 100%;
   }
+}
+
+@media (min-width: 1000px) {
+  .app-shell {
+    max-width: 1040px;
+  }
+
+  .bottom-tabs {
+    max-width: 1040px;
+  }
+}
+
+
+/* 名字固定一行，放不下才横向滚动 */
+.scroll-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.scroll-text__inner {
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.scroll-text--running .scroll-text__inner {
+  animation: scroll-text-marquee var(--scroll-duration, 6s) ease-in-out infinite alternate;
+  padding-right: 10px;
+}
+
+@keyframes scroll-text-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(var(--scroll-distance, 0px) * -1));
+  }
+}
+
+
+/* 详情页（某歌手/某风格）的标题行吸顶，返回按钮不用滚回顶部才看得到 */
+.detail-panel > .panel-heading {
+  align-items: center;
+  background: rgba(8, 12, 24, 0.94);
+  backdrop-filter: blur(10px);
+  margin: -6px 0 0;
+  padding: 8px 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+
+/* 点歌后的状态小标签：右上角堆叠，3 秒自动消失 */
+.queue-toasts {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 95;
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  pointer-events: none;
+}
+
+.queue-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(72vw, 280px);
+  border: 1px solid rgba(34, 211, 238, 0.32);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(8, 12, 24, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 22px rgba(2, 6, 23, 0.5);
+  font-size: 0.78rem;
+  animation: queue-toast-in 180ms ease-out;
+}
+
+.queue-toast__title {
+  overflow: hidden;
+  color: rgba(248, 250, 252, 0.92);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-toast__state {
+  flex: 0 0 auto;
+  color: #67e8f9;
+  font-weight: 700;
+}
+
+@keyframes queue-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* 播放状态提示（准备下一首 / 重连中）：和点歌提示同一列，带个呼吸小圆点 */
+.queue-toast--notice {
+  border-color: rgba(148, 163, 184, 0.32);
+}
+
+.queue-toast__dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--ktv-accent);
+  animation: queue-toast-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes queue-toast-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* 错误提示也用同一个小标签，红边区分 */
+.queue-toast--error {
+  border-color: rgba(248, 113, 113, 0.42);
+}
+
+.queue-toast--error .queue-toast__dot {
+  background: #f87171;
+  animation: none;
+}
+
+.queue-toast--error .queue-toast__title {
+  color: rgba(254, 226, 226, 0.96);
 }

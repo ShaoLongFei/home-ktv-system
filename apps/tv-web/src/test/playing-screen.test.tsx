@@ -24,11 +24,11 @@ describe("PlayingScreen", () => {
 
     expect(screen.getByText("播放中")).toBeTruthy();
     expect(screen.getByText("伴唱")).toBeTruthy();
-    expect(screen.getByText("音轨 2")).toBeTruthy();
+    // 布局改成三行后不再显示音轨序号，改为显示歌名
+    expect(screen.getByText("七里香")).toBeTruthy();
     expect(screen.queryByText("Instrumental")).toBeNull();
     expect(screen.getByText("00:12 / 03:00")).toBeTruthy();
     expect(screen.getByLabelText("corner pairing QR")).toBeTruthy();
-    expect(screen.queryByText("七里香")).toBeNull();
   });
 
   it("shows the requester avatar and nickname while playing", () => {
@@ -105,7 +105,9 @@ describe("PlayingScreen", () => {
     expect(footer.style.gap).toBe("6px");
     expect(footer.style.width).toBe("max-content");
     expect(footer.style.maxWidth).toContain("calc(100vw - 28px)");
-    expect(requester.style.width).toBe("100%");
+    // 点歌人现在和「伴唱/原唱」并排，不能再撑满整行
+    expect(requester.style.width).toBe("");
+    expect(requester.style.flex).toBe("0 0 auto");
     expect(screen.getByText(requesterName).style.maxWidth).toBe("5.5em");
     expect(screen.getByText(requesterName).style.fontSize).toBe("14px");
     expect(screen.getByText(requesterName).style.whiteSpace).toBe("nowrap");
@@ -193,9 +195,9 @@ describe("PlayingScreen", () => {
       />
     );
 
-    expect(screen.queryByText(longTitle)).toBeNull();
+    // 歌名靠 ellipsis 截断，但文本仍然在 DOM 里
+    expect(screen.getAllByText(longTitle).length).toBeGreaterThan(0);
     expect(screen.getAllByText("00:12 / 03:00").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("音轨 2").length).toBeGreaterThan(0);
     expect(screen.queryByText("Instrumental")).toBeNull();
   });
 });

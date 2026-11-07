@@ -8,6 +8,7 @@ import { createBrowserPlayerClient } from "./player-client.js";
 import { RecoveryController } from "./recovery-controller.js";
 import { SwitchController } from "./switch-controller.js";
 import { useRoomSnapshot, type RoomSnapshotState } from "./use-room-snapshot.js";
+import { markAudioUnlocked } from "./active-playback-controller.js";
 import { createBrowserVideoPool, type DualVideoPool, type KtvVideoElement } from "./video-pool.js";
 
 const HEARTBEAT_INTERVAL_MS = 10_000;
@@ -16,9 +17,11 @@ const TRANSIENT_NOTICE_TTL_MS = 5_000;
 export interface UseTvPlaybackRuntimeInput {
   activeVideoRef: RefObject<HTMLVideoElement | null>;
   standbyVideoRef: RefObject<HTMLVideoElement | null>;
+  roomSlug?: string;
 }
 
 export interface TvPlaybackRuntimeState {
+  client: ReturnType<typeof createBrowserPlayerClient>;
   durationMs: number | null;
   firstPlayBlocked: boolean;
   handleFirstPlayPromptClick(): void;
@@ -31,16 +34,30 @@ export interface TvPlaybackRuntimeState {
 }
 
 export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlaybackRuntimeState {
-  const [client] = useState(() => createBrowserPlayerClient());
-  const roomState = useRoomSnapshot(client);
+  const [client] = useState(() => createBrowserPlayerClient(input.roomSlug ?? "living-room"));
   const latestSnapshotRef = useRef<RoomSnapshot | null>(null);
   const videoPoolRef = useRef<DualVideoPool | null>(null);
   const vocalModeSwitchInFlightRef = useRef(false);
   const sentPlaybackTelemetryRef = useRef<Set<string>>(new Set());
+  const replayTokenRef = useRef<string | null>(null);
   const [localNotice, setLocalNotice] = useState<PlaybackNotice | null>(null);
   const [firstPlayBlocked, setFirstPlayBlocked] = useState(false);
   const [confirmedPlaybackTargetKey, setConfirmedPlaybackTargetKey] = useState<string | null>(null);
   const [, setPlaybackFrame] = useState(0);
+
+  const sendHeartbeat = useCallback(() => {
+    const pool = videoPoolRef.current;
+    const snapshot = latestSnapshotRef.current;
+    if (!pool || !snapshot) {
+      return;
+    }
+
+    void new HeartbeatController({ client, videoPool: pool }).send(snapshot);
+  }, [client]);
+
+  // 手机打开「同步画面」时会请求一次位置，这里立刻回一次心跳，
+  // 不用等 10 秒的定时心跳。
+  const roomState = useRoomSnapshot(client, 1500, sendHeartbeat);
 
   useEffect(() => {
     latestSnapshotRef.current = roomState.snapshot;
@@ -61,6 +78,10 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       return;
     }
 
+    // 音量与会话状态无关：暂停、重唱、切轨这些分支都会提前 return，
+    // 所以在这里统一落一次，避免调音量被播放分支吞掉。
+    pool.applyVolume(snapshot.volumePercent);
+
     void synchronizePlayback({
       client,
       pool,
@@ -69,7 +90,8 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       setConfirmedPlaybackTargetKey,
       sentPlaybackTelemetryRef,
       setLocalNotice,
-      switchInFlightRef: vocalModeSwitchInFlightRef
+      switchInFlightRef: vocalModeSwitchInFlightRef,
+      replayTokenRef
     });
   }, [client, roomState.snapshot]);
 
@@ -111,6 +133,17 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       return;
     }
 
+    // 记下来：这个会话已经解锁过声音，刷新后也不用再点
+    markAudioUnlocked();
+
+    // 用户点了屏幕，这次交互可以用来恢复声音（刷新后是被迫静音的）
+    if (pool.activeVideo.muted) {
+      pool.activeVideo.muted = false;
+      void pool.activeVideo.play().catch(() => {
+        pool.activeVideo.muted = true;
+      });
+    }
+
     void synchronizePlayback({
       client,
       pool,
@@ -119,7 +152,8 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
       setConfirmedPlaybackTargetKey,
       sentPlaybackTelemetryRef,
       setLocalNotice,
-      switchInFlightRef: vocalModeSwitchInFlightRef
+      switchInFlightRef: vocalModeSwitchInFlightRef,
+      replayTokenRef
     });
   }, [client]);
 
@@ -133,19 +167,9 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
   }, [retryCurrentPlayback]);
 
   useEffect(() => {
-    const sendHeartbeat = () => {
-      const pool = videoPoolRef.current;
-      const snapshot = latestSnapshotRef.current;
-      if (!pool || !snapshot) {
-        return;
-      }
-
-      void new HeartbeatController({ client, videoPool: pool }).send(snapshot);
-    };
-
     const intervalId = globalThis.setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
     return () => globalThis.clearInterval(intervalId);
-  }, [client]);
+  }, [sendHeartbeat]);
 
   useEffect(() => {
     const pool = videoPoolRef.current;
@@ -224,6 +248,7 @@ export function useTvPlaybackRuntime(input: UseTvPlaybackRuntimeInput): TvPlayba
     activeVideo && Number.isFinite(activeVideo.duration) ? Math.max(0, Math.trunc(activeVideo.duration * 1000)) : null;
 
   return {
+    client,
     durationMs,
     firstPlayBlocked,
     handleFirstPlayPromptClick: retryCurrentPlayback,
@@ -331,7 +356,7 @@ async function ensureCurrentPlayback(
   }
 }
 
-async function synchronizePlayback(input: {
+export async function synchronizePlayback(input: {
   client: ReturnType<typeof createBrowserPlayerClient>;
   pool: DualVideoPool;
   setConfirmedPlaybackTargetKey: Dispatch<SetStateAction<string | null>>;
@@ -340,7 +365,28 @@ async function synchronizePlayback(input: {
   snapshot: RoomSnapshot;
   setLocalNotice: Dispatch<SetStateAction<PlaybackNotice | null>>;
   switchInFlightRef: MutableRefObject<boolean>;
+  replayTokenRef: MutableRefObject<string | null>;
 }): Promise<void> {
+  if (input.snapshot.playbackPaused) {
+    if (!input.pool.activeVideo.paused) {
+      input.pool.activeVideo.pause();
+    }
+    return;
+  }
+
+  const replayToken = input.snapshot.replayToken ?? "";
+  if (input.replayTokenRef.current !== null && replayToken !== input.replayTokenRef.current && input.snapshot.currentTarget) {
+    input.replayTokenRef.current = replayToken;
+    input.pool.activeVideo.currentTime = 0;
+    try {
+      await input.pool.activeVideo.play();
+    } catch {
+      // 自动播放被拦截时保持暂停，等用户点击
+    }
+    return;
+  }
+  input.replayTokenRef.current = replayToken;
+
   const targetVocalMode = input.snapshot.targetVocalMode ?? input.snapshot.currentTarget?.vocalMode ?? null;
   const currentVocalMode = input.snapshot.currentTarget?.vocalMode ?? null;
   const hasPendingVocalSwitch = Boolean(input.snapshot.currentTarget && targetVocalMode && targetVocalMode !== currentVocalMode);

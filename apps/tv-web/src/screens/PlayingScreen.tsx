@@ -26,7 +26,8 @@ export function PlayingScreen({
   const target = snapshot.currentTarget;
   const modeLabel = modeLabelFor(target?.vocalMode ?? "unknown");
   const clock = formatPlaybackClock(playbackPositionMs, durationMs);
-  const audioTrackLabel = audioTrackLabelFor(target?.selectedTrackRef ?? null);
+  const songTitle = target?.currentQueueEntryPreview.songTitle ?? "暂无歌曲";
+  const artistName = target?.currentQueueEntryPreview.artistName?.trim() ?? "";
   const requester = requesterDisplay(target?.currentQueueEntryPreview.requestedByName ?? null);
   const pointerActivatedPromptRef = useRef(false);
 
@@ -43,18 +44,28 @@ export function PlayingScreen({
         <PairingQr pairing={snapshot.pairing} variant="corner" />
       </div>
       <footer aria-label="播放状态" style={styles.footer}>
-        {requester ? (
-          <span aria-label={`点歌人 ${requester.name}`} style={styles.requesterLine}>
-            <span style={styles.requesterAvatar} aria-hidden="true">{requester.initial}</span>
-            <span style={styles.requesterLabel}>点歌人</span>
-            <span style={styles.requesterName}>{requester.name}</span>
-          </span>
-        ) : null}
+        {/* 第一行：歌名 - 歌手；点歌人和模式在第三行 */}
+        <span style={styles.songTitle} title={artistName ? `${songTitle} - ${artistName}` : songTitle}>
+          {songTitle}
+          {artistName ? <span style={styles.songArtist}> - {artistName}</span> : null}
+        </span>
+
+        {/* 第二行：播放进度 */}
         <span style={styles.timeValue}>{clock}</span>
+
+        {/* 第三行：当前模式 + 点歌人 + 状态（模式随原唱/伴唱自动切换） */}
         <span style={styles.metaLine}>
           <span style={{ ...styles.modePill, ...modeAccent(target?.vocalMode ?? "unknown") }}>{modeLabel}</span>
-          <span style={styles.audioTrackText}>{audioTrackLabel}</span>
-          {showStateLabel ? <span style={{ ...styles.stateText, ...stateAccent(displayState.tone) }}>{displayState.stateLabel}</span> : null}
+          {requester ? (
+            <span aria-label={`点歌人 ${requester.name}`} style={styles.requesterLine}>
+              <span style={styles.requesterAvatar} aria-hidden="true">{requester.initial}</span>
+              <span style={styles.requesterLabel}>点歌人</span>
+              <span style={styles.requesterName}>{requester.name}</span>
+            </span>
+          ) : null}
+          {showStateLabel ? (
+            <span style={{ ...styles.stateText, ...stateAccent(displayState.tone) }}>{displayState.stateLabel}</span>
+          ) : null}
         </span>
       </footer>
       {displayState.firstPlayPrompt.visible ? (
@@ -207,11 +218,30 @@ const styles = {
     width: "max-content",
     zIndex: 3
   },
+  songTitle: {
+    color: tvTheme.colors.text,
+    display: "block",
+    fontSize: 22,
+    fontWeight: 950,
+    lineHeight: 1.15,
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
+  },
+  songArtist: {
+    color: tvTheme.colors.textMuted,
+    fontSize: 19,
+    fontWeight: 800
+  },
   requesterLine: {
     alignItems: "center",
     display: "flex",
+    // 不能写 width: 100%：这一行现在已经并进 metaLine，撑满会把
+    // 前面的「原唱」挤到上一行去
+    flex: "0 0 auto",
     gap: 6,
-    width: "100%",
     minWidth: 0
   },
   requesterAvatar: {
@@ -222,12 +252,12 @@ const styles = {
     color: "#03120B",
     display: "inline-flex",
     flex: "0 0 auto",
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: 900,
-    height: 24,
+    height: 18,
     justifyContent: "center",
     lineHeight: 1,
-    width: 24
+    width: 18
   },
   requesterLabel: {
     color: tvTheme.colors.textMuted,
@@ -258,7 +288,7 @@ const styles = {
     alignItems: "center",
     color: tvTheme.colors.textMuted,
     display: "flex",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     fontSize: 15,
     fontWeight: 760,
     gap: 8,

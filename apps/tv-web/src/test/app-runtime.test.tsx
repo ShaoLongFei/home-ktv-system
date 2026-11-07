@@ -31,7 +31,10 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("../runtime/player-client.js", () => ({
-  createBrowserPlayerClient: mocks.createBrowserPlayerClient
+  createBrowserPlayerClient: mocks.createBrowserPlayerClient,
+  readTvRoomSlug: () => "living-room",
+  createTvRoom: async () => "living-room",
+  tvRoomExists: async () => true
 }));
 
 vi.mock("../runtime/video-pool.js", () => ({
@@ -39,6 +42,7 @@ vi.mock("../runtime/video-pool.js", () => ({
 }));
 
 vi.mock("../runtime/active-playback-controller.js", () => ({
+  markAudioUnlocked: vi.fn(),
   ActivePlaybackController: class {
     async ensurePlaying() {
       return mocks.activePlaybackEnsurePlaying();
@@ -92,6 +96,8 @@ import { App } from "../App.js";
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  // 音频解锁标记会跨用例残留，导致后面的"自动播放被拦"用例直接出声
+  globalThis.sessionStorage?.clear();
   mocks.roomSnapshot.mockImplementation(() => snapshot());
 });
 
@@ -412,6 +418,7 @@ function createPool(
   return {
     activeTarget: input.activeTarget ?? null,
     activeVideo: input.activeVideo ?? createVideo({ hidden: false, paused: input.activePaused ?? true }),
+    applyVolume: vi.fn(),
     disable: vi.fn(),
     primeActive: vi.fn(),
     prepareStandby: vi.fn(),

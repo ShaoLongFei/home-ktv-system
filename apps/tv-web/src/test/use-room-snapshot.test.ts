@@ -28,6 +28,29 @@ describe("useRoomSnapshot realtime sync", () => {
     expect(result.current.snapshot?.type).toBe("room.snapshot");
   });
 
+  it("carries volume, pause and replay flags through the control snapshot", async () => {
+    const sockets = installWebSocketMock();
+    const client = createClient({
+      bootstrapSnapshot: roomSnapshot("token-first"),
+      fetchSnapshots: []
+    });
+
+    const { result } = renderHook(() => useRoomSnapshot(asPlayerClient(client)));
+
+    await waitFor(() => expect(result.current.snapshot?.pairing.token).toBe("token-first"));
+
+    sockets[0]?.emitMessage({
+      ...controlSnapshot("token-first", 3),
+      volumePercent: 82,
+      playbackPaused: true,
+      replayToken: "7"
+    });
+
+    await waitFor(() => expect(result.current.snapshot?.volumePercent).toBe(82));
+    expect(result.current.snapshot?.playbackPaused).toBe(true);
+    expect(result.current.snapshot?.replayToken).toBe("7");
+  });
+
   it("collects room interaction realtime events and expires them locally", async () => {
     vi.useFakeTimers();
     const sockets = installWebSocketMock();
@@ -122,6 +145,29 @@ describe("useRoomSnapshot realtime sync", () => {
       await vi.advanceTimersByTimeAsync(3000);
     });
     expect(result.current.interactions).toHaveLength(0);
+  });
+
+  it("notifies the runtime when a player position is requested", async () => {
+    const sockets = installWebSocketMock();
+    const client = createClient({
+      bootstrapSnapshot: roomSnapshot("token-first"),
+      fetchSnapshots: []
+    });
+    const onPlayerPositionRequest = vi.fn();
+
+    const { result } = renderHook(() =>
+      useRoomSnapshot(asPlayerClient(client), 1500, onPlayerPositionRequest)
+    );
+
+    await waitFor(() => expect(result.current.snapshot?.pairing.token).toBe("token-first"));
+    expect(sockets).toHaveLength(1);
+
+    act(() => {
+      sockets[0]?.emitPositionRequest();
+    });
+
+    // 手机点开同步画面时，电视要立刻回一次心跳
+    expect(onPlayerPositionRequest).toHaveBeenCalledTimes(1);
   });
 
   it("falls back to 1500ms polling after the realtime stream closes", async () => {
@@ -264,6 +310,12 @@ class FakeWebSocket {
 
   emitClose(): void {
     this.onclose?.();
+  }
+
+  emitPositionRequest(): void {
+    this.onmessage?.({
+      data: JSON.stringify({ type: "room.player.position.requested" })
+    });
   }
 
   emitMessage(snapshot: RoomControlSnapshot): void {

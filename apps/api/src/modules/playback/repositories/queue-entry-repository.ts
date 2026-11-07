@@ -77,6 +77,8 @@ export interface QueueEntryRepository {
   listEffectiveQueue(roomId: RoomId): Promise<QueueEntry[]>;
   listControllerUserSongHistory?(phone: string, limit?: number): Promise<ControllerSongHistoryEntry[]>;
   listGlobalSongRequestCounts?(songIds: readonly SongId[]): Promise<Map<SongId, number>>;
+  renameRequester?(input: { phone: string; displayName: string }): Promise<number>;
+  completeStalePlaying?(input: { roomId: RoomId; keepQueueEntryId: QueueEntryId; now: Date }): Promise<number>;
   listUndoableRemoved(roomId: RoomId, now: Date): Promise<QueueEntry[]>;
   findCurrentForRoom(roomId: RoomId): Promise<QueueEntry | null>;
   append(input: AppendQueueEntryInput): Promise<QueueEntry>;
@@ -144,6 +146,37 @@ export class PgQueueEntryRepository implements QueueEntryRepository {
     );
 
     return result.rows.map(mapQueueEntryRow);
+  }
+
+  /** 只允许一条正在播放：切歌时把残留的 playing 收掉，避免电视以为有两首在播。 */
+  async completeStalePlaying(input: {
+    roomId: RoomId;
+    keepQueueEntryId: QueueEntryId;
+    now: Date;
+  }): Promise<number> {
+    const result = await this.db.query<{ id: string }>(
+      `UPDATE queue_entries
+          SET status = 'played', ended_at = $3
+        WHERE room_id = $1
+          AND status = 'playing'
+          AND id <> $2
+        RETURNING id`,
+      [input.roomId, input.keepQueueEntryId, input.now]
+    );
+    return result.rows.length;
+  }
+
+  /** 用户改昵称后，把还没播完的队列条目上的点歌人名字一起换掉。 */
+  async renameRequester(input: { phone: string; displayName: string }): Promise<number> {
+    const result = await this.db.query<{ queue_entry_id: string }>(
+      `UPDATE queue_entries
+          SET requested_by_name = $2
+        WHERE requested_by_user_phone = $1
+          AND status IN ('queued', 'preparing', 'loading')
+        RETURNING queue_entry_id`,
+      [input.phone, input.displayName]
+    );
+    return result.rows.length;
   }
 
   async listGlobalSongRequestCounts(songIds: readonly SongId[]): Promise<Map<SongId, number>> {
@@ -242,7 +275,13 @@ export class PgQueueEntryRepository implements QueueEntryRepository {
          playback_options, requested_at, started_at, ended_at, removed_at,
          removed_by_control_session_id, undo_expires_at
        )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, $15)
+       VALUES ($1, $2, $3, $4, $5,
+         -- 位置在库内原子分配：连点几下时，先读 max 再 +1 会算出重复值，
+         -- 重复之后排序退化成按时间/优先级，队列顺序就乱了
+         COALESCE((SELECT MAX(queue_position) FROM queue_entries
+                    WHERE room_id = $1
+                      AND status IN ('queued', 'preparing', 'loading', 'playing')), 0) + 1,
+         $6, $7, $8::jsonb, $9, $10, $11, $12, $13, $14)
        RETURNING ${queueEntrySelectColumns}`,
       [
         input.roomId,
@@ -250,7 +289,6 @@ export class PgQueueEntryRepository implements QueueEntryRepository {
         input.requestedBy,
         input.requestedByUserPhone ?? null,
         input.requestedByName ?? null,
-        input.queuePosition,
         input.status ?? "queued",
         input.priority ?? 0,
         JSON.stringify(normalizePlaybackOptions(input.playbackOptions)),

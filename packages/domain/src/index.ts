@@ -49,6 +49,8 @@ export type ControlCommandType =
   | "skip-current"
   | "switch-vocal-mode"
   | "set-volume"
+  | "replay-current"
+  | "toggle-pause"
   | "player-ended";
 export type ControlCommandResultStatus = "accepted" | "duplicate" | "conflict" | "rejected";
 export type ImportScanRunId = EntityId;
@@ -248,6 +250,13 @@ export interface OnlineCandidateCard {
   riskLabel: OnlineCandidateRiskLabel;
   taskState: OnlineCandidateTaskState;
   taskId: OnlineCandidateTaskId | null;
+  /**
+   * 该在线歌曲在 NAS 曲库里已有可入队的版本时，指向那个资产。
+   * 客户端据此直接用本地文件点歌，跳过在线导入。
+   */
+  nasAssetId?: string;
+  /** 上述 NAS 资产在队列里的状态，用来决定点歌前是否需要重复确认。 */
+  nasQueueState?: SongSearchIndexedQueueState;
 }
 
 export interface SongSearchOnlineRequestSupplementEntry {
@@ -260,6 +269,8 @@ export interface SongSearchOnlineResult {
   message: string;
   requestSupplement: SongSearchOnlineRequestSupplementEntry;
   candidates: OnlineCandidateCard[];
+  /** 还有下一页时给出下一页的 offset；null 表示已经到底 */
+  nextOffset?: number | null;
 }
 
 export type SongSearchIndexedQueueState = "not_queued" | "queued" | "source_missing" | "file_unreadable";
@@ -334,6 +345,8 @@ export type SongDiscoveryVersionOption = SongSearchNasVersionOption;
 export interface SongDiscoverySong {
   source: SongDiscoverySource;
   songId: SongId;
+  /** 在线曲库条目对应的 provider 歌曲号（source=online 时用于点歌）。 */
+  providerSongNumber?: string;
   title: string;
   artistName: string;
   language: Language;
@@ -668,6 +681,8 @@ export interface PlaybackSession {
   activeAssetId: AssetId | null;
   targetVocalMode: VocalMode;
   playerState: PlayerState;
+  /** 递增用于触发电视端「重唱」：值变化 -> 从头播放。 */
+  replayEpoch?: number;
   playerPositionMs: number;
   volumePercent?: number;
   mediaStartedAt: string | null;

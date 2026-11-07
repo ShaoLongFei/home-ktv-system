@@ -12,6 +12,10 @@ import type { ControllerAuthRepository } from "../modules/controller/repositorie
 
 export interface ControllerAuthRouteDependencies {
   controllerAuth: ControllerAuthRepository;
+  /** 改昵称后把队列里显示的点歌人也换掉；电视端读的是队列快照 */
+  queueEntries?: {
+    renameRequester?(input: { phone: string; displayName: string }): Promise<number>;
+  };
 }
 
 interface RegisterBody {
@@ -90,6 +94,14 @@ export async function registerControllerAuthRoutes(server: FastifyInstance, depe
       if (!user) {
         await reply.code(401).send({ code: "AUTH_REQUIRED" });
         return;
+      }
+      try {
+        await dependencies.queueEntries?.renameRequester?.({
+          phone: user.phone,
+          displayName: user.displayName
+        });
+      } catch (error) {
+        request.log.warn({ err: error }, "failed to sync requester display name");
       }
       await reply.send({ user: publicUser(user) });
     } catch (error) {

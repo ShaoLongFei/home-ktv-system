@@ -14,11 +14,15 @@ import {
   createControlSession,
   deleteQueueEntry,
   fetchControllerSongHistory,
+  fetchOnlineAssetStatus,
+  fetchPublicRoomSnapshot,
   fetchSongDiscovery,
   getCurrentControllerUser,
   loginControllerUser,
   logoutControllerUser,
   promoteQueueEntry,
+  queueOnlineSong,
+  replayCurrent,
   registerControllerUser,
   realtimeUrl,
   restoreControlSession,
@@ -28,6 +32,7 @@ import {
   shuffleQueue,
   skipCurrent,
   switchVocalMode,
+  togglePause,
   updateControllerUserProfile,
   undoDeleteQueueEntry
 } from "../api/client.js";
@@ -48,6 +53,11 @@ interface ControllerCommandResponse {
   undo?: { queueEntryId: string; undoExpiresAt: string };
 }
 
+export type OnlineQueueState = {
+  status: "queuing" | "preparing" | "queued" | "failed";
+  message: string | null;
+};
+
 export interface RoomControllerState {
   authStatus: "checking" | "authenticated" | "unauthenticated";
   authUser: ControllerUser | null;
@@ -59,6 +69,14 @@ export interface RoomControllerState {
     | null;
   errorMessage: string | null;
   pendingNasAssetId: string | null;
+  onlineQueueState: Record<string, OnlineQueueState>;
+  requestAddOnlineSong(
+    songNumber: string,
+    title: string,
+    artistName: string,
+    nasAssetId?: string,
+    nasQueueState?: SongSearchNasQueueState
+  ): boolean;
   pendingInteractionKind: RoomInteractionKind | null;
   pendingUndo: { queueEntryId: string; undoExpiresAt: string } | null;
   roomSlug: string;
@@ -70,6 +88,8 @@ export interface RoomControllerState {
   songSearch: SongSearchResponse | null;
   songSearchQuery: string;
   songSearchStatus: "idle" | "loading" | "success" | "error";
+  songSearchLoadingMore: boolean;
+  loadMoreSongSearch(): Promise<void>;
   snapshot: RoomControlSnapshot | null;
   volumePercent: number;
   addSongVersion(songId: string, assetId: string): Promise<void>;
@@ -83,6 +103,8 @@ export interface RoomControllerState {
   requestAddSongVersion(songId: string, assetId: string, title: string, queueState: SongSearchQueueState): boolean;
   requestAddNasAsset(assetId: string, title: string, queueState: SongSearchNasQueueState): boolean;
   sendInteraction(kind: RoomInteractionKind, message: string): Promise<void>;
+  replayCurrent(): Promise<void>;
+  togglePause(): Promise<void>;
   requestSkip(): void;
   refreshSongDiscovery(): void;
   refreshSongHistory(): Promise<void>;
@@ -107,6 +129,9 @@ export function useRoomControllerRuntime(): RoomControllerState {
   const [songSearch, setSongSearch] = useState<SongSearchResponse | null>(null);
   const [songSearchQuery, setSongSearchQueryState] = useState("");
   const [songSearchStatus, setSongSearchStatus] = useState<RoomControllerState["songSearchStatus"]>("idle");
+  const [songSearchLoadingMore, setSongSearchLoadingMore] = useState(false);
+  const songSearchRef = useRef<SongSearchResponse | null>(null);
+  const songSearchLoadingMoreRef = useRef(false);
   const [duplicateConfirm, setDuplicateConfirm] = useState<RoomControllerState["duplicateConfirm"]>(null);
   const [connectionStatus, setConnectionStatus] = useState<RoomControllerState["connectionStatus"]>("connecting");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -116,11 +141,17 @@ export function useRoomControllerRuntime(): RoomControllerState {
   const [songHistory, setSongHistory] = useState<ControllerSongHistoryEntry[]>([]);
   const [songHistoryStatus, setSongHistoryStatus] = useState<RoomControllerState["songHistoryStatus"]>("idle");
   const [pendingNasAssetId, setPendingNasAssetId] = useState<string | null>(null);
+  const [onlineQueueState, setOnlineQueueStateMap] = useState<Record<string, OnlineQueueState>>({});
+  const onlinePollTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const [pendingInteractionKind, setPendingInteractionKind] = useState<RoomInteractionKind | null>(null);
   const [pendingUndo, setPendingUndo] = useState<{ queueEntryId: string; undoExpiresAt: string } | null>(null);
   const [pendingVolumePercent, setPendingVolumePercent] = useState<number | null>(null);
   const snapshotRef = useRef<RoomControlSnapshot | null>(null);
   const songSearchQueryRef = useRef("");
+
+  useEffect(() => {
+    songSearchRef.current = songSearch;
+  }, [songSearch]);
   const searchRequestIdRef = useRef(0);
   const searchAbortRef = useRef<AbortController | null>(null);
   const discoveryAbortRef = useRef<AbortController | null>(null);
@@ -160,6 +191,13 @@ export function useRoomControllerRuntime(): RoomControllerState {
   useEffect(() => {
     snapshotRef.current = snapshot;
   }, [snapshot]);
+
+  useEffect(() => {
+    const timers = onlinePollTimersRef.current;
+    return () => {
+      Object.values(timers).forEach((timer) => clearTimeout(timer));
+    };
+  }, []);
 
   const clearSearchDebounce = useCallback(() => {
     if (searchDebounceRef.current) {
@@ -209,6 +247,50 @@ export function useRoomControllerRuntime(): RoomControllerState {
     },
     [clearSearchDebounce, initial.roomSlug]
   );
+
+  /** 搜索结果下滑续拉：在当前结果后面追加下一页。 */
+  const loadMoreSongSearch = useCallback(async () => {
+    // 直接读 state：ref 的同步 effect 在子组件之后才跑，首屏紧接着续页时
+    // 拿到的还是 null，整页会被丢掉
+    const current = songSearch;
+    const query = songSearchQueryRef.current;
+    const nextOffset = current?.online.nextOffset ?? null;
+    if (!current || !query || nextOffset == null || songSearchLoadingMoreRef.current) {
+      return;
+    }
+
+    const requestId = searchRequestIdRef.current;
+    songSearchLoadingMoreRef.current = true;
+    setSongSearchLoadingMore(true);
+    try {
+      const response = await searchSongs({
+        roomSlug: initial.roomSlug,
+        query,
+        offset: nextOffset
+      });
+      if (searchRequestIdRef.current !== requestId || songSearchQueryRef.current !== query) {
+        return;
+      }
+      // 用 ref 里的首页结果做基准：setState 的 updater 拿到的 previous 可能
+      // 还是 null（首页更新尚未提交），那样这一页会被静默丢掉
+      const base = current;
+      if (!base || base.query !== response.query) {
+        return;
+      }
+      setSongSearch({
+        ...response,
+        online: {
+          ...response.online,
+          candidates: [...base.online.candidates, ...response.online.candidates]
+        }
+      });
+    } catch (error) {
+      setErrorMessage(errorMessageFrom(error, "SONG_SEARCH_FAILED"));
+    } finally {
+      songSearchLoadingMoreRef.current = false;
+      setSongSearchLoadingMore(false);
+    }
+  }, [initial.roomSlug, songSearch]);
 
   const runSongDiscovery = useCallback(
     async (seed: string) => {
@@ -389,7 +471,8 @@ export function useRoomControllerRuntime(): RoomControllerState {
         await applySessionResponse(restored);
         openRealtime();
       } catch (restoreError) {
-        if (!initial.pairingToken) {
+        const pairingToken = await resolvePairingToken(initial.roomSlug, initial.pairingToken);
+        if (!pairingToken) {
           setConnectionStatus("error");
           setErrorMessage(errorMessageFrom(restoreError, "CONTROL_SESSION_REQUIRED"));
           return;
@@ -398,7 +481,7 @@ export function useRoomControllerRuntime(): RoomControllerState {
         try {
           const created = await createControlSession({
             roomSlug: initial.roomSlug,
-            pairingToken: initial.pairingToken,
+            pairingToken,
             deviceId
           });
           await applySessionResponse(created);
@@ -575,6 +658,122 @@ export function useRoomControllerRuntime(): RoomControllerState {
     [runCommand]
   );
 
+  const setOnlineQueueState = useCallback((songNumber: string, state: OnlineQueueState) => {
+    setOnlineQueueStateMap((current) => ({ ...current, [songNumber]: state }));
+  }, []);
+
+  const pollOnlineAsset = useCallback(
+    (songNumber: string, assetId: string) => {
+      const startedAt = Date.now();
+      setOnlineQueueState(songNumber, { status: "preparing", message: null });
+
+      const tick = async (): Promise<void> => {
+        try {
+          const response = await fetchOnlineAssetStatus({ roomSlug: initial.roomSlug, assetId });
+          if (response.asset.status === "ready") {
+            setOnlineQueueState(songNumber, { status: "queued", message: null });
+            return;
+          }
+          if (response.asset.status === "failed" || response.asset.status === "unavailable") {
+            setOnlineQueueState(songNumber, {
+              status: "failed",
+              message: response.asset.errorReason
+            });
+            return;
+          }
+          if (Date.now() - startedAt > 180000) {
+            setOnlineQueueState(songNumber, { status: "failed", message: "timeout" });
+            return;
+          }
+          onlinePollTimersRef.current[songNumber] = setTimeout(() => {
+            void tick();
+          }, 2000);
+        } catch {
+          if (Date.now() - startedAt > 180000) {
+            setOnlineQueueState(songNumber, { status: "failed", message: "network" });
+            return;
+          }
+          onlinePollTimersRef.current[songNumber] = setTimeout(() => {
+            void tick();
+          }, 3000);
+        }
+      };
+
+      void tick();
+    },
+    [initial.roomSlug, setOnlineQueueState]
+  );
+
+  const requestAddOnlineSong = useCallback(
+    (
+      songNumber: string,
+      title: string,
+      artistName: string,
+      nasAssetId?: string,
+      nasQueueState?: SongSearchNasQueueState
+    ): boolean => {
+      // NAS 曲库里已经有的歌，直接排本库资产，不走在线导入和等待转码。
+      if (nasAssetId) {
+        if (nasQueueState === "queued") {
+          setDuplicateConfirm({ kind: "nas", assetId: nasAssetId, title });
+          return false;
+        }
+
+        setOnlineQueueState(songNumber, { status: "queuing", message: null });
+        void (async () => {
+          try {
+            await runCommand(
+              (input) => addQueueEntry({ ...input, sourceType: "nas", assetId: nasAssetId }),
+              { retryOnConflict: true }
+            );
+            setOnlineQueueState(songNumber, { status: "queued", message: null });
+            await runSongSearch(songSearchQueryRef.current);
+            await runSongHistory();
+          } catch (error) {
+            setOnlineQueueState(songNumber, {
+              status: "failed",
+              message: errorMessageFrom(error, "点歌失败")
+            });
+          }
+        })();
+        return true;
+      }
+
+      setOnlineQueueState(songNumber, { status: "queuing", message: null });
+      void (async () => {
+        try {
+          const response = await queueOnlineSong({
+            roomSlug: initial.roomSlug,
+            songNumber,
+            title,
+            artistName,
+            ...(authUser ? { requestedByName: authUser.displayName } : {})
+          });
+          if (response.queued) {
+            setOnlineQueueState(songNumber, { status: "queued", message: null });
+            return;
+          }
+          pollOnlineAsset(songNumber, response.assetId);
+        } catch (error) {
+          setOnlineQueueState(songNumber, {
+            status: "failed",
+            message: errorMessageFrom(error, "在线点歌失败")
+          });
+        }
+      })();
+      return true;
+    },
+    [
+      authUser,
+      initial.roomSlug,
+      pollOnlineAsset,
+      runCommand,
+      runSongHistory,
+      runSongSearch,
+      setOnlineQueueState
+    ]
+  );
+
   return {
     authStatus,
     authUser,
@@ -583,6 +782,8 @@ export function useRoomControllerRuntime(): RoomControllerState {
     duplicateConfirm,
     errorMessage,
     pendingNasAssetId,
+    onlineQueueState,
+    requestAddOnlineSong,
     pendingInteractionKind,
     pendingUndo,
     roomSlug: initial.roomSlug,
@@ -591,7 +792,9 @@ export function useRoomControllerRuntime(): RoomControllerState {
     songDiscoveryStatus,
     songHistory,
     songHistoryStatus,
+    loadMoreSongSearch,
     songSearch,
+    songSearchLoadingMore,
     songSearchQuery,
     songSearchStatus,
     snapshot,
@@ -692,6 +895,12 @@ export function useRoomControllerRuntime(): RoomControllerState {
       return true;
     },
     sendInteraction,
+    replayCurrent: async () => {
+      await runCommand((input) => replayCurrent(input));
+    },
+    togglePause: async () => {
+      await runCommand((input) => togglePause(input));
+    },
     requestSkip: () => setSkipConfirmOpen(true),
     refreshSongDiscovery: () => {
       void runSongDiscovery(createDiscoverySeed());
@@ -743,12 +952,54 @@ function normalizeVolumePercent(value: number): number {
   return Math.max(0, Math.min(100, Math.trunc(value)));
 }
 
+/**
+ * 扫码进入时 URL 自带 token；直接打开控制端时退化为读取公共房间快照里的当前 token。
+ * 这样局域网内不扫二维码也能配对（快照本来就对 TV 公开）。
+ */
+async function resolvePairingToken(roomSlug: string, queryToken: string | null): Promise<string | null> {
+  if (queryToken) {
+    return queryToken;
+  }
+  try {
+    const snapshot = await fetchPublicRoomSnapshot(roomSlug);
+    return snapshot.pairing?.token?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+const controllerRoomStorageKey = "home_ktv_controller_room";
+
 function readRuntimeParams(): { roomSlug: string; pairingToken: string | null } {
   const search = new URLSearchParams(window.location.search);
+  const queryRoom = normalizeRoomSlug(search.get("room"));
+  let storedRoom: string | null = null;
+  try {
+    storedRoom = normalizeRoomSlug(window.localStorage.getItem(controllerRoomStorageKey));
+  } catch {
+    storedRoom = null;
+  }
+
+  const roomSlug = queryRoom ?? storedRoom ?? "living-room";
+  if (queryRoom) {
+    try {
+      window.localStorage.setItem(controllerRoomStorageKey, queryRoom);
+    } catch {}
+  }
+
   return {
-    roomSlug: "living-room",
+    roomSlug,
     pairingToken: search.get("token")
   };
+}
+
+function normalizeRoomSlug(value: string | null): string | null {
+  const trimmed = value?.trim().toLowerCase();
+  if (!trimmed) {
+    return null;
+  }
+  const normalized = trimmed.replace(/[^a-z0-9-]/gu, "");
+  return normalized.length >= 2 ? normalized.slice(0, 40) : null;
 }
 
 function createDiscoverySeed(): string {

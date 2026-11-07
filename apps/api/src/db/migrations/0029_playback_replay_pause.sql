@@ -1,0 +1,2 @@
+ALTER TABLE rooms
+  ADD COLUMN IF NOT EXISTS replay_epoch integer NOT NULL DEFAULT 0;

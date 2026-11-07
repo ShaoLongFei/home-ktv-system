@@ -145,10 +145,12 @@ describe("song discovery routes", () => {
       { artistId: "artist-b", artistName: "歌手B", songCount: 7, songs: [] },
       { artistId: "artist-c", artistName: "歌手C", songCount: 3, songs: [] }
     ]);
-    expect(body.genres).toEqual([
+    // 索引里的风格排在前面，本地曲库独有的标签补充在后面
+    expect(body.genres.slice(0, 2)).toEqual([
       { genre: "流行", songCount: 120, songs: [] },
       { genre: "摇滚", songCount: 45, songs: [] }
     ]);
+    expect(body.genres.map((genre) => genre.genre)).toContain("样本风格");
     expect(listDiscoveryArtists).toHaveBeenCalledTimes(1);
     expect(listDiscoveryGenres).toHaveBeenCalledTimes(1);
   });
@@ -247,6 +249,68 @@ describe("song discovery routes", () => {
     });
   });
 
+  it("serves ige8 singers and music styles as discovery modules", async () => {
+    const { server } = await createHarness({
+      onlineDiscovery: createOnlineDiscovery()
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/songs/discovery?seed=online&limit=3"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().recommended[0]).toMatchObject({
+      source: "online",
+      providerSongNumber: "20039643",
+      title: "晴天"
+    });
+    expect(response.json()).toMatchObject({
+      artists: [
+        { artistId: "1066", artistName: "周杰伦", songCount: 0 },
+        { artistId: "211", artistName: "刀郎", songCount: 0 }
+      ],
+      genres: [{ genre: "流行", songCount: 0 }, { genre: "摇滚", songCount: 0 }]
+    });
+  });
+
+  it("returns online songs for an ige8 singer and marks them queueable", async () => {
+    const { server } = await createHarness({
+      onlineDiscovery: createOnlineDiscovery()
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/songs/discovery/artists/1066/songs?limit=2&offset=0"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      songs: [
+        { source: "online", providerSongNumber: "20039643", title: "晴天", artistName: "周杰伦" }
+      ],
+      nextOffset: null
+    });
+  });
+
+  it("returns online songs for a music style", async () => {
+    const { server } = await createHarness({
+      onlineDiscovery: createOnlineDiscovery()
+    });
+
+    const response = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/songs/discovery/genres/songs?genre=%E6%B5%81%E8%A1%8C&limit=2"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().songs[0]).toMatchObject({
+      source: "online",
+      providerSongNumber: "20039643",
+      genre: ["流行"]
+    });
+  });
+
   it("returns empty discovery modules when NAS search is unavailable", async () => {
     const { server } = await createHarness();
 
@@ -271,6 +335,56 @@ async function createHarness(input: {
   queueEntries?: readonly QueueEntry[];
   playCounts?: Record<string, number>;
   coverEntries?: Record<string, FakeCoverEntry>;
+  onlineDiscovery?: {
+    discoverySingers(limit: number): Promise<Array<{ singerId: string; singerName: string; mark: string; pictureUrl: string | null }>>;
+    discoverySingerPage(input: { page: number; pageSize: number }): Promise<{
+      singers: Array<{ singerId: string; singerName: string; mark: string; pictureUrl: string | null }>;
+      pageCount: number;
+    }>;
+    discoveryStyles(): Promise<string[]>;
+    recommendedSongs(limit: number): Promise<Array<{
+      provider: string;
+      providerSongId: string;
+      title: string;
+      artistName: string;
+      durationMs: number | null;
+      language: string;
+      coverUrl: string | null;
+      sourceLabel: string;
+      tags: readonly string[];
+      metadata: Record<string, unknown>;
+    }>>;
+    songsBySinger(input: { singerId: string; page: number; pageSize: number }): Promise<{
+      candidates: Array<{
+        provider: string;
+        providerSongId: string;
+        title: string;
+        artistName: string;
+        durationMs: number | null;
+        language: string;
+        coverUrl: string | null;
+        sourceLabel: string;
+        tags: readonly string[];
+        metadata: Record<string, unknown>;
+      }>;
+      pageCount: number;
+    }>;
+    songsByStyle(input: { style: string; page: number; pageSize: number }): Promise<{
+      candidates: Array<{
+        provider: string;
+        providerSongId: string;
+        title: string;
+        artistName: string;
+        durationMs: number | null;
+        language: string;
+        coverUrl: string | null;
+        sourceLabel: string;
+        tags: readonly string[];
+        metadata: Record<string, unknown>;
+      }>;
+      pageCount: number;
+    }>;
+  };
 } = {}) {
   const server = Fastify();
   const queueEntries = new FakeQueueEntryRepository(input.queueEntries ?? [], input.playCounts ?? {});
@@ -279,10 +393,62 @@ async function createHarness(input: {
     rooms: new FakeRoomRepository(input.room === undefined ? createRoom() : input.room),
     queueEntries,
     ...(input.ktvIndex ? { ktvIndex: input.ktvIndex } : {}),
-    songCovers
+    songCovers,
+    ...(input.onlineDiscovery ? { onlineDiscovery: input.onlineDiscovery } : {})
   });
   await server.ready();
   return { server, queueEntries, songCovers };
+}
+
+function createOnlineDiscovery() {
+  const singerPage = async ({ page, pageSize }: { page: number; pageSize: number }) => {
+    const all = [
+      { singerId: "s1", singerName: "周杰伦", mark: "", pictureUrl: null },
+      { singerId: "s2", singerName: "林俊杰", mark: "", pictureUrl: null },
+      { singerId: "s3", singerName: "陈奕迅", mark: "", pictureUrl: null }
+    ];
+    const start = (page - 1) * pageSize;
+    return {
+      singers: all.slice(start, start + pageSize),
+      pageCount: Math.max(1, Math.ceil(all.length / pageSize))
+    };
+  };
+
+  const candidates = [
+    {
+      provider: "igeba",
+      providerSongId: "20039643",
+      title: "晴天",
+      artistName: "周杰伦",
+      durationMs: 269000,
+      language: "mandarin",
+      coverUrl: null,
+      sourceLabel: "在线曲库",
+      tags: [] as string[],
+      metadata: {}
+    }
+  ];
+  return {
+    async discoverySingers() {
+      return [
+        { singerId: "1066", singerName: "周杰伦", mark: "港台男星", pictureUrl: null },
+        { singerId: "211", singerName: "刀郎", mark: "大陆男星", pictureUrl: null }
+      ];
+    },
+    discoverySingerPage: singerPage,
+    async discoveryStyles() {
+      return ["流行", "摇滚"];
+    },
+    async recommendedSongs() {
+      return candidates;
+    },
+    async songsBySinger() {
+      return { candidates, pageCount: 1 };
+    },
+    async songsByStyle() {
+      return { candidates, pageCount: 1 };
+    }
+  };
 }
 
 class FakeRoomRepository implements RoomRepository {

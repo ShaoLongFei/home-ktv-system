@@ -1,17 +1,94 @@
-import type { PairingInfo } from "@home-ktv/player-contracts";
-import type { CSSProperties } from "react";
+import { DEFAULT_ROOM_VOLUME_PERCENT, type PairingInfo } from "@home-ktv/player-contracts";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PairingQr } from "../components/PairingQr.js";
+import type { IdlePlaylistItem, PlayerClient } from "../runtime/player-client.js";
 import type { TvDisplayState } from "./tv-display-model.js";
 import { tvTheme } from "../theme.js";
 
 export interface IdleScreenProps {
   displayState: TvDisplayState;
   pairing: PairingInfo;
+  client?: PlayerClient;
+  /** 房间音量，待机垫片音乐跟随它，不再写死。 */
+  volumePercent?: number;
 }
 
-export function IdleScreen({ pairing }: IdleScreenProps) {
+export function IdleScreen({ pairing, client, volumePercent }: IdleScreenProps) {
+  const ambientVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [idleTracks, setIdleTracks] = useState<IdlePlaylistItem[]>([]);
+  const [idleIndex, setIdleIndex] = useState(0);
+  const [ambientBlocked, setAmbientBlocked] = useState(false);
+
+  useEffect(() => {
+    if (!client) {
+      return;
+    }
+    let cancelled = false;
+    client
+      .fetchIdlePlaylist()
+      .then((response) => {
+        if (!cancelled) {
+          setIdleTracks(response.items);
+          setIdleIndex(0);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [client]);
+
+  const idleTrack = idleTracks.length > 0 ? idleTracks[idleIndex % idleTracks.length] ?? null : null;
+
+  useEffect(() => {
+    const video = ambientVideoRef.current;
+    if (!video || !idleTrack || !client) {
+      return;
+    }
+    video.src = client.mediaUrl(idleTrack.url);
+    video.play().then(
+      () => setAmbientBlocked(false),
+      () => setAmbientBlocked(true)
+    );
+    return () => {
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+    };
+  }, [client, idleTrack]);
+
+  // 音量独立处理：挂载时设一次，之后手机调音量立即生效，
+  // 不参与切歌的 effect，避免调音量导致重新加载当前这首。
+  useEffect(() => {
+    const video = ambientVideoRef.current;
+    if (video) {
+      video.volume = volumeFraction(volumePercent);
+    }
+  }, [volumePercent, idleTrack]);
+
+  useEffect(() => {
+    if (!ambientBlocked) {
+      return;
+    }
+    const unlock = () => {
+      void ambientVideoRef.current?.play().then(
+        () => setAmbientBlocked(false),
+        () => undefined
+      );
+    };
+    globalThis.addEventListener("pointerdown", unlock, { once: true });
+    return () => globalThis.removeEventListener("pointerdown", unlock);
+  }, [ambientBlocked]);
+
   return (
     <section style={styles.screen}>
+      <video
+        aria-hidden="true"
+        onEnded={() => setIdleIndex((index) => index + 1)}
+        playsInline
+        ref={ambientVideoRef}
+        style={styles.ambientVideo}
+      />
       <div style={styles.backdrop} />
       <div style={styles.leftPanel}>
         <p style={styles.brand}>HomeKTV</p>
@@ -29,6 +106,12 @@ export function IdleScreen({ pairing }: IdleScreenProps) {
           <span style={styles.statusDot} />
           <span>电视已连接</span>
         </div>
+        {idleTrack ? (
+          <p style={styles.ambientNowPlaying}>
+            ♫ {idleTrack.title}
+            {idleTrack.artistName ? ` · ${idleTrack.artistName}` : ""}
+          </p>
+        ) : null}
       </div>
       <div style={styles.qrColumn}>
         <PairingQr pairing={pairing} variant="large" />
@@ -38,6 +121,21 @@ export function IdleScreen({ pairing }: IdleScreenProps) {
 }
 
 const styles = {
+  ambientVideo: {
+    height: 1,
+    left: -9999,
+    opacity: 0,
+    pointerEvents: "none",
+    position: "absolute",
+    top: -9999,
+    width: 1
+  },
+  ambientNowPlaying: {
+    color: "rgba(248, 250, 252, 0.72)",
+    fontSize: 18,
+    fontWeight: 700,
+    margin: "18px 0 0"
+  },
   screen: {
     alignItems: "center",
     backgroundImage: "url('/home-ktv-idle-background.png')",
@@ -149,3 +247,10 @@ const styles = {
     zIndex: 1
   }
 } satisfies Record<string, CSSProperties>;
+
+function volumeFraction(volumePercent: number | undefined): number {
+  if (typeof volumePercent !== "number" || !Number.isFinite(volumePercent)) {
+    return DEFAULT_ROOM_VOLUME_PERCENT / 100;
+  }
+  return Math.max(0, Math.min(100, Math.trunc(volumePercent))) / 100;
+}

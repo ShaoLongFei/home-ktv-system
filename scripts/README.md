@@ -13,6 +13,8 @@
 | `visual_check.py` | Controller/Admin/Web TV 的 Chrome 截图检查。 | `pnpm ui:visual-check` / `pnpm tv:visual-check` |
 | `fetch_song_covers.py` | 查询、下载并缓存歌曲封面，也提供覆盖率和状态查询。 | `pnpm covers:songs` / `pnpm covers:coverage` / `pnpm covers:status` |
 | `generate_cover_thumbnails.py` | 生成本地封面缩略图。 | `pnpm covers:thumbnails` |
+| `igeba_probe.py` | ige8（爱歌吧）在线曲库探针：搜索、取址、下载、批量自检；在线补歌源的设计验证工具。 | `python3 scripts/igeba_probe.py search 孤勇者` / `... selfcheck 海阔天空 --count 5` |
+| `apps/api/src/scripts/igeba-library-load.ts` | 按关键字批量预载 ige8 曲目到本地缓存（走 API 同一套流水线）。 | `pnpm -F @home-ktv/api igeba:load -- --query 周杰伦 --limit 10` |
 | `run_style_tagging_llm_batch.py` | 离线批量补风格标签并导入数据库。 | `pnpm ktv:tags:llm-batch:py -- ...` |
 | `fetch_hot_song_candidates.py` | 聚合热歌候选。 | `python3 scripts/fetch_hot_song_candidates.py collect` |
 | `fetch_chart_scores.py` | 抓取榜单积分。 | `python3 scripts/fetch_chart_scores.py collect` |

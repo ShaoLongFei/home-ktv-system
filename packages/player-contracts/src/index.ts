@@ -191,6 +191,10 @@ export interface RoomSnapshot {
   currentTarget: PlaybackTarget | null;
   switchTarget: SwitchTarget | null;
   targetVocalMode?: VocalMode | null;
+  /** 电视端据此暂停/继续。 */
+  playbackPaused?: boolean;
+  /** 值变化表示要求重唱（seek 0）。 */
+  replayToken?: string;
   conflict: PlayerConflictState | null;
   notice: PlaybackNotice | null;
   generatedAt: string;
@@ -209,6 +213,8 @@ export interface RoomControlSnapshot {
   currentTarget: PlaybackTarget | null;
   switchTarget: SwitchTarget | null;
   targetVocalMode?: VocalMode | null;
+  playbackPaused?: boolean;
+  replayToken?: string;
   queue: readonly RoomQueueEntryPreview[];
   notice: PlaybackNotice | null;
   generatedAt: string;

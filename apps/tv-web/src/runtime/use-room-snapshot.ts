@@ -9,7 +9,11 @@ export interface RoomSnapshotState {
   status: "booting" | "ready" | "error";
 }
 
-export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500): RoomSnapshotState {
+export function useRoomSnapshot(
+  client: PlayerClient,
+  pollingIntervalMs = 1500,
+  onPlayerPositionRequest?: () => void
+): RoomSnapshotState {
   const [state, setState] = useState<RoomSnapshotState>({
     errorMessage: null,
     interactions: [],
@@ -111,6 +115,11 @@ export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500):
           return;
         }
 
+        if (realtimeMessage.playerPositionRequested) {
+          onPlayerPositionRequest?.();
+          return;
+        }
+
         const snapshot = realtimeMessage.snapshot;
         if (snapshot) {
           setState((current) => ({
@@ -185,7 +194,7 @@ export function useRoomSnapshot(client: PlayerClient, pollingIntervalMs = 1500):
       }
       websocket?.close();
     };
-  }, [client, pollingIntervalMs]);
+  }, [client, onPlayerPositionRequest, pollingIntervalMs]);
 
   return state;
 }
@@ -194,13 +203,23 @@ export function playbackEnabledFromSnapshot(snapshot: RoomSnapshot | null): bool
   return Boolean(snapshot?.currentTarget);
 }
 
-function parseRealtimeMessage(data: unknown): { snapshot?: RoomSnapshot; interaction?: RoomInteractionEvent } | null {
+interface RealtimeMessage {
+  snapshot?: RoomSnapshot;
+  interaction?: RoomInteractionEvent;
+  playerPositionRequested?: boolean;
+}
+
+function parseRealtimeMessage(data: unknown): RealtimeMessage | null {
   if (typeof data !== "string") {
     return null;
   }
 
   try {
     const parsed = JSON.parse(data) as { type?: string; payload?: RoomSnapshot | RoomControlSnapshot | RoomInteractionEvent };
+    if (parsed.type === "room.player.position.requested") {
+      return { playerPositionRequested: true };
+    }
+
     if (parsed.type === "room.control.snapshot.updated" && parsed.payload) {
       return { snapshot: toRoomSnapshot(parsed.payload as RoomSnapshot | RoomControlSnapshot) };
     }
@@ -234,16 +253,23 @@ function toRoomSnapshot(snapshot: RoomSnapshot | RoomControlSnapshot): RoomSnaps
     return snapshot;
   }
 
+  // 控制快照比播放快照多带了 tvPresence/controllers/queue，但少了 conflict，
+  // 而音量、暂停、重唱标记必须原样透传：TV 端只从这三项知道要做什么，
+  // 丢一项就会出现「手机调音量电视没反应」这类静默失效。
+  // 这三项在契约里是可选的，undefined 时必须整个省略（exactOptionalPropertyTypes）。
   return {
     type: "room.snapshot",
     roomId: snapshot.roomId,
     roomSlug: snapshot.roomSlug,
     sessionVersion: snapshot.sessionVersion,
     state: snapshot.state,
+    ...(snapshot.volumePercent != null ? { volumePercent: snapshot.volumePercent } : {}),
     pairing: snapshot.pairing,
     currentTarget: snapshot.currentTarget,
     switchTarget: snapshot.switchTarget,
     targetVocalMode: snapshot.targetVocalMode ?? null,
+    ...(snapshot.playbackPaused != null ? { playbackPaused: snapshot.playbackPaused } : {}),
+    ...(snapshot.replayToken != null ? { replayToken: snapshot.replayToken } : {}),
     conflict: snapshot.tvPresence.conflict,
     notice: snapshot.notice,
     generatedAt: snapshot.generatedAt

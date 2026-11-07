@@ -219,6 +219,7 @@ async function markMissingAssets(db: QueryExecutor, runId: string): Promise<numb
            updated_at = now()
        WHERE last_seen_run_id IS DISTINCT FROM $1
          AND missing_at IS NULL
+         AND source_root NOT LIKE 'online:%'
        RETURNING 1
      )
      SELECT count(*)::int AS count FROM marked`,

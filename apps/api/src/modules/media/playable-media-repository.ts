@@ -13,7 +13,14 @@ import type {
 
 export type PlayableMediaStatus = "ready" | "unavailable" | "failed" | "stale";
 
-export type PlayableMediaLookup = Pick<MediaSourceRef, "sourceType" | "assetId">;
+export type PlayableMediaLookup = Pick<MediaSourceRef, "sourceType" | "assetId"> & {
+  /** 同一首歌的派生音轨文件（如在线补歌抽出的伴奏轨）。 */
+  variant?: "instrumental";
+};
+
+export interface PlayableMediaVariantPaths {
+  instrumental?: string;
+}
 
 export interface PlayableMediaAsset {
   sourceType: SongSourceType;
@@ -31,6 +38,7 @@ export interface PlayableMediaAsset {
   mediaInfoProvenance: MediaInfoProvenance;
   trackRoles: TrackRoles;
   playbackProfile: PlaybackProfile;
+  variantFilePaths?: PlayableMediaVariantPaths;
 }
 
 export interface PlayableMediaRepository {

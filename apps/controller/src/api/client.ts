@@ -1,5 +1,6 @@
 import type {
   ControllerSongHistoryResponse,
+  SongDiscoveryArtist,
   SongDiscoveryResponse,
   SongDiscoverySongsResponse,
   SongSearchResponse
@@ -141,15 +142,93 @@ export async function searchSongs(input: {
   roomSlug: string;
   query: string;
   limit?: number;
+  offset?: number;
   signal?: AbortSignal;
 }): Promise<SongSearchResponse> {
   const init: RequestInit = input.signal ? { signal: input.signal } : {};
   return fetchController<SongSearchResponse>(
     `/rooms/${encodeURIComponent(input.roomSlug)}/songs/search?q=${encodeURIComponent(input.query)}&limit=${
       input.limit ?? 30
-    }`,
+    }&offset=${input.offset ?? 0}`,
     init
   );
+}
+
+export interface OnlineQueueResponse {
+  assetId: string;
+  songNumber: string;
+  status: string;
+  cached: boolean;
+  queued: boolean;
+  queueEntryId: string | null;
+}
+
+export interface OnlineAssetStatusResponse {
+  asset: {
+    id: string;
+    provider: string;
+    providerAssetId: string;
+    status: string;
+    catalogSongId: string | null;
+    durationMs: number | null;
+    cacheBytes: number | null;
+    audioTrackCount: number | null;
+    errorReason: string | null;
+  };
+  playbackUrl: string | null;
+}
+
+export async function queueOnlineSong(input: {
+  roomSlug: string;
+  songNumber: string;
+  title?: string;
+  artistName?: string;
+  requestedByName?: string;
+}): Promise<OnlineQueueResponse> {
+  return fetchController<OnlineQueueResponse>(`/rooms/${encodeURIComponent(input.roomSlug)}/online/queue`, {
+    method: "POST",
+    body: JSON.stringify({
+      songNumber: input.songNumber,
+      ...(input.title ? { title: input.title } : {}),
+      ...(input.artistName ? { artistName: input.artistName } : {}),
+      ...(input.requestedByName ? { requestedByName: input.requestedByName } : {})
+    })
+  });
+}
+
+export async function fetchOnlineAssetStatus(input: {
+  roomSlug: string;
+  assetId: string;
+}): Promise<OnlineAssetStatusResponse> {
+  return fetchController<OnlineAssetStatusResponse>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/online/assets/${encodeURIComponent(input.assetId)}`
+  );
+}
+
+/**
+ * 请求电视立刻上报一次播放位置（同步画面对齐用）。
+ * 服务端会广播一条位置请求，电视收到后马上回心跳。
+ */
+export async function requestPlayerPosition(input: { roomSlug: string }): Promise<{ requested: boolean }> {
+  return fetchController<{ requested: boolean }>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/player/position-request`,
+    { method: "POST", body: JSON.stringify({}) }
+  );
+}
+
+export interface PublicRoomSnapshotResponse {
+  pairing: {
+    roomSlug: string;
+    token: string;
+    tokenExpiresAt: string;
+    controllerUrl: string;
+    qrPayload: string;
+  };
+}
+
+/** 公共房间快照：TV 与手机端共用，未登录也可读，内含当前配对 token。 */
+export async function fetchPublicRoomSnapshot(roomSlug: string): Promise<PublicRoomSnapshotResponse> {
+  return fetchController<PublicRoomSnapshotResponse>(`/rooms/${encodeURIComponent(roomSlug)}/snapshot`);
 }
 
 export async function fetchSongDiscovery(input: {
@@ -161,6 +240,18 @@ export async function fetchSongDiscovery(input: {
   return fetchController<SongDiscoveryResponse>(
     `/rooms/${encodeURIComponent(input.roomSlug)}/songs/discovery?seed=${encodeURIComponent(input.seed)}`,
     init
+  );
+}
+
+export async function fetchDiscoveryArtists(input: {
+  roomSlug: string;
+  offset?: number;
+  limit?: number;
+}): Promise<{ artists: SongDiscoveryArtist[]; nextOffset: number | null }> {
+  return fetchController<{ artists: SongDiscoveryArtist[]; nextOffset: number | null }>(
+    `/rooms/${encodeURIComponent(input.roomSlug)}/songs/discovery/artists?offset=${input.offset ?? 0}&limit=${
+      input.limit ?? 24
+    }`
   );
 }
 
@@ -237,6 +328,14 @@ export async function switchVocalMode(input: CommandBaseInput & { playbackPositi
   return sendCommand(input, "switch-vocal-mode", {
     playbackPositionMs: input.playbackPositionMs
   });
+}
+
+export async function replayCurrent(input: CommandBaseInput) {
+  return sendCommand(input, "replay-current", {});
+}
+
+export async function togglePause(input: CommandBaseInput) {
+  return sendCommand(input, "toggle-pause", {});
 }
 
 export async function setVolume(input: CommandBaseInput & { volumePercent: number }) {

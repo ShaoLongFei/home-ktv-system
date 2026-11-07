@@ -1,0 +1,322 @@
+import Fastify from "fastify";
+import type { Room } from "@home-ktv/domain";
+import { describe, expect, it } from "vitest";
+import type { QueueEntry } from "@home-ktv/domain";
+import type { OnlineAssetRecord } from "../modules/online/online-catalog-repository.js";
+import type { OnlineImportService, RequestImportOptions } from "../modules/online/online-import-service.js";
+import { registerOnlineCatalogRoutes } from "../routes/online-catalog.js";
+
+const room: Room = {
+  id: "living-room",
+  slug: "living-room",
+  name: "Living Room",
+  status: "active",
+  defaultPlayerDeviceId: null,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z"
+};
+
+function createAsset(overrides: Partial<OnlineAssetRecord> = {}): OnlineAssetRecord {
+  return {
+    id: "online-asset-1",
+    songId: "online-song-1",
+    provider: "igeba",
+    providerAssetId: "20039643",
+    mediaUrl: "",
+    cachePath: "/media/online-cache/igeba/20039643.mkv",
+    catalogSongId: null,
+    status: "caching",
+    durationMs: null,
+    cacheBytes: null,
+    audioTrackCount: null,
+    errorReason: null,
+    metadata: {},
+    ...overrides
+  };
+}
+
+function createHarness(importService: Partial<OnlineImportService> = {}) {
+  const server = Fastify();
+  const appended: Array<Record<string, unknown>> = [];
+  const service = {
+    status: async () => ({
+      provider: "igeba",
+      enabled: true,
+      cacheDir: "/media/online-cache/igeba",
+      pendingJobs: 0,
+      activeJobs: 0,
+      stats: { total: 1, ready: 1, caching: 0, failed: 0, unavailable: 0, bytes: 1024 },
+      quota: { maxBytes: 2048, maxItems: 200, ttlDays: 30, usedBytes: 1024, usedItems: 1 },
+      metrics: { downloads: 2, evictions: 1, failures: 0, lastPruneAt: null }
+    }),
+    listAssets: async () => [createAsset({ status: "ready", cacheBytes: 1024 })],
+    requestImport: async (input: { songNumber: string }, options: RequestImportOptions = {}) => {
+      if (options.onReady) {
+        const ready = createAsset({
+          providerAssetId: input.songNumber,
+          status: "ready",
+          catalogSongId: `ktv-online-igeba-${input.songNumber}`
+        });
+        await options.onReady(ready);
+        return { asset: ready, cached: true };
+      }
+      return { asset: createAsset({ providerAssetId: input.songNumber }), cached: false };
+    },
+    importByQuery: async () => [
+      { asset: createAsset({ id: "online-asset-a", providerAssetId: "1" }), cached: false },
+      { asset: createAsset({ id: "online-asset-b", providerAssetId: "2" }), cached: true }
+    ],
+    evict: async (assetId: string) =>
+      assetId === "online-asset-1" ? createAsset({ id: assetId, status: "unavailable", cachePath: null }) : null,
+    pruneExpired: async () => ({ evicted: 2, stale: 1 }),
+    discovery: async () => ({
+      hotModules: [
+        {
+          headId: "26",
+          title: "团建必点",
+          subTitle: "团队就是力量",
+          pictureUrl: null,
+          link: "app://Object=Playlist&ObjectId=13166",
+          objectType: "Playlist",
+          objectId: "13166"
+        }
+      ]
+    }),
+    importByPackage: async () => [
+      { asset: createAsset({ id: "online-asset-pkg", providerAssetId: "30000001" }), cached: false }
+    ],
+    getAsset: async (assetId: string) =>
+      assetId === "online-asset-1" ? createAsset({ status: "ready", cachePath: "/tmp/x.mkv" }) : null,
+    ...importService
+  } as unknown as OnlineImportService;
+
+  const ensured: string[] = [];
+  const broadcasted: string[] = [];
+  void registerOnlineCatalogRoutes(server, {
+    rooms: {
+      findById: async (roomId) => (roomId === room.id ? room : null),
+      findBySlug: async (slug) => (slug === room.slug ? room : null)
+    },
+    onlineImport: service,
+    ensurePlaybackStarted: async (targetRoom) => {
+      ensured.push(targetRoom.slug);
+    },
+    broadcastRoomSnapshot: async (targetRoom) => {
+      broadcasted.push(targetRoom.slug);
+    },
+    queueEntries: {
+      listEffectiveQueue: async () => [] as QueueEntry[],
+      append: async (input) => {
+        appended.push(input as unknown as Record<string, unknown>);
+        return { id: "queue-entry-1" } as QueueEntry;
+      }
+    }
+  });
+  return { server, appended, ensured, broadcasted };
+}
+
+describe("online catalog routes", () => {
+  it("reports provider status and cache stats", async () => {
+    const { server } = createHarness();
+    const response = await server.inject({ method: "GET", url: "/admin/online/sources" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      provider: "igeba",
+      enabled: true,
+      stats: { ready: 1, bytes: 1024 },
+      quota: { maxItems: 200, usedItems: 1 },
+      metrics: { downloads: 2, evictions: 1 }
+    });
+    await server.close();
+  });
+
+  it("imports a single song for a room and returns the pending playback url", async () => {
+    const { server } = createHarness();
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/import",
+      payload: { songNumber: "20039643", title: "孤勇者" }
+    });
+
+    expect(response.statusCode).toBe(202);
+    expect(response.json()).toMatchObject({
+      songNumber: "20039643",
+      status: "caching",
+      cached: false,
+      playbackUrl: null
+    });
+    await server.close();
+  });
+
+  it("rejects imports without a song number", async () => {
+    const { server } = createHarness();
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/import",
+      payload: {}
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({ code: "ONLINE_SONG_NUMBER_REQUIRED" });
+    await server.close();
+  });
+
+  it("supports batch import by keyword", async () => {
+    const { server } = createHarness();
+    const response = await server.inject({
+      method: "POST",
+      url: "/admin/online/import",
+      payload: { query: "周杰伦", limit: 2 }
+    });
+
+    expect(response.statusCode).toBe(202);
+    expect(response.json()).toMatchObject({ queued: 2 });
+    await server.close();
+  });
+
+  it("queues an already cached online song immediately", async () => {
+    const { server, appended, ensured, broadcasted } = createHarness();
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/queue",
+      payload: { songNumber: "20039643", requestedBy: "phone-1" }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({ queued: true, queueEntryId: "queue-entry-1" });
+    expect(appended).toHaveLength(1);
+    expect(appended[0]).toMatchObject({
+      roomId: "living-room",
+      songId: "ktv-online-igeba-20039643",
+      assetId: "ktv-online-igeba-20039643",
+      requestedBy: "phone-1",
+      queuePosition: 1,
+      status: "queued"
+    });
+    expect(ensured).toEqual(["living-room"]);
+    // 队列是直接写库的，必须补广播，否则手机歌单不会自己刷新
+    expect(broadcasted).toEqual(["living-room"]);
+    await server.close();
+  });
+
+  it("returns 202 while the online song is still caching", async () => {
+    const { server } = createHarness({
+      requestImport: (async () => ({
+        asset: createAsset({ status: "caching" }),
+        cached: false
+      })) as unknown as OnlineImportService["requestImport"]
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/queue",
+      payload: { songNumber: "20039643" }
+    });
+
+    expect(response.statusCode).toBe(202);
+    expect(response.json()).toMatchObject({ queued: false, queueEntryId: null, status: "caching" });
+    await server.close();
+  });
+
+  it("broadcasts again when an async cache job finishes and queues the song", async () => {
+    const readyHandler: { current: ((asset: OnlineAssetRecord) => void | Promise<void>) | null } = { current: null };
+    const { server, broadcasted } = createHarness({
+      requestImport: (async (_input: unknown, options: RequestImportOptions = {}) => {
+        readyHandler.current = options.onReady ?? null;
+        return { asset: createAsset({ status: "caching" }), cached: false };
+      }) as unknown as OnlineImportService["requestImport"]
+    });
+
+    const response = await server.inject({
+      method: "POST",
+      url: "/rooms/living-room/online/queue",
+      payload: { songNumber: "20039643" }
+    });
+    expect(response.statusCode).toBe(202);
+    expect(broadcasted).toEqual([]);
+
+    await readyHandler.current?.(
+      createAsset({
+        providerAssetId: "20039643",
+        status: "ready",
+        catalogSongId: "ktv-online-igeba-20039643"
+      })
+    );
+
+    expect(broadcasted).toEqual(["living-room"]);
+    await server.close();
+  });
+
+  it("evicts a cached asset and reports 404 for unknown ones", async () => {
+    const { server } = createHarness();
+
+    const ok = await server.inject({ method: "POST", url: "/admin/online/assets/online-asset-1/evict" });
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json()).toMatchObject({ assetId: "online-asset-1", evicted: true, status: "unavailable" });
+
+    const missing = await server.inject({ method: "POST", url: "/admin/online/assets/nope/evict" });
+    expect(missing.statusCode).toBe(404);
+    await server.close();
+  });
+
+  it("runs cache pruning", async () => {
+    const { server } = createHarness();
+    const response = await server.inject({ method: "POST", url: "/admin/online/prune" });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ evicted: 2, stale: 1 });
+    await server.close();
+  });
+
+  it("exposes discovery modules and imports by package", async () => {
+    const { server } = createHarness();
+
+    const discovery = await server.inject({ method: "GET", url: "/admin/online/discovery" });
+    expect(discovery.statusCode).toBe(200);
+    expect(discovery.json().hotModules[0]).toMatchObject({
+      headId: "26",
+      objectType: "Playlist",
+      objectId: "13166"
+    });
+
+    const imported = await server.inject({
+      method: "POST",
+      url: "/admin/online/import",
+      payload: { packageType: 3, packageId: "13166", limit: 10 }
+    });
+    expect(imported.statusCode).toBe(202);
+    expect(imported.json()).toMatchObject({ queued: 1 });
+    await server.close();
+  });
+
+  it("returns a shuffled idle playlist of cached songs", async () => {
+    const { server } = createHarness();
+
+    const response = await server.inject({ method: "GET", url: "/rooms/living-room/idle-playlist" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().items).toEqual([
+      expect.objectContaining({ id: "online-asset-1", url: "/media/online/online-asset-1" })
+    ]);
+    await server.close();
+  });
+
+  it("returns 404 for unknown rooms and assets", async () => {
+    const { server } = createHarness();
+
+    const missingRoom = await server.inject({
+      method: "GET",
+      url: "/rooms/unknown/online/assets/online-asset-1"
+    });
+    expect(missingRoom.statusCode).toBe(404);
+    expect(missingRoom.json()).toEqual({ code: "ROOM_NOT_FOUND" });
+
+    const missingAsset = await server.inject({
+      method: "GET",
+      url: "/rooms/living-room/online/assets/missing"
+    });
+    expect(missingAsset.statusCode).toBe(404);
+    expect(missingAsset.json()).toEqual({ code: "ONLINE_ASSET_NOT_FOUND" });
+    await server.close();
+  });
+});

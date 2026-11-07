@@ -1,20 +1,20 @@
 import type {
   ControllerSongHistoryEntry,
+  OnlineCandidateCard,
   SongDiscoveryArtist,
   SongDiscoveryGenre,
   SongDiscoverySong,
-  SongSearchNasResult
+  VocalMode
 } from "@home-ktv/domain";
-import type { RoomInteractionKind } from "@home-ktv/player-contracts";
+import type { PlaybackTarget, RoomInteractionKind } from "@home-ktv/player-contracts";
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import { fetchDiscoveryArtistSongs, fetchDiscoveryGenreSongs } from "./api/client.js";
 import {
-  I18nProvider,
-  LanguageSwitch,
-  playbackStateName,
-  useI18n,
-  vocalModeName
-} from "./i18n.js";
+  fetchDiscoveryArtistSongs,
+  fetchDiscoveryArtists,
+  fetchDiscoveryGenreSongs,
+  requestPlayerPosition
+} from "./api/client.js";
+import { I18nProvider, LanguageSwitch, useI18n } from "./i18n.js";
 import { useRoomController, type RoomControllerState } from "./runtime/use-room-controller.js";
 
 export function App() {
@@ -36,17 +36,39 @@ function ControllerApp() {
     snapshot?.targetVocalMode ??
     (current?.vocalMode === "instrumental" ? "original" : "instrumental");
   const switchLabel = targetVocalMode === "original" ? t("button.switchToOriginal") : t("button.switchToInstrumental");
-  const currentModeLabel = vocalModeName(current?.vocalMode ?? "unknown", t);
-  const playbackLabel = snapshot ? playbackStateName(snapshot?.state, t) : t("current.connecting");
-  const noticeMessage = snapshot?.notice?.message;
+  const notice = snapshot?.notice ?? null;
+  // 服务端给的是英文硬编码，按 kind 换成本地文案
+  const noticeMessage =
+    notice?.kind === "loading"
+      ? t("status.loadingNext")
+      : notice?.kind === "recovering"
+        ? t("status.recovering")
+        : notice?.message;
   const volumePercent = controller.volumePercent;
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchHistory, setSearchHistory] = useState(() => readSearchHistory());
   const [browseStack, setBrowseStack] = useState<BrowseView[]>([]);
   const browseView = browseStack.at(-1) ?? { kind: "home" };
   const [activeTab, setActiveTab] = useState<ControllerTab>("home");
+  const [queueDrawerOpen, setQueueDrawerOpen] = useState(false);
+  const [mirrorOpen, setMirrorOpen] = useState(false);
   const [interactionComposer, setInteractionComposer] = useState<RoomInteractionKind | null>(null);
   const [queueAddFeedback, setQueueAddFeedback] = useState<QueueAddFeedback | null>(null);
+  const [queueToasts, setQueueToasts] = useState<QueueToast[]>([]);
+  const queueToastIdRef = useRef(0);
+  const pendingToastTitlesRef = useRef<Map<string, string>>(new Map());
+  const previousQueueStatusRef = useRef<Record<string, string>>({});
+  const pushQueueToast = useCallback((title: string, providerId?: string) => {
+    queueToastIdRef.current += 1;
+    const toastId = queueToastIdRef.current;
+    setQueueToasts((current) => [
+      ...current.slice(-2),
+      { id: toastId, title, ...(providerId ? { providerId } : {}) }
+    ]);
+    globalThis.setTimeout(() => {
+      setQueueToasts((current) => current.filter((toast) => toast.id !== toastId));
+    }, 3000);
+  }, []);
   const [optimisticQueueAdds, setOptimisticQueueAdds] = useState<OptimisticQueueAdd[]>([]);
   const queueFeedbackIdRef = useRef(0);
   const queueFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -62,26 +84,59 @@ function ControllerApp() {
   }, []);
   const serverQueueCount = snapshot?.queue.filter((entry) => entry.status !== "removed").length ?? 0;
   const queueCount = serverQueueCount + optimisticQueueAdds.length;
-  const triggerQueueAddFeedback = useCallback((song: Pick<SongDiscoverySong, "artistName" | "title">) => {
-    if (queueFeedbackTimerRef.current) {
-      clearTimeout(queueFeedbackTimerRef.current);
+  const triggerQueueAddFeedback = useCallback(
+    (song: { artistName: string; title: string; providerId?: string }) => {
+      if (queueFeedbackTimerRef.current) {
+        clearTimeout(queueFeedbackTimerRef.current);
+      }
+
+      queueFeedbackIdRef.current += 1;
+      const feedback = { id: queueFeedbackIdRef.current };
+      setQueueAddFeedback(feedback);
+
+      // 右上角状态标签：最多同时三条，每条 3 秒
+      if (song.providerId) {
+        pendingToastTitlesRef.current.set(song.providerId, song.title);
+      }
+      pushQueueToast(song.title, song.providerId);
+
+      setOptimisticQueueAdds((current) => [
+        ...current,
+        {
+          artistName: song.artistName,
+          id: feedback.id,
+          title: song.title
+        }
+      ]);
+      queueFeedbackTimerRef.current = setTimeout(() => {
+        setQueueAddFeedback((current) => (current?.id === feedback.id ? null : current));
+      }, 900);
+    },
+    [pushQueueToast]
+  );
+
+  // 准备中 → 已点：再提醒一次，让人知道真的排上了
+  useEffect(() => {
+    const states = controller.onlineQueueState;
+    const previous = previousQueueStatusRef.current;
+    const next: Record<string, string> = {};
+
+    for (const [providerId, state] of Object.entries(states)) {
+      next[providerId] = state.status;
+      const before = previous[providerId];
+      if (state.status !== "queued" || !before || before === "queued") {
+        continue;
+      }
+      const title = pendingToastTitlesRef.current.get(providerId);
+      if (!title) {
+        continue;
+      }
+      pendingToastTitlesRef.current.delete(providerId);
+      pushQueueToast(title, providerId);
     }
 
-    queueFeedbackIdRef.current += 1;
-    const feedback = { id: queueFeedbackIdRef.current };
-    setQueueAddFeedback(feedback);
-    setOptimisticQueueAdds((current) => [
-      ...current,
-      {
-        artistName: song.artistName,
-        id: feedback.id,
-        title: song.title
-      }
-    ]);
-    queueFeedbackTimerRef.current = setTimeout(() => {
-      setQueueAddFeedback((current) => (current?.id === feedback.id ? null : current));
-    }, 900);
-  }, []);
+    previousQueueStatusRef.current = next;
+  }, [controller.onlineQueueState, pushQueueToast]);
 
   useEffect(() => {
     const previousCount = previousServerQueueCountRef.current;
@@ -120,7 +175,7 @@ function ControllerApp() {
   if (controller.authStatus !== "authenticated") {
     return (
       <main className="app-shell auth-shell" aria-label="KTV 控制端登录">
-        <AppNotices controller={controller} noticeMessage={noticeMessage} t={t} />
+        <AppNotices controller={controller} t={t} />
         <AuthGate controller={controller} />
       </main>
     );
@@ -128,7 +183,6 @@ function ControllerApp() {
 
   return (
     <main className={`app-shell app-shell--${activeTab}`} aria-label={t("app.aria")}>
-      <AppNotices controller={controller} noticeMessage={noticeMessage} t={t} />
 
       {activeTab === "home" ? (
         <HomeScreen
@@ -140,32 +194,45 @@ function ControllerApp() {
           openBrowseView={openBrowseView}
           setInteractionComposer={setInteractionComposer}
           setSearchOpen={setSearchOpen}
+          onOpenMirror={() => setMirrorOpen(true)}
+          onOpenProfile={() => setActiveTab("my")}
           t={t}
           visibleArtists={visibleArtists}
           visibleGenres={visibleGenres}
         />
       ) : null}
 
-      {activeTab === "control" ? (
-        <ControlScreen
+      {activeTab === "my" ? (
+        <MyScreen controller={controller} onQueueAddFeedback={triggerQueueAddFeedback} onBack={() => setActiveTab("home")} />
+      ) : null}
+
+      {activeTab === "home" ? (
+        <MusicConsole
           controller={controller}
           current={current}
-          currentModeLabel={currentModeLabel}
-          optimisticQueueAdds={optimisticQueueAdds}
-          playbackLabel={playbackLabel}
-          snapshot={snapshot}
+          queueCount={queueCount}
           switchLabel={switchLabel}
           t={t}
           volumePercent={volumePercent}
+          onOpenQueue={() => setQueueDrawerOpen(true)}
         />
       ) : null}
 
-      {activeTab === "my" ? <MyScreen controller={controller} onQueueAddFeedback={triggerQueueAddFeedback} /> : null}
+      <QueueDrawer
+        controller={controller}
+        open={queueDrawerOpen}
+        optimisticQueueAdds={optimisticQueueAdds}
+        snapshot={snapshot}
+        t={t}
+        onClose={() => setQueueDrawerOpen(false)}
+      />
 
+      {mirrorOpen ? <TvMirrorOverlay roomSlug={controller.roomSlug} target={current ?? null} t={t} onClose={() => setMirrorOpen(false)} /> : null}
       {searchOpen ? (
         <SearchOverlay
           controller={controller}
           history={searchHistory}
+          onQueueAddFeedback={triggerQueueAddFeedback}
           onClose={() => setSearchOpen(false)}
           onClearHistory={() => {
             writeSearchHistory([]);
@@ -223,19 +290,50 @@ function ControllerApp() {
         </div>
       ) : null}
 
+      {queueToasts.length > 0 || noticeMessage || controller.errorMessage || controller.connectionStatus === "reconnecting" ? (
+        <div className="queue-toasts" aria-live="polite">
+          {controller.connectionStatus === "reconnecting" ? (
+            <div className="queue-toast queue-toast--error" role="status">
+              <span className="queue-toast__dot" aria-hidden="true" />
+              <span className="queue-toast__title">{t("status.reconnecting")}</span>
+            </div>
+          ) : null}
+          {controller.errorMessage ? (
+            <div className="queue-toast queue-toast--error" role="alert">
+              <span className="queue-toast__dot" aria-hidden="true" />
+              <span className="queue-toast__title">{controller.errorMessage}</span>
+            </div>
+          ) : null}
+          {noticeMessage ? (
+            <div className="queue-toast queue-toast--notice">
+              <span className="queue-toast__dot" aria-hidden="true" />
+              <span className="queue-toast__title">{noticeMessage}</span>
+            </div>
+          ) : null}
+          {queueToasts.map((toast) => {
+            const state = toast.providerId ? controller.onlineQueueState[toast.providerId] : undefined;
+            const statusLabel =
+              state?.status === "preparing"
+                ? t("search.onlinePreparing")
+                : state?.status === "failed"
+                  ? t("search.queueFailed")
+                  : t("search.onlineQueued");
+            return (
+              <div className="queue-toast" key={toast.id}>
+                <span className="queue-toast__title">{toast.title}</span>
+                <span className="queue-toast__state">{statusLabel}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
       {queueAddFeedback ? (
         <div className="queue-add-flyer" data-testid="queue-add-flyer" key={queueAddFeedback.id} aria-hidden="true">
           <span>+</span>
         </div>
       ) : null}
 
-      <BottomTabs
-        activeTab={activeTab}
-        queueCount={queueCount}
-        queueFeedbackActive={queueAddFeedback !== null}
-        setActiveTab={setActiveTab}
-        t={t}
-      />
     </main>
   );
 }
@@ -395,14 +493,24 @@ function AccountPanel({ controller }: { controller: RoomControllerState }) {
 
 function MyScreen({
   controller,
-  onQueueAddFeedback
+  onQueueAddFeedback,
+  onBack
 }: {
   controller: RoomControllerState;
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
+  onBack(): void;
 }) {
   const history = controller.songHistory;
   return (
     <div className="my-screen">
+      <header className="top-bar">
+        <div className="top-bar__heading">
+          <button className="secondary-button compact-button" type="button" onClick={onBack}>
+            返回
+          </button>
+          <h1>我的</h1>
+        </div>
+      </header>
       <AccountPanel controller={controller} />
       <section className="panel my-history-panel" aria-label="点歌历史">
         <div className="panel-heading">
@@ -445,7 +553,7 @@ function HistorySongRow({
   song
 }: {
   controller: RoomControllerState;
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   song: ControllerSongHistoryEntry;
 }) {
   const addAgain = () => {
@@ -471,22 +579,13 @@ function HistorySongRow({
   );
 }
 
-function AppNotices({
-  controller,
-  noticeMessage,
-  t
-}: {
-  controller: RoomControllerState;
-  noticeMessage: string | undefined;
-  t: TFunction;
-}) {
+function AppNotices({ controller, t }: { controller: RoomControllerState; t: TFunction }) {
   return (
     <>
       {controller.connectionStatus === "reconnecting" ? (
         <div className="offline-banner">{t("status.reconnecting")}</div>
       ) : null}
       {controller.errorMessage ? <div className="error-banner">{controller.errorMessage}</div> : null}
-      {noticeMessage ? <div className="error-banner">{noticeMessage}</div> : null}
     </>
   );
 }
@@ -500,6 +599,8 @@ function HomeScreen({
   openBrowseView,
   setInteractionComposer,
   setSearchOpen,
+  onOpenMirror,
+  onOpenProfile,
   t,
   visibleArtists,
   visibleGenres
@@ -507,11 +608,13 @@ function HomeScreen({
   browseView: BrowseView;
   controller: RoomControllerState;
   discovery: RoomControllerState["songDiscovery"];
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   goBackBrowseView(): void;
   openBrowseView(view: Exclude<BrowseView, { kind: "home" }>): void;
   setInteractionComposer(kind: RoomInteractionKind): void;
   setSearchOpen(open: boolean): void;
+  onOpenMirror(): void;
+  onOpenProfile(): void;
   t: TFunction;
   visibleArtists: readonly SongDiscoveryArtist[];
   visibleGenres: readonly SongDiscoveryGenre[];
@@ -538,6 +641,10 @@ function HomeScreen({
           <span>{controller.songSearchQuery || t("search.placeholder")}</span>
         </button>
         {controller.songSearchStatus === "loading" ? <span className="search-status">{t("search.loading")}</span> : null}
+        <LanguageSwitch />
+        <button className="profile-entry" type="button" aria-label={t("nav.my")} onClick={onOpenProfile}>
+          {t("nav.my")}
+        </button>
       </section>
 
       <section className="home-category-section" aria-label={t("discovery.categories")}>
@@ -567,6 +674,7 @@ function HomeScreen({
         />
         <ShortcutAction className="shortcut-action--roast" label={t("shortcut.roast")} icon="roast" onClick={() => setInteractionComposer("roast")} />
         <ShortcutAction className="shortcut-action--blessing" label={t("shortcut.blessing")} icon="blessing" onClick={() => setInteractionComposer("blessing")} />
+        <ShortcutAction className="shortcut-action--mirror" label={t("shortcut.mirror")} icon="mirror" onClick={onOpenMirror} />
       </section>
 
       <section className="recommendation-panel home-recommendations" aria-label={t("discovery.recommendations")}>
@@ -633,7 +741,7 @@ function ShortcutAction({
   onClick
 }: {
   className: string;
-  icon: "emoji" | "rainbow" | "roast" | "blessing";
+  icon: "emoji" | "rainbow" | "roast" | "blessing" | "mirror";
   label: string;
   onClick(): void;
 }) {
@@ -642,6 +750,166 @@ function ShortcutAction({
       <span className={`shortcut-action__icon shortcut-action__icon--${icon}`} aria-hidden="true" />
       <span>{label}</span>
     </button>
+  );
+}
+
+/** 自动播放被拦、或 jsdom 里 play() 未实现时都不要影响渲染。 */
+function playQuietly(video: HTMLVideoElement): void {
+  try {
+    const result: unknown = video.play();
+    if (result && typeof (result as Promise<void>).catch === "function") {
+      void (result as Promise<void>).catch(() => {});
+    }
+  } catch {
+    // 忽略：浏览器拒绝自动播放
+  }
+}
+
+/**
+ * 手机端静音预览电视画面。
+ *
+ * 打开时主动请求电视上报一次当前位置——定时心跳 10 秒一次，等下一次太久，
+ * 会明显对不上。拿到新位置前先不 seek，1.5 秒没等到就用快照里的旧值兜底。
+ */
+function TvMirrorOverlay({
+  roomSlug,
+  target,
+  onClose,
+  t
+}: {
+  roomSlug: string;
+  target: PlaybackTarget | null;
+  onClose(): void;
+  t: TFunction;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const alignedEntryRef = useRef<string | null>(null);
+  const reconfirmedEntryRef = useRef<string | null>(null);
+  const pendingFreshPositionRef = useRef(true);
+  const initialPositionRef = useRef(target?.resumePositionMs ?? null);
+  const latestTargetRef = useRef(target);
+
+  useEffect(() => {
+    latestTargetRef.current = target;
+  }, [target]);
+
+  const applyPosition = useCallback((video: HTMLVideoElement, positionMs: number) => {
+    const seconds = Math.max(0, positionMs) / 1000;
+    if (Number.isFinite(seconds) && seconds > 0) {
+      try {
+        video.currentTime = seconds;
+      } catch {
+        // 极端情况下仍然 seek 不了，退回从头播放
+      }
+    }
+    playQuietly(video);
+  }, []);
+
+  const alignToTarget = useCallback(
+    (video: HTMLVideoElement) => {
+      if (!target) {
+        return;
+      }
+      // metadata 没到之前 seek 会被浏览器直接忽略，等 loadedmetadata 再来
+      if (video.readyState < 1) {
+        return;
+      }
+
+      if (pendingFreshPositionRef.current) {
+        // 还在等电视回报新位置；和打开时那份一样就继续等
+        if (target.resumePositionMs === initialPositionRef.current) {
+          return;
+        }
+        pendingFreshPositionRef.current = false;
+      } else if (alignedEntryRef.current === target.queueEntryId) {
+        // 同一首歌已经对齐过，别再被后续快照拖回去
+        return;
+      }
+
+      alignedEntryRef.current = target.queueEntryId;
+      applyPosition(video, target.resumePositionMs);
+    },
+    [applyPosition, target]
+  );
+
+  useEffect(() => {
+    void requestPlayerPosition({ roomSlug }).catch(() => {
+      pendingFreshPositionRef.current = false;
+    });
+
+    const timeoutId = globalThis.setTimeout(() => {
+      if (!pendingFreshPositionRef.current) {
+        return;
+      }
+      // 电视没回位置（离线/被拦），用快照里的旧值兜底
+      pendingFreshPositionRef.current = false;
+      const video = videoRef.current;
+      const latest = latestTargetRef.current;
+      if (video && latest) {
+        alignedEntryRef.current = latest.queueEntryId;
+        applyPosition(video, latest.resumePositionMs);
+      }
+    }, 1500);
+
+    return () => globalThis.clearTimeout(timeoutId);
+  }, [applyPosition, roomSlug]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      alignToTarget(video);
+    }
+  }, [alignToTarget]);
+
+  // 定时 seek 会在播放中途把画面拽回去，看着就像重新播放，所以改成
+  // 只在真正开始播放时确认一次；同一首歌不重复动。
+  const reconfirmPosition = useCallback((video: HTMLVideoElement) => {
+    const latest = latestTargetRef.current;
+    if (!latest || reconfirmedEntryRef.current === latest.queueEntryId) {
+      return;
+    }
+    reconfirmedEntryRef.current = latest.queueEntryId;
+
+    const targetSeconds = latest.resumePositionMs / 1000;
+    if (targetSeconds <= 0) {
+      return;
+    }
+    if (Math.abs(targetSeconds - video.currentTime) > 3) {
+      try {
+        video.currentTime = targetSeconds;
+      } catch {
+        // seek 不了就保持当前进度
+      }
+    }
+  }, []);
+
+  return (
+    <div className="mirror-layer" role="dialog" aria-modal="true" aria-label={t("mirror.title")}>
+      <div className="mirror-layer__bar">
+        <span className="mirror-layer__heading">
+          {t("mirror.title")}
+          <span className="mirror-layer__hint">{t("mirror.mutedHint")}</span>
+        </span>
+        <button className="secondary-button compact-button" type="button" onClick={onClose}>
+          {t("button.close")}
+        </button>
+      </div>
+      {target ? (
+        <video
+          autoPlay
+          className="mirror-layer__video"
+          muted
+          onLoadedMetadata={(event) => alignToTarget(event.currentTarget)}
+          onPlaying={(event) => reconfirmPosition(event.currentTarget)}
+          playsInline
+          preload="metadata"
+          ref={videoRef}
+          src={target.playbackUrl}
+        />
+      ) : (
+        <p className="mirror-layer__empty">{t("mirror.empty")}</p>
+      )}
+    </div>
   );
 }
 
@@ -984,211 +1252,249 @@ function randomInteractionPreset(presets: readonly string[], current: string): s
   return pool[Math.floor(Math.random() * pool.length)] ?? current;
 }
 
-function ControlScreen({
+function MusicConsole({
   controller,
   current,
-  currentModeLabel,
-  optimisticQueueAdds,
-  playbackLabel,
-  snapshot,
+  queueCount,
   switchLabel,
   t,
-  volumePercent
+  volumePercent,
+  onOpenQueue
 }: {
   controller: RoomControllerState;
   current: NonNullable<RoomControllerState["snapshot"]>["currentTarget"] | undefined;
-  currentModeLabel: string;
-  optimisticQueueAdds: readonly OptimisticQueueAdd[];
-  playbackLabel: string;
-  snapshot: RoomControllerState["snapshot"];
+  queueCount: number;
   switchLabel: string;
   t: TFunction;
   volumePercent: number;
+  onOpenQueue(): void;
 }) {
-  const onlineTvCount = snapshot?.tvPresence.onlineCount ?? (snapshot?.tvPresence.online ? 1 : 0);
-  const tvStatusLabel =
-    onlineTvCount > 1
-      ? t("status.tvOnlineCount", { count: onlineTvCount })
-      : snapshot?.tvPresence.online
-        ? t("status.tvOnline")
-        : t("status.tvOffline");
+  const paused = controller.snapshot?.playbackPaused === true;
+  const adjustVolume = (delta: number) => {
+    const next = Math.min(100, Math.max(0, volumePercent + delta));
+    if (next !== volumePercent) {
+      controller.setVolumePercent(next);
+    }
+  };
 
   return (
-    <>
-      <header className="top-bar">
-        <div>
-          <h1>{t("header.title")}</h1>
-        </div>
-        <div className="top-actions">
-          <span className={snapshot?.tvPresence.online ? "status-pill online" : "status-pill offline"}>
-            {tvStatusLabel}
-          </span>
-          <LanguageSwitch />
-        </div>
-      </header>
-
-      <section className="panel current-panel" aria-label={t("current.aria")}>
-        <div>
-          <p className="eyebrow">{t("current.eyebrow")}</p>
-          <h2>{current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}</h2>
-          <p>{current?.currentQueueEntryPreview.artistName ?? t("current.emptyQueue")}</p>
-        </div>
-        <div className="current-meta">
-          <span className="playback-state-chip">{playbackLabel}</span>
-          <span>{currentModeLabel}</span>
-        </div>
-        <div className="volume-control">
-          <div className="volume-control__header">
-            <span className="volume-control__label">{t("volume.label")}</span>
-            <span className="volume-control__value">{t("volume.value", { value: volumePercent })}</span>
-          </div>
-          <input
-            aria-label={t("volume.aria")}
-            className="volume-slider"
-            type="range"
-            min="0"
-            max="100"
-            step="5"
-            value={volumePercent}
-            disabled={!snapshot}
-            onChange={(event) => controller.setVolumePercent(Number(event.currentTarget.value))}
-          />
-        </div>
-        <div className="command-row">
-          <button className="primary-button" type="button" disabled={!current} onClick={() => void controller.switchVocalMode()}>
-            {switchLabel}
-          </button>
-          <button className="danger-button" type="button" disabled={!current} onClick={controller.requestSkip}>
-            {t("button.skip")}
-          </button>
-        </div>
-      </section>
-
-      <section className="panel" aria-label={t("queue.aria")}>
-        <div className="panel-heading">
-          <h2>{t("queue.title")}</h2>
-          <button
-            className="secondary-button compact-button"
-            type="button"
-            disabled={(snapshot?.queue.length ?? 0) < 2}
-            onClick={() => void controller.shuffleQueue()}
-          >
-            {t("button.shuffle")}
-          </button>
-        </div>
-        <div className="queue-list">
-          {snapshot?.queue.length || optimisticQueueAdds.length ? (
-            <>
-              {snapshot?.queue.map((entry) => {
-                const undoExpiresAt =
-                  entry.undoExpiresAt ??
-                  (controller.pendingUndo?.queueEntryId === entry.queueEntryId ? controller.pendingUndo.undoExpiresAt : null);
-                const requesterLabel = queueRequesterLabel(entry, t);
-                const requesterToneClass = queueRequesterToneClass(entry);
-                return (
-                  <article className="queue-row" key={entry.queueEntryId}>
-                    <div>
-                      <strong>{entry.songTitle}</strong>
-                      <p className="queue-meta">
-                        <span>{entry.artistName}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className={`queue-requester ${requesterToneClass}`}>{requesterLabel}</span>
-                      </p>
-                      {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
-                    </div>
-                    <div className="row-actions">
-                      <button className="secondary-button" type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
-                        {t("button.promote")}
-                      </button>
-                      <button className="danger-button" type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
-                        {t("button.delete")}
-                      </button>
-                      {undoExpiresAt ? (
-                        <button className="secondary-button" type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
-                          {t("button.undo")}
-                        </button>
-                      ) : null}
-                    </div>
-                  </article>
-                );
-              })}
-              {optimisticQueueAdds.map((entry) => (
-                <article className="queue-row queue-row--pending" key={`pending-${entry.id}`}>
-                  <div>
-                    <strong>{entry.title}</strong>
-                    <p>{entry.artistName}</p>
-                    <small>{t("queue.pending")}</small>
-                  </div>
-                </article>
-              ))}
-            </>
-          ) : (
-            <p className="empty-state">{t("queue.empty")}</p>
-          )}
-        </div>
-      </section>
-    </>
+    <section className="music-console" aria-label={t("console.aria")}>
+      <div className="music-console__head">
+        <strong className="music-console__title">
+          {current?.currentQueueEntryPreview.songTitle ?? t("current.waiting")}
+        </strong>
+        <span className="music-console__artist">
+          {current?.currentQueueEntryPreview.artistName ?? t("console.idleHint")}
+        </span>
+      </div>
+      <div className="music-console__meta">
+        <span>{t("volume.label")}</span>
+        <span className="music-console__volume-value">{t("volume.value", { value: volumePercent })}</span>
+      </div>
+      <div className="music-console__controls">
+        <button
+          aria-label={t("volume.decrease")}
+          className="secondary-button compact-button volume-step volume-step--minus"
+          type="button"
+          onClick={() => adjustVolume(-5)}
+        >
+          −
+        </button>
+        <button
+          aria-label={t("volume.increase")}
+          className="secondary-button compact-button volume-step volume-step--plus"
+          type="button"
+          onClick={() => adjustVolume(5)}
+        >
+          +
+        </button>
+        <button
+          className="secondary-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={() => void controller.replayCurrent()}
+        >
+          {t("button.replay")}
+        </button>
+        <button
+          aria-label={switchLabel}
+          className="secondary-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={() => void controller.switchVocalMode()}
+        >
+          {resolveVocalButtonLabel(current?.vocalMode, controller.snapshot?.targetVocalMode, t)}
+        </button>
+        <button
+          className="secondary-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={() => void controller.togglePause()}
+        >
+          {paused ? t("button.resume") : t("button.pause")}
+        </button>
+        <button
+          className="danger-button compact-button"
+          disabled={!current}
+          type="button"
+          onClick={controller.requestSkip}
+        >
+          {t("button.skip")}
+        </button>
+        <button className="secondary-button compact-button music-console__playlist" type="button" onClick={onOpenQueue}>
+          {t("console.playlist")}
+          <span className="music-console__count">{queueCount > 99 ? "99+" : queueCount}</span>
+        </button>
+      </div>
+    </section>
   );
 }
 
-function BottomTabs({
-  activeTab,
-  queueCount,
-  queueFeedbackActive,
-  setActiveTab,
+function resolveVocalButtonLabel(
+  currentMode: VocalMode | undefined,
+  targetMode: VocalMode | null | undefined,
+  t: TFunction
+): string {
+  const resolved =
+    currentMode === "original" || currentMode === "instrumental"
+      ? currentMode
+      : targetMode === "original"
+        ? "original"
+        : "instrumental";
+  return resolved === "original" ? t("button.vocalOriginal") : t("button.vocalInstrumental");
+}
+
+function QueueDrawer({
+  controller,
+  open,
+  optimisticQueueAdds,
+  snapshot,
+  t,
+  onClose
+}: {
+  controller: RoomControllerState;
+  open: boolean;
+  optimisticQueueAdds: readonly OptimisticQueueAdd[];
+  snapshot: RoomControllerState["snapshot"];
+  t: TFunction;
+  onClose(): void;
+}) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="queue-drawer-layer">
+      <button aria-label={t("button.close")} className="queue-drawer-backdrop" type="button" onClick={onClose} />
+      <aside className="queue-drawer" role="region" aria-label={t("queue.aria")}>
+        <div className="queue-drawer__header">
+          <h2>{t("queue.title")}</h2>
+          <div className="queue-drawer__actions">
+            <button
+              className="secondary-button compact-button"
+              type="button"
+              disabled={(snapshot?.queue.length ?? 0) < 2}
+              onClick={() => void controller.shuffleQueue()}
+            >
+              {t("button.shuffle")}
+            </button>
+            <button className="secondary-button compact-button" type="button" onClick={onClose}>
+              {t("button.close")}
+            </button>
+          </div>
+        </div>
+        <QueueList controller={controller} optimisticQueueAdds={optimisticQueueAdds} snapshot={snapshot} t={t} />
+      </aside>
+    </div>
+  );
+}
+
+function QueueList({
+  controller,
+  optimisticQueueAdds,
+  snapshot,
   t
 }: {
-  activeTab: ControllerTab;
-  queueCount: number;
-  queueFeedbackActive: boolean;
-  setActiveTab(tab: ControllerTab): void;
+  controller: RoomControllerState;
+  optimisticQueueAdds: readonly OptimisticQueueAdd[];
+  snapshot: RoomControllerState["snapshot"];
   t: TFunction;
 }) {
-  const badgeLabel = queueCount > 99 ? "99+" : String(queueCount);
   return (
-    <nav className="bottom-tabs" aria-label={t("nav.aria")}>
-      <button
-        className={`bottom-tab ${activeTab === "home" ? "active" : ""}`}
-        type="button"
-        aria-current={activeTab === "home" ? "page" : undefined}
-        onClick={() => setActiveTab("home")}
-      >
-        <span className="bottom-tab__icon bottom-tab__icon--home" aria-hidden="true" />
-        <span>{t("nav.home")}</span>
-      </button>
-      <button
-        className={`bottom-tab ${activeTab === "control" ? "active" : ""} ${queueFeedbackActive ? "bottom-tab--queue-pulse" : ""}`}
-        type="button"
-        aria-current={activeTab === "control" ? "page" : undefined}
-        onClick={() => setActiveTab("control")}
-      >
-        <span className="bottom-tab__icon bottom-tab__icon--control" aria-hidden="true" />
-        {queueCount > 0 ? (
-          <span className="bottom-tab__badge" aria-hidden="true">
-            {badgeLabel}
-          </span>
-        ) : null}
-        <span>{t("nav.control")}</span>
-      </button>
-      <button
-        className={`bottom-tab ${activeTab === "my" ? "active" : ""}`}
-        type="button"
-        aria-current={activeTab === "my" ? "page" : undefined}
-        onClick={() => setActiveTab("my")}
-      >
-        <span className="bottom-tab__icon bottom-tab__icon--my" aria-hidden="true" />
-        <span>{t("nav.my")}</span>
-      </button>
-    </nav>
+    <div className="queue-list">
+      {snapshot?.queue.length || optimisticQueueAdds.length ? (
+        <>
+          {snapshot?.queue.map((entry) => {
+            const undoExpiresAt =
+              entry.undoExpiresAt ??
+              (controller.pendingUndo?.queueEntryId === entry.queueEntryId ? controller.pendingUndo.undoExpiresAt : null);
+            const requesterLabel = queueRequesterLabel(entry, t);
+            const requesterToneClass = queueRequesterToneClass(entry);
+            return (
+              <article className="queue-row" key={entry.queueEntryId}>
+                <div>
+                  <strong>{entry.songTitle}</strong>
+                  <p className="queue-meta">
+                    <span>{entry.artistName}</span>
+                    <span aria-hidden="true">·</span>
+                    <span className={`queue-requester ${requesterToneClass}`}>{requesterLabel}</span>
+                  </p>
+                  {undoExpiresAt ? <small>{t("queue.undoUntil", { time: formatTime(undoExpiresAt) })}</small> : null}
+                </div>
+                <div className="row-actions">
+                  <button className="secondary-button" type="button" disabled={!entry.canPromote} onClick={() => void controller.promoteQueueEntry(entry.queueEntryId)}>
+                    {t("button.promote")}
+                  </button>
+                  <button className="danger-button" type="button" disabled={!entry.canDelete} onClick={() => void controller.deleteQueueEntry(entry.queueEntryId)}>
+                    {t("button.delete")}
+                  </button>
+                  {undoExpiresAt ? (
+                    <button className="secondary-button" type="button" onClick={() => void controller.undoDelete(entry.queueEntryId)}>
+                      {t("button.undo")}
+                    </button>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })}
+          {optimisticQueueAdds.map((entry) => (
+            <article className="queue-row queue-row--pending" key={`pending-${entry.id}`}>
+              <div>
+                <strong>{entry.title}</strong>
+                <p>{entry.artistName}</p>
+                <small>{t("queue.pending")}</small>
+              </div>
+            </article>
+          ))}
+        </>
+      ) : (
+        <p className="empty-state">{t("queue.empty")}</p>
+      )}
+    </div>
   );
 }
 
 type TFunction = ReturnType<typeof useI18n>["t"];
 
-type ControllerTab = "home" | "control" | "my";
+type ControllerTab = "home" | "my";
 
 type QueueAddFeedback = {
   id: number;
+};
+
+type QueueAddFeedbackSong = {
+  artistName: string;
+  title: string;
+  /** 在线歌曲用来读实时状态；NAS 歌曲没有 */
+  providerId?: string | undefined;
+};
+
+/** 点歌后右上角的状态小标签，3 秒自己消失 */
+type QueueToast = {
+  id: number;
+  title: string;
+  /** 在线歌曲用来读实时状态；NAS 歌曲没有 */
+  providerId?: string | undefined;
 };
 
 type OptimisticQueueAdd = {
@@ -1212,7 +1518,14 @@ type DiscoveryDetailState = {
   status: "loading" | "success" | "error";
 };
 
+type ArtistListState = {
+  items: SongDiscoveryArtist[];
+  nextOffset: number | null;
+  status: "idle" | "loading" | "loadingMore" | "success" | "error";
+};
+
 const discoveryDetailPageSize = 60;
+const discoveryArtistsPageSize = 24;
 
 function isDiscoveryDetailView(view: BrowseView): view is DiscoveryDetailView {
   return view.kind === "artist" || view.kind === "genre";
@@ -1234,6 +1547,7 @@ function SearchOverlay({
   onClearHistory,
   onClose,
   onCommitHistory,
+  onQueueAddFeedback,
   t
 }: {
   controller: RoomControllerState;
@@ -1241,6 +1555,7 @@ function SearchOverlay({
   onClearHistory(): void;
   onClose(): void;
   onCommitHistory(query: string): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   t: TFunction;
 }) {
   const hasQuery = controller.songSearchQuery.trim().length > 0;
@@ -1254,35 +1569,36 @@ function SearchOverlay({
 
   return (
     <div className="search-overlay-backdrop">
-      <section className="search-overlay" role="dialog" aria-modal="true" aria-labelledby="search-overlay-title">
+      <section className="search-overlay" role="dialog" aria-modal="true" aria-label={t("search.title")}>
+        {/* 搜索框 + 搜索 + 返回 合成一行，整行吸顶 */}
         <div className="search-overlay__header">
-          <h2 id="search-overlay-title">{t("search.title")}</h2>
-          <button className="secondary-button compact-button" type="button" onClick={onClose}>
-            {t("button.close")}
+          <form
+            role="search"
+            className="search-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitSearch();
+            }}
+          >
+            <input
+              autoFocus
+              aria-label={t("search.inputAria")}
+              className="search-input"
+              value={controller.songSearchQuery}
+              onChange={(event) => controller.setSongSearchQuery(event.currentTarget.value)}
+              placeholder={t("search.placeholder")}
+            />
+            <button className="primary-button" type="submit">{t("search.submit")}</button>
+          </form>
+          <button className="primary-button search-overlay__back" type="button" onClick={onClose}>
+            {t("button.back")}
           </button>
         </div>
-        <form
-          role="search"
-          className="search-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            submitSearch();
-          }}
-        >
-          <input
-            autoFocus
-            aria-label={t("search.inputAria")}
-            className="search-input"
-            value={controller.songSearchQuery}
-            onChange={(event) => controller.setSongSearchQuery(event.currentTarget.value)}
-            placeholder={t("search.placeholder")}
-          />
-          <button className="primary-button" type="submit">{t("search.submit")}</button>
-        </form>
 
         {hasQuery ? (
           <SearchResults
             controller={controller}
+            onQueueAddFeedback={onQueueAddFeedback}
             t={t}
           />
         ) : (
@@ -1321,81 +1637,146 @@ function SearchOverlay({
 
 function SearchResults({
   controller,
+  onQueueAddFeedback,
   t
 }: {
   controller: RoomControllerState;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   t: TFunction;
 }) {
-  const nas = controller.songSearch?.nas ?? null;
+  const online = controller.songSearch?.online ?? null;
+  const onlineCandidates = online?.status === "available" ? online.candidates : [];
+  const nextOffset = online?.nextOffset ?? null;
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreSongSearch = controller.loadMoreSongSearch;
+
+  // 不用 IntersectionObserver：内容不满一屏时根本没有滚动，观察器只在
+  // 交叉状态变化时回调，一次都等不到。改成直接量哨兵位置，滚动和每次
+  // 加载完都检查一次，凑满一屏就停下来。
+  const checkAndLoadMore = useCallback(() => {
+    if (nextOffset == null) {
+      return;
+    }
+    const sentinel = sentinelRef.current;
+    if (!sentinel) {
+      return;
+    }
+    // 不留提前量：首屏 40 首本来就该停住，哨兵真正进视口才续拉
+    if (sentinel.getBoundingClientRect().top > window.innerHeight) {
+      return;
+    }
+    // 不在这里记「已触发」：首次调用时 loadMoreSongSearch 的闭包可能还是旧的
+    // （songSearch 尚未更新），一次就 return 掉，标记写死后再也试不了。
+    // 并发由内部 songSearchLoadingMoreRef 兜，重复调用是安全的。
+    void loadMoreSongSearch();
+  }, [loadMoreSongSearch, nextOffset]);
+
+  useEffect(() => {
+    // 延后一帧再量：effect 执行时哨兵可能刚挂载、还没参与布局
+    const timer = globalThis.setTimeout(checkAndLoadMore, 0);
+    // 搜索浮层自己是滚动容器，scroll 事件不冒泡到 window，必须用捕获
+    globalThis.addEventListener("scroll", checkAndLoadMore, { passive: true, capture: true });
+    return () => {
+      globalThis.clearTimeout(timer);
+      globalThis.removeEventListener("scroll", checkAndLoadMore, true);
+    };
+  }, [checkAndLoadMore, onlineCandidates.length]);
 
   return (
-    <div className="song-list search-overlay-results">
-      {nas ? (
-        <section className="indexed-panel" aria-label={t("search.indexedTitle")}>
+    <div className="search-overlay-results">
+      {onlineCandidates.length > 0 ? (
+        <section className="indexed-panel" aria-label={t("search.onlineTitle")}>
           <div className="panel-heading">
-            <h3>{t("search.indexedTitle")}</h3>
-            <span className={`search-status ${nas.status}`}>{nas.message}</span>
+            <h3>{t("search.onlineTitle")}</h3>
+            <span className="search-status available">{t("search.loadedCount", { count: onlineCandidates.length })}</span>
           </div>
-
-          {nas.results.length > 0 ? (
-            <div className="indexed-result-list compact-result-list">
-              {nas.results.map((result) => (
-                <SearchNasSongRows controller={controller} key={result.songId} result={result} t={t} />
-              ))}
-            </div>
-          ) : (
-            <p className="empty-state indexed-empty">{t("search.indexedEmpty")}</p>
-          )}
+          <div className="song-list recommendation-list">
+            {onlineCandidates.map((candidate) => (
+              <SearchOnlineSongRow
+                candidate={candidate}
+                controller={controller}
+                key={`${candidate.provider}:${candidate.providerCandidateId}`}
+                onQueueAddFeedback={onQueueAddFeedback}
+                t={t}
+              />
+            ))}
+          </div>
+          {nextOffset != null ? (
+            <div aria-hidden="true" className="discovery-sentinel" ref={sentinelRef} />
+          ) : null}
+          {controller.songSearchLoadingMore ? (
+            <p className="empty-state local-empty">{t("search.loadingMore")}</p>
+          ) : null}
         </section>
       ) : null}
 
-      {controller.songSearch && controller.songSearch.nas.results.length === 0 ? (
-        <p className="empty-state local-empty">{t("search.localEmpty")}</p>
+      {onlineCandidates.length === 0 ? (
+        <p className="empty-state local-empty">{t("search.onlineEmpty")}</p>
       ) : null}
     </div>
   );
 }
 
-function SearchNasSongRows({
+function SearchOnlineSongRow({
+  candidate,
   controller,
-  result,
+  onQueueAddFeedback,
   t
 }: {
+  candidate: OnlineCandidateCard;
   controller: RoomControllerState;
-  result: SongSearchNasResult;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   t: TFunction;
 }) {
-  return (
-    <>
-      {result.versions.map((version) => {
-        const isPending = controller.pendingNasAssetId === version.assetId;
-        const buttonLabel = indexedVersionButtonLabel(version, isPending, t);
-        const canClick = version.canQueue && !isPending;
+  const state = controller.onlineQueueState[candidate.providerCandidateId];
+  const busy = state?.status === "queuing" || state?.status === "preparing" || state?.status === "queued";
+  const label =
+    state?.status === "queuing"
+      ? t("search.onlineQueuing")
+      : state?.status === "preparing"
+        ? t("search.onlinePreparing")
+        : state?.status === "queued"
+          ? t("search.onlineQueued")
+          : state?.status === "failed"
+            ? t("search.onlineFailed")
+            : t("search.onlineQueue");
 
-        return (
-          <article className="song-row indexed-version-row compact-version-row" aria-label={version.displayName} key={version.assetId}>
-            <div className="compact-version-main">
-              <strong>{version.displayName}</strong>
-              <div className="compact-version-meta">
-                <span>{version.extension}</span>
-                <span>{version.sizeBytes == null ? t("search.unknownSize") : formatFileSize(version.sizeBytes)}</span>
-                {version.audioTrackCount === 1 ? (
-                  <span className="single-track-badge">{t("search.singleAudioTrackSource")}</span>
-                ) : null}
-              </div>
-            </div>
-            <button
-              className="primary-button compact-queue-button"
-              type="button"
-              disabled={!canClick}
-              onClick={() => (canClick ? controller.requestAddNasAsset(version.assetId, result.title, version.queueState) : undefined)}
-            >
-              {buttonLabel}
-            </button>
-          </article>
+  return (
+    <button
+      aria-label={`${label} ${candidate.title}`}
+      className={`song-row recommendation-row song-row--clickable${busy ? " song-row--busy" : ""}`}
+      disabled={busy}
+      type="button"
+      onClick={() => {
+        if (busy) {
+          return;
+        }
+        const accepted = controller.requestAddOnlineSong(
+          candidate.providerCandidateId,
+          candidate.title,
+          candidate.artistName,
+          candidate.nasAssetId,
+          candidate.nasQueueState
         );
-      })}
-    </>
+        if (accepted) {
+          onQueueAddFeedback({
+            artistName: candidate.artistName,
+            title: candidate.title,
+            providerId: candidate.providerCandidateId
+          });
+        }
+      }}
+    >
+      <div className="result-main">
+        <strong>
+          <ScrollingText text={candidate.title} />
+        </strong>
+        <p>
+          <ScrollingText text={candidate.artistName} />
+        </p>
+      </div>
+      {busy || state?.status === "failed" ? <span className="song-row__badge">{label}</span> : null}
+    </button>
   );
 }
 
@@ -1410,13 +1791,108 @@ function DiscoveryBrowseView({
 }: {
   controller: RoomControllerState;
   discovery: RoomControllerState["songDiscovery"];
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   goBackBrowseView(): void;
   openBrowseView(view: Exclude<BrowseView, { kind: "home" }>): void;
   t: TFunction;
   view: BrowseView;
 }) {
   const [detailPages, setDetailPages] = useState<Record<string, DiscoveryDetailState>>({});
+  const detailPagesRef = useRef<Record<string, DiscoveryDetailState>>({});
+  const [artistList, setArtistList] = useState<ArtistListState>({
+    items: [],
+    nextOffset: null,
+    status: "idle"
+  });
+  const artistSentinelRef = useRef<HTMLDivElement | null>(null);
+  const detailSentinelRef = useRef<HTMLDivElement | null>(null);
+  // 观察器每次重建都会立刻回调一次（哨兵已在视口内），不记一下就会
+  // 对着同一个 offset 反复发请求，把连接槽占满
+  const artistTriggerRef = useRef<string | null>(null);
+  const detailTriggerRef = useRef<string | null>(null);
+
+  // 歌手点歌从接口按热门分页取，不再用发现页首屏那 16 个
+  useEffect(() => {
+    if (view.kind !== "artists") {
+      return;
+    }
+    let cancelled = false;
+    setArtistList({ items: [], nextOffset: null, status: "loading" });
+    fetchDiscoveryArtists({
+      roomSlug: controller.roomSlug,
+      offset: 0,
+      limit: discoveryArtistsPageSize
+    })
+      .then((response) => {
+        if (cancelled) {
+          return;
+        }
+        setArtistList({ items: response.artists, nextOffset: response.nextOffset, status: "success" });
+      })
+      .catch(() => {
+        if (cancelled) {
+          return;
+        }
+        // 在线取不到时退回发现页自带的歌手，至少还能点
+        setArtistList({ items: discovery?.artists ?? [], nextOffset: null, status: "error" });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [controller.roomSlug, view.kind]);
+
+  const loadMoreArtists = useCallback(async () => {
+    const offset = artistList.nextOffset;
+    if (offset == null || (artistList.status !== "success" && artistList.status !== "loadingMore")) {
+      return;
+    }
+    if (artistList.status === "loadingMore") {
+      return;
+    }
+
+    setArtistList((current) => ({ ...current, status: "loadingMore" }));
+    try {
+      const response = await fetchDiscoveryArtists({
+        roomSlug: controller.roomSlug,
+        offset,
+        limit: discoveryArtistsPageSize
+      });
+      setArtistList((current) => ({
+        items: [...current.items, ...response.artists],
+        nextOffset: response.nextOffset,
+        status: "success"
+      }));
+    } catch {
+      setArtistList((current) => ({ ...current, status: "error" }));
+    }
+  }, [artistList.nextOffset, artistList.status, controller.roomSlug]);
+
+  // 滑到底部自动续拉；jsdom 里没有 IntersectionObserver，靠按钮兜底
+  useEffect(() => {
+    const sentinel = artistSentinelRef.current;
+    if (!sentinel || view.kind !== "artists" || artistList.nextOffset == null) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) {
+          return;
+        }
+        const token = String(artistList.nextOffset);
+        if (artistTriggerRef.current === token) {
+          return;
+        }
+        artistTriggerRef.current = token;
+        void loadMoreArtists();
+      },
+      { rootMargin: "160px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [artistList.nextOffset, loadMoreArtists, view.kind]);
   const detailKey = discoveryDetailKey(view);
   const loadDetailSongs = useCallback(
     async (detailView: DiscoveryDetailView, offset: number) => {
@@ -1483,9 +1959,52 @@ function DiscoveryBrowseView({
     void loadDetailSongs(view, 0);
   }, [detailKey, detailPages, loadDetailSongs, view]);
 
+  useEffect(() => {
+    detailPagesRef.current = detailPages;
+  }, [detailPages]);
+
+  // 换页时清空触发记录，重新进同一个歌手/风格还能继续续拉
+  useEffect(() => {
+    artistTriggerRef.current = null;
+    detailTriggerRef.current = null;
+  }, [detailKey, view]);
+
+  // 详情页（某歌手/某风格）滑到底部自动续拉，不再需要点按钮
+  useEffect(() => {
+    const sentinel = detailSentinelRef.current;
+    if (!sentinel || !isDiscoveryDetailView(view)) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) {
+          return;
+        }
+        const key = discoveryDetailKey(view);
+        const nextOffset = key ? detailPagesRef.current[key]?.nextOffset : null;
+        if (nextOffset == null) {
+          return;
+        }
+        const token = `${key}:${nextOffset}`;
+        if (detailTriggerRef.current === token) {
+          return;
+        }
+        detailTriggerRef.current = token;
+        void loadDetailSongs(view, nextOffset);
+      },
+      { rootMargin: "240px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+    // 哨兵要等第一页回来才渲染，detailPages 变化后必须重新挂观察器
+  }, [detailPages, loadDetailSongs, view]);
+
   if (view.kind === "artists" || view.kind === "genres") {
     const isArtists = view.kind === "artists";
-    const items = isArtists ? discovery?.artists ?? [] : discovery?.genres ?? [];
+    const items = isArtists ? artistList.items : discovery?.genres ?? [];
     return (
       <section className="panel discovery-panel">
         <div className="panel-heading">
@@ -1511,11 +2030,27 @@ function DiscoveryBrowseView({
                 }
               >
                 <strong>{label}</strong>
-                <span>{t("discovery.songCount", { count })}</span>
+                {count > 0 ? <span>{t("discovery.songCount", { count })}</span> : null}
               </button>
             );
           })}
         </div>
+        {isArtists && artistList.status === "loading" ? (
+          <p className="empty-state local-empty">{t("discovery.detailLoading")}</p>
+        ) : null}
+        {isArtists && artistList.nextOffset != null ? (
+          <>
+            <div aria-hidden="true" className="discovery-sentinel" ref={artistSentinelRef} />
+            <button
+              className="secondary-button compact-button discovery-load-more"
+              disabled={artistList.status === "loadingMore"}
+              type="button"
+              onClick={() => void loadMoreArtists()}
+            >
+              {artistList.status === "loadingMore" ? t("discovery.detailLoading") : t("button.loadMore")}
+            </button>
+          </>
+        ) : null}
       </section>
     );
   }
@@ -1529,7 +2064,7 @@ function DiscoveryBrowseView({
   const songs = detailState?.songs ?? view.item.songs;
   const loading = detailState?.status === "loading";
   return (
-    <section className="panel recommendation-panel">
+    <section className="panel recommendation-panel detail-panel">
       <div className="panel-heading">
         <h2>{title}</h2>
         <button className="secondary-button compact-button" type="button" onClick={goBackBrowseView}>
@@ -1547,19 +2082,62 @@ function DiscoveryBrowseView({
           />
         ))}
         {loading && songs.length === 0 ? <p className="empty-state local-empty">{t("discovery.detailLoading")}</p> : null}
-        {detailState?.status === "error" ? <p className="empty-state local-empty">{t("discovery.detailError")}</p> : null}
-        {isDiscoveryDetailView(view) && detailState?.nextOffset != null ? (
-          <button
-            className="secondary-button compact-button discovery-load-more"
-            disabled={loading}
-            type="button"
-            onClick={() => void loadDetailSongs(view, detailState.nextOffset ?? 0)}
-          >
-            {loading ? t("discovery.detailLoading") : t("button.loadMore")}
-          </button>
-        ) : null}
       </div>
+      {detailState?.status === "error" ? <p className="empty-state local-empty">{t("discovery.detailError")}</p> : null}
+      {/* 滑到这里就自动续拉，不再放按钮 */}
+      {isDiscoveryDetailView(view) && detailState?.nextOffset != null ? (
+        <div aria-hidden="true" className="discovery-sentinel" ref={detailSentinelRef} />
+      ) : null}
+      {loading && songs.length > 0 ? <p className="empty-state local-empty">{t("discovery.detailLoading")}</p> : null}
     </section>
+  );
+}
+
+/**
+ * 名字固定一行，宽度不够时横向滚动。
+ * 用实测溢出量驱动动画：列宽足够就一直静止，只有真放不下才滚。
+ */
+function ScrollingText({ text }: { text: string }) {
+  const outerRef = useRef<HTMLSpanElement>(null);
+  const innerRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const outer = outerRef.current;
+    const inner = innerRef.current;
+    if (!outer || !inner) {
+      return;
+    }
+
+    const measure = () => {
+      const distance = inner.scrollWidth - outer.clientWidth;
+      if (distance > 2) {
+        outer.style.setProperty("--scroll-distance", `${distance}px`);
+        // 按距离算时长：固定 6s 时短名字一闪而过、长名字慢得发飘，
+        // 统一成 55px/s 左右更稳
+        outer.style.setProperty("--scroll-duration", `${Math.max(2.4, distance / 55).toFixed(2)}s`);
+        outer.classList.add("scroll-text--running");
+        return;
+      }
+      outer.style.removeProperty("--scroll-distance");
+      outer.style.removeProperty("--scroll-duration");
+      outer.classList.remove("scroll-text--running");
+    };
+
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(outer);
+    return () => observer.disconnect();
+  }, [text]);
+
+  return (
+    <span className="scroll-text" ref={outerRef}>
+      <span className="scroll-text__inner" ref={innerRef}>
+        {text}
+      </span>
+    </span>
   );
 }
 
@@ -1570,68 +2148,73 @@ function DiscoverySongRow({
   t
 }: {
   controller: RoomControllerState;
-  onQueueAddFeedback(song: Pick<SongDiscoverySong, "artistName" | "title">): void;
+  onQueueAddFeedback(song: QueueAddFeedbackSong): void;
   song: SongDiscoverySong;
   t: TFunction;
 }) {
+  const isOnline = song.source === "online";
+  const onlineSongNumber = song.providerSongNumber ?? "";
+  const onlineState = onlineSongNumber ? controller.onlineQueueState[onlineSongNumber] : undefined;
   const primaryVersion = song.versions[0] ?? null;
-  const canQueue = primaryVersion ? primaryVersion.canQueue !== false : false;
-  const disabledLabel = primaryVersion ? disabledVersionLabel(primaryVersion) : "暂不可播放";
-  const addLabel = canQueue ? (song.queueState === "queued" ? t("button.addAgain") : t("button.add")) : disabledLabel;
-  const [coverUrl, setCoverUrl] = useState(song.coverThumbnailUrl ?? song.coverImageUrl ?? "");
-  const showCover = Boolean(coverUrl);
-
-  useEffect(() => {
-    setCoverUrl(song.coverThumbnailUrl ?? song.coverImageUrl ?? "");
-  }, [song.coverImageUrl, song.coverThumbnailUrl]);
-
+  const nasCanQueue = primaryVersion ? primaryVersion.canQueue !== false : false;
+  const onlineBusy =
+    onlineState?.status === "queuing" || onlineState?.status === "preparing" || onlineState?.status === "queued";
+  const canQueue = isOnline ? Boolean(onlineSongNumber) && !onlineBusy : nasCanQueue;
+  const addLabel = isOnline
+    ? onlineState?.status === "queuing"
+      ? t("search.onlineQueuing")
+      : onlineState?.status === "preparing"
+        ? t("search.onlinePreparing")
+        : onlineState?.status === "queued"
+          ? t("search.onlineQueued")
+          : onlineState?.status === "failed"
+            ? t("search.onlineFailed")
+            : t("search.onlineQueue")
+    : primaryVersion
+      ? canQueue
+        ? song.queueState === "queued"
+          ? t("button.addAgain")
+          : t("button.add")
+        : disabledVersionLabel(primaryVersion)
+      : "暂不可播放";
   return (
-    <article className="song-row recommendation-row">
-      <div className={`song-art ${showCover ? "song-art--image" : "song-art--fallback"}`} aria-hidden="true">
-        {showCover ? (
-          <img
-            alt=""
-            decoding="async"
-            draggable={false}
-            height={40}
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            src={coverUrl}
-            width={40}
-            onError={() => {
-              if (coverUrl === song.coverThumbnailUrl && song.coverImageUrl && song.coverImageUrl !== song.coverThumbnailUrl) {
-                setCoverUrl(song.coverImageUrl);
-                return;
-              }
-              setCoverUrl("");
-            }}
-          />
-        ) : (
-          <span>{song.title.trim().slice(0, 1) || "K"}</span>
-        )}
-      </div>
-      <div className="result-main">
-        <strong>{song.title}</strong>
-        <p>{song.artistName}</p>
-      </div>
-      <button
-        className="primary-button add-circle-button"
-        aria-label={`${addLabel} ${song.title}`}
-        disabled={!canQueue}
-        type="button"
-        onClick={() => {
-          if (!primaryVersion || !canQueue) {
+    <button
+      aria-label={`${addLabel} ${song.title}`}
+      className={`song-row recommendation-row song-row--clickable${onlineBusy ? " song-row--busy" : ""}`}
+      disabled={!canQueue}
+      type="button"
+      onClick={() => {
+        if (isOnline) {
+          if (!onlineSongNumber || onlineBusy) {
             return;
           }
-
-          if (controller.requestAddNasAsset(primaryVersion.assetId, song.title, primaryVersion.queueState)) {
-            onQueueAddFeedback(song);
+          if (controller.requestAddOnlineSong(onlineSongNumber, song.title, song.artistName)) {
+            onQueueAddFeedback({ artistName: song.artistName, title: song.title, providerId: onlineSongNumber });
           }
-        }}
-      >
-        {canQueue ? "+" : "·"}
-      </button>
-    </article>
+          return;
+        }
+
+        if (!primaryVersion || !nasCanQueue) {
+          return;
+        }
+
+        if (controller.requestAddNasAsset(primaryVersion.assetId, song.title, primaryVersion.queueState)) {
+          onQueueAddFeedback({ artistName: song.artistName, title: song.title });
+        }
+      }}
+    >
+      <div className="result-main">
+        <strong>
+          <ScrollingText text={song.title} />
+        </strong>
+        <p>
+          <ScrollingText text={song.artistName} />
+        </p>
+      </div>
+      {onlineBusy || (isOnline && onlineState?.status === "failed") ? (
+        <span className="song-row__badge">{addLabel}</span>
+      ) : null}
+    </button>
   );
 }
 
@@ -1692,45 +2275,7 @@ function queueRequesterToneClass(
   return `queue-requester--tone-${hash + 1}`;
 }
 
-function formatFileSize(sizeBytes: number | null): string {
-  if (sizeBytes == null) {
-    return "未知大小";
-  }
-
-  const units = ["B", "KB", "MB", "GB"] as const;
-  let value = Math.max(0, sizeBytes);
-  let unitIndex = 0;
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex += 1;
-  }
-  const fractionDigits = value >= 10 || unitIndex === 0 ? 0 : 1;
-  return `${value.toFixed(fractionDigits)} ${units[unitIndex]}`;
-}
-
 function disabledVersionLabel(version: { disabledLabel?: string | null }): string {
   return version.disabledLabel ?? "暂不可播放";
 }
 
-function indexedVersionButtonLabel(
-  version: { queueState: string; canQueue: boolean; disabledLabel?: string | null },
-  isPending: boolean,
-  t: ReturnType<typeof useI18n>["t"]
-): string {
-  if (isPending) {
-    return t("button.addingIndexed");
-  }
-  if (version.queueState === "queued") {
-    return t("search.indexedQueued");
-  }
-  if (version.canQueue) {
-    return t("button.addIndexed");
-  }
-  if (version.queueState === "source_missing") {
-    return version.disabledLabel ?? t("search.indexedStale");
-  }
-  if (version.queueState === "file_unreadable") {
-    return version.disabledLabel ?? t("search.indexedUnreadable");
-  }
-  return version.disabledLabel ?? t("search.indexedStale");
-}

@@ -59,7 +59,36 @@ async function buildSourceSwitchTarget(input: {
 }): Promise<SwitchTarget | null> {
   const source = sourceRefFromQueueEntry(input.queueEntry);
   const asset = await input.playableMedia.findPlayableBySource(source);
-  if (!asset || asset.status !== "ready" || asset.playbackProfile.kind !== "single_file_audio_tracks") {
+  if (!asset || asset.status !== "ready") {
+    return null;
+  }
+
+  // 浏览器（Chrome/Edge）没有 HTMLMediaElement.audioTracks，单文件切轨必然失败；
+  // 有抽出的伴奏文件时改用「换源」路径，原生端与 Web 端都能工作。
+  if (asset.variantFilePaths?.instrumental) {
+    const targetMode = nextRealMvVocalMode(committedVocalModeForQueueEntry(input.queueEntry));
+    const playbackUrl = input.mediaGateway.createPlaybackUrl(
+      targetMode === "instrumental" ? { ...source, variant: "instrumental" } : source
+    );
+    return {
+      roomId: input.roomId,
+      sessionVersion: input.sessionVersion,
+      queueEntryId: input.queueEntry.id,
+      switchKind: "asset",
+      sourceType: asset.sourceType,
+      fromAssetId: asset.assetId,
+      toAssetId: asset.assetId,
+      playbackUrl,
+      switchFamily: "real-mv-variant",
+      vocalMode: targetMode,
+      resumePositionMs: input.resumePositionMs,
+      rollbackAssetId: asset.assetId,
+      playbackProfile: asset.playbackProfile,
+      selectedTrackRef: null
+    };
+  }
+
+  if (asset.playbackProfile.kind !== "single_file_audio_tracks") {
     return null;
   }
 

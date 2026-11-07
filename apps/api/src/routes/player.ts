@@ -153,6 +153,24 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
     });
   });
 
+  /**
+   * 手机端请求电视立刻上报一次播放位置（同步画面用）。
+   * 只是触发一次心跳，不改变房间状态。
+   */
+  server.post<{ Params: { roomSlug: string } }>(
+    "/rooms/:roomSlug/player/position-request",
+    async (request, reply) => {
+      const room = await dependencies.repositories.rooms.findBySlug(request.params.roomSlug);
+      if (!room) {
+        await reply.code(404).send({ code: "ROOM_NOT_FOUND" });
+        return;
+      }
+
+      dependencies.broadcaster?.broadcastPlayerPositionRequest(room.slug);
+      await reply.send({ requested: true });
+    }
+  );
+
   server.post("/player/heartbeat", async (request, reply) => {
     const body = request.body as HeartbeatBody;
     const roomSlug = body.roomSlug ?? dependencies.config.roomSlug;
@@ -220,9 +238,10 @@ export async function registerPlayerRoutes(server: FastifyInstance, dependencies
         ...(dependencies.mediaGateway ? { mediaGateway: dependencies.mediaGateway } : {})
       });
 
-      if (result.snapshot) {
-        dependencies.broadcaster?.broadcastRoomSnapshot(roomSlug, result.snapshot);
-      }
+      // 推进后队列和播放地址都变了，重新构建一份完整控制快照推给所有端。
+      // result.snapshot 是推进瞬间的（state 还是 loading），电视收到后拿不到
+      // 下一首的 playbackUrl，primeActive 会挂到空源上，看着就是"播完停了"
+      await broadcastControlSnapshot(dependencies, roomSlug);
 
       request.log.info(
         terminalTelemetryResultLogPayload(body, roomSlug, result, snapshot),

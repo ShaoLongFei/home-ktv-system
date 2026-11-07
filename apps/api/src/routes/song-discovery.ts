@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import type {
+  EntityId,
   QueueEntry,
   SongDiscoveryArtist,
   SongDiscoveryGenre,
@@ -12,6 +13,8 @@ import type {
 import { songCoverKey } from "../modules/covers/types.js";
 import type { SongCoverRepository } from "../modules/covers/song-cover-repository.js";
 import type { KtvIndexReadRepository } from "../modules/ktv-index/ktv-index-read-repository.js";
+import type { OnlineCatalogCandidate } from "../modules/online/igeba/igeba-provider.js";
+import type { OnlineImportService } from "../modules/online/online-import-service.js";
 import type { QueueEntryRepository } from "../modules/playback/repositories/queue-entry-repository.js";
 import type { RoomRepository } from "../modules/rooms/repositories/room-repository.js";
 
@@ -23,6 +26,15 @@ export interface SongDiscoveryRouteDependencies {
     "searchIndexedSongs" | "listDiscoveryArtists" | "listDiscoveryGenres" | "listIndexedSongsByArtist" | "listIndexedSongsByGenre"
   >;
   songCovers?: Pick<SongCoverRepository, "findBySongKeys">;
+  onlineDiscovery?: Pick<
+    OnlineImportService,
+    | "discoverySingers"
+    | "discoverySingerPage"
+    | "discoveryStyles"
+    | "songsBySinger"
+    | "songsByStyle"
+    | "recommendedSongs"
+  >;
 }
 
 interface SongDiscoveryQuery {
@@ -62,17 +74,62 @@ export async function registerSongDiscoveryRoutes(
       ]);
       const songsWithCovers = await attachCoverImageUrls(songs, dependencies.songCovers);
       const weightedRecommendations = selectWeightedSongs(songsWithCovers, limit, seed);
-      const artists = fullArtists ?? buildArtistModules(songsWithCovers);
-      const genres = fullGenres ?? buildGenreModules(songsWithCovers);
+      // 三个在线请求互不依赖，串行 await 会白等两轮远程往返
+      const [onlineRecommended, onlineArtists, onlineGenres] = await Promise.all([
+        loadOnlineRecommendations(dependencies, limit),
+        loadOnlineArtists(dependencies),
+        loadOnlineGenres(dependencies)
+      ]);
+      const artists = onlineArtists ?? fullArtists ?? buildArtistModules(songsWithCovers);
+      // igeba 只有 10 个曲风，本地曲库里还标了不少细分标签，两者合并去重，
+      // 顺序保留 igeba 的原始分类，本地独有的接在后面。
+      const genres = mergeGenreModules(onlineGenres, fullGenres, buildGenreModules(songsWithCovers));
 
       const response: SongDiscoveryResponse = {
         seed,
-        recommended: surfaceCoveredSongs(weightedRecommendations, songsWithCovers, limit, seed),
+        recommended:
+          onlineRecommended ??
+          surfaceCoveredSongs(weightedRecommendations, songsWithCovers, limit, seed),
         artists,
         genres
       };
 
       await reply.send(response);
+    }
+  );
+
+  /** 歌手点歌列表分页：首屏之外下滑继续取热门歌手。 */
+  server.get<{ Params: { roomSlug: string }; Querystring: SongDiscoverySongsQuery }>(
+    "/rooms/:roomSlug/songs/discovery/artists",
+    async (request, reply) => {
+      const room = await dependencies.rooms.findBySlug(request.params.roomSlug);
+      if (!room) {
+        await reply.code(404).send({ code: "ROOM_NOT_FOUND" });
+        return;
+      }
+
+      const pageSize = Math.min(50, Math.max(1, parseSongsLimit(request.query.limit)));
+      const offset = parseOffset(request.query.offset);
+      if (!dependencies.onlineDiscovery?.discoverySingerPage) {
+        await reply.send({ artists: [], nextOffset: null });
+        return;
+      }
+
+      try {
+        const page = Math.floor(offset / pageSize) + 1;
+        const result = await dependencies.onlineDiscovery.discoverySingerPage({ page, pageSize });
+        const artists: SongDiscoveryArtist[] = result.singers.map((singer) => ({
+          artistId: singer.singerId as EntityId,
+          artistName: singer.singerName,
+          songCount: 0,
+          songs: []
+        }));
+        const loaded = page * pageSize;
+        const nextOffset = loaded < result.pageCount * pageSize ? loaded : null;
+        await reply.send({ artists, nextOffset });
+      } catch {
+        await reply.code(502).send({ code: "DISCOVERY_ARTISTS_FAILED" });
+      }
     }
   );
 
@@ -85,12 +142,18 @@ export async function registerSongDiscoveryRoutes(
         return;
       }
 
+      const page = parseSongsPage(request.query);
+      const online = await loadOnlineSongsBySinger(dependencies, request.params.artistId, page);
+      if (online) {
+        await reply.send(online);
+        return;
+      }
+
       if (!dependencies.ktvIndex?.listIndexedSongsByArtist) {
         await reply.send(emptySongsPage());
         return;
       }
 
-      const page = parseSongsPage(request.query);
       const queue = await dependencies.queueEntries.listEffectiveQueue(room.id);
       const records = await dependencies.ktvIndex.listIndexedSongsByArtist({
         artistId: request.params.artistId,
@@ -118,12 +181,23 @@ export async function registerSongDiscoveryRoutes(
       }
 
       const genre = String(request.query.genre ?? "").trim();
-      if (!genre || !dependencies.ktvIndex?.listIndexedSongsByGenre) {
+      if (!genre) {
         await reply.send(emptySongsPage());
         return;
       }
 
       const page = parseSongsPage(request.query);
+      const online = await loadOnlineSongsByStyle(dependencies, genre, page);
+      if (online) {
+        await reply.send(online);
+        return;
+      }
+
+      if (!dependencies.ktvIndex?.listIndexedSongsByGenre) {
+        await reply.send(emptySongsPage());
+        return;
+      }
+
       const queue = await dependencies.queueEntries.listEffectiveQueue(room.id);
       const records = await dependencies.ktvIndex.listIndexedSongsByGenre({
         genre,
@@ -140,6 +214,147 @@ export async function registerSongDiscoveryRoutes(
       await reply.send(response);
     }
   );
+}
+
+async function loadOnlineRecommendations(
+  dependencies: SongDiscoveryRouteDependencies,
+  limit: number
+): Promise<SongDiscoverySong[] | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const candidates = await dependencies.onlineDiscovery.recommendedSongs(Math.min(30, limit));
+    if (candidates.length === 0) {
+      return null;
+    }
+    return candidates.map((candidate) =>
+      onlineDiscoverySong(candidate, { artistId: candidate.artistName, genre: [] })
+    );
+  } catch {
+    return null;
+  }
+}
+
+async function loadOnlineArtists(
+  dependencies: SongDiscoveryRouteDependencies
+): Promise<SongDiscoveryArtist[] | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const singers = await dependencies.onlineDiscovery.discoverySingers(16);
+    if (singers.length === 0) {
+      return null;
+    }
+    return singers.map((singer) => ({
+      artistId: singer.singerId as EntityId,
+      artistName: singer.singerName,
+      songCount: 0,
+      songs: []
+    }));
+  } catch {
+    return null;
+  }
+}
+
+async function loadOnlineGenres(
+  dependencies: SongDiscoveryRouteDependencies
+): Promise<SongDiscoveryGenre[] | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const styles = await dependencies.onlineDiscovery.discoveryStyles();
+    if (styles.length === 0) {
+      return null;
+    }
+    return styles.map((style) => ({ genre: style, songCount: 0, songs: [] }));
+  } catch {
+    return null;
+  }
+}
+
+async function loadOnlineSongsBySinger(
+  dependencies: SongDiscoveryRouteDependencies,
+  singerId: string,
+  page: { limit: number; offset: number }
+): Promise<SongDiscoverySongsResponse | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const pageSize = Math.min(50, page.limit);
+    const result = await dependencies.onlineDiscovery.songsBySinger({
+      singerId,
+      page: Math.floor(page.offset / pageSize) + 1,
+      pageSize
+    });
+    if (!result) {
+      return null;
+    }
+    return onlineSongsPage(result, { artistId: singerId, genre: [] }, page);
+  } catch {
+    return null;
+  }
+}
+
+async function loadOnlineSongsByStyle(
+  dependencies: SongDiscoveryRouteDependencies,
+  style: string,
+  page: { limit: number; offset: number }
+): Promise<SongDiscoverySongsResponse | null> {
+  if (!dependencies.onlineDiscovery) {
+    return null;
+  }
+  try {
+    const pageSize = Math.min(50, page.limit);
+    const result = await dependencies.onlineDiscovery.songsByStyle({
+      style,
+      page: Math.floor(page.offset / pageSize) + 1,
+      pageSize
+    });
+    if (!result) {
+      return null;
+    }
+    return onlineSongsPage(result, { artistId: "", genre: [style] }, page);
+  } catch {
+    return null;
+  }
+}
+
+function onlineSongsPage(
+  result: { candidates: readonly OnlineCatalogCandidate[]; pageCount: number },
+  context: { artistId: string; genre: readonly string[] },
+  page: { limit: number; offset: number }
+): SongDiscoverySongsResponse {
+  const songs = result.candidates.map((candidate) => onlineDiscoverySong(candidate, context));
+  const pageNo = Math.floor(page.offset / Math.min(50, page.limit)) + 1;
+  return {
+    songs,
+    nextOffset: songs.length > 0 && pageNo < Math.max(1, result.pageCount) ? page.offset + songs.length : null
+  };
+}
+
+function onlineDiscoverySong(
+  candidate: OnlineCatalogCandidate,
+  context: { artistId: string; genre: readonly string[] }
+): SongDiscoverySong {
+  return {
+    source: "online",
+    songId: `online:${candidate.provider}:${candidate.providerSongId}` as SongId,
+    providerSongNumber: candidate.providerSongId,
+    title: candidate.title,
+    artistName: candidate.artistName,
+    language: "other",
+    matchReason: "default",
+    queueState: "not_queued",
+    artistId: (context.artistId || candidate.artistName) as EntityId,
+    genre: context.genre,
+    playCount: 0,
+    recommendationWeight: 0,
+    versions: []
+  };
 }
 
 async function attachCoverImageUrls(
@@ -406,6 +621,36 @@ function lastUncoveredSongIndex(songs: readonly SongDiscoverySong[]): number {
     }
   }
   return -1;
+}
+
+function mergeGenreModules(
+  ...sources: ReadonlyArray<readonly SongDiscoveryGenre[] | null>
+): SongDiscoveryGenre[] {
+  const merged: SongDiscoveryGenre[] = [];
+  const seen = new Set<string>();
+  for (const list of sources) {
+    for (const genre of list ?? []) {
+      for (const name of splitGenreNames(genre.genre)) {
+        if (seen.has(name)) {
+          continue;
+        }
+        seen.add(name);
+        merged.push({ genre: name, songCount: genre.songCount, songs: [] });
+      }
+    }
+  }
+  return merged;
+}
+
+/**
+ * 本地曲库的 style_tags 里混着「思恋;伤感」这种复合标签和「未打标签」这类占位值，
+ * 直接当分类列出来没法点。拆成单个标签，丢掉占位值。
+ */
+function splitGenreNames(raw: string): string[] {
+  return raw
+    .split(/[;；、,，/|]/u)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && part !== "未打标签" && part !== "未知");
 }
 
 function buildArtistModules(songs: readonly SongDiscoverySong[]): SongDiscoveryArtist[] {

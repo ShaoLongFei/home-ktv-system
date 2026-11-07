@@ -66,7 +66,7 @@ describe("room pairing tokens", () => {
     });
 
     expect(pairing.controllerUrl).toContain("http://10.91.130.150:5176/controller?token=");
-    expect(pairing.controllerUrl).not.toContain("room=");
+    expect(pairing.controllerUrl).toContain("&room=living-room");
     expect(pairing.controllerUrl).not.toContain("localhost:4000");
   });
 
@@ -89,7 +89,7 @@ describe("room pairing tokens", () => {
     });
 
     expect(pairing.controllerUrl).toContain("http://10.91.130.150:5176/controller?token=");
-    expect(pairing.controllerUrl).not.toContain("room=");
+    expect(pairing.controllerUrl).toContain("&room=living-room");
     expect(pairing.controllerUrl).not.toContain("localhost:4000/controller");
   });
 

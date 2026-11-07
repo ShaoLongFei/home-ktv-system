@@ -21,7 +21,8 @@
     "covers:status": "python3 ../../scripts/fetch_song_covers.py status",
     "sample:ktv-index": "tsx src/scripts/ktv-sample-index.ts",
     "test": "vitest run",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "igeba:load": "tsx src/scripts/igeba-library-load.ts"
   },
   "dependencies": {
     "@fastify/websocket": "11.2.0",

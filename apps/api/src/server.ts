@@ -9,6 +9,19 @@ import { loadConfig, normalizeApiConfig, type ApiConfig, type ApiConfigInput } f
 import { MediaPathResolver } from "./modules/assets/media-path-resolver.js";
 import { MediaGateway } from "./modules/media/media-gateway.js";
 import { NasPlayableMediaRepository } from "./modules/media/nas-playable-media-repository.js";
+import { IgebaClient } from "./modules/online/igeba/igeba-client.js";
+import { createIgebaProvider } from "./modules/online/igeba/igeba-provider.js";
+import {
+  InMemoryOnlineCatalogRepository,
+  PgOnlineCatalogRepository,
+  type OnlineCatalogRepository
+} from "./modules/online/online-catalog-repository.js";
+import { OnlineImportService } from "./modules/online/online-import-service.js";
+import {
+  InMemoryOnlineCatalogPromoter,
+  PgOnlineCatalogPromoter,
+  type OnlineCatalogPromoter
+} from "./modules/online/online-catalog-promoter.js";
 import type { PlayerDeviceSessionRepository } from "./modules/player/register-player.js";
 import {
   InMemoryControlSessionRepository,
@@ -27,6 +40,7 @@ import {
 } from "./modules/playback/repositories/room-session-command-repository.js";
 import { InMemoryRoomPairingTokenRepository } from "./modules/rooms/repositories/pairing-token-repository.js";
 import type { RoomRepository } from "./modules/rooms/repositories/room-repository.js";
+import { buildRoomControlSnapshot } from "./modules/rooms/build-control-snapshot.js";
 import { RoomSnapshotBroadcaster } from "./modules/realtime/room-snapshot-broadcaster.js";
 import {
   createPgRuntimeRepositories,
@@ -45,6 +59,9 @@ import { registerPlayerRoutes } from "./routes/player.js";
 import { registerRealtimeRoutes } from "./routes/realtime.js";
 import { registerRoomInteractionRoutes } from "./routes/room-interactions.js";
 import { registerRoomSnapshotRoutes } from "./routes/room-snapshots.js";
+import { registerOnlineCatalogRoutes } from "./routes/online-catalog.js";
+import { startPlaybackIfIdle } from "./modules/playback/session-command-service.js";
+import { registerRoomRoutes } from "./routes/rooms.js";
 import { registerSongDiscoveryRoutes } from "./routes/song-discovery.js";
 import { registerSongSearchRoutes } from "./routes/song-search.js";
 
@@ -94,10 +111,49 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     mediaRoot: resolvedConfig.mediaRoot,
     pathMappings: resolvedConfig.mediaPathMappings
   });
+  const onlineRepository: OnlineCatalogRepository = pool
+    ? new PgOnlineCatalogRepository(pool)
+    : new InMemoryOnlineCatalogRepository();
+  const onlinePromoter: OnlineCatalogPromoter = pool
+    ? new PgOnlineCatalogPromoter(pool)
+    : new InMemoryOnlineCatalogPromoter();
+  const onlineImport = createOnlineImportService(resolvedConfig, onlineRepository, onlinePromoter);
+  if (onlineImport) {
+    // 启动对账 + 每小时清理过期缓存与卡住的任务
+    void onlineImport.pruneExpired().catch(() => undefined);
+    // 回收 TV 端离线超过 1 小时的自建房
+  const sweepStaleRooms = async (): Promise<void> => {
+    if (!repositories.rooms.findStaleTvRooms || !repositories.rooms.delete) {
+      return;
+    }
+    const cutoff = new Date(Date.now() - 60 * 60 * 1000);
+    const staleRooms = await repositories.rooms.findStaleTvRooms({ cutoff });
+    for (const room of staleRooms) {
+      await repositories.rooms.delete(room.id);
+      server.log.info({ roomSlug: room.slug }, "stale TV room removed");
+    }
+  };
+  void sweepStaleRooms().catch(() => undefined);
+  const sweepTimer = setInterval(() => {
+    void sweepStaleRooms().catch(() => undefined);
+  }, 10 * 60 * 1000);
+  sweepTimer.unref?.();
+
+  // 历史缓存补齐伴奏变体（幂等，失败不影响启动）
+    void onlineImport.backfillVariants().catch(() => undefined);
+    const maintenanceTimer = setInterval(() => {
+      void onlineImport.pruneExpired().catch(() => undefined);
+    }, 60 * 60 * 1000);
+    maintenanceTimer.unref?.();
+    server.addHook("onClose", async () => {
+      clearInterval(maintenanceTimer);
+    });
+  }
   const mediaGateway = new MediaGateway({
     playableMedia: repositories.playableMedia ?? { findPlayableBySource: async () => null },
     mediaPathResolver,
-    publicBaseUrl: resolvedConfig.publicBaseUrl
+    publicBaseUrl: resolvedConfig.publicBaseUrl,
+    onlineAssets: onlineRepository
   });
   const broadcaster = new RoomSnapshotBroadcaster();
 
@@ -147,7 +203,8 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
     ...(mediaGateway ? { mediaGateway } : {})
   });
   await registerControllerAuthRoutes(server, {
-    controllerAuth: repositories.controllerAuth
+    controllerAuth: repositories.controllerAuth,
+    queueEntries: repositories.queueEntries
   });
   await registerControllerUserHistoryRoutes(server, {
     controllerAuth: repositories.controllerAuth,
@@ -173,13 +230,68 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   await registerSongSearchRoutes(server, {
     rooms: repositories.rooms,
     queueEntries: repositories.queueEntries,
-    ...(repositories.ktvIndex ? { ktvIndex: repositories.ktvIndex } : {})
+    ...(repositories.ktvIndex ? { ktvIndex: repositories.ktvIndex } : {}),
+    ...(onlineImport
+      ? {
+          onlineCatalog: {
+            search: (keyword: string, limit: number) => onlineImport.search(keyword, limit),
+            searchPage: (keyword: string, options: { page: number; pageSize: number }) =>
+              onlineImport.searchPage(keyword, options)
+          }
+        }
+      : {})
   });
+  if (onlineImport) {
+    let ensureInFlight: Promise<void> | null = null;
+    const ensurePlaybackStarted = async (room: Room): Promise<void> => {
+      if (ensureInFlight) {
+        return ensureInFlight;
+      }
+      ensureInFlight = (async () => {
+        const snapshot = await startPlaybackIfIdle({
+          config: resolvedConfig,
+          room,
+          repositories,
+          mediaGateway
+        });
+        if (snapshot) {
+          broadcaster.broadcastRoomSnapshot(room.slug, snapshot);
+        }
+      })().finally(() => {
+        ensureInFlight = null;
+      });
+      return ensureInFlight;
+    };
+
+    // 在线歌入库后会直接写队列，绕过了命令链路，所以这里必须补一次广播：
+    // 否则房间已在播放时 ensurePlaybackStarted 不产生快照，手机歌单和电视都收不到新歌。
+    const broadcastRoomSnapshot = async (room: Room): Promise<void> => {
+      const snapshot = await buildRoomControlSnapshot({
+        roomSlug: room.slug,
+        config: resolvedConfig,
+        repositories,
+        ...(mediaGateway ? { mediaGateway } : {})
+      });
+      if (snapshot) {
+        broadcaster.broadcastRoomSnapshot(room.slug, snapshot);
+      }
+    };
+
+    await registerOnlineCatalogRoutes(server, {
+      rooms: repositories.rooms,
+      onlineImport,
+      queueEntries: repositories.queueEntries,
+      ensurePlaybackStarted,
+      broadcastRoomSnapshot
+    });
+  }
+  await registerRoomRoutes(server, { rooms: repositories.rooms });
   await registerSongDiscoveryRoutes(server, {
     rooms: repositories.rooms,
     queueEntries: repositories.queueEntries,
     ...(repositories.ktvIndex ? { ktvIndex: repositories.ktvIndex } : {}),
-    ...(repositories.songCovers ? { songCovers: repositories.songCovers } : {})
+    ...(repositories.songCovers ? { songCovers: repositories.songCovers } : {}),
+    ...(onlineImport ? { onlineDiscovery: onlineImport } : {})
   });
   await registerRoomInteractionRoutes(server, {
     rooms: repositories.rooms,
@@ -194,6 +306,36 @@ export async function createServer(config: ApiConfigInput = loadConfig(), option
   });
 
   return server;
+}
+
+function createOnlineImportService(
+  config: ApiConfig,
+  repository: OnlineCatalogRepository,
+  promoter: OnlineCatalogPromoter
+): OnlineImportService | undefined {
+  const igeba = config.igeba;
+  if (!igeba?.enabled || !igeba.cacheDir) {
+    return undefined;
+  }
+
+  const client = new IgebaClient({
+    baseUrl: igeba.baseUrl,
+    uid: igeba.uid,
+    minIntervalMs: igeba.minIntervalMs,
+    requestTimeoutMs: igeba.requestTimeoutMs,
+    resolveAttempts: igeba.resolveAttempts
+  });
+
+  return new OnlineImportService({
+    provider: createIgebaProvider(client),
+    repository,
+    promoter,
+    cacheDir: igeba.cacheDir,
+    concurrency: igeba.concurrency,
+    cacheMaxBytes: igeba.cacheMaxBytes,
+    cacheMaxItems: igeba.cacheMaxItems,
+    cacheTtlDays: igeba.cacheTtlDays
+  });
 }
 
 function createPgPool(databaseUrl: string): Pool {

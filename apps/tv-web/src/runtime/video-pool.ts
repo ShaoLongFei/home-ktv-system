@@ -54,6 +54,11 @@ export class DualVideoPool {
   }
 
   primeActive(target: PlaybackTarget): void {
+    // 任何残留的 standby 都必须停掉，否则会出现两路声音叠加。
+    this.standbyVideo.pause();
+    this.standbyVideo.hidden = true;
+    this.standbyVideo.src = "";
+    this.standbyTarget = null;
     this.activeTarget = target;
     this.activeVideo.src = target.playbackUrl;
     this.activeVideo.currentTime = msToSeconds(target.resumePositionMs);
@@ -81,7 +86,8 @@ export class DualVideoPool {
     this.standbyTarget = target;
     this.standbyVideo.src = target.playbackUrl;
     this.standbyVideo.currentTime = msToSeconds(target.resumePositionMs);
-    this.standbyVideo.muted = this.activeVideo.muted;
+    // 预加载阶段必须静音：否则 standby 与原视频同时出声，出现「双重原唱」。
+    this.standbyVideo.muted = true;
     this.standbyVideo.volume = this.activeVideo.volume ?? normalizeVolume(DEFAULT_ROOM_VOLUME_PERCENT);
     this.standbyVideo.hidden = false;
     this.standbyVideo.load();
@@ -96,6 +102,14 @@ export class DualVideoPool {
     if (!this.standbyTarget) {
       return this.activeTarget;
     }
+
+    // 对齐进度再切换，避免 standby 预加载耗时导致的声音回跳/错位。
+    const resumeSeconds = this.activeVideo.currentTime;
+    if (Math.abs(this.standbyVideo.currentTime - resumeSeconds) > 0.25) {
+      this.standbyVideo.currentTime = resumeSeconds;
+    }
+    this.standbyVideo.muted = this.activeVideo.muted;
+    this.standbyVideo.volume = this.activeVideo.volume ?? normalizeVolume(DEFAULT_ROOM_VOLUME_PERCENT);
 
     this.activeVideo.pause();
     this.activeVideo.hidden = true;
@@ -116,6 +130,7 @@ export class DualVideoPool {
   rollback(): void {
     this.standbyVideo.pause();
     this.standbyVideo.hidden = true;
+    this.standbyVideo.muted = false;
     this.standbyVideo.src = "";
     this.standbyTarget = null;
     this.activeTarget = this.previousTarget ?? this.activeTarget;

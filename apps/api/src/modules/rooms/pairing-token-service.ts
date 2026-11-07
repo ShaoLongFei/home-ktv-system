@@ -68,7 +68,9 @@ export async function verifyPairingToken(input: VerifyPairingTokenInput): Promis
 
 export function toPairingInfo(input: ToPairingInfoInput): PairingInfo {
   const baseUrl = (input.controllerBaseUrl ?? input.publicBaseUrl).trim().replace(/\/$/, "");
-  const controllerUrl = `${baseUrl || ""}/controller?token=${encodeURIComponent(input.token)}`;
+  const controllerUrl =
+    `${baseUrl || ""}/controller?token=${encodeURIComponent(input.token)}` +
+    `&room=${encodeURIComponent(input.roomSlug)}`;
 
   return {
     roomSlug: input.roomSlug,

@@ -4,6 +4,24 @@ import type { DualVideoPool } from "./video-pool.js";
 
 type PlaybackProfile = NonNullable<PlaybackTarget["playbackProfile"]>;
 
+const AUDIO_UNLOCK_KEY = "ktv_audio_unlocked";
+
+export function markAudioUnlocked(): void {
+  try {
+    globalThis.sessionStorage?.setItem(AUDIO_UNLOCK_KEY, "1");
+  } catch {
+    // 隐私模式下没有 sessionStorage，忽略
+  }
+}
+
+function isAudioUnlocked(): boolean {
+  try {
+    return globalThis.sessionStorage?.getItem(AUDIO_UNLOCK_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export type ActivePlaybackResult =
   | { status: "playing"; warning?: string }
   | { status: "blocked"; message: string }
@@ -36,7 +54,10 @@ export class ActivePlaybackController {
     }
 
     const targetChanged = !isSamePlaybackTarget(this.videoPool.activeTarget, snapshot.currentTarget);
-    if (targetChanged) {
+    // 同一条队列项也可能换了播放地址（重新准备/转码完成），只看 id 会漏掉，
+    // 电视上就会一直放着上一次的源，直到有人点一下才重载
+    const urlChanged = this.videoPool.activeTarget?.playbackUrl !== snapshot.currentTarget.playbackUrl;
+    if (targetChanged || urlChanged) {
       this.videoPool.primeActive(snapshot.currentTarget);
     }
 
@@ -63,7 +84,10 @@ export class ActivePlaybackController {
       return { status: "playing" };
     }
 
-    const shouldTemporarilyMute = targetChanged && this.videoPool.activeVideo.paused;
+    // 用户在这个会话里点过屏幕，浏览器已经放行，刷新后也可以直接出声，
+    // 不用再走"先静音再取消静音"那一套
+    const shouldTemporarilyMute =
+      targetChanged && this.videoPool.activeVideo.paused && !isAudioUnlocked();
     const previousMuted = this.videoPool.activeVideo.muted;
     if (shouldTemporarilyMute) {
       this.videoPool.activeVideo.muted = true;
@@ -72,7 +96,21 @@ export class ActivePlaybackController {
     try {
       await this.videoPool.playActiveUntilReady();
       if (shouldTemporarilyMute) {
-        this.videoPool.activeVideo.muted = previousMuted;
+        const video = this.videoPool.activeVideo;
+        video.muted = previousMuted;
+        // 页面刷新后没有任何用户交互，浏览器允许静音自动播放，但一取消静音
+        // 就会把播放暂停。宁可先不出声，也不能让画面停住等人来点一下。
+        if (previousMuted === false) {
+          await new Promise((resolve) => setTimeout(resolve, 80));
+          if (video.paused) {
+            video.muted = true;
+            try {
+              await video.play();
+            } catch {
+              // 还播不了就交给上层提示
+            }
+          }
+        }
       }
       return playbackWarning ? { status: "playing", warning: playbackWarning } : { status: "playing" };
     } catch (error) {
